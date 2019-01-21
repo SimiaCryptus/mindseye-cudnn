@@ -29,7 +29,7 @@ import java.util.Random;
 /**
  * The type Product key apply.
  */
-public abstract class GateBiasLayerTest extends CudaLayerTestBase {
+public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
 
   /**
    * The Precision.

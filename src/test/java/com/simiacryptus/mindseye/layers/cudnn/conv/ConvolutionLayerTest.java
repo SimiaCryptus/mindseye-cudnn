@@ -22,7 +22,7 @@ package com.simiacryptus.mindseye.layers.cudnn.conv;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
-import com.simiacryptus.mindseye.layers.cudnn.CudaLayerTestBase;
+import com.simiacryptus.mindseye.layers.cudnn.CudnnLayerTestBase;
 import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.BatchingTester;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 /**
  * The type Convolution key apply.
  */
-public abstract class ConvolutionLayerTest extends CudaLayerTestBase {
+public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
   /**
    * The Input bands.

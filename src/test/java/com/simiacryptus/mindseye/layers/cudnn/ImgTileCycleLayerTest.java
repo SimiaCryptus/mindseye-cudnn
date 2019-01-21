@@ -28,7 +28,7 @@ import java.util.Random;
 /**
  * The type Img crop key apply.
  */
-public abstract class ImgTileCycleLayerTest extends CudaLayerTestBase {
+public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
 
   /**
    * Instantiates a new Img crop key apply.

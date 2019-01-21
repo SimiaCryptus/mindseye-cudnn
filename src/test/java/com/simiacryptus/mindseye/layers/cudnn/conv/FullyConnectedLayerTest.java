@@ -20,7 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn.conv;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.mindseye.layers.cudnn.CudaLayerTestBase;
+import com.simiacryptus.mindseye.layers.cudnn.CudnnLayerTestBase;
 import com.simiacryptus.mindseye.layers.java.FullyConnectedReferenceLayer;
 import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.BatchingTester;
@@ -34,7 +34,7 @@ import java.util.Random;
 /**
  * The type Fully connected key apply.
  */
-public abstract class FullyConnectedLayerTest extends CudaLayerTestBase {
+public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
   /**
    * The Input dim.

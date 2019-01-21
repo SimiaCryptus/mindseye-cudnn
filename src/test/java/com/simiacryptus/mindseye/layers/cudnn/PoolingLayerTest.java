@@ -29,7 +29,7 @@ import java.util.Random;
 /**
  * The type Pooling key apply.
  */
-public abstract class PoolingLayerTest extends CudaLayerTestBase {
+public abstract class PoolingLayerTest extends CudnnLayerTestBase {
 
   /**
    * The Precision.

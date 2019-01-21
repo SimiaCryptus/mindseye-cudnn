@@ -29,7 +29,7 @@ import java.util.Random;
 /**
  * The type Product key apply.
  */
-public abstract class NProductLayerTest extends CudaLayerTestBase {
+public abstract class NProductLayerTest extends CudnnLayerTestBase {
 
   /**
    * The Precision.

@@ -33,7 +33,7 @@ import java.util.Random;
 /**
  * The type Product key apply.
  */
-public abstract class SquareActivationLayerTest extends CudaLayerTestBase {
+public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
 
   /**
    * The Precision.

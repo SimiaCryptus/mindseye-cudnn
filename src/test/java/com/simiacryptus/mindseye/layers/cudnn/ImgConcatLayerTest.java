@@ -34,7 +34,7 @@ import java.util.stream.IntStream;
 /**
  * The type Img eval key apply.
  */
-public abstract class ImgConcatLayerTest extends CudaLayerTestBase {
+public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
 
   private final Precision precision;
   private final int[] bandSeq;

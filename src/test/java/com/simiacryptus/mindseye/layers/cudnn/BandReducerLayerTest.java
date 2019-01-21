@@ -29,7 +29,7 @@ import java.util.Random;
 /**
  * The type Img band bias key apply.
  */
-public abstract class BandReducerLayerTest extends CudaLayerTestBase {
+public abstract class BandReducerLayerTest extends CudnnLayerTestBase {
 
   /**
    * The Precision.

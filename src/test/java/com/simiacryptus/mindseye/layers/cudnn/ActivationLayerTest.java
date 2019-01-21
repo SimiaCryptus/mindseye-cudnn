@@ -38,7 +38,7 @@ import java.util.stream.IntStream;
 /**
  * The type Activation key apply.
  */
-public abstract class ActivationLayerTest extends CudaLayerTestBase {
+public abstract class ActivationLayerTest extends CudnnLayerTestBase {
 
   /**
    * The Mode.

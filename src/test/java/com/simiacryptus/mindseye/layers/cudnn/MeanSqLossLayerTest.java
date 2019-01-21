@@ -27,7 +27,7 @@ import java.util.Random;
 /**
  * The type Mean sq loss key apply.
  */
-public abstract class MeanSqLossLayerTest extends CudaLayerTestBase {
+public abstract class MeanSqLossLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override

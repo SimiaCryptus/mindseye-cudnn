@@ -29,7 +29,7 @@ import java.util.Random;
 /**
  * The type Rascaled subnet key apply.
  */
-public abstract class ImgTileSubnetLayerTest extends CudaLayerTestBase {
+public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
 
   private final ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1).set(() -> this.random());
 

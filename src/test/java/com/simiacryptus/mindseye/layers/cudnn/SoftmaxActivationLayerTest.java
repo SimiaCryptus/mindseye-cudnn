@@ -27,7 +27,7 @@ import java.util.Random;
 /**
  * The type Softmax activation key apply.
  */
-public abstract class SoftmaxActivationLayerTest extends CudaLayerTestBase {
+public abstract class SoftmaxActivationLayerTest extends CudnnLayerTestBase {
 
   private final SoftmaxActivationLayer.SoftmaxAlgorithm algorithm;
   private final SoftmaxActivationLayer.SoftmaxMode mode;

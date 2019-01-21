@@ -28,7 +28,7 @@ import java.util.Random;
 /**
  * The type Fully connected key apply.
  */
-public abstract class GramianLayerTest extends CudaLayerTestBase {
+public abstract class GramianLayerTest extends CudnnLayerTestBase {
 
   /**
    * Instantiates a new Gramian key test.

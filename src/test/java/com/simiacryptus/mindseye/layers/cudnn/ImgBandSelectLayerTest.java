@@ -29,7 +29,7 @@ import java.util.Random;
 /**
  * The type Img eval key apply.
  */
-public abstract class ImgBandSelectLayerTest extends CudaLayerTestBase {
+public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 
   /**
    * The Precision.

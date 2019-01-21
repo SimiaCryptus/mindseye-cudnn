@@ -28,7 +28,7 @@ import java.util.Random;
 /**
  * The type Rascaled subnet key apply.
  */
-public abstract class ImgLinearSubnetLayerTest extends CudaLayerTestBase {
+public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
 
   private final Layer layer1 = new ActivationLayer(ActivationLayer.Mode.RELU);
   private final Layer layer2 = new ActivationLayer(ActivationLayer.Mode.RELU);

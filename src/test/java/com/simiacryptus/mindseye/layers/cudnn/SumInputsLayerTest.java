@@ -36,7 +36,7 @@ import java.util.stream.IntStream;
 /**
  * The type BinarySumLayerTest key apply.
  */
-public abstract class SumInputsLayerTest extends CudaLayerTestBase {
+public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
 
   private static int largeSize;
   /**
@@ -104,7 +104,7 @@ public abstract class SumInputsLayerTest extends CudaLayerTestBase {
   /**
    * Ensures addition can be used to implement a doubling (x2) function
    */
-  public static class OnePlusOne extends CudaLayerTestBase {
+  public static class OnePlusOne extends CudnnLayerTestBase {
 
 
     /**

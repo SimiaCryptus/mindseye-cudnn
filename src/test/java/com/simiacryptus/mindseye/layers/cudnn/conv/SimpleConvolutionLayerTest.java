@@ -22,7 +22,7 @@ package com.simiacryptus.mindseye.layers.cudnn.conv;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
-import com.simiacryptus.mindseye.layers.cudnn.CudaLayerTestBase;
+import com.simiacryptus.mindseye.layers.cudnn.CudnnLayerTestBase;
 import com.simiacryptus.mindseye.layers.java.EntropyLossLayer;
 import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.*;
@@ -36,7 +36,7 @@ import java.util.Random;
 /**
  * The type Simple convolution key apply.
  */
-public abstract class SimpleConvolutionLayerTest extends CudaLayerTestBase {
+public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   /**
    * The Radius.
