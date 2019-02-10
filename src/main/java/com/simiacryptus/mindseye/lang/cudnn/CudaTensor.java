@@ -23,7 +23,7 @@ import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.mindseye.lang.RecycleBin;
 import com.simiacryptus.mindseye.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.Tensor;
-import com.simiacryptus.mindseye.test.TestUtil;
+import com.simiacryptus.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
   /**
    * The Created by.
    */
-  public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().isProfileMemoryIO() ? TestUtil.getStackTrace() : new StackTraceElement[]{};
+  public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getStackTrace() : new StackTraceElement[]{};
   /**
    * The Memory.
    */
@@ -120,8 +120,8 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
       TimedResult<CudaMemory> timedResult = TimedResult.time(() -> memory.copy(cudaDevice, memoryType));
       CudaTensorList.logger.debug(String.format("Copy %s bytes in %.4f from Tensor %s on GPU %s to %s at %s, created by %s",
           memory.size, timedResult.seconds(), Integer.toHexString(System.identityHashCode(this)), memory.getDeviceId(), cudaDevice.getDeviceId(),
-          TestUtil.toString(TestUtil.getStackTrace()).replaceAll("\n", "\n\t"),
-          TestUtil.toString(createdBy).replaceAll("\n", "\n\t")));
+          Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
+          Util.toString(createdBy).replaceAll("\n", "\n\t")));
       return timedResult.result;
     }
   }
@@ -174,8 +174,8 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     assert cudaTensor.isDense();
     CudaTensorList.logger.debug(String.format("Densified %s bytes in %.4f from GPU %s at %s, created by %s",
         cudaTensor.memory.size, timedResult.seconds(), Integer.toHexString(System.identityHashCode(this)),
-        TestUtil.toString(TestUtil.getStackTrace()).replaceAll("\n", "\n\t"),
-        TestUtil.toString(createdBy).replaceAll("\n", "\n\t")));
+        Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
+        Util.toString(createdBy).replaceAll("\n", "\n\t")));
     return cudaTensor;
 
   }

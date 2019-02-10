@@ -21,7 +21,7 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.simiacryptus.mindseye.lang.*;
-import com.simiacryptus.mindseye.test.TestUtil;
+import com.simiacryptus.util.Util;
 import jcuda.Pointer;
 import jcuda.jcudnn.*;
 
@@ -266,8 +266,8 @@ public class CudnnHandle extends CudaDevice {
         CudaTensorList.logger.warn(String.format("Incompatible precision types %s != %s for Tensor %s in GPU at %s, created by %s",
             precision, cudaTensorList.getPrecision(),
             Integer.toHexString(System.identityHashCode(cudaTensorList)),
-            TestUtil.toString(TestUtil.getStackTrace()).replaceAll("\n", "\n\t"),
-            TestUtil.toString(cudaTensorList.createdBy).replaceAll("\n", "\n\t")));
+            Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
+            Util.toString(cudaTensorList.createdBy).replaceAll("\n", "\n\t")));
       }
     }
     final int listLength = data.length();

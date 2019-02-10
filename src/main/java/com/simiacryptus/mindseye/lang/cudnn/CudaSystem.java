@@ -27,7 +27,7 @@ import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.mindseye.lang.CoreSettings;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.TensorList;
-import com.simiacryptus.mindseye.test.TestUtil;
+import com.simiacryptus.util.Util;
 import com.simiacryptus.util.data.DoubleStatistics;
 import jcuda.jcudnn.*;
 import jcuda.runtime.JCuda;
@@ -357,7 +357,7 @@ public class CudaSystem {
    * @return the header
    */
   public static String getHeader() {
-    return TestUtil.toString(CudaSystem::printHeader);
+    return Util.toString(CudaSystem::printHeader);
   }
 
   /**
@@ -952,7 +952,7 @@ public class CudaSystem {
    * @param args   the args
    */
   public static void log(final CharSequence method, final Object result, @Nullable final Object[] args) {
-    CharSequence callstack = !CudaSettings.INSTANCE().isLogStack() ? "" : TestUtil.toString(Arrays.stream(Thread.currentThread().getStackTrace())
+    CharSequence callstack = !CudaSettings.INSTANCE().isLogStack() ? "" : Util.toString(Arrays.stream(Thread.currentThread().getStackTrace())
         .filter(x -> true
                 && x.getClassName().startsWith("com.simiacryptus.mindseye.")
             //&& !x.getClassName().startsWith("com.simiacryptus.mindseye.lang.")
@@ -1213,7 +1213,7 @@ public class CudaSystem {
     if (null == val) val = 0L;
     if (null == val || val < time) {
       final Long finalVal = val;
-      CharSequence caller = !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : TestUtil.getCaller();
+      CharSequence caller = !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller();
       withDevice(device, gpu -> {
         if (null == finalVal || finalVal < time) {
           synchronized (deviceLocks.computeIfAbsent(device, d -> new Object())) {

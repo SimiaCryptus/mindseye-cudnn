@@ -17,29 +17,6 @@
  * under the License.
  */
 
-package com.simiacryptus.mindseye.test.unit;
-
-import com.simiacryptus.mindseye.lang.*;
-import com.simiacryptus.mindseye.lang.cudnn.*;
-import com.simiacryptus.mindseye.test.SimpleEval;
-import com.simiacryptus.mindseye.test.SimpleResult;
-import com.simiacryptus.mindseye.test.ToleranceStatistics;
-import com.simiacryptus.notebook.NotebookOutput;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 //public class CudaLayerTester extends ComponentTestBase<ToleranceStatistics> {
 //  private static final Logger logger = LoggerFactory.getLogger(CudaLayerTester.class);
 //

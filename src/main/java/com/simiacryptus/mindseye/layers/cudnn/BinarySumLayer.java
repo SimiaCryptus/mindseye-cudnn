@@ -25,7 +25,7 @@ import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.LinearActivationLayer;
 import com.simiacryptus.mindseye.layers.java.SumInputsLayer;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
-import com.simiacryptus.mindseye.test.TestUtil;
+import com.simiacryptus.util.Util;
 import jcuda.jcudnn.cudnnOpTensorDescriptor;
 import jcuda.jcudnn.cudnnOpTensorOp;
 
@@ -219,8 +219,8 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
           inObj[1].accumulate(buffer, tensorList);
         }
       };
-      if (CoreSettings.INSTANCE().isSingleThreaded()) TestUtil.runAllSerial(a, b);
-      else TestUtil.runAllParallel(a, b);
+      if (CoreSettings.INSTANCE().isSingleThreaded()) Util.runAllSerial(a, b);
+      else Util.runAllParallel(a, b);
     }) {
 
       @Override

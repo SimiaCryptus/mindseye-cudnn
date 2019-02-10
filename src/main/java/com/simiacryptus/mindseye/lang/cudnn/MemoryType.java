@@ -21,7 +21,7 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.mindseye.lang.RecycleBin;
 import com.simiacryptus.mindseye.lang.ReferenceWrapper;
-import com.simiacryptus.mindseye.test.TestUtil;
+import com.simiacryptus.util.Util;
 import jcuda.runtime.cudaDeviceProp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,9 +152,9 @@ public enum MemoryType {
    * @param length   the length
    */
   public void recycle(CudaPointer ptr, int deviceId, final long length) {
-    logger.debug(String.format("Recycle %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(ptr)), length, deviceId, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : TestUtil.getCaller()));
+    logger.debug(String.format("Recycle %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(ptr)), length, deviceId, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
     get(deviceId).recycle(new ReferenceWrapper<>(ptr, x -> {
-      logger.debug(String.format("Freed %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(ptr)), length, deviceId, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : TestUtil.getCaller()));
+      logger.debug(String.format("Freed %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(ptr)), length, deviceId, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
       CudaMemory.getGpuStats(deviceId).usedMemory.addAndGet(-length);
       MemoryType.this.free(x, deviceId);
     }), length);
@@ -172,7 +172,7 @@ public enum MemoryType {
       return new RecycleBin<ReferenceWrapper<CudaPointer>>() {
         @Override
         protected void free(final ReferenceWrapper<CudaPointer> obj) {
-          MemoryType.logger.debug(String.format("Freed %s %s in device %s at %s", name(), Integer.toHexString(System.identityHashCode(obj.peek())), device, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : TestUtil.getCaller()));
+          MemoryType.logger.debug(String.format("Freed %s %s in device %s at %s", name(), Integer.toHexString(System.identityHashCode(obj.peek())), device, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
           obj.destroy();
         }
 
@@ -180,7 +180,7 @@ public enum MemoryType {
         public ReferenceWrapper<CudaPointer> obtain(final long length) {
           assert -1 == device || CudaSystem.getThreadDeviceId() == device;
           ReferenceWrapper<CudaPointer> referenceWrapper = super.obtain(length);
-          MemoryType.logger.debug(String.format("Obtained %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(referenceWrapper.peek())), length, device, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : TestUtil.getCaller()));
+          MemoryType.logger.debug(String.format("Obtained %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(referenceWrapper.peek())), length, device, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
           return referenceWrapper;
         }
 
@@ -188,13 +188,13 @@ public enum MemoryType {
         @Override
         public ReferenceWrapper<CudaPointer> create(final long length) {
           assert -1 == device || CudaSystem.getThreadDeviceId() == device;
-          CharSequence caller = !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : TestUtil.getCaller();
+          CharSequence caller = !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller();
           return CudaDevice.run(gpu -> {
             CudaPointer alloc = MemoryType.this.alloc(length, gpu);
             MemoryType.logger.debug(String.format("Created %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(alloc)), length, device, caller));
             CudaMemory.getGpuStats(device).usedMemory.addAndGet(length);
             return new ReferenceWrapper<>(alloc, x -> {
-              MemoryType.logger.debug(String.format("Freed %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(alloc)), length, device, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : TestUtil.getCaller()));
+              MemoryType.logger.debug(String.format("Freed %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(alloc)), length, device, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
               CudaMemory.getGpuStats(device).usedMemory.addAndGet(-length);
               MemoryType.this.free(x, device);
             });

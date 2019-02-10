@@ -21,7 +21,6 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.mindseye.lang.PersistanceMode;
 import com.simiacryptus.mindseye.lang.Settings;
-import com.simiacryptus.util.CodeUtil;
 import com.simiacryptus.util.JsonUtil;
 import com.simiacryptus.util.LocalAppSettings;
 import org.slf4j.Logger;

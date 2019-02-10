@@ -21,7 +21,7 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.mindseye.lang.*;
-import com.simiacryptus.mindseye.test.TestUtil;
+import com.simiacryptus.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
   /**
    * The Created by.
    */
-  public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().isProfileMemoryIO() ? TestUtil.getStackTrace() : new StackTraceElement[]{};
+  public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getStackTrace() : new StackTraceElement[]{};
   @Nonnull
   private final int[] dimensions;
   private final int length;
@@ -249,8 +249,8 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
       });
       CudaTensorList.logger.debug(String.format("Read %s bytes in %.4f from Tensor %s, GPU at %s, created by %s",
           gpuCopy.size(), timedResult.seconds(), Integer.toHexString(System.identityHashCode(timedResult.result)),
-          TestUtil.toString(TestUtil.getStackTrace()).replaceAll("\n", "\n\t"),
-          TestUtil.toString(createdBy).replaceAll("\n", "\n\t")));
+          Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
+          Util.toString(createdBy).replaceAll("\n", "\n\t")));
       Tensor tensor = timedResult.result;
       return tensor;
     }, CudaTensorList.this);
@@ -350,8 +350,8 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     }, this));
     CudaTensorList.logger.debug(String.format("Read %s bytes in %.4f from Tensor %s on GPU at %s, created by %s",
         gpuCopy.size(), timedResult.seconds(), Integer.toHexString(System.identityHashCode(timedResult.result)),
-        TestUtil.toString(TestUtil.getStackTrace()).replaceAll("\n", "\n\t"),
-        TestUtil.toString(createdBy).replaceAll("\n", "\n\t")));
+        Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
+        Util.toString(createdBy).replaceAll("\n", "\n\t")));
     return timedResult.result;
   }
 
