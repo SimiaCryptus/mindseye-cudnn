@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ImgPixelSoftmaxLayer;
+import com.simiacryptus.mindseye.layers.java.SoftmaxLayer;
 import jcuda.jcudnn.cudnnSoftmaxAlgorithm;
 import jcuda.jcudnn.cudnnSoftmaxMode;
 import org.slf4j.Logger;
@@ -124,7 +125,7 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
   public Layer getCompatibilityLayer() {
     assert algorithm != SoftmaxAlgorithm.LOG;
     if (mode == SoftmaxMode.CHANNEL) return this.as(ImgPixelSoftmaxLayer.class);
-    return this.as(com.simiacryptus.mindseye.layers.java.SoftmaxActivationLayer.class);
+    return this.as(SoftmaxLayer.class);
   }
 
   @Nullable

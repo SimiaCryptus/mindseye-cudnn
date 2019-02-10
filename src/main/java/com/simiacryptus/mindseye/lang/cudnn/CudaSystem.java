@@ -478,7 +478,7 @@ public class CudaSystem {
   }
 
   /**
-   * Cuda device reset int.
+   * Cuda device remove int.
    *
    * @return the int
    */

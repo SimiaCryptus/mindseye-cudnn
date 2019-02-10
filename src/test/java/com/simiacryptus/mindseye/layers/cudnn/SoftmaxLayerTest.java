@@ -27,7 +27,7 @@ import java.util.Random;
 /**
  * The type Softmax activation key apply.
  */
-public abstract class SoftmaxActivationLayerTest extends CudnnLayerTestBase {
+public abstract class SoftmaxLayerTest extends CudnnLayerTestBase {
 
   private final SoftmaxActivationLayer.SoftmaxAlgorithm algorithm;
   private final SoftmaxActivationLayer.SoftmaxMode mode;
@@ -38,7 +38,7 @@ public abstract class SoftmaxActivationLayerTest extends CudnnLayerTestBase {
    * @param algorithm the algorithm
    * @param mode      the mode
    */
-  public SoftmaxActivationLayerTest(final SoftmaxActivationLayer.SoftmaxAlgorithm algorithm, final SoftmaxActivationLayer.SoftmaxMode mode) {
+  public SoftmaxLayerTest(final SoftmaxActivationLayer.SoftmaxAlgorithm algorithm, final SoftmaxActivationLayer.SoftmaxMode mode) {
     this.algorithm = algorithm;
     this.mode = mode;
   }
@@ -63,13 +63,13 @@ public abstract class SoftmaxActivationLayerTest extends CudnnLayerTestBase {
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return null;
-    //return com.simiacryptus.mindseye.layers.java.SoftmaxActivationLayer.class;
+    //return com.simiacryptus.mindseye.layers.java.SoftmaxLayer.class;
   }
 
   /**
    * Basic Test
    */
-  public static class Basic extends SoftmaxActivationLayerTest {
+  public static class Basic extends SoftmaxLayerTest {
     /**
      * Instantiates a new Basic.
      */
@@ -81,7 +81,7 @@ public abstract class SoftmaxActivationLayerTest extends CudnnLayerTestBase {
   /**
    * Basic Test
    */
-  public static class Pixel extends SoftmaxActivationLayerTest {
+  public static class Pixel extends SoftmaxLayerTest {
     /**
      * Instantiates a new Pixel.
      */
@@ -93,7 +93,7 @@ public abstract class SoftmaxActivationLayerTest extends CudnnLayerTestBase {
   /**
    * The type Pixel log.
    */
-  public static class PixelLog extends SoftmaxActivationLayerTest {
+  public static class PixelLog extends SoftmaxLayerTest {
     /**
      * Instantiates a new Pixel log.
      */
