@@ -30,6 +30,7 @@
 
     <artifactId>mindseye-cudnn</artifactId>
     <description>CuDNN Neural Network Components</description>
+    <url>https://simiacryptus.github.io/${github.project}/${github.path}</url>
     <scm>
         <url>https://github.com/SimiaCryptus/mindseye-cudnn/</url>
         <connection>scm:git:git@github.com:SimiaCryptus/mindseye-cudnn.git</connection>
