@@ -29,14 +29,14 @@
     </parent>
 
     <artifactId>mindseye-cudnn</artifactId>
-    <description>Neural Networks with Java 8 and CuDNN</description>
+    <description>CuDNN Neural Network Components</description>
     <scm>
-        <url>https://github.com/SimiaCryptus/MindsEye/</url>
-        <connection>scm:git:git@github.com:SimiaCryptus/MindsEye.git</connection>
+        <url>https://github.com/SimiaCryptus/mindseye-cudnn/</url>
+        <connection>scm:git:git@github.com:SimiaCryptus/mindseye-cudnn.git</connection>
     </scm>
 
     <properties>
-        <github.project>mindseye</github.project>
+        <github.project>mindseye-cudnn</github.project>
         <github.path></github.path>
         <github.global.userName></github.global.userName>
         <github.global.oauth2Token></github.global.oauth2Token>
@@ -44,7 +44,7 @@
     <distributionManagement>
         <site>
             <id>github</id>
-            <url>https://simiacryptus.github.io/MindsEye</url>
+            <url>https://simiacryptus.github.io/mindseye-cudnn</url>
         </site>
     </distributionManagement>
 
