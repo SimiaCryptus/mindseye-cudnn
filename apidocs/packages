@@ -1,0 +1,3 @@
+com.simiacryptus.mindseye.lang.cudnn
+com.simiacryptus.mindseye.layers.cudnn
+com.simiacryptus.mindseye.layers.cudnn.conv
