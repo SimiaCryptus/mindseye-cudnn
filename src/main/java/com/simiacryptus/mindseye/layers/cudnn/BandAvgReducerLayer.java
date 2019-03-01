@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
+import com.simiacryptus.lang.ref.*;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import jcuda.jcudnn.*;
@@ -147,6 +148,7 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
 //        return CudaTensorList.wrap(CudaTensor.wrap(outputPtr, outputDescriptor, precision), length, inputSize, precision);
 //      });
       input.accumulate(ctx, passback);
+      delta.freeRef();
     }) {
       @Override
       protected void _free() {

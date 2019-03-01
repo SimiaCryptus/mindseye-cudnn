@@ -104,9 +104,9 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
       @Nonnull Stream<Result> deltaStream = Arrays.stream(inObj);
       if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel) deltaStream = deltaStream.parallel();
       deltaStream.filter(Result::isAlive).forEach(obj -> {
-        delta.addRef();
-        obj.accumulate(buffer, delta);
+        obj.accumulate(buffer, delta.addRef());
       });
+      delta.freeRef();
     }) {
 
       @Override

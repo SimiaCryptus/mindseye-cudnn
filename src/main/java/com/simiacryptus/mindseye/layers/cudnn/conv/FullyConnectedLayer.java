@@ -64,6 +64,12 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
   private Precision precision = Precision.Double;
   private int batchBands = 0;
 
+  @Override
+  protected void _free() {
+    weights.freeRef();
+    super._free();
+  }
+
   /**
    * Instantiates a new Img eval key.
    */
@@ -175,6 +181,12 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     return eval;
   }
 
+  public Layer explodeAndFree() {
+    Layer explode = explode();
+    freeRef();
+    return explode;
+  }
+
   /**
    * Explode pipeline network.
    *
@@ -271,6 +283,11 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
   @Nonnull
   public FullyConnectedLayer setBatchBands(int batchBands) {
     this.batchBands = batchBands;
+    return this;
+  }
+
+  public FullyConnectedLayer set(DoubleSupplier fn) {
+    weights.set(fn);
     return this;
   }
 }

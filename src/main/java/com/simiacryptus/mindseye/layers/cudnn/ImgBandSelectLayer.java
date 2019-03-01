@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
+import com.simiacryptus.lang.ref.*;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 
@@ -97,9 +98,10 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
     assert getFrom() >= 0;
     assert getTo() > 0;
     assert 1 == inObj.length;
-    assert 3 == inObj[0].getData().getDimensions().length;
-    if (!CudaSystem.isEnabled()) return getCompatibilityLayer().eval(inObj);
-    final TensorList inputData = inObj[0].getData();
+    final Result in0 = inObj[0];
+    assert 3 == in0.getData().getDimensions().length;
+    if (!CudaSystem.isEnabled()) return getCompatibilityLayer().evalAndFree(inObj);
+    final TensorList inputData = in0.getData();
     @Nonnull final int[] inputDimensions = inputData.getDimensions();
     final int length = inputData.length();
     @Nonnull final int[] outputDimensions = Arrays.copyOf(inputDimensions, 3);
@@ -124,7 +126,7 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
       if (!Arrays.equals(delta.getDimensions(), outputDimensions)) {
         throw new AssertionError(Arrays.toString(delta.getDimensions()) + " != " + Arrays.toString(outputDimensions));
       }
-      if (inObj[0].isAlive()) {
+      if (in0.isAlive()) {
         final TensorList passbackTensorList = CudaSystem.run(gpu -> {
           @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(
               precision, length, outputDimensions[2], outputDimensions[1], outputDimensions[0], //
@@ -158,7 +160,7 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
           return CudaTensorList.wrap(cudaTensor, length, inputDimensions, precision);
           //assert passbackTensorList.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(v->Double.isFinite(v));
         }, delta);
-        inObj[0].accumulate(buffer, passbackTensorList);
+        in0.accumulate(buffer, passbackTensorList);
       } else {
         delta.freeRef();
       }

@@ -21,6 +21,7 @@ package com.simiacryptus.mindseye.layers.cudnn.conv;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.simiacryptus.lang.ref.*;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.util.Util;

@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
+import com.simiacryptus.lang.ref.*;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import org.slf4j.Logger;
@@ -219,9 +220,9 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
           outputDimensions[1] * outputDimensions[0],//
           outputDimensions[0],//
           1);
-      Stream.<ReferenceCounting>of(inputTensor).forEach(ReferenceCounting::freeRef);
       return CudaTensor.wrap(outputPtr, passbackDescriptor, precision);
     } finally {
+      Stream.<ReferenceCounting>of(inputTensor).forEach(ReferenceCounting::freeRef);
       inputTensorMemory.freeRef();
     }
   }
@@ -272,8 +273,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
       assert dimOut[1] > 0;
       assert dimOut[2] > 0;
       boolean dirty = dimOut[0] == dimIn[0] && dimOut[1] == dimIn[1];
-      CudaTensor cudaTensor = copy(gpu, inputData, dimIn, dimOut, precision, this.positionX, this.positionY, dirty);
-      return CudaTensorList.wrap(cudaTensor, length, dimOut, precision);
+      return CudaTensorList.wrap(copy(gpu, inputData, dimIn, dimOut, precision, this.positionX, this.positionY, dirty), length, dimOut, precision);
     }, inputData);
     int[] outputDimensions = outputData.getDimensions();
     assert length == outputData.length();
@@ -286,13 +286,12 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
       }
       assert error.length() == inputData.length();
       if (input.isAlive()) {
-        final TensorList passbackTensorList = CudaSystem.run(gpu -> {
+        input.accumulate(buffer, CudaSystem.run(gpu -> {
           boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
-          CudaTensor cudaTensor = copy(gpu, error, dimOut, dimIn, precision, -this.positionX, -this.positionY, dirty);
-          return CudaTensorList.wrap(cudaTensor, length, dimIn, precision);
-        }, error);
-        input.accumulate(buffer, passbackTensorList);
+          return CudaTensorList.wrap(copy(gpu, error, dimOut, dimIn, precision, -this.positionX, -this.positionY, dirty), length, dimIn, precision);
+        }, error));
       }
+      error.freeRef();
     }) {
 
       @Override

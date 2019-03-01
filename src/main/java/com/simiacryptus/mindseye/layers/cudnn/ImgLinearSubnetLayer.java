@@ -21,6 +21,7 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.simiacryptus.lang.ref.*;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import org.slf4j.Logger;
@@ -129,64 +130,67 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
           gpu.allocate(inputData.getElements() * precision.size, MemoryType.Device, true),
           gpu.newTensorDescriptor(precision, length, inputDims[2], inputDims[1], inputDims[0]), precision);
     });
+    inputData.freeRef();
+    AtomicInteger counter = new AtomicInteger(0);
+    Result[] legResults;
     try {
-      AtomicInteger counter = new AtomicInteger(0);
-      SumInputsLayer sumInputsLayer = new SumInputsLayer();
-      try {
-        Result[] legResults = legs.stream().map(leg -> {
-          passback.addRef();
-          ImgBandSelectLayer imgBandSelectLayer = new ImgBandSelectLayer(leg.fromBand, leg.toBand);
-          input.addRef();
-          TensorList legData = imgBandSelectLayer.eval(input).getDataAndFree();
-          imgBandSelectLayer.freeRef();
-          return leg.inner.evalAndFree(new Result(legData, (DeltaSet<UUID> ctx, TensorList delta) -> {
-            int[] outputDimensions = delta.getDimensions();
-            int[] inputDimensions = inputDims;
-            synchronized (passback) {
-              CudaSystem.run(gpu -> {
-                @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(
-                    precision, length, outputDimensions[2], outputDimensions[1], outputDimensions[0], //
-                    inputDimensions[2] * inputDimensions[1] * inputDimensions[0], //
-                    inputDimensions[1] * inputDimensions[0], //
-                    inputDimensions[0], //
-                    1);
-                final int byteOffset = viewDescriptor.cStride * leg.fromBand * precision.size;
-                assert delta.length() == inputData.length();
-                assert passback.getDeviceId() == gpu.getDeviceId();
-                //assert error.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(Double::isFinite);
-                @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
-                @Nonnull final CudaMemory passbackBuffer = passback.getMemory(gpu);
-                CudaMemory errorPtrMemory = deltaTensor.getMemory(gpu);
-                passbackBuffer.synchronize();
-                gpu.cudnnTransformTensor(
-                    precision.getPointer(1.0), deltaTensor.descriptor.getPtr(), errorPtrMemory.getPtr(),
-                    precision.getPointer(0.0), viewDescriptor.getPtr(), passbackBuffer.getPtr().withByteOffset(byteOffset)
-                );
-                errorPtrMemory.dirty();
-                passbackBuffer.dirty();
-                Stream.<ReferenceCounting>of(deltaTensor, viewDescriptor, passbackBuffer, errorPtrMemory).forEach(ReferenceCounting::freeRef);
-              }, passback);
-            }
-            if (counter.incrementAndGet() >= legs.size()) {
-              counter.set(0);
-              input.accumulate(ctx, CudaTensorList.create(passback, length, inputDims, precision));
-            }
-          }) {
-            @Override
-            protected void _free() {
-              super._free();
-              input.freeRef();
-              passback.freeRef();
-            }
-          });
-        }).toArray(i -> new Result[i]);
-        return sumInputsLayer.setParallel(parallel).setPrecision(precision).evalAndFree(legResults);
-      } finally {
-        sumInputsLayer.freeRef();
-        input.freeRef();
-      }
+      legResults = legs.stream().map(leg -> {
+        ImgBandSelectLayer imgBandSelectLayer = new ImgBandSelectLayer(leg.fromBand, leg.toBand);
+        input.addRef();
+        TensorList legData = imgBandSelectLayer.eval(input).getDataAndFree();
+        imgBandSelectLayer.freeRef();
+        passback.addRef();
+        return leg.inner.evalAndFree(new Result(legData, (DeltaSet<UUID> ctx, TensorList delta) -> {
+          int[] outputDimensions = delta.getDimensions();
+          int[] inputDimensions = inputDims;
+          synchronized (passback) {
+            CudaSystem.run(gpu -> {
+              @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(
+                  precision, length, outputDimensions[2], outputDimensions[1], outputDimensions[0], //
+                  inputDimensions[2] * inputDimensions[1] * inputDimensions[0], //
+                  inputDimensions[1] * inputDimensions[0], //
+                  inputDimensions[0], //
+                  1);
+              final int byteOffset = viewDescriptor.cStride * leg.fromBand * precision.size;
+              assert delta.length() == length;
+              assert passback.getDeviceId() == gpu.getDeviceId();
+              //assert error.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(Double::isFinite);
+              @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
+              @Nonnull final CudaMemory passbackBuffer = passback.getMemory(gpu);
+              CudaMemory errorPtrMemory = deltaTensor.getMemory(gpu);
+              passbackBuffer.synchronize();
+              gpu.cudnnTransformTensor(
+                  precision.getPointer(1.0), deltaTensor.descriptor.getPtr(), errorPtrMemory.getPtr(),
+                  precision.getPointer(0.0), viewDescriptor.getPtr(), passbackBuffer.getPtr().withByteOffset(byteOffset)
+              );
+              errorPtrMemory.dirty();
+              passbackBuffer.dirty();
+              Stream.<ReferenceCounting>of(deltaTensor, viewDescriptor, passbackBuffer, errorPtrMemory).forEach(ReferenceCounting::freeRef);
+            }, passback);
+          }
+          if (counter.incrementAndGet() >= legs.size()) {
+            counter.set(0);
+            input.accumulate(ctx, CudaTensorList.create(passback, length, inputDims, precision));
+          }
+          delta.freeRef();
+        }) {
+          @Override
+          protected void _free() {
+            input.freeRef();
+            passback.freeRef();
+            super._free();
+          }
+        });
+      }).toArray(i -> new Result[i]);
     } finally {
+      input.freeRef();
       passback.freeRef();
+    }
+    SumInputsLayer sumInputsLayer = new SumInputsLayer().setParallel(parallel).setPrecision(precision);
+    try {
+      return sumInputsLayer.evalAndFree(legResults);
+    } finally {
+      sumInputsLayer.freeRef();
     }
   }
 

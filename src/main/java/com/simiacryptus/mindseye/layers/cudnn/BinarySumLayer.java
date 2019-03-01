@@ -20,10 +20,12 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
+import com.simiacryptus.lang.ref.*;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.LinearActivationLayer;
 import com.simiacryptus.mindseye.layers.java.SumInputsLayer;
+import com.simiacryptus.mindseye.network.CountingResult;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.util.Util;
 import jcuda.jcudnn.cudnnOpTensorDescriptor;
@@ -150,7 +152,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
           1);
       @Nullable final CudaTensor lPtr = gpu.getTensor(leftData, precision, MemoryType.Device, false); //.getDenseAndFree(gpu);//.moveTo(gpu.getDeviceNumber());
       @Nullable final CudaTensor rPtr = gpu.getTensor(rightData, precision, MemoryType.Device, false); //.getDenseAndFree(gpu);//.moveTo(gpu.getDeviceNumber());
-      @Nonnull final CudaMemory outputPtr = gpu.allocate(precision.size * Tensor.length(dimensions) * length, MemoryType.Managed, true);
+      @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * Tensor.length(dimensions) * length, MemoryType.Managed, true);
       CudaMemory lPtrMemory = lPtr.getMemory(gpu);
       CudaMemory rPtrMemory = rPtr.getMemory(gpu);
       gpu.cudnnOpTensor(opDescriptor.getPtr(),
@@ -191,7 +193,12 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
             lPtr.freeRef();
             return CudaTensorList.wrap(cudaTensor, length, dimensions, precision);
           }, delta);
+          int prevRefs = tensorList.currentRefCount();
           inObj[0].accumulate(buffer, tensorList);
+          int refDeltas = prevRefs - tensorList.currentRefCount();
+          if (refDeltas != 1 && !inObj[0].getClass().equals(CountingResult.class)) {
+            throw new IllegalStateException(String.format("%s backprop finished with %s refs", inObj[0].getClass().toString(), refDeltas));
+          }
         }
       };
       Runnable b = () -> {
@@ -212,15 +219,23 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
             outputPtr.dirty();
             lPtrMemory.dirty();
             lPtrMemory.freeRef();
-            CudaTensor cudaTensor = CudaTensor.wrap(outputPtr, passbackDescriptor, precision);
             lPtr.freeRef();
-            return CudaTensorList.wrap(cudaTensor, length, dimensions, precision);
+            return CudaTensorList.wrap(CudaTensor.wrap(outputPtr, passbackDescriptor, precision), length, dimensions, precision);
           }, delta);
+          int prevRefs = tensorList.currentRefCount();
           inObj[1].accumulate(buffer, tensorList);
+          int refDeltas = prevRefs - tensorList.currentRefCount();
+          if (refDeltas != 1 && !inObj[1].getClass().equals(CountingResult.class)) {
+            throw new IllegalStateException(String.format("%s backprop finished with %s refs", inObj[1].getClass().toString(), refDeltas));
+          }
         }
       };
-      if (CoreSettings.INSTANCE().isSingleThreaded()) Util.runAllSerial(a, b);
-      else Util.runAllParallel(a, b);
+      try {
+        if (CoreSettings.INSTANCE().isSingleThreaded()) Util.runAllSerial(a, b);
+        else Util.runAllParallel(a, b);
+      } finally {
+        delta.freeRef();
+      }
     }) {
 
       @Override

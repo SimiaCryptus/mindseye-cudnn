@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
+import com.simiacryptus.lang.ref.*;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import jcuda.jcudnn.*;
@@ -134,13 +135,14 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision<AvgRedu
 //        return CudaTensorList.wrap(CudaTensor.wrap(passbackPtr1, passbackDescriptor1, precision), length, inputSize, precision);
 //      });
 
-      TensorList passback = TensorArray.wrap(IntStream.range(0, length).mapToObj(i -> {
+      input.accumulate(ctx, TensorArray.wrap(IntStream.range(0, length).mapToObj(i -> {
         Tensor tensor = delta.get(i);
-        Tensor tensor1 = new Tensor(inputSize).setAll((double) tensor.get(0) / Tensor.length(inputSize));
+        double v = (double) tensor.get(0) / Tensor.length(inputSize);
+        Tensor tensor1 = new Tensor(inputSize).setAll(v);
         tensor.freeRef();
         return tensor1;
-      }).toArray(i -> new Tensor[i]));
-      input.accumulate(ctx, passback);
+      }).toArray(i -> new Tensor[i])));
+      delta.freeRef();
     }) {
       @Override
       protected void _free() {

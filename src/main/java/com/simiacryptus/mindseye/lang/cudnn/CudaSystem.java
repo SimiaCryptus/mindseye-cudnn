@@ -609,6 +609,8 @@ public class CudaSystem {
     handle(result);
   }
 
+  private static final long COPY_BLOCK_SIZE = Long.MAX_VALUE;
+
   /**
    * Cuda memcpy int.
    *
@@ -618,6 +620,11 @@ public class CudaSystem {
    * @param cudaMemcpyKind_kind the cuda memcpy kind kind
    */
   public static void cudaMemcpy(final CudaPointer dst, final CudaPointer src, final long count, final int cudaMemcpyKind_kind) {
+    if (count > COPY_BLOCK_SIZE) {
+      cudaMemcpy(dst, src, COPY_BLOCK_SIZE, cudaMemcpyKind_kind);
+      cudaMemcpy(dst.withByteOffset(COPY_BLOCK_SIZE), src.withByteOffset(COPY_BLOCK_SIZE), count - COPY_BLOCK_SIZE, cudaMemcpyKind_kind);
+      return;
+    }
     long startTime = System.nanoTime();
     final int result = JCuda.cudaMemcpy(dst, src, count, cudaMemcpyKind_kind);
     cudaMemcpy_execution.accept((System.nanoTime() - startTime) / 1e9);
@@ -1250,11 +1257,13 @@ public class CudaSystem {
    */
   public static ResourcePool<CudnnHandle> getPool(final int deviceId) {
     assert deviceId >= 0;
-    return handlePools.computeIfAbsent(deviceId, d -> new ResourcePool<CudnnHandle>(32) {
-      @Override
-      public CudnnHandle create() {
-        return new CudnnHandle(deviceId);
-      }
+    return handlePools.computeIfAbsent(deviceId, d -> {
+      return new ResourcePool<CudnnHandle>(CudaSettings.INSTANCE().getHandlesPerDevice()) {
+        @Override
+        public CudnnHandle create() {
+          return new CudnnHandle(deviceId);
+        }
+      };
     });
   }
 
@@ -1264,9 +1273,9 @@ public class CudaSystem {
    * @return the cached device count
    */
   public static int getCachedDeviceCount() {
-    if(null == cachedDeviceCount) {
+    if (null == cachedDeviceCount) {
       synchronized (CudaSystem.class) {
-        if(null == cachedDeviceCount) {
+        if (null == cachedDeviceCount) {
           cachedDeviceCount = init();
         }
       }

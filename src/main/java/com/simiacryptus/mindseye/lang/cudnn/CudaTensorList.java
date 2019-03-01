@@ -35,6 +35,11 @@ import java.util.stream.Stream;
  * A TensorList data object stored on a GPU apply a configurable precision.
  */
 public class CudaTensorList extends RegisteredObjectBase implements TensorList, CudaSystem.CudaDeviceResource {
+  @Override
+  public CudaTensorList addRef() {
+    return (CudaTensorList) super.addRef();
+  }
+
   /**
    * The constant logger.
    */
@@ -297,8 +302,8 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
    */
   @Nullable
   private TensorArray heapCopy(final boolean avoidAllocations) {
-    TensorArray heapCopy;
-    heapCopy = this.heapCopy;
+    assertAlive();
+    TensorArray heapCopy = this.heapCopy;
     if (null == heapCopy || heapCopy.isFinalized()) {
       TensorArray copy = toHeap(avoidAllocations);
       final TensorArray prev;
@@ -309,9 +314,11 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
           this.heapCopy = copy;
           heapCopy = copy;
         } else {
+          copy.freeRef();
           prev = null;
         }
       }
+      assertAlive();
       if (null != prev) prev.freeRef();
     }
     return heapCopy;
@@ -419,6 +426,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
    * @return the long
    */
   public long evictToHeap() {
+    if(isFinalized()) return 0;
     if (null == heapCopy(true)) {
       throw new IllegalStateException();
     }

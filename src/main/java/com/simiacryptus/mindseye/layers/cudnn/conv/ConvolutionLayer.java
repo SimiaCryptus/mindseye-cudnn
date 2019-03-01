@@ -177,6 +177,12 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
 //    return this.as(com.simiacryptus.mindseye.layers.aparapi.ConvolutionLayer.class);
   }
 
+  public Layer explodeAndFree() {
+    Layer explode = explode();
+    freeRef();
+    return explode;
+  }
+
   /**
    * Explode nn key.
    *

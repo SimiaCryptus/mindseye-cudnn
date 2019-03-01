@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.simiacryptus.lang.ref.*;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.util.Util;
 import jcuda.Pointer;
@@ -55,6 +56,7 @@ public class CudnnHandle extends CudaDevice {
    */
   @Nullable
   public final cudnnHandle handle;
+  private final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
 
   /**
    * Instantiates a new Cu dnn.

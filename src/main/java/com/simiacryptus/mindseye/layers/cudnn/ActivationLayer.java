@@ -20,10 +20,12 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ReLuActivationLayer;
 import com.simiacryptus.mindseye.layers.java.SigmoidActivationLayer;
+import com.simiacryptus.mindseye.network.CountingResult;
 import jcuda.jcudnn.cudnnActivationDescriptor;
 import jcuda.jcudnn.cudnnActivationMode;
 import jcuda.jcudnn.cudnnNanPropagation;
@@ -36,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * The generic Activation key, exposing the activation types provided by CudaSystem. This key is stateless and is
@@ -154,16 +157,22 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
         @Nonnull final CudaResource<cudnnActivationDescriptor> activationDesc = gpu.newActivationDescriptor(mode, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN, 0);
         try {
           CudaMemory memory = inputTensor.getMemory(gpu);
-          CudaMemory tensorMemory = outputTensor.getMemory(gpu);
-          CudaSystem.handle(gpu.cudnnActivationForward(activationDesc.getPtr(),
-              precision.getPointer(getAlpha()), inputTensor.descriptor.getPtr(), memory.getPtr(),
-              precision.getPointer(0.0), outputTensor.descriptor.getPtr(), tensorMemory.getPtr()));
-          assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-          memory.dirty();
-          tensorMemory.dirty();
-          tensorMemory.freeRef();
-          memory.freeRef();
-          return outputTensor;
+          try {
+            CudaMemory tensorMemory = outputTensor.getMemory(gpu);
+            try {
+              CudaSystem.handle(gpu.cudnnActivationForward(activationDesc.getPtr(),
+                  precision.getPointer(getAlpha()), inputTensor.descriptor.getPtr(), memory.getPtr(),
+                  precision.getPointer(0.0), outputTensor.descriptor.getPtr(), tensorMemory.getPtr()));
+              assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+              memory.dirty();
+              tensorMemory.dirty();
+              return outputTensor;
+            } finally {
+              tensorMemory.freeRef();
+            }
+          } finally {
+            memory.freeRef();
+          }
         } catch (@Nonnull final Throwable e) {
           throw new ComponentException("Error apply " + Arrays.toString(inputSize), e);
         } finally {
@@ -179,17 +188,7 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
                 @Nullable CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
                 assert length == delta.length();
                 CudaTensor localOut = outPtr.getDense(gpu);
-                delta.freeRef();
-                CudaTensor passbackTensor;
-//            if (sameStrides(deltaTensor.descriptor, inputTensor.descriptor)) {
-//              passbackTensor = deltaTensor;
-//              passbackTensor.addRef();
-//            }
-//            else {
-//              passbackTensor = deltaTensor.getDense(gpu);
-//              inputTensor = inputTensor.getDenseAndFree(gpu);
-//            }
-                passbackTensor = CudaTensor.wrap(
+                CudaTensor passbackTensor = CudaTensor.wrap(
                     gpu.allocate((long) Tensor.length(inputSize) * length * precision.size, MemoryType.Managed.normalize(), false),
                     gpu.newTensorDescriptor(precision,
                         length, inputSize[2], inputSize[1], inputSize[0],
@@ -205,36 +204,34 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
                   CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
                   CudaMemory inputTensorMemory = inputTensor.getMemory(gpu);
                   CudaMemory passbackTensorMemory = passbackTensor.getMemory(gpu);
-                  CudaSystem.handle(gpu.cudnnActivationBackward(activationDesc.getPtr(),
-                      precision.getPointer(getAlpha()),
-                      localOut.descriptor.getPtr(), localOutMemory.getPtr(),
-                      deltaTensor.descriptor.getPtr(), deltaTensorMemory.getPtr(),
-                      inputTensor.descriptor.getPtr(), inputTensorMemory.getPtr(),
-                      precision.getPointer(0.0),
-                      passbackTensor.descriptor.getPtr(), passbackTensorMemory.getPtr()));
-                  assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-                  localOutMemory.dirty();
-                  deltaTensorMemory.dirty();
-                  inputTensorMemory.dirty();
-                  passbackTensorMemory.dirty();
-                  localOutMemory.freeRef();
-                  deltaTensorMemory.freeRef();
-                  inputTensorMemory.freeRef();
-                  passbackTensorMemory.freeRef();
+                  try {
+                    CudaSystem.handle(gpu.cudnnActivationBackward(activationDesc.getPtr(),
+                        precision.getPointer(getAlpha()),
+                        localOut.descriptor.getPtr(), localOutMemory.getPtr(),
+                        deltaTensor.descriptor.getPtr(), deltaTensorMemory.getPtr(),
+                        inputTensor.descriptor.getPtr(), inputTensorMemory.getPtr(),
+                        precision.getPointer(0.0),
+                        passbackTensor.descriptor.getPtr(), passbackTensorMemory.getPtr()));
+                    assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+                    Stream.of(localOutMemory, deltaTensorMemory, inputTensorMemory, passbackTensorMemory).forEach(CudaMemory::dirty);
+                    return CudaTensorList.wrap(passbackTensor, length, inputSize, precision);
+                  } finally {
+                    Stream.of(localOutMemory, deltaTensorMemory, inputTensorMemory, passbackTensorMemory).forEach(ReferenceCountingBase::freeRef);
+                  }
                 } catch (@Nonnull final Throwable e) {
                   throw new ComponentException("Error apply " + Arrays.toString(inputSize), e);
                 } finally {
-                  localOut.freeRef();
-                  inputTensor.freeRef();
-                  deltaTensor.freeRef();
-                  activationDesc.freeRef();
+                  Stream.of(localOut, inputTensor, deltaTensor, activationDesc).forEach(ReferenceCountingBase::freeRef);
                 }
-                return CudaTensorList.wrap(passbackTensor, length, inputSize, precision);
               }, delta);
+              int prevRefs = data.currentRefCount();
               inputResult.accumulate(buffer, data);
-            } else {
-              delta.freeRef();
+              int refDeltas = prevRefs - data.currentRefCount();
+              if (refDeltas != 1 && !inputResult.getClass().equals(CountingResult.class)) {
+                throw new IllegalStateException(String.format("%s backprop finished with %s refs", inputResult.getClass().toString(), refDeltas));
+              }
             }
+            delta.freeRef();
           }) {
 
         @Override

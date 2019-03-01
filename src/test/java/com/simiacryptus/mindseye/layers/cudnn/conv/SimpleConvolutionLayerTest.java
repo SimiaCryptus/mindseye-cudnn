@@ -237,7 +237,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
   /**
    * Demonstration of a suspected CudaSystem bug when using 0 padding apply the GPU convolution operation.
    */
-  public static class PaddingBug extends Bug_Control {
+  public static class PaddingBug extends Image {
     /**
      * Instantiates a new Multi band.
      */
@@ -251,7 +251,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
   /**
    * Typical 3x3 png convolution (64-bit)
    */
-  public static class SpanBug extends Bug_Control {
+  public static class SpanBug extends Image {
     /**
      * Instantiates a new Image.
      */
