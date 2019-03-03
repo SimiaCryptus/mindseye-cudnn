@@ -224,12 +224,7 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
                   Stream.of(localOut, inputTensor, deltaTensor, activationDesc).forEach(ReferenceCountingBase::freeRef);
                 }
               }, delta);
-              int prevRefs = data.currentRefCount();
               inputResult.accumulate(buffer, data);
-              int refDeltas = prevRefs - data.currentRefCount();
-              if (refDeltas != 1 && !inputResult.getClass().equals(CountingResult.class)) {
-                throw new IllegalStateException(String.format("%s backprop finished with %s refs", inputResult.getClass().toString(), refDeltas));
-              }
             }
             delta.freeRef();
           }) {

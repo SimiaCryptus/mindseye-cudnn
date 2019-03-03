@@ -193,12 +193,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
             lPtr.freeRef();
             return CudaTensorList.wrap(cudaTensor, length, dimensions, precision);
           }, delta);
-          int prevRefs = tensorList.currentRefCount();
           inObj[0].accumulate(buffer, tensorList);
-          int refDeltas = prevRefs - tensorList.currentRefCount();
-          if (refDeltas != 1 && !inObj[0].getClass().equals(CountingResult.class)) {
-            throw new IllegalStateException(String.format("%s backprop finished with %s refs", inObj[0].getClass().toString(), refDeltas));
-          }
         }
       };
       Runnable b = () -> {
@@ -222,12 +217,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
             lPtr.freeRef();
             return CudaTensorList.wrap(CudaTensor.wrap(outputPtr, passbackDescriptor, precision), length, dimensions, precision);
           }, delta);
-          int prevRefs = tensorList.currentRefCount();
           inObj[1].accumulate(buffer, tensorList);
-          int refDeltas = prevRefs - tensorList.currentRefCount();
-          if (refDeltas != 1 && !inObj[1].getClass().equals(CountingResult.class)) {
-            throw new IllegalStateException(String.format("%s backprop finished with %s refs", inObj[1].getClass().toString(), refDeltas));
-          }
         }
       };
       try {
