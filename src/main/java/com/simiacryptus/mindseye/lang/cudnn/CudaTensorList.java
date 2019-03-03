@@ -317,9 +317,8 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
           copy.freeRef();
           prev = null;
         }
+        if (null != prev) prev.freeRef();
       }
-      assertAlive();
-      if (null != prev) prev.freeRef();
     }
     return heapCopy;
   }

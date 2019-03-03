@@ -151,8 +151,6 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision<Im
         throw new AssertionError(error.length() + " != " + outputData.length());
       }
       assert error.length() == length;
-
-
       int totalHeight = 0;
       int inputIndex = 0;
       List<BackpropParams> tasks = new ArrayList<>();
@@ -174,6 +172,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision<Im
       Stream<BackpropParams> stream = tasks.stream();
       if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel) stream = stream.parallel();
       stream.forEach(this::backprop);
+      error.freeRef();
     }) {
 
       @Override

@@ -50,15 +50,15 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
   /**
    * The K.
    */
-  static final int K = 1024;
+  public static final int K = 1024;
   /**
    * The Mi b.
    */
-  static final long MiB = K * 1024;
+  public static final long MiB = K * 1024;
   /**
    * The Gi b.
    */
-  static final long GiB = 1024 * MiB;
+  public static final long GiB = 1024 * MiB;
   /**
    * The Size.
    */
