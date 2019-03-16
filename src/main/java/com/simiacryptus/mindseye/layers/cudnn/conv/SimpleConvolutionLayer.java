@@ -85,8 +85,6 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
   public SimpleConvolutionLayer(final int width, final int height, final int bands) {
     this(new Tensor(width, height, bands));
     kernel.freeRef();
-    assert !false || 0 == (width - 1) % 2 : "Simple kernels must have odd width";
-    assert !false || 0 == (height - 1) % 2 : "Simple kernels must have odd height";
   }
 
   /**
@@ -163,13 +161,6 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
     return this;
   }
 
-  private boolean cmp(final int[] outputSize, @Nonnull final int[] outputDims) {
-    if (4 != outputDims.length) return false;
-    if (outputSize[0] != outputDims[3]) return false;
-    if (outputSize[1] != outputDims[2]) return false;
-    return outputSize[2] == outputDims[1];
-  }
-
   @Nullable
   @Override
   public Result evalAndFree(@Nonnull final Result... inObj) {
@@ -195,7 +186,10 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
       final int[] outputDims = IntStream.of(reverse(CudaSystem.getOutputDims(inputTensor.descriptor.getPtr(), filterDescriptor.getPtr(), convolutionDescriptor.getPtr()))).limit(3).toArray();
       final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
           outputDims[2], outputDims[1], outputDims[0],
-          outputDims[2] * outputDims[1] * outputDims[0], outputDims[1] * outputDims[0], outputDims[0], 1);
+          outputDims[2] * outputDims[1] * outputDims[0],
+          outputDims[1] * outputDims[0],
+          outputDims[0],
+          1);
       final int forwardAlgorithm = getForwardAlgorithm(gpu, inputTensor, filterDescriptor, convolutionDescriptor, outputDescriptor);
       final CudaMemory forwardWorkspace = gpu.allocateForwardWorkspace(
           inputTensor.descriptor.getPtr(), filterDescriptor.getPtr(), convolutionDescriptor.getPtr(), outputDescriptor.getPtr(), forwardAlgorithm, 1);
