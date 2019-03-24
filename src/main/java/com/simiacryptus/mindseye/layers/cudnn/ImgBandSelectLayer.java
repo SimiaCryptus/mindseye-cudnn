@@ -20,7 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.lang.ref.*;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 
@@ -146,7 +146,7 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
           @Nullable final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
           delta.freeRef();
           long size1 = (length * inputDimensions[2] * inputDimensions[1] * inputDimensions[0] * precision.size);
-          @Nonnull final CudaMemory passbackBuffer = gpu.allocate(size1, MemoryType.Managed.normalize(), false);
+          @Nonnull final CudaMemory passbackBuffer = gpu.allocate(size1, MemoryType.Managed.ifEnabled(), false);
           CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
           gpu.cudnnTransformTensor(
               precision.getPointer(1.0), errorPtr.descriptor.getPtr(), errorPtrMemory.getPtr(),

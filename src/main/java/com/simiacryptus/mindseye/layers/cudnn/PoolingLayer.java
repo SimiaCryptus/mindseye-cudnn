@@ -20,7 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.lang.ref.*;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.AvgPoolingLayer;
@@ -126,7 +126,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
         CudaSystem.handle(CudaSystem.cudnnGetPoolingNdForwardOutputDim(poolingDesc.getPtr(), inputTensor.descriptor.getPtr(), 4, outputSize));
         assert inputSize[2] == outputSize[1];
         @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, outputSize[0], outputSize[1], outputSize[2], outputSize[3], outputSize[1] * outputSize[2] * outputSize[3], outputSize[2] * outputSize[3], outputSize[3], 1);
-        @Nonnull final CudaMemory outputTensor = gpu.allocate((long) precision.size * Tensor.length(outputSize), MemoryType.Managed.normalize(), true);
+        @Nonnull final CudaMemory outputTensor = gpu.allocate((long) precision.size * Tensor.length(outputSize), MemoryType.Managed.ifEnabled(), true);
         CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
         CudaSystem.handle(gpu.cudnnPoolingForward(poolingDesc.getPtr(),
             precision.getPointer(alpha),
@@ -160,7 +160,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
               synchronized (gpu) {
                 errorPtr = gpu.getTensor(error, precision, MemoryType.Device, true);
               }
-              @Nonnull final CudaMemory passbackBuffer = gpu.allocate((long) inputDims * precision.size * length, MemoryType.Managed.normalize(), true);
+              @Nonnull final CudaMemory passbackBuffer = gpu.allocate((long) inputDims * precision.size * length, MemoryType.Managed.ifEnabled(), true);
               CudaMemory outputDataMemory = outputData.getMemory(gpu);
               CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
               CudaMemory inputDataMemory = inputTensor.getMemory(gpu);

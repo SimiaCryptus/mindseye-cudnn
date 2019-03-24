@@ -114,7 +114,7 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer implements Stoch
   @Nullable
   @Override
   public Result eval(@Nonnull final Result... inObj) {
-    if(seed == 0) {
+    if (seed == 0) {
       return getInner().eval(inObj);
     }
     Result[] counting = Arrays.stream(inObj).map(r -> {

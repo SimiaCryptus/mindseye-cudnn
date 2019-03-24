@@ -144,7 +144,7 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
     @Override
     public ComponentTest<ToleranceStatistics> getBatchingTester() {
       if (!validateBatchExecution) return null;
-      return (new BatchingTester(1e-2) {
+      return (new BatchingTester(1e-2, true) {
         @Override
         public double getRandom() {
           return random();

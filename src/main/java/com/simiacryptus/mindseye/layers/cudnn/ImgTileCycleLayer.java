@@ -96,7 +96,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
           input.descriptor.cStride,//
           input.descriptor.hStride,//
           input.descriptor.wStride);
-      @Nonnull final CudaMemory outputBuffer = gpu.allocate((long) length * imageDescriptor.nStride * precision.size, MemoryType.Managed.normalize(), true);
+      @Nonnull final CudaMemory outputBuffer = gpu.allocate((long) length * imageDescriptor.nStride * precision.size, MemoryType.Managed.ifEnabled(), true);
 
 
       int splitY1 = splitY;

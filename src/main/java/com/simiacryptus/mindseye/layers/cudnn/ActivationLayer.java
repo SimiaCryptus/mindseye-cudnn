@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ReLuActivationLayer;
 import com.simiacryptus.mindseye.layers.java.SigmoidActivationLayer;
-import com.simiacryptus.mindseye.network.CountingResult;
 import jcuda.jcudnn.cudnnActivationDescriptor;
 import jcuda.jcudnn.cudnnActivationMode;
 import jcuda.jcudnn.cudnnNanPropagation;
@@ -150,7 +149,7 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
               length, inputSize[2], inputSize[1], inputSize[0],
               inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0], 1);
           @Nonnull final CudaMemory outputData =
-              gpu.allocate((long) precision.size * inputDims * length, MemoryType.Managed.normalize(), true);
+              gpu.allocate((long) precision.size * inputDims * length, MemoryType.Managed.ifEnabled(), true);
           outputTensor = CudaTensor.wrap(outputData, outputDescriptor, precision);
         }
 
@@ -189,7 +188,7 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
                 assert length == delta.length();
                 CudaTensor localOut = outPtr.getDense(gpu);
                 CudaTensor passbackTensor = CudaTensor.wrap(
-                    gpu.allocate((long) Tensor.length(inputSize) * length * precision.size, MemoryType.Managed.normalize(), false),
+                    gpu.allocate((long) Tensor.length(inputSize) * length * precision.size, MemoryType.Managed.ifEnabled(), false),
                     gpu.newTensorDescriptor(precision,
                         length, inputSize[2], inputSize[1], inputSize[0],
                         inputSize[2] * inputSize[1] * inputSize[0],

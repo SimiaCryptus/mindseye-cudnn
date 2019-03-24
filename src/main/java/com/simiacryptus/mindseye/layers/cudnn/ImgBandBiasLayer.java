@@ -20,7 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.lang.ref.*;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ProductInputsLayer;
@@ -138,7 +138,7 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBan
       CudaDevice.CudaTensorDescriptor biasDescriptor = gpu.newTensorDescriptor(precision, 1, biasDim[2], biasDim[1], biasDim[0],
           biasDim[2] * biasDim[1] * biasDim[0], biasDim[1] * biasDim[0], biasDim[0], 1);
       //assert lPtr.size == rPtr.size;
-      @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length, MemoryType.Managed.normalize(), true);
+      @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length, MemoryType.Managed.ifEnabled(), true);
       CudaMemory inputMemory = inputTensor.getMemory(gpu);
       CudaSystem.handle(gpu.cudnnOpTensor(opDescriptor.getPtr(),
           precision.getPointer(1.0), inputTensor.descriptor.getPtr(), inputMemory.getPtr(),

@@ -83,6 +83,7 @@ public class CudaSystem {
    * The constant createPoolingDescriptor_execution.
    */
   protected static final DoubleStatistics createPoolingDescriptor_execution = new DoubleStatistics();
+  protected static final DoubleStatistics createLRNDescriptor_execution = new DoubleStatistics();
   /**
    * The constant cudaDeviceReset_execution.
    */
@@ -227,6 +228,12 @@ public class CudaSystem {
    * The constant cudnnPoolingForward_execution.
    */
   protected static final DoubleStatistics cudnnPoolingForward_execution = new DoubleStatistics();
+  protected static final DoubleStatistics cudnnSetLRNDescriptor_execution = new DoubleStatistics();
+  protected static final DoubleStatistics cudnnCreateLRNDescriptor_execution = new DoubleStatistics();
+  protected static final DoubleStatistics cudnnDestroyLRNDescriptor_execution = new DoubleStatistics();
+  protected static final DoubleStatistics cudnnLRNCrossChannelForward_execution = new DoubleStatistics();
+  protected static final DoubleStatistics cudnnLRNCrossChannelBackward_execution = new DoubleStatistics();
+
   /**
    * The constant cudnnTransformTensor_execution.
    */
@@ -321,15 +328,16 @@ public class CudaSystem {
   protected static final HashMap<Integer, ResourcePool<CudnnHandle>> handlePools = new HashMap<>();
   private static final Map<Integer, Long> syncTimes = new HashMap<>();
   private static final Executor garbageTruck = MoreExecutors.directExecutor();
-  //Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("gpu-free-%d").setDaemon(true).getNetwork());
-  private static volatile Integer cachedDeviceCount = init();
   private static final HashMap<Integer, Object> deviceLocks = new HashMap<>();
+  private static final long COPY_BLOCK_SIZE = Long.MAX_VALUE;
 //  private final List<StackTraceElement[]> dirty = new ArrayList<>();
   /**
    * The constant gpuGeneration.
    */
   @Nonnull
   public static AtomicInteger gpuGeneration = new AtomicInteger(0);
+  //Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("gpu-free-%d").setDaemon(true).getNetwork());
+  private static volatile Integer cachedDeviceCount = init();
   private static volatile StaticResourcePool<CudnnHandle> pool;
   /**
    * The Execution thread.
@@ -608,8 +616,6 @@ public class CudaSystem {
     log("cudaDeviceSetLimit(", result, new Object[]{limit, value});
     handle(result);
   }
-
-  private static final long COPY_BLOCK_SIZE = Long.MAX_VALUE;
 
   /**
    * Cuda memcpy int.

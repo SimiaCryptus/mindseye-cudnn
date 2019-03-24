@@ -20,7 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.lang.ref.*;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import org.slf4j.Logger;
@@ -41,17 +41,17 @@ import java.util.stream.Stream;
 @SuppressWarnings("serial")
 public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgCropLayer.class);
-
+  private Alignment verticalAlign = Alignment.Center;
+  private Alignment horizontalAlign = Alignment.Center;
+  private boolean roundUp = false;
   private int sizeX;
   private int sizeY;
   private Precision precision = Precision.Double;
-
   /**
    * Instantiates a new Img eval key.
    */
   private ImgCropLayer() {
   }
-
   /**
    * Instantiates a new Img crop key.
    *
@@ -64,7 +64,6 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     assert 0 < sizeX;
     assert 0 < sizeY;
   }
-
   /**
    * Instantiates a new Img eval key.
    *
@@ -75,6 +74,9 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
+    roundUp = json.get("roundUp").getAsBoolean();
+    setVerticalAlign(Alignment.valueOf(json.get("verticalAlign").getAsString()));
+    setHorizontalAlign(Alignment.valueOf(json.get("horizontalAlign").getAsString()));
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     assert 0 < sizeX;
     assert 0 < sizeY;
@@ -92,6 +94,38 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
   }
 
   /**
+   * Get view dimensions int [ ].
+   *
+   * @param sourceDimensions      the source dimensions
+   * @param destinationDimensions the destination dimensions
+   * @return the int [ ]
+   */
+  @Nonnull
+  public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions) {
+    @Nonnull final int[] viewDim = new int[3];
+    Arrays.parallelSetAll(viewDim, i -> Math.min(sourceDimensions[i], destinationDimensions[i]));
+    return viewDim;
+  }
+
+  public Alignment getVerticalAlign() {
+    return verticalAlign;
+  }
+
+  public ImgCropLayer setVerticalAlign(Alignment verticalAlign) {
+    this.verticalAlign = verticalAlign;
+    return this;
+  }
+
+  public Alignment getHorizontalAlign() {
+    return horizontalAlign;
+  }
+
+  public ImgCropLayer setHorizontalAlign(Alignment horizontalAlign) {
+    this.horizontalAlign = horizontalAlign;
+    return this;
+  }
+
+  /**
    * Copy cuda tensor.
    *
    * @param gpu              the gpu
@@ -103,7 +137,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
    * @param precision        the precision
    * @return the cuda tensor
    */
-  public static CudaTensor copy(final CudnnHandle gpu, final CudaTensor input, final int length, final int[] inputDimensions, final int[] outputDimensions, final boolean dirty, Precision precision) {
+  public CudaTensor copy(final CudnnHandle gpu, final CudaTensor input, final int length, final int[] inputDimensions, final int[] outputDimensions, final boolean dirty, Precision precision) {
     if (3 != inputDimensions.length) throw new IllegalArgumentException("inputDimensions.length");
     if (3 != outputDimensions.length) throw new IllegalArgumentException("dimOut.length");
     if (inputDimensions[2] != outputDimensions[2]) {
@@ -114,14 +148,14 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     int sourceOffset = 0;
     int destinationOffset = 0;
     if (inputDimensions[0] < outputDimensions[0]) {
-      destinationOffset += (outputDimensions[0] - inputDimensions[0]) / 2;
+      destinationOffset += half(outputDimensions[0] - inputDimensions[0], getHorizontalAlign());
     } else {
-      sourceOffset += (inputDimensions[0] - outputDimensions[0]) / 2;
+      sourceOffset += half(inputDimensions[0] - outputDimensions[0], getHorizontalAlign());
     }
     if (inputDimensions[1] < outputDimensions[1]) {
-      destinationOffset += outputDimensions[0] * ((outputDimensions[1] - inputDimensions[1]) / 2);
+      destinationOffset += outputDimensions[0] * (half(outputDimensions[1] - inputDimensions[1], getVerticalAlign()));
     } else {
-      sourceOffset += input.descriptor.hStride * ((inputDimensions[1] - outputDimensions[1]) / 2);
+      sourceOffset += input.descriptor.hStride * (half(inputDimensions[1] - outputDimensions[1], getVerticalAlign()));
     }
     assert sourceOffset >= 0;
     assert destinationOffset >= 0;
@@ -156,7 +190,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
           outputDimensions[1] * outputDimensions[0],//
           outputDimensions[0],//
           1);
-      @Nonnull final CudaMemory outputBuffer = gpu.allocate((long) length * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size, MemoryType.Managed.normalize(), dirty);
+      @Nonnull final CudaMemory outputBuffer = gpu.allocate((long) length * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size, MemoryType.Managed.ifEnabled(), dirty);
       CudaSystem.handle(gpu.cudnnTransformTensor(
           precision.getPointer(1.0),
           sourceViewDescriptor.getPtr(), inputTensorMemory.getPtr().withByteOffset(sourceOffset * precision.size),
@@ -183,18 +217,12 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     }
   }
 
-  /**
-   * Get view dimensions int [ ].
-   *
-   * @param sourceDimensions      the source dimensions
-   * @param destinationDimensions the destination dimensions
-   * @return the int [ ]
-   */
-  @Nonnull
-  public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions) {
-    @Nonnull final int[] viewDim = new int[3];
-    Arrays.parallelSetAll(viewDim, i -> Math.min(sourceDimensions[i], destinationDimensions[i]));
-    return viewDim;
+  public int half(int i, Alignment alignment) {
+    if (alignment == Alignment.Left) return 0;
+    if (alignment == Alignment.Right) return i;
+    if (i % 2 == 0) return i / 2;
+    else if (isRoundUp()) return (i + 1) / 2;
+    else return (i - 1) / 2;
   }
 
   /**
@@ -286,6 +314,9 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
+    json.addProperty("roundUp", roundUp);
+    json.addProperty("horizontalAlign", getHorizontalAlign().toString());
+    json.addProperty("verticalAlign", getVerticalAlign().toString());
     json.addProperty("precision", precision.name());
     return json;
   }
@@ -306,5 +337,29 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
   public ImgCropLayer setPrecision(final Precision precision) {
     this.precision = precision;
     return this;
+  }
+
+  public boolean isRoundUp() {
+    return roundUp;
+  }
+
+  public ImgCropLayer setRoundUp(boolean roundUp) {
+    this.roundUp = roundUp;
+    return this;
+  }
+
+  public enum Alignment {
+    Center("Center"),
+    Left("Right"),
+    Right("Left");
+    private final String inverse;
+
+    Alignment(String other) {
+      this.inverse = other;
+    }
+
+    public Alignment getInverse() {
+      return Alignment.valueOf(inverse);
+    }
   }
 }

@@ -492,6 +492,19 @@ public class CudaDevice extends CudaSystem {
     return new CudaResource<>(poolingDesc, CudaSystem::cudnnDestroyPoolingDescriptor, getDeviceId());
   }
 
+  public CudaResource<cudnnLRNDescriptor> createLRNDescriptor(int lrnN, double lrnAlpha, double lrnBeta, double lrnK) {
+    long startTime = System.nanoTime();
+    @Nonnull final cudnnLRNDescriptor poolingDesc = new cudnnLRNDescriptor();
+    int result = JCudnn.cudnnCreateLRNDescriptor(poolingDesc);
+    log("cudnnCreateLRNDescriptor", result, new Object[]{poolingDesc});
+    handle(result);
+    result = JCudnn.cudnnSetLRNDescriptor(poolingDesc, lrnN, lrnAlpha, lrnBeta, lrnK);
+    log("cudnnSetLRNDescriptor", result, new Object[]{poolingDesc, lrnN, lrnAlpha, lrnBeta, lrnK});
+    handle(result);
+    createLRNDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
+    return new CudaResource<>(poolingDesc, JCudnn::cudnnDestroyLRNDescriptor, getDeviceId());
+  }
+
   /**
    * Init thread.
    */

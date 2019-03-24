@@ -20,12 +20,11 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.lang.ref.*;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.LinearActivationLayer;
 import com.simiacryptus.mindseye.layers.java.SumInputsLayer;
-import com.simiacryptus.mindseye.network.CountingResult;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.util.Util;
 import jcuda.jcudnn.cudnnOpTensorDescriptor;
@@ -174,7 +173,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
         if (inObj[0].isAlive()) {
           CudaTensorList tensorList = CudaSystem.run(gpu -> {
             @Nullable final CudaTensor lPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
-            @Nonnull final CudaMemory passbackPtr = gpu.allocate(precision.size * Tensor.length(dimensions) * length, MemoryType.Managed.normalize(), true);
+            @Nonnull final CudaMemory passbackPtr = gpu.allocate(precision.size * Tensor.length(dimensions) * length, MemoryType.Managed.ifEnabled(), true);
             @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, length,
                 dimensions[2], dimensions[1], dimensions[0],
                 dimensions[2] * dimensions[1] * dimensions[0],
@@ -200,7 +199,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
         if (inObj[1].isAlive()) {
           CudaTensorList tensorList = CudaSystem.run(gpu -> {
             @Nullable final CudaTensor lPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
-            @Nonnull final CudaMemory outputPtr = gpu.allocate(precision.size * Tensor.length(dimensions) * length, MemoryType.Managed.normalize(), true);
+            @Nonnull final CudaMemory outputPtr = gpu.allocate(precision.size * Tensor.length(dimensions) * length, MemoryType.Managed.ifEnabled(), true);
             @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, length,
                 dimensions[2], dimensions[1], dimensions[0],
                 dimensions[2] * dimensions[1] * dimensions[0],

@@ -21,7 +21,8 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.simiacryptus.lang.ref.*;
+import com.simiacryptus.lang.ref.ReferenceCounting;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import org.slf4j.Logger;

@@ -19,8 +19,8 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
-import com.simiacryptus.lang.ref.PersistanceMode;
 import com.simiacryptus.lang.Settings;
+import com.simiacryptus.lang.ref.PersistanceMode;
 import com.simiacryptus.util.JsonUtil;
 import com.simiacryptus.util.LocalAppSettings;
 import org.slf4j.Logger;
@@ -41,7 +41,6 @@ public class CudaSettings implements Settings {
    * The Default devices.
    */
   public final String defaultDevices;
-  private int handlesPerDevice;
   public final PersistanceMode memoryCacheMode;
   private final long maxTotalMemory;
   private final long maxAllocSize;
@@ -61,34 +60,17 @@ public class CudaSettings implements Settings {
   private final boolean syncBeforeFree;
   private final int memoryCacheTTL;
   private final boolean convolutionCache;
-
-  /**
-   * Instance cuda settings.
-   *
-   * @return the cuda settings
-   */
-  public static CudaSettings INSTANCE() {
-    if(null==INSTANCE) {
-      synchronized (CudaSettings.class) {
-        if(null==INSTANCE) {
-          INSTANCE = new CudaSettings();
-          logger.info(String.format("Initialized %s = %s", INSTANCE.getClass().getSimpleName(), JsonUtil.toJson(INSTANCE)));
-        }
-      }
-    }
-    return INSTANCE;
-  }
-
+  private int handlesPerDevice;
 
   private CudaSettings() {
     HashMap<String, String> appSettings = LocalAppSettings.read();
     String spark_home = System.getenv("SPARK_HOME");
-    File sparkHomeFile = new File(spark_home==null?".":spark_home);
-    if(sparkHomeFile.exists()) appSettings.putAll(LocalAppSettings.read(sparkHomeFile));
-    if(appSettings.containsKey("worker.index")) System.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
+    File sparkHomeFile = new File(spark_home == null ? "." : spark_home);
+    if (sparkHomeFile.exists()) appSettings.putAll(LocalAppSettings.read(sparkHomeFile));
+    if (appSettings.containsKey("worker.index")) System.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
     maxTotalMemory = Settings.get("MAX_TOTAL_MEMORY", 8 * CudaMemory.GiB);
     maxDeviceMemory = Settings.get("MAX_DEVICE_MEMORY", 8 * CudaMemory.GiB);
-    maxAllocSize = Settings.get("MAX_ALLOC_SIZE", Precision.Double.size * (Integer.MAX_VALUE/2 - 1L));
+    maxAllocSize = Settings.get("MAX_ALLOC_SIZE", Precision.Double.size * (Integer.MAX_VALUE / 2 - 1L));
     maxFilterElements = Settings.get("MAX_FILTER_ELEMENTS", 512 * CudaMemory.MiB);
     maxIoElements = Settings.get("MAX_IO_ELEMENTS", 2 * CudaMemory.MiB);
     convolutionWorkspaceSizeLimit = Settings.get("CONVOLUTION_WORKSPACE_SIZE_LIMIT", 512 * CudaMemory.MiB);
@@ -107,6 +89,23 @@ public class CudaSettings implements Settings {
     convolutionCache = true;
     defaultDevices = Settings.get("CUDA_DEVICES", "");
     this.handlesPerDevice = Settings.get("CUDA_HANDLES_PER_DEVICE", 8);
+  }
+
+  /**
+   * Instance cuda settings.
+   *
+   * @return the cuda settings
+   */
+  public static CudaSettings INSTANCE() {
+    if (null == INSTANCE) {
+      synchronized (CudaSettings.class) {
+        if (null == INSTANCE) {
+          INSTANCE = new CudaSettings();
+          logger.info(String.format("Initialized %s = %s", INSTANCE.getClass().getSimpleName(), JsonUtil.toJson(INSTANCE)));
+        }
+      }
+    }
+    return INSTANCE;
   }
 
   /**

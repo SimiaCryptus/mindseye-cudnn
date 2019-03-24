@@ -39,20 +39,20 @@ import java.util.Map;
  * number of color bands, and the area outside the source png will be setWeights to 0.
  */
 @SuppressWarnings("serial")
-public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<ImgModulusPaddingLayer> {
-  private static final Logger log = LoggerFactory.getLogger(ImgModulusPaddingLayer.class);
+public class ImgModulusCropLayer extends LayerBase implements MultiPrecision<ImgModulusCropLayer> {
+  private static final Logger log = LoggerFactory.getLogger(ImgModulusCropLayer.class);
+  private boolean roundUp = false;
 
   private int sizeX;
   private int sizeY;
   private int offsetX;
   private int offsetY;
   private Precision precision = Precision.Double;
-  private boolean roundUp;
 
   /**
    * Instantiates a new Img eval key.
    */
-  private ImgModulusPaddingLayer() {
+  private ImgModulusCropLayer() {
   }
 
   /**
@@ -63,7 +63,7 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
    * @param offsetX the offset x
    * @param offsetY the offset y
    */
-  public ImgModulusPaddingLayer(int sizeX, int sizeY, int offsetX, int offsetY) {
+  public ImgModulusCropLayer(int sizeX, int sizeY, int offsetX, int offsetY) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
     this.offsetX = offsetX;
@@ -76,7 +76,7 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
    * @param sizeX the size x
    * @param sizeY the size y
    */
-  public ImgModulusPaddingLayer(int sizeX, int sizeY) {
+  public ImgModulusCropLayer(int sizeX, int sizeY) {
     this(sizeX, sizeY, 0, 0);
   }
 
@@ -86,11 +86,11 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
    * @param json the json
    * @param rs   the rs
    */
-  protected ImgModulusPaddingLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgModulusCropLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
+    setRoundUp(json.get("roundUp").getAsBoolean());
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
-    roundUp = json.get("roundUp").getAsBoolean();
     offsetX = json.get("offsetX").getAsInt();
     offsetY = json.get("offsetY").getAsInt();
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
@@ -103,8 +103,8 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
    * @param rs   the rs
    * @return the img eval key
    */
-  public static ImgModulusPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new ImgModulusPaddingLayer(json, rs);
+  public static ImgModulusCropLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+    return new ImgModulusCropLayer(json, rs);
   }
 
   @Nullable
@@ -120,12 +120,14 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
     while (paddingX < 0) paddingX += sizeX;
     while (paddingX >= sizeX) paddingX -= sizeX;
     if (this.sizeX < 0 && (paddingX + inputWidth) > sizeX) paddingX -= sizeX;
+    while (paddingX > 0) paddingX -= sizeX;
 
     int sizeY = Math.abs(this.sizeY);
     int paddingY = sizeY - ((inputHeight - offsetY) % sizeY);
     while (paddingY < 0) paddingY += sizeY;
     while (paddingY >= sizeY) paddingY -= sizeY;
     if (this.sizeY < 0 && (paddingY + inputHeight) > sizeY) paddingY -= sizeY;
+    while (paddingY > 0) paddingY -= sizeY;
 
     int ouputWidth = inputWidth + paddingX;
     int outputHeight = inputHeight + paddingY;
@@ -137,7 +139,7 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
       }
     }
 
-    @Nonnull ImgCropLayer imgCropLayer = new ImgCropLayer(ouputWidth, outputHeight).setPrecision(precision).setRoundUp(roundUp);
+    @Nonnull ImgCropLayer imgCropLayer = new ImgCropLayer(ouputWidth, outputHeight).setPrecision(precision).setRoundUp(isRoundUp());
     @Nullable Result eval = imgCropLayer.evalAndFree(inObj);
     imgCropLayer.freeRef();
     return eval;
@@ -147,8 +149,8 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
-    json.addProperty("sizeY", sizeY);
     json.addProperty("roundUp", roundUp);
+    json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
     json.addProperty("offsetX", offsetX);
     json.addProperty("offsetY", offsetY);
@@ -169,7 +171,7 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
 
   @Nonnull
   @Override
-  public ImgModulusPaddingLayer setPrecision(final Precision precision) {
+  public ImgModulusCropLayer setPrecision(final Precision precision) {
     this.precision = precision;
     return this;
   }
@@ -192,11 +194,11 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
     this.offsetX = offsetX;
   }
 
-  public boolean getRoundUp() {
+  public boolean isRoundUp() {
     return roundUp;
   }
 
-  public ImgModulusPaddingLayer setRoundUp(boolean roundUp) {
+  public ImgModulusCropLayer setRoundUp(boolean roundUp) {
     this.roundUp = roundUp;
     return this;
   }

@@ -20,8 +20,11 @@
 package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.simiacryptus.lang.ref.*;
-import com.simiacryptus.mindseye.lang.*;
+import com.simiacryptus.lang.ref.ReferenceCounting;
+import com.simiacryptus.mindseye.lang.ReshapedTensorList;
+import com.simiacryptus.mindseye.lang.Tensor;
+import com.simiacryptus.mindseye.lang.TensorArray;
+import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.util.Util;
 import jcuda.Pointer;
 import jcuda.jcudnn.*;
@@ -167,7 +170,7 @@ public class CudnnHandle extends CudaDevice {
     @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = newTensorDescriptor(left.getPrecision(),
         length, d2, d1, d0,
         d2 * d1 * d0, d1 * d0, d0, 1);
-    @Nonnull final CudaMemory outputPtr = allocate((long) outputDescriptor.nStride * precision.size * length, MemoryType.Managed.normalize(), true);
+    @Nonnull final CudaMemory outputPtr = allocate((long) outputDescriptor.nStride * precision.size * length, MemoryType.Managed.ifEnabled(), true);
     try {
       CudaMemory lPtrMemory = lPtr.getMemory(this);
       CudaMemory rPtrMemory = rPtr.getMemory(this);
@@ -762,6 +765,79 @@ public class CudnnHandle extends CudaDevice {
     final int result = JCudnn.cudnnPoolingForward(this.handle, poolingDesc, alpha, xDesc, x, beta, yDesc, y);
     cudnnPoolingForward_execution.accept((System.nanoTime() - startTime) / 1e9);
     log("cudnnPoolingForward", result, new Object[]{this, poolingDesc, alpha, xDesc, x, beta, yDesc, y});
+    return result;
+  }
+
+  public int cudnnLRNCrossChannelForward(
+      final cudnnLRNDescriptor normDesc,
+      final int lrnMode,
+      final CudaPointer alpha,
+      final cudnnTensorDescriptor xDesc,
+      final CudaPointer x,
+      final CudaPointer beta,
+      final cudnnTensorDescriptor yDesc,
+      final CudaPointer y) {
+    assert CudaDevice.isThreadDeviceId(getDeviceId());
+    long startTime = System.nanoTime();
+    final int result = JCudnn.cudnnLRNCrossChannelForward(this.handle, normDesc, lrnMode, alpha, xDesc, x, beta, yDesc, y);
+    cudnnLRNCrossChannelForward_execution.accept((System.nanoTime() - startTime) / 1e9);
+    log("cudnnLRNCrossChannelForward", result, new Object[]{this, normDesc, lrnMode, alpha, xDesc, x, beta, yDesc, y});
+    return result;
+  }
+
+  public int cudnnLRNCrossChannelBackward(
+      cudnnLRNDescriptor normDesc,
+      int lrnMode,
+      Pointer alpha,
+      cudnnTensorDescriptor yDesc,
+      Pointer y,
+      cudnnTensorDescriptor dyDesc,
+      Pointer dy,
+      cudnnTensorDescriptor xDesc,
+      Pointer x,
+      Pointer beta,
+      cudnnTensorDescriptor dxDesc,
+      Pointer dx) {
+    assert CudaDevice.isThreadDeviceId(getDeviceId());
+    long startTime = System.nanoTime();
+
+    final int result = JCudnn.cudnnLRNCrossChannelBackward(this.handle, normDesc, lrnMode, alpha, yDesc, y, dyDesc, dy, xDesc, x, beta, dxDesc, dx);
+    cudnnLRNCrossChannelBackward_execution.accept((System.nanoTime() - startTime) / 1e9);
+    log("cudnnLRNCrossChannelBackward", result, new Object[]{this.handle, normDesc, lrnMode, alpha, yDesc, y, dyDesc, dy, xDesc, x, beta, dxDesc, dx});
+    return result;
+  }
+
+  public int cudnnSetLRNDescriptor(
+      final cudnnLRNDescriptor poolingDesc,
+      final int n,
+      final double alpha,
+      final double beta,
+      final double k) {
+    assert CudaDevice.isThreadDeviceId(getDeviceId());
+    long startTime = System.nanoTime();
+    final int result = JCudnn.cudnnSetLRNDescriptor(poolingDesc, n, alpha, beta, k);
+    cudnnSetLRNDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
+    log("cudnnSetLRNDescriptor", result, new Object[]{poolingDesc, n, alpha, beta, k});
+    return result;
+  }
+
+  public int cudnnCreateLRNDescriptor(
+      final cudnnLRNDescriptor poolingDesc) {
+    assert CudaDevice.isThreadDeviceId(getDeviceId());
+    long startTime = System.nanoTime();
+    final int result = JCudnn.cudnnCreateLRNDescriptor(poolingDesc);
+    cudnnCreateLRNDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
+    log("cudnnCreateLRNDescriptor", result, new Object[]{poolingDesc});
+    return result;
+  }
+
+  public int cudnnDestroyLRNDescriptor(
+      final cudnnLRNDescriptor poolingDesc) {
+    assert CudaDevice.isThreadDeviceId(getDeviceId());
+    long startTime = System.nanoTime();
+    final int result = JCudnn.cudnnDestroyLRNDescriptor(poolingDesc);
+    cudnnDestroyLRNDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
+    log("cudnnDestroyLRNDescriptor", result, new Object[]{poolingDesc});
     return result;
   }
 

@@ -20,27 +20,44 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.mindseye.lang.cudnn.CudaSystem;
-import com.simiacryptus.mindseye.layers.LayerTestBase;
-import com.simiacryptus.notebook.NotebookOutput;
+import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.util.Random;
 
-public abstract class CudnnLayerTestBase extends LayerTestBase {
+public class LRNLayerTest extends CudnnLayerTestBase {
 
-  @Override
-  public void run(@Nonnull NotebookOutput log) {
-    OutputStream file = log.file("gpu.log");
-    log.out(log.link(new File(log.getResourceDir(), "gpu.log"), "Cuda Log"));
-    CudaSystem.addLog(new PrintStream(file));
-    super.run(log);
+  private final int smallSize;
+  private final int largeSize;
+
+  public LRNLayerTest() {
+    this.smallSize = 10;
+    this.largeSize = 800;
   }
 
   @Override
-  protected Layer lossLayer() {
-    return new MeanSqLossLayer();
+  public SingleDerivativeTester getDerivativeTester() {
+    return new SingleDerivativeTester(1e-2, 1e-4);
   }
+
+  @Nonnull
+  @Override
+  public int[][] getSmallDims(Random random) {
+    return new int[][]{{smallSize, smallSize, 1}};
+  }
+
+  @Nonnull
+  @Override
+  public Layer getLayer(final int[][] inputSize, Random random) {
+    return new LRNLayer(5);
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getLargeDims(Random random) {
+    return new int[][]{
+        {largeSize, largeSize, 1}
+    };
+  }
+
 }

@@ -44,10 +44,6 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
    */
   public static final Map<Integer, DeviceMetrics> METRICS = new ConcurrentHashMap<>();
   /**
-   * The constant logger.
-   */
-  protected static final Logger logger = LoggerFactory.getLogger(CudaMemory.class);
-  /**
    * The K.
    */
   public static final int K = 1024;
@@ -59,6 +55,10 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
    * The Gi b.
    */
   public static final long GiB = 1024 * MiB;
+  /**
+   * The constant logger.
+   */
+  protected static final Logger logger = LoggerFactory.getLogger(CudaMemory.class);
   /**
    * The Size.
    */

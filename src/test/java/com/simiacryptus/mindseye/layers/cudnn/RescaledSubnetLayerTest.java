@@ -31,8 +31,7 @@ import java.util.Random;
 /**
  * The type Rescaled subnet key apply.
  */
-public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase
-{
+public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
 
   /**
    * The Convolution key.

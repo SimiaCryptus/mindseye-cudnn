@@ -19,7 +19,7 @@
 
 package com.simiacryptus.mindseye.layers.cudnn.conv;
 
-import com.simiacryptus.lang.ref.*;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;

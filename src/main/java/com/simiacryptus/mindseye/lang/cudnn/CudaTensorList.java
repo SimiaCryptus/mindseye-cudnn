@@ -35,17 +35,10 @@ import java.util.stream.Stream;
  * A TensorList data object stored on a GPU apply a configurable precision.
  */
 public class CudaTensorList extends RegisteredObjectBase implements TensorList, CudaSystem.CudaDeviceResource {
-  @Override
-  public CudaTensorList addRef() {
-    return (CudaTensorList) super.addRef();
-  }
-
   /**
    * The constant logger.
    */
   public static final Logger logger = LoggerFactory.getLogger(CudaTensorList.class);
-
-
   /**
    * The Created by.
    */
@@ -150,6 +143,11 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     CudaTensorList cudaTensorList = new CudaTensorList(cudaTensor, length, dimensions, precision);
     cudaTensor.freeRef();
     return cudaTensorList;
+  }
+
+  @Override
+  public CudaTensorList addRef() {
+    return (CudaTensorList) super.addRef();
   }
 
   public int getDeviceId() {
@@ -391,7 +389,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
       assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
       CudaMemory cudaMemory = ptr.getMemory(gpu, MemoryType.Device);
       assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-      CudaMemory copyPtr = cudaMemory.copy(gpu, MemoryType.Managed.normalize());
+      CudaMemory copyPtr = cudaMemory.copy(gpu, MemoryType.Managed.ifEnabled());
       cudaMemory.freeRef();
       try {
         CudaTensor cudaTensor = new CudaTensor(copyPtr, ptr.descriptor, getPrecision());
@@ -425,7 +423,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
    * @return the long
    */
   public long evictToHeap() {
-    if(isFinalized()) return 0;
+    if (isFinalized()) return 0;
     if (null == heapCopy(true)) {
       throw new IllegalStateException();
     }

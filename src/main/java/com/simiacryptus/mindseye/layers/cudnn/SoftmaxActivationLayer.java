@@ -150,7 +150,7 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
               length, inputSize[2], inputSize[1], inputSize[0],
               inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0], 1);
           @Nonnull final CudaMemory outputData =
-              gpu.allocate(precision.size * 1l * inputDims * length, MemoryType.Managed.normalize(), true);
+              gpu.allocate(precision.size * 1l * inputDims * length, MemoryType.Managed.ifEnabled(), true);
           outputTensor = CudaTensor.wrap(outputData, outputDescriptor, precision);
         }
         try {
@@ -189,7 +189,7 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
                 delta.freeRef();
                 CudaTensor passbackTensor;
                 passbackTensor = CudaTensor.wrap(
-                    gpu.allocate((long) Tensor.length(inputSize) * length * precision.size, MemoryType.Managed.normalize(), false),
+                    gpu.allocate((long) Tensor.length(inputSize) * length * precision.size, MemoryType.Managed.ifEnabled(), false),
                     gpu.newTensorDescriptor(precision,
                         delta.length(), inputSize[2], inputSize[1], inputSize[0],
                         inputSize[2] * inputSize[1] * inputSize[0],

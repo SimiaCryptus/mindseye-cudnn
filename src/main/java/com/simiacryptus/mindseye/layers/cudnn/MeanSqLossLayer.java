@@ -51,12 +51,6 @@ public class MeanSqLossLayer extends PipelineNetwork {
     wrap(new AvgReducerLayer()).freeRef();
   }
 
-  @Override
-  protected void _free() {
-    binaryNode.freeRef();
-    super._free();
-  }
-
   /**
    * Instantiates a new Mean sq loss key.
    *
@@ -78,6 +72,12 @@ public class MeanSqLossLayer extends PipelineNetwork {
    */
   public static MeanSqLossLayer fromJson(final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new MeanSqLossLayer(json, rs);
+  }
+
+  @Override
+  protected void _free() {
+    binaryNode.freeRef();
+    super._free();
   }
 
   @Override

@@ -20,7 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.lang.ref.*;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import org.slf4j.Logger;
@@ -109,7 +109,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
    * @return the cuda tensor
    */
   public static CudaTensor copy(final CudnnHandle gpu, @Nonnull final TensorList input, final int[] inputDimensions, final int[] outputDimensions, Precision precision, final int positionX, final int positionY, final boolean dirty) {
-    @Nonnull final CudaMemory outputPtr = gpu.allocate((long) input.length() * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size, MemoryType.Managed.normalize(), dirty);
+    @Nonnull final CudaMemory outputPtr = gpu.allocate((long) input.length() * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size, MemoryType.Managed.ifEnabled(), dirty);
     return copy(gpu, input, inputDimensions, outputDimensions, positionX, positionY, precision, outputPtr);
   }
 

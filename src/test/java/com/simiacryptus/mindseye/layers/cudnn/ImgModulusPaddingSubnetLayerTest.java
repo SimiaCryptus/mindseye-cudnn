@@ -20,29 +20,49 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayer;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Random;
 
-/**
- * The type Rascaled subnet key apply.
- */
-public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
 
-  private final ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1).set(() -> this.random());
+/**
+ * The type Img crop key apply.
+ */
+public abstract class ImgModulusPaddingSubnetLayerTest extends CudnnLayerTestBase {
+
+  /**
+   * The Modulus.
+   */
+  final int modulus;
+  /**
+   * The Offset.
+   */
+  final int offset;
+
+  /**
+   * Instantiates a new Img modulus padding key test.
+   *
+   * @param inputSize the input size
+   * @param modulus   the modulus
+   * @param offset    the offset
+   */
+  public ImgModulusPaddingSubnetLayerTest(int inputSize, int modulus, int offset) {
+    validateBatchExecution = false;
+    this.modulus = modulus;
+    this.offset = offset;
+  }
 
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
     return new int[][]{
-        {5, 5, 1}
+        {2, 2, 1}
     };
   }
 
+  @Nonnull
   @Override
-  public int[][] getLargeDims(final Random random) {
+  public int[][] getLargeDims(Random random) {
     return new int[][]{
         {1200, 1200, 1}
     };
@@ -51,32 +71,24 @@ public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new ImgTileSubnetLayer(new ActivationLayer(ActivationLayer.Mode.RELU), 3, 3, 2, 2);
+    return new ImgModulusPaddingSubnetLayer(modulus, modulus, offset, offset, new ActivationLayer(ActivationLayer.Mode.RELU));
   }
 
-  @Nullable
-  @Override
-  public Layer getReferenceLayer() {
-    return new ActivationLayer(ActivationLayer.Mode.RELU);
-  }
-
-  @Nullable
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
-    return com.simiacryptus.mindseye.layers.java.ImgTileSubnetLayer.class;
+    return null;
   }
 
   /**
    * Basic Test
    */
-  public static class Basic extends ImgTileSubnetLayerTest {
-
-    @Nullable
-    @Override
-    public Class<? extends Layer> getReferenceLayerClass() {
-      return null;
+  public static class Basic extends ImgModulusPaddingSubnetLayerTest {
+    /**
+     * Instantiates a new Basic.
+     */
+    public Basic() {
+      super(2, 3, 0);
     }
-
   }
 
 }

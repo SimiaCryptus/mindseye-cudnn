@@ -64,12 +64,6 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
   private Precision precision = Precision.Double;
   private int batchBands = 0;
 
-  @Override
-  protected void _free() {
-    weights.freeRef();
-    super._free();
-  }
-
   /**
    * Instantiates a new Img eval key.
    */
@@ -123,6 +117,12 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
    */
   public static FullyConnectedLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new FullyConnectedLayer(json, rs);
+  }
+
+  @Override
+  protected void _free() {
+    weights.freeRef();
+    super._free();
   }
 
   /**
