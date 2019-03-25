@@ -20,25 +20,20 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.mindseye.lang.Tensor;
-import com.simiacryptus.mindseye.network.PipelineNetwork;
-import com.simiacryptus.mindseye.test.ToleranceStatistics;
-import com.simiacryptus.mindseye.test.unit.ComponentTest;
-import com.simiacryptus.mindseye.test.unit.ComponentTestBase;
-import com.simiacryptus.mindseye.test.unit.PerformanceTester;
-import com.simiacryptus.notebook.NotebookOutput;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Random;
 
 
 /**
  * The type Img crop key apply.
  */
-public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
+public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
-  public ImgCropLayerTest() {
+  private static final int SIZE_OUT = 4;
+  private static final int SIZE_IN = 2;
+
+  public ImgPaddingLayerTest() {
   }
 
   @Nonnull @Override
@@ -55,61 +50,56 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
   /**
    * Basic Test
    */
-  public static class Center extends ImgCropLayerTest {
+  public static class Center extends ImgPaddingLayerTest {
     @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {4, 4, 1} }; }
+    public int[][] getSmallDims(Random random) { return new int[][]{ {SIZE_IN, SIZE_IN, 1} }; }
 
     @Nonnull @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgCropLayer(2, 2);
-    }
-
-    @Override
-    public Class<? extends Layer> getReferenceLayerClass() {
-      return com.simiacryptus.mindseye.layers.java.ImgCropLayer.class;
+      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
     }
 
   }
-  public static class Left extends ImgCropLayerTest {
+  public static class Left extends ImgPaddingLayerTest {
     @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {4, 4, 1} }; }
+    public int[][] getSmallDims(Random random) { return new int[][]{ {SIZE_IN, SIZE_IN, 1} }; }
 
     @Nonnull @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgCropLayer(2, 2).setHorizontalAlign(ImgCropLayer.Alignment.Left);
+      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setHorizontalAlign(ImgPaddingLayer.Alignment.Left);
     }
 
   }
 
-  public static class Right extends ImgCropLayerTest {
+  public static class Right extends ImgPaddingLayerTest {
     @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {4, 4, 1} }; }
+    public int[][] getSmallDims(Random random) { return new int[][]{ {SIZE_IN, SIZE_IN, 1} }; }
 
     @Nonnull @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgCropLayer(2, 2).setHorizontalAlign(ImgCropLayer.Alignment.Right);
+      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setHorizontalAlign(ImgPaddingLayer.Alignment.Right);
     }
 
   }
 
-  public static class Top extends ImgCropLayerTest {
+  public static class Top extends ImgPaddingLayerTest {
     @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {4, 4, 1} }; }
+    public int[][] getSmallDims(Random random) { return new int[][]{ {SIZE_IN, SIZE_IN, 1} }; }
 
     @Nonnull @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgCropLayer(2, 2).setVerticalAlign(ImgCropLayer.Alignment.Left);
+      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setVerticalAlign(ImgPaddingLayer.Alignment.Left);
     }
 
   }
 
-  public static class Bottom extends ImgCropLayerTest {
+  public static class Bottom extends ImgPaddingLayerTest {
     @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {4, 4, 1} }; }
+    public int[][] getSmallDims(Random random) { return new int[][]{ {SIZE_IN, SIZE_IN, 1} }; }
 
     @Nonnull @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgCropLayer(2, 2).setVerticalAlign(ImgCropLayer.Alignment.Left);
+      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setVerticalAlign(ImgPaddingLayer.Alignment.Right);
     }
 
   }

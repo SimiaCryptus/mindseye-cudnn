@@ -1,644 +1,659 @@
 {
-  "com.simiacryptus.mindseye.lang.cudnn.CudaDevice": {
-    ":class": "The type Gpu device."
+  "com.simiacryptus.mindseye.lang.cudnn.CudaDevice" : {
+    ":class" : "The type Gpu device."
   },
-  "com.simiacryptus.mindseye.lang.cudnn.CudaDevice.CudaTensorDescriptor": {
-    ":class": "The type Cuda tensor descriptor."
+  "com.simiacryptus.mindseye.lang.cudnn.CudaDevice.CudaTensorDescriptor" : {
+    ":class" : "The type Cuda tensor descriptor."
   },
-  "com.simiacryptus.mindseye.lang.cudnn.CudaError": {
-    ":class": "A low-level exception occured while executing GPU instructions"
+  "com.simiacryptus.mindseye.lang.cudnn.CudaError" : {
+    ":class" : "A low-level exception occured while executing GPU instructions"
   },
-  "com.simiacryptus.mindseye.lang.cudnn.CudaMemory": {
-    ":class": "A GPU memory segment"
+  "com.simiacryptus.mindseye.lang.cudnn.CudaMemory" : {
+    ":class" : "A GPU memory segment"
   },
-  "com.simiacryptus.mindseye.lang.cudnn.CudaPointer": {
-    ":class": "The type Cuda pointer."
+  "com.simiacryptus.mindseye.lang.cudnn.CudaPointer" : {
+    ":class" : "The type Cuda pointer."
   },
-  "com.simiacryptus.mindseye.lang.cudnn.CudaResource": {
-    ":class": "A managed resource containing a native CudaSystem resource, bound to its lifecycle apply a prearranged destructor."
+  "com.simiacryptus.mindseye.lang.cudnn.CudaResource" : {
+    ":class" : "A managed resource containing a native CudaSystem resource, bound to its lifecycle apply a prearranged destructor."
   },
-  "com.simiacryptus.mindseye.lang.cudnn.CudaResourceBase": {
-    ":class": "The type Cuda resource base.",
-    "ptr": "The Ptr."
+  "com.simiacryptus.mindseye.lang.cudnn.CudaResourceBase" : {
+    ":class" : "The type Cuda resource base.",
+    "ptr" : "The Ptr."
   },
-  "com.simiacryptus.mindseye.lang.cudnn.CudaSettings": {
-    ":class": "The type Cuda settings."
+  "com.simiacryptus.mindseye.lang.cudnn.CudaSettings" : {
+    ":class" : "The type Cuda settings."
   },
-  "com.simiacryptus.mindseye.lang.cudnn.CudaStream": {
-    ":class": "The type Cuda stream."
+  "com.simiacryptus.mindseye.lang.cudnn.CudaStream" : {
+    ":class" : "The type Cuda stream."
   },
-  "com.simiacryptus.mindseye.lang.cudnn.CudaSystem": {
-    ":class": "Main library wrapper class around the CudaSystem API, providing logging and managed wrappers."
+  "com.simiacryptus.mindseye.lang.cudnn.CudaSystem" : {
+    ":class" : "Main library wrapper class around the CudaSystem API, providing logging and managed wrappers."
   },
-  "com.simiacryptus.mindseye.lang.cudnn.CudaSystem.CudaDeviceResource": {
-    ":class": "The interface Cuda device resource."
+  "com.simiacryptus.mindseye.lang.cudnn.CudaSystem.CudaDeviceResource" : {
+    ":class" : "The interface Cuda device resource."
   },
-  "com.simiacryptus.mindseye.lang.cudnn.CudaTensor": {
-    ":class": "The type Cuda tensor."
+  "com.simiacryptus.mindseye.lang.cudnn.CudaTensor" : {
+    ":class" : "The type Cuda tensor."
   },
-  "com.simiacryptus.mindseye.lang.cudnn.CudaTensorList": {
-    ":class": "A TensorList data object stored on a GPU apply a configurable precision.",
-    "gpuCopy": "The Ptr.",
-    "heapCopy": "The Heap copy."
+  "com.simiacryptus.mindseye.lang.cudnn.CudaTensorList" : {
+    ":class" : "A TensorList data object stored on a GPU apply a configurable precision.",
+    "gpuCopy" : "The Ptr.",
+    "heapCopy" : "The Heap copy."
   },
-  "com.simiacryptus.mindseye.lang.cudnn.CudnnHandle": {
-    ":class": "The type Gpu handle."
+  "com.simiacryptus.mindseye.lang.cudnn.CudnnHandle" : {
+    ":class" : "The type Gpu handle."
   },
-  "com.simiacryptus.mindseye.lang.cudnn.DeviceMetrics": {
-    ":class": "The type Gpu stats."
+  "com.simiacryptus.mindseye.lang.cudnn.DeviceMetrics" : {
+    ":class" : "The type Gpu stats."
   },
-  "com.simiacryptus.mindseye.lang.cudnn.MultiPrecision": {
-    ":class": "An interface for CuDNN layers apply configurable numeric precision.",
-    "precision": "Sets precision."
+  "com.simiacryptus.mindseye.lang.cudnn.MultiPrecision" : {
+    ":class" : "An interface for CuDNN layers apply configurable numeric precision.",
+    "precision" : "Sets precision."
   },
-  "com.simiacryptus.mindseye.layers.LayerTestBase": {
-    ":class": "The type LayerBase apply base."
+  "com.simiacryptus.mindseye.layers.LayerTestBase" : {
+    ":class" : "The type LayerBase apply base."
   },
-  "com.simiacryptus.mindseye.layers.MetaLayerTestBase": {
-    ":class": "The type Meta key apply base."
+  "com.simiacryptus.mindseye.layers.MetaLayerTestBase" : {
+    ":class" : "The type Meta key apply base."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ActivationLayer": {
-    ":class": "The generic Activation key, exposing the activation types provided by CudaSystem. This key is stateless and is determined by a univariate function, e.g. ReLU or Sigmoid.",
-    "alpha": "Sets alpha."
+  "com.simiacryptus.mindseye.layers.cudnn.ActivationLayer" : {
+    ":class" : "The generic Activation key, exposing the activation types provided by CudaSystem. This key is stateless and is determined by a univariate function, e.g. ReLU or Sigmoid.",
+    "alpha" : "Sets alpha."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ActivationLayerTest": {
-    ":class": "The type Activation key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ActivationLayerTest" : {
+    ":class" : "The type Activation key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ActivationLayerTest.ReLu_Double": {
-    ":class": "Configured apply double (64-bit) precision, y=x&lt;0?0:x"
+  "com.simiacryptus.mindseye.layers.cudnn.ActivationLayerTest.ReLu_Double" : {
+    ":class" : "Configured apply double (64-bit) precision, y=x&lt;0?0:x"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ActivationLayerTest.ReLu_Float": {
-    ":class": "Configured apply float (32-bit) precision, y=x&lt;0?0:x"
+  "com.simiacryptus.mindseye.layers.cudnn.ActivationLayerTest.ReLu_Float" : {
+    ":class" : "Configured apply float (32-bit) precision, y=x&lt;0?0:x"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ActivationLayerTest.Sigmoid_Double": {
-    ":class": "Configured apply double (64-bit) precision using the Sigmoid function"
+  "com.simiacryptus.mindseye.layers.cudnn.ActivationLayerTest.Sigmoid_Double" : {
+    ":class" : "Configured apply double (64-bit) precision using the Sigmoid function"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ActivationLayerTest.Sigmoid_Float": {
-    ":class": "Configured apply float (32-bit) precision using the Sigmoid function"
+  "com.simiacryptus.mindseye.layers.cudnn.ActivationLayerTest.Sigmoid_Float" : {
+    ":class" : "Configured apply float (32-bit) precision using the Sigmoid function"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.AvgReducerLayer": {
-    ":class": "Similar to the pooling key, but the pool size is always the png size. The output dimensions are always 1x1xN."
+  "com.simiacryptus.mindseye.layers.cudnn.AvgReducerLayer" : {
+    ":class" : "Similar to the pooling key, but the pool size is always the png size. The output dimensions are always 1x1xN."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.AvgReducerLayerTest": {
-    ":class": "The type Img band bias key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.AvgReducerLayerTest" : {
+    ":class" : "The type Img band bias key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.AvgReducerLayerTest.Asymmetric": {
-    ":class": "Inputs asymmetric (height != width) images"
+  "com.simiacryptus.mindseye.layers.cudnn.AvgReducerLayerTest.Asymmetric" : {
+    ":class" : "Inputs asymmetric (height != width) images"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.AvgReducerLayerTest.Double": {
-    ":class": "Basic apply in double (64-bit) precision"
+  "com.simiacryptus.mindseye.layers.cudnn.AvgReducerLayerTest.Double" : {
+    ":class" : "Basic apply in double (64-bit) precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.AvgReducerLayerTest.Float": {
-    ":class": "Basic apply using float (32-bit) precision."
+  "com.simiacryptus.mindseye.layers.cudnn.AvgReducerLayerTest.Float" : {
+    ":class" : "Basic apply using float (32-bit) precision."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BandAvgReducerLayer": {
-    ":class": "Similar to the pooling key, but the pool size is always the png size. The output dimensions are always 1x1xN.",
-    "alpha": "Sets alphaList."
+  "com.simiacryptus.mindseye.layers.cudnn.BandAvgReducerLayer" : {
+    ":class" : "Similar to the pooling key, but the pool size is always the png size. The output dimensions are always 1x1xN.",
+    "alpha" : "Sets alphaList."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BandAvgReducerLayerTest": {
-    ":class": "The type Img band bias key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.BandAvgReducerLayerTest" : {
+    ":class" : "The type Img band bias key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BandAvgReducerLayerTest.Asymmetric": {
-    ":class": "Inputs asymmetric (height != width) images"
+  "com.simiacryptus.mindseye.layers.cudnn.BandAvgReducerLayerTest.Asymmetric" : {
+    ":class" : "Inputs asymmetric (height != width) images"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BandAvgReducerLayerTest.Double": {
-    ":class": "Basic apply in double (64-bit) precision"
+  "com.simiacryptus.mindseye.layers.cudnn.BandAvgReducerLayerTest.Double" : {
+    ":class" : "Basic apply in double (64-bit) precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BandAvgReducerLayerTest.Float": {
-    ":class": "Basic apply using float (32-bit) precision."
+  "com.simiacryptus.mindseye.layers.cudnn.BandAvgReducerLayerTest.Float" : {
+    ":class" : "Basic apply using float (32-bit) precision."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BandAvgReducerLayerTest.Negative": {
-    ":class": "Basic apply in double (64-bit) precision"
+  "com.simiacryptus.mindseye.layers.cudnn.BandAvgReducerLayerTest.Negative" : {
+    ":class" : "Basic apply in double (64-bit) precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BandReducerLayer": {
-    ":class": "Similar to the pooling key, but the pool size is always the png size. The output dimensions are always 1x1xN.",
-    "alpha": "Sets alphaList.",
-    "mode": "Sets mode."
+  "com.simiacryptus.mindseye.layers.cudnn.BandReducerLayer" : {
+    ":class" : "Similar to the pooling key, but the pool size is always the png size. The output dimensions are always 1x1xN.",
+    "alpha" : "Sets alphaList.",
+    "mode" : "Sets mode."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BandReducerLayerTest": {
-    ":class": "The type Img band bias key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.BandReducerLayerTest" : {
+    ":class" : "The type Img band bias key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BandReducerLayerTest.Asymmetric": {
-    ":class": "Inputs asymmetric (height != width) images"
+  "com.simiacryptus.mindseye.layers.cudnn.BandReducerLayerTest.Asymmetric" : {
+    ":class" : "Inputs asymmetric (height != width) images"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BandReducerLayerTest.Double": {
-    ":class": "Basic apply in double (64-bit) precision"
+  "com.simiacryptus.mindseye.layers.cudnn.BandReducerLayerTest.Double" : {
+    ":class" : "Basic apply in double (64-bit) precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BandReducerLayerTest.Float": {
-    ":class": "Basic apply using float (32-bit) precision."
+  "com.simiacryptus.mindseye.layers.cudnn.BandReducerLayerTest.Float" : {
+    ":class" : "Basic apply using float (32-bit) precision."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BandReducerLayerTest.Negative": {
-    ":class": "Basic apply in double (64-bit) precision"
+  "com.simiacryptus.mindseye.layers.cudnn.BandReducerLayerTest.Negative" : {
+    ":class" : "Basic apply in double (64-bit) precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayer": {
-    ":class": "Computes a weighted binary sum of two layers. Provides two weighting coefficients, one for each input. This can be used to implement a summation key, a difference key, a scaling key, or any combination.",
-    "leftFactor": "Sets left factor.",
-    "rightFactor": "Sets right factor."
+  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayer" : {
+    ":class" : "Computes a weighted binary sum of two layers. Provides two weighting coefficients, one for each input. This can be used to implement a summation key, a difference key, a scaling key, or any combination.",
+    "leftFactor" : "Sets left factor.",
+    "rightFactor" : "Sets right factor."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest": {
-    ":class": "The type BinarySumLayerTest key apply.",
-    "smallSize": "The Small size."
+  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest" : {
+    ":class" : "The type BinarySumLayerTest key apply.",
+    "smallSize" : "The Small size."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest.Double_Add": {
-    ":class": "Adds using double (64-bit) precision, C = A + B"
+  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest.Double_Add" : {
+    ":class" : "Adds using double (64-bit) precision, C = A + B"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest.Double_List": {
-    ":class": "The type Double list."
+  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest.Double_List" : {
+    ":class" : "The type Double list."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest.Double_Subtract": {
-    ":class": "Subtracts using double (64-bit) precision, C = A - B"
+  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest.Double_Subtract" : {
+    ":class" : "Subtracts using double (64-bit) precision, C = A - B"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest.Float_Add": {
-    ":class": "Adds using float (32-bit) precision, C = A + B"
+  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest.Float_Add" : {
+    ":class" : "Adds using float (32-bit) precision, C = A + B"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest.Float_Avg": {
-    ":class": "Binary averaging using float (32-bit) precision, C = (A + B) / 2"
+  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest.Float_Avg" : {
+    ":class" : "Binary averaging using float (32-bit) precision, C = (A + B) / 2"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest.OnePlusOne": {
-    ":class": "Ensures addition can be used to implement a doubling (x2) function"
+  "com.simiacryptus.mindseye.layers.cudnn.BinarySumLayerTest.OnePlusOne" : {
+    ":class" : "Ensures addition can be used to implement a doubling (x2) function"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.CudnnLayerTestBase": {},
-  "com.simiacryptus.mindseye.layers.cudnn.GateBiasLayer": {
-    ":class": "This key multiplies together the inputs, element-by-element. It can be used to implement integer-power activation layers, such as the square needed in MeanSqLossLayer."
+  "com.simiacryptus.mindseye.layers.cudnn.CudnnLayerTestBase" : { },
+  "com.simiacryptus.mindseye.layers.cudnn.GateBiasLayer" : {
+    ":class" : "This key multiplies together the inputs, element-by-element. It can be used to implement integer-power activation layers, such as the square needed in MeanSqLossLayer."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.GateBiasLayerTest": {
-    ":class": "The type Product key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.GateBiasLayerTest" : {
+    ":class" : "The type Product key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.GateBiasLayerTest.Double": {
-    ":class": "Multiplication of 2 inputs using 64-bit precision"
+  "com.simiacryptus.mindseye.layers.cudnn.GateBiasLayerTest.Double" : {
+    ":class" : "Multiplication of 2 inputs using 64-bit precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.GateBiasLayerTest.Float": {
-    ":class": "Multiplication of 2 inputs using 32-bit precision"
+  "com.simiacryptus.mindseye.layers.cudnn.GateBiasLayerTest.Float" : {
+    ":class" : "Multiplication of 2 inputs using 32-bit precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.GramianLayer": {
-    ":class": "A dense matrix operator using vector-matrix multiplication. Represents a fully connected key of synapses, where all inputs are connected to all outputs via seperate coefficients.",
-    "alpha": "Sets alphaList."
+  "com.simiacryptus.mindseye.layers.cudnn.GramianLayer" : {
+    ":class" : "A dense matrix operator using vector-matrix multiplication. Represents a fully connected key of synapses, where all inputs are connected to all outputs via seperate coefficients.",
+    "alpha" : "Sets alphaList."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.GramianLayerTest": {
-    ":class": "The type Fully connected key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.GramianLayerTest" : {
+    ":class" : "The type Fully connected key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.GramianLayerTest.Deep": {
-    ":class": "The type Deep."
+  "com.simiacryptus.mindseye.layers.cudnn.GramianLayerTest.Deep" : {
+    ":class" : "The type Deep."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.GramianLayerTest.Image": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.GramianLayerTest.Image" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgBandBiasLayer": {
-    ":class": "This key multiplies together the inputs, element-by-element. It can be used to implement integer-power activation layers, such as the square needed in MeanSqLossLayer.",
-    "andFree": "Sets and free.",
-    "bias": "Sets bias.",
-    "weights": "Add weights img band bias key.",
-    "weightsLog": "Sets weights log."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgBandBiasLayer" : {
+    ":class" : "This key multiplies together the inputs, element-by-element. It can be used to implement integer-power activation layers, such as the square needed in MeanSqLossLayer.",
+    "andFree" : "Sets and free.",
+    "bias" : "Sets bias.",
+    "weights" : "Add weights img band bias key.",
+    "weightsLog" : "Sets weights log."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgBandBiasLayerTest": {
-    ":class": "The type Img band bias key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgBandBiasLayerTest" : {
+    ":class" : "The type Img band bias key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgBandBiasLayerTest.Double": {
-    ":class": "Basic 64-bit apply"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgBandBiasLayerTest.Double" : {
+    ":class" : "Basic 64-bit apply"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgBandBiasLayerTest.Float": {
-    ":class": "Basic 32-bit apply"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgBandBiasLayerTest.Float" : {
+    ":class" : "Basic 32-bit apply"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgBandSelectLayer": {
-    ":class": "Concatenates two or more inputs, assuming they have the same width and height, to produce an png apply both inputs' color bands. (e.g. Used in Inception modules in GoogLeNet.)",
-    "from": "Sets max bands.",
-    "to": "Sets to."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgBandSelectLayer" : {
+    ":class" : "Concatenates two or more inputs, assuming they have the same width and height, to produce an png apply both inputs' color bands. (e.g. Used in Inception modules in GoogLeNet.)",
+    "from" : "Sets max bands.",
+    "to" : "Sets to."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgBandSelectLayerTest": {
-    ":class": "The type Img eval key apply.",
-    "inputBands": "The Input bands.",
-    "layer": "The LayerBase."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgBandSelectLayerTest" : {
+    ":class" : "The type Img eval key apply.",
+    "inputBands" : "The Input bands.",
+    "layer" : "The LayerBase."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgBandSelectLayerTest.Double": {
-    ":class": "Basic 64-bit apply"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgBandSelectLayerTest.Double" : {
+    ":class" : "Basic 64-bit apply"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgBandSelectLayerTest.Float": {
-    ":class": "Basic 32-bit apply"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgBandSelectLayerTest.Float" : {
+    ":class" : "Basic 32-bit apply"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayer": {
-    ":class": "Concatenates two or more inputs, assuming they have the same width and height, to produce an png apply both inputs' color bands. (e.g. Used in Inception modules in GoogLeNet.)",
-    "maxBands": "Sets max bands.",
-    "parallel": "Sets parallel."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayer" : {
+    ":class" : "Concatenates two or more inputs, assuming they have the same width and height, to produce an png apply both inputs' color bands. (e.g. Used in Inception modules in GoogLeNet.)",
+    "maxBands" : "Sets max bands.",
+    "parallel" : "Sets parallel."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayerTest": {
-    ":class": "The type Img eval key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayerTest" : {
+    ":class" : "The type Img eval key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayerTest.BandConcatLimitTest": {
-    ":class": "Test truncation feature that both concatenates images and limits the png to N bands, discarding the last as needed."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayerTest.BandConcatLimitTest" : {
+    ":class" : "Test truncation feature that both concatenates images and limits the png to N bands, discarding the last as needed."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayerTest.BandLimitTest": {
-    ":class": "Test truncation feature that limits the png to N bands, discarding the last as needed."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayerTest.BandLimitTest" : {
+    ":class" : "Test truncation feature that limits the png to N bands, discarding the last as needed."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayerTest.Big": {
-    ":class": "The type BigTests."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayerTest.Big" : {
+    ":class" : "The type BigTests."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayerTest.Double": {
-    ":class": "Basic 64-bit apply"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayerTest.Double" : {
+    ":class" : "Basic 64-bit apply"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayerTest.Float": {
-    ":class": "Basic 32-bit apply"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgConcatLayerTest.Float" : {
+    ":class" : "Basic 32-bit apply"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer": {
-    ":class": "Reduces the resolution of the input by selecting a centered window. The output png will have the same number of color bands."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer" : {
+    ":class" : "Reduces the resolution of the input by selecting a centered window. The output png will have the same number of color bands."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgCropLayerTest": {
-    ":class": "The type Img crop key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgCropLayerTest" : {
+    ":class" : "The type Img crop key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgCropLayerTest.Basic": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgCropLayerTest.Bottom" : { },
+  "com.simiacryptus.mindseye.layers.cudnn.ImgCropLayerTest.Center" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgCropLayerTest.Chained": {
-    ":class": "The type Chained."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgCropLayerTest.Left" : { },
+  "com.simiacryptus.mindseye.layers.cudnn.ImgCropLayerTest.Right" : { },
+  "com.simiacryptus.mindseye.layers.cudnn.ImgCropLayerTest.Top" : { },
+  "com.simiacryptus.mindseye.layers.cudnn.ImgLinearSubnetLayer" : {
+    ":class" : "This key works as a scaling function, similar to a father wavelet. Allows convolutional and pooling layers to work across larger png regions.",
+    "parallel" : "Sets parallel."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgLinearSubnetLayer": {
-    ":class": "This key works as a scaling function, similar to a father wavelet. Allows convolutional and pooling layers to work across larger png regions.",
-    "parallel": "Sets parallel."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgLinearSubnetLayer.SubnetLeg" : {
+    ":class" : "The type Subnet leg."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgLinearSubnetLayer.SubnetLeg": {
-    ":class": "The type Subnet leg."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgLinearSubnetLayerTest" : {
+    ":class" : "The type Rascaled subnet key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgLinearSubnetLayerTest": {
-    ":class": "The type Rascaled subnet key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgLinearSubnetLayerTest.Basic" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgLinearSubnetLayerTest.Basic": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgMinSizeLayer" : {
+    ":class" : "Increases the resolution of the input by selecting a larger centered window. The output png will have the same number of color bands, and the area outside the source png will be setWeights to 0."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgMinSizeLayer": {
-    ":class": "Increases the resolution of the input by selecting a larger centered window. The output png will have the same number of color bands, and the area outside the source png will be setWeights to 0."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusCropLayer" : {
+    ":class" : "Increases the resolution of the input by selecting a larger centered window. The output png will have the same number of color bands, and the area outside the source png will be setWeights to 0.",
+    "offsetX" : "Sets offset x."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusCropLayer": {
-    ":class": "Increases the resolution of the input by selecting a larger centered window. The output png will have the same number of color bands, and the area outside the source png will be setWeights to 0.",
-    "offsetX": "Sets offset x."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusCropLayerTest" : {
+    ":class" : "The type Img crop key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusCropLayerTest": {
-    ":class": "The type Img crop key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusCropLayerTest.Basic" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusCropLayerTest.Basic": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusPaddingLayer" : {
+    ":class" : "Increases the resolution of the input by selecting a larger centered window. The output png will have the same number of color bands, and the area outside the source png will be setWeights to 0.",
+    "offsetX" : "Sets offset x."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusPaddingLayer": {
-    ":class": "Increases the resolution of the input by selecting a larger centered window. The output png will have the same number of color bands, and the area outside the source png will be setWeights to 0.",
-    "offsetX": "Sets offset x."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusPaddingLayerTest" : {
+    ":class" : "The type Img crop key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusPaddingLayerTest": {
-    ":class": "The type Img crop key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusPaddingLayerTest.Basic" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusPaddingLayerTest.Basic": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusPaddingSubnetLayer" : {
+    ":class" : "Increases the resolution of the input by selecting a larger centered window. The output png will have the same number of color bands, and the area outside the source png will be setWeights to 0.",
+    "offsetX" : "Sets offset x."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusPaddingSubnetLayer": {
-    ":class": "Increases the resolution of the input by selecting a larger centered window. The output png will have the same number of color bands, and the area outside the source png will be setWeights to 0.",
-    "offsetX": "Sets offset x."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusPaddingSubnetLayerTest" : {
+    ":class" : "The type Img crop key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusPaddingSubnetLayerTest": {
-    ":class": "The type Img crop key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusPaddingSubnetLayerTest.Basic" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgModulusPaddingSubnetLayerTest.Basic": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgPaddingLayer" : {
+    ":class" : "Reduces the resolution of the input by selecting a centered window. The output png will have the same number of color bands."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileAssemblyLayer": {
-    ":class": "Reduces the resolution of the input by selecting a centered window. The output png will have the same number of color bands.",
-    "parallel": "Sets parallel."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgPaddingLayer.CopyParams" : { },
+  "com.simiacryptus.mindseye.layers.cudnn.ImgPaddingLayerTest" : {
+    ":class" : "The type Img crop key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileAssemblyLayer.BackpropParams": {},
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileAssemblyLayer.CopyParams": {},
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileAssemblyLayerTest": {
-    ":class": "The type Img crop key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgPaddingLayerTest.Bottom" : { },
+  "com.simiacryptus.mindseye.layers.cudnn.ImgPaddingLayerTest.Center" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileAssemblyLayerTest.Basic": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgPaddingLayerTest.Left" : { },
+  "com.simiacryptus.mindseye.layers.cudnn.ImgPaddingLayerTest.Right" : { },
+  "com.simiacryptus.mindseye.layers.cudnn.ImgPaddingLayerTest.Top" : { },
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileAssemblyLayer" : {
+    ":class" : "Reduces the resolution of the input by selecting a centered window. The output png will have the same number of color bands.",
+    "parallel" : "Sets parallel."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileCycleLayer": {
-    ":class": "Reduces the resolution of the input by selecting a centered window. The output png will have the same number of color bands.",
-    "xPos": "Sets x pos.",
-    "yPos": "Sets y pos."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileAssemblyLayer.BackpropParams" : { },
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileAssemblyLayer.CopyParams" : { },
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileAssemblyLayerTest" : {
+    ":class" : "The type Img crop key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileCycleLayerTest": {
-    ":class": "The type Img crop key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileAssemblyLayerTest.Basic" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileCycleLayerTest.Basic": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileCycleLayer" : {
+    ":class" : "Reduces the resolution of the input by selecting a centered window. The output png will have the same number of color bands.",
+    "xPos" : "Sets x pos.",
+    "yPos" : "Sets y pos."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileCycleLayerTest.OneThird": {
-    ":class": "The type One third."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileCycleLayerTest" : {
+    ":class" : "The type Img crop key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSelectLayer": {
-    ":class": "Reduces the resolution of the input by selecting a centered window. The output png will have the same number of color bands."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileCycleLayerTest.Basic" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSelectLayerTest": {
-    ":class": "The type Img crop key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileCycleLayerTest.OneThird" : {
+    ":class" : "The type One third."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSelectLayerTest.Basic": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSelectLayer" : {
+    ":class" : "Reduces the resolution of the input by selecting a centered window. The output png will have the same number of color bands."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSubnetLayer": {
-    ":class": "This key works as a scaling function, similar to a father wavelet. Allows convolutional and pooling layers to work across larger png regions.",
-    "parallel": "Sets parallel."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSelectLayerTest" : {
+    ":class" : "The type Img crop key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSubnetLayerTest": {
-    ":class": "The type Rascaled subnet key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSelectLayerTest.Basic" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSubnetLayerTest.Basic": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSubnetLayer" : {
+    ":class" : "This key works as a scaling function, similar to a father wavelet. Allows convolutional and pooling layers to work across larger png regions.",
+    "parallel" : "Sets parallel."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgZeroPaddingLayer": {
-    ":class": "Increases the resolution of the input by selecting a larger centered window. The output png will have the same number of color bands, and the area outside the source png will be setWeights to 0.",
-    "createdBy": "The Created by."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSubnetLayerTest" : {
+    ":class" : "The type Rascaled subnet key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgZeroPaddingLayerTest": {
-    ":class": "The type Img crop key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSubnetLayerTest.Basic" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgZeroPaddingLayerTest.Basic": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.ImgZeroPaddingLayer" : {
+    ":class" : "Increases the resolution of the input by selecting a larger centered window. The output png will have the same number of color bands, and the area outside the source png will be setWeights to 0.",
+    "createdBy" : "The Created by."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.LRNLayer": {
-    ":class": "Reduces the resolution of the input by selecting a centered window. The output png will have the same number of color bands."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgZeroPaddingLayerTest" : {
+    ":class" : "The type Img crop key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.LRNLayerTest": {},
-  "com.simiacryptus.mindseye.layers.cudnn.MeanSqLossLayer": {
-    ":class": "Implements the RMS loss key (without the final square root). Implemented as a sutnetwork.",
-    "alpha": "Sets alphaList."
+  "com.simiacryptus.mindseye.layers.cudnn.ImgZeroPaddingLayerTest.Basic" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.MeanSqLossLayerTest": {
-    ":class": "The type Mean sq loss key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.LRNLayer" : {
+    ":class" : "Reduces the resolution of the input by selecting a centered window. The output png will have the same number of color bands."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.MeanSqLossLayerTest.Asymetric": {
-    ":class": "Test using asymmetric input."
+  "com.simiacryptus.mindseye.layers.cudnn.LRNLayerTest" : { },
+  "com.simiacryptus.mindseye.layers.cudnn.MeanSqLossLayer" : {
+    ":class" : "Implements the RMS loss key (without the final square root). Implemented as a sutnetwork.",
+    "alpha" : "Sets alphaList."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.MeanSqLossLayerTest.Basic": {
-    ":class": "Basic apply."
+  "com.simiacryptus.mindseye.layers.cudnn.MeanSqLossLayerTest" : {
+    ":class" : "The type Mean sq loss key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.NProductLayer": {
-    ":class": "This key multiplies together the inputs, element-by-element. It can be used to implement integer-power activation layers, such as the square needed in MeanSqLossLayer."
+  "com.simiacryptus.mindseye.layers.cudnn.MeanSqLossLayerTest.Asymetric" : {
+    ":class" : "Test using asymmetric input."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.NProductLayerTest": {
-    ":class": "The type Product key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.MeanSqLossLayerTest.Basic" : {
+    ":class" : "Basic apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.NProductLayerTest.Double": {
-    ":class": "Multiplication of 2 inputs using 64-bit precision"
+  "com.simiacryptus.mindseye.layers.cudnn.NProductLayer" : {
+    ":class" : "This key multiplies together the inputs, element-by-element. It can be used to implement integer-power activation layers, such as the square needed in MeanSqLossLayer."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.NProductLayerTest.Double3": {
-    ":class": "Multiplication of 3 inputs using 64-bit precision"
+  "com.simiacryptus.mindseye.layers.cudnn.NProductLayerTest" : {
+    ":class" : "The type Product key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.NProductLayerTest.Float": {
-    ":class": "Multiplication of 2 inputs using 32-bit precision"
+  "com.simiacryptus.mindseye.layers.cudnn.NProductLayerTest.Double" : {
+    ":class" : "Multiplication of 2 inputs using 64-bit precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.PoolingLayer": {
-    ":class": "The standard png-pixel pooling key. Using a configurable stride and window size, reduces pixels using either the Max or Avg operation.",
-    "alpha": "Sets alphaList.",
-    "mode": "Sets mode.",
-    "paddingX": "Sets padding x.",
-    "paddingY": "Sets padding y.",
-    "strideX": "Sets stride x.",
-    "strideY": "Sets stride y.",
-    "windowX": "Sets window x.",
-    "windowY": "Sets window y."
+  "com.simiacryptus.mindseye.layers.cudnn.NProductLayerTest.Double3" : {
+    ":class" : "Multiplication of 3 inputs using 64-bit precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.PoolingLayerTest": {
-    ":class": "The type Pooling key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.NProductLayerTest.Float" : {
+    ":class" : "Multiplication of 2 inputs using 32-bit precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.PoolingLayerTest.Asymmetric": {
-    ":class": "Test using an asymmetric window size."
+  "com.simiacryptus.mindseye.layers.cudnn.PoolingLayer" : {
+    ":class" : "The standard png-pixel pooling key. Using a configurable stride and window size, reduces pixels using either the Max or Avg operation.",
+    "alpha" : "Sets alphaList.",
+    "mode" : "Sets mode.",
+    "paddingX" : "Sets padding x.",
+    "paddingY" : "Sets padding y.",
+    "strideX" : "Sets stride x.",
+    "strideY" : "Sets stride y.",
+    "windowX" : "Sets window x.",
+    "windowY" : "Sets window y."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.PoolingLayerTest.Double": {
-    ":class": "Basic 64-bit apply."
+  "com.simiacryptus.mindseye.layers.cudnn.PoolingLayerTest" : {
+    ":class" : "The type Pooling key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.PoolingLayerTest.Float": {
-    ":class": "Basic 32-bit apply."
+  "com.simiacryptus.mindseye.layers.cudnn.PoolingLayerTest.Asymmetric" : {
+    ":class" : "Test using an asymmetric window size."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ProductLayer": {
-    ":class": "This key multiplies together the inputs, element-by-element. It can be used to implement integer-power activation layers, such as the square needed in MeanSqLossLayer."
+  "com.simiacryptus.mindseye.layers.cudnn.PoolingLayerTest.Double" : {
+    ":class" : "Basic 64-bit apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ProductLayerTest": {
-    ":class": "The type Product key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.PoolingLayerTest.Float" : {
+    ":class" : "Basic 32-bit apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ProductLayerTest.Double": {
-    ":class": "Multiplication of 2 inputs using 64-bit precision"
+  "com.simiacryptus.mindseye.layers.cudnn.ProductLayer" : {
+    ":class" : "This key multiplies together the inputs, element-by-element. It can be used to implement integer-power activation layers, such as the square needed in MeanSqLossLayer."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ProductLayerTest.Float": {
-    ":class": "Multiplication of 2 inputs using 32-bit precision"
+  "com.simiacryptus.mindseye.layers.cudnn.ProductLayerTest" : {
+    ":class" : "The type Product key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.RescaledSubnetLayer": {
-    ":class": "This key works as a scaling function, similar to a father wavelet. Allows convolutional and pooling layers to work across larger png regions. Implemented via CudaSystem."
+  "com.simiacryptus.mindseye.layers.cudnn.ProductLayerTest.Double" : {
+    ":class" : "Multiplication of 2 inputs using 64-bit precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.RescaledSubnetLayerTest": {
-    ":class": "The type Rescaled subnet key apply.",
-    "convolutionLayer": "The Convolution key."
+  "com.simiacryptus.mindseye.layers.cudnn.ProductLayerTest.Float" : {
+    ":class" : "Multiplication of 2 inputs using 32-bit precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.RescaledSubnetLayerTest.Basic": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.RescaledSubnetLayer" : {
+    ":class" : "This key works as a scaling function, similar to a father wavelet. Allows convolutional and pooling layers to work across larger png regions. Implemented via CudaSystem."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ScaleLayer": {
-    ":class": "The type Std dev meta key."
+  "com.simiacryptus.mindseye.layers.cudnn.RescaledSubnetLayerTest" : {
+    ":class" : "The type Rescaled subnet key apply.",
+    "convolutionLayer" : "The Convolution key."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SoftmaxActivationLayer": {
-    ":class": "The classic \"softmax\" key. All outputs will sum to 1 and be proportional to the log of the input.",
-    "algorithm": "Sets algorithm.",
-    "mode": "Sets mode."
+  "com.simiacryptus.mindseye.layers.cudnn.RescaledSubnetLayerTest.Basic" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SoftmaxLayerTest": {
-    ":class": "The type Softmax activation key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.ScaleLayer" : {
+    ":class" : "The type Std dev meta key."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SoftmaxLayerTest.Basic": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.SoftmaxActivationLayer" : {
+    ":class" : "The classic \"softmax\" key. All outputs will sum to 1 and be proportional to the log of the input.",
+    "algorithm" : "Sets algorithm.",
+    "mode" : "Sets mode."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SoftmaxLayerTest.Pixel": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.SoftmaxLayerTest" : {
+    ":class" : "The type Softmax activation key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SoftmaxLayerTest.PixelLog": {
-    ":class": "The type Pixel log."
+  "com.simiacryptus.mindseye.layers.cudnn.SoftmaxLayerTest.Basic" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SquareActivationLayer": {
-    ":class": "This key multiplies together the inputs, element-by-element. It can be used to implement integer-power activation layers, such as the square needed in MeanSqLossLayer.",
-    "alpha": "Sets alphaList."
+  "com.simiacryptus.mindseye.layers.cudnn.SoftmaxLayerTest.Pixel" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SquareActivationLayerTest": {
-    ":class": "The type Product key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.SoftmaxLayerTest.PixelLog" : {
+    ":class" : "The type Pixel log."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SquareActivationLayerTest.Double": {
-    ":class": "Multiplication of 2 inputs using 64-bit precision"
+  "com.simiacryptus.mindseye.layers.cudnn.SquareActivationLayer" : {
+    ":class" : "This key multiplies together the inputs, element-by-element. It can be used to implement integer-power activation layers, such as the square needed in MeanSqLossLayer.",
+    "alpha" : "Sets alphaList."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SquareActivationLayerTest.Float": {
-    ":class": "Multiplication of 2 inputs using 32-bit precision"
+  "com.simiacryptus.mindseye.layers.cudnn.SquareActivationLayerTest" : {
+    ":class" : "The type Product key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SquareActivationLayerTest.Negative": {
-    ":class": "Multiplication of 2 inputs using 64-bit precision"
+  "com.simiacryptus.mindseye.layers.cudnn.SquareActivationLayerTest.Double" : {
+    ":class" : "Multiplication of 2 inputs using 64-bit precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.StochasticSamplingSubnetLayer": {
-    ":class": "This key works as a scaling function, similar to a father wavelet. Allows convolutional and pooling layers to work across larger png regions."
+  "com.simiacryptus.mindseye.layers.cudnn.SquareActivationLayerTest.Float" : {
+    ":class" : "Multiplication of 2 inputs using 32-bit precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer": {
-    ":class": "Computes a weighted binary sum of two layers. Provides two weighting coefficients, one for each input. This can be used to implement a summation key, a difference key, a scaling key, or any combination.",
-    "parallel": "Sets parallel."
+  "com.simiacryptus.mindseye.layers.cudnn.SquareActivationLayerTest.Negative" : {
+    ":class" : "Multiplication of 2 inputs using 64-bit precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest": {
-    ":class": "The type BinarySumLayerTest key apply.",
-    "inputBands": "The Input bands.",
-    "inputs": "The Inputs."
+  "com.simiacryptus.mindseye.layers.cudnn.StochasticSamplingSubnetLayer" : {
+    ":class" : "This key works as a scaling function, similar to a father wavelet. Allows convolutional and pooling layers to work across larger png regions."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest.Big": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer" : {
+    ":class" : "Computes a weighted binary sum of two layers. Provides two weighting coefficients, one for each input. This can be used to implement a summation key, a difference key, a scaling key, or any combination.",
+    "parallel" : "Sets parallel."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest.Big_Double_Add": {
-    ":class": "Adds using double (64-bit) precision, C = A + B"
+  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest" : {
+    ":class" : "The type BinarySumLayerTest key apply.",
+    "inputBands" : "The Input bands.",
+    "inputs" : "The Inputs."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest.Double_Add": {
-    ":class": "The type Double add."
+  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest.Big" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest.Double_List": {
-    ":class": "The type Double list."
+  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest.Big_Double_Add" : {
+    ":class" : "Adds using double (64-bit) precision, C = A + B"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest.Float_Add": {
-    ":class": "Adds using float (32-bit) precision, C = A + B"
+  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest.Double_Add" : {
+    ":class" : "The type Double add."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest.OnePlusOne": {
-    ":class": "Ensures addition can be used to implement a doubling (x2) function"
+  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest.Double_List" : {
+    ":class" : "The type Double list."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SumReducerLayer": {
-    ":class": "Similar to the pooling key, but the pool size is always the png size. The output dimensions are always 1x1xN."
+  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest.Float_Add" : {
+    ":class" : "Adds using float (32-bit) precision, C = A + B"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SumReducerLayerTest": {
-    ":class": "The type Img band bias key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.SumInputsLayerTest.OnePlusOne" : {
+    ":class" : "Ensures addition can be used to implement a doubling (x2) function"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SumReducerLayerTest.Asymmetric": {
-    ":class": "Inputs asymmetric (height != width) images"
+  "com.simiacryptus.mindseye.layers.cudnn.SumReducerLayer" : {
+    ":class" : "Similar to the pooling key, but the pool size is always the png size. The output dimensions are always 1x1xN."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SumReducerLayerTest.Double": {
-    ":class": "Basic apply in double (64-bit) precision"
+  "com.simiacryptus.mindseye.layers.cudnn.SumReducerLayerTest" : {
+    ":class" : "The type Img band bias key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.SumReducerLayerTest.Float": {
-    ":class": "Basic apply using float (32-bit) precision."
+  "com.simiacryptus.mindseye.layers.cudnn.SumReducerLayerTest.Asymmetric" : {
+    ":class" : "Inputs asymmetric (height != width) images"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ValueLayer": {
-    ":class": "This key does not require any input, and produces a constant output. This constant can be tuned by optimization processes."
+  "com.simiacryptus.mindseye.layers.cudnn.SumReducerLayerTest.Double" : {
+    ":class" : "Basic apply in double (64-bit) precision"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayer": {
-    ":class": "This is the general convolution key, allowing any number of input and output bands at high scale. It implements an explosion operation to produce a convolution network whose components have a managabe size and the same overall function.",
-    "andFree": "Sets and free.",
-    "batchBands": "Sets batch bands.",
-    "paddingX": "Sets padding x.",
-    "paddingY": "Sets padding y.",
-    "strideX": "Sets stride x.",
-    "strideY": "Sets stride y.",
-    "weightsLog": "Sets weights log."
+  "com.simiacryptus.mindseye.layers.cudnn.SumReducerLayerTest.Float" : {
+    ":class" : "Basic apply using float (32-bit) precision."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest": {
-    ":class": "The type Convolution key apply.",
-    "convolutionLayer": "The Convolution key.",
-    "largeSize": "The Large size.",
-    "smallSize": "The Small size."
+  "com.simiacryptus.mindseye.layers.cudnn.ValueLayer" : {
+    ":class" : "This key does not require any input, and produces a constant output. This constant can be tuned by optimization processes."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.BandExpand": {
-    ":class": "Increases the number of color bands from 3 to 6 (radius 3; 64-bit precision)"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayer" : {
+    ":class" : "This is the general convolution key, allowing any number of input and output bands at high scale. It implements an explosion operation to produce a convolution network whose components have a managabe size and the same overall function.",
+    "andFree" : "Sets and free.",
+    "batchBands" : "Sets batch bands.",
+    "paddingX" : "Sets padding x.",
+    "paddingY" : "Sets padding y.",
+    "strideX" : "Sets stride x.",
+    "strideY" : "Sets stride y.",
+    "weightsLog" : "Sets weights log."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.BandLimit": {
-    ":class": "Increases the number of color bands from 3 to 6 (radius 3; 64-bit precision)"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest" : {
+    ":class" : "The type Convolution key apply.",
+    "convolutionLayer" : "The Convolution key.",
+    "largeSize" : "The Large size.",
+    "smallSize" : "The Small size."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.BandReduceTest": {
-    ":class": "Reduces the number of color bands from 6 to 3 (radius 3; 64-bit precision)"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.BandExpand" : {
+    ":class" : "Increases the number of color bands from 3 to 6 (radius 3; 64-bit precision)"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.Big": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.BandLimit" : {
+    ":class" : "Increases the number of color bands from 3 to 6 (radius 3; 64-bit precision)"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.Big1": {
-    ":class": "The type Big 1."
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.BandReduceTest" : {
+    ":class" : "Reduces the number of color bands from 6 to 3 (radius 3; 64-bit precision)"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.Double": {
-    ":class": "Test using 64-bit precision apply a radius of 1"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.Big" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.Float": {
-    ":class": "Test using 32-bit precision apply a radius of 1"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.Big1" : {
+    ":class" : "The type Big 1."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.IrregularGrid": {
-    ":class": "Increases the number of color bands from 3 to 6 (radius 3; 64-bit precision)"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.Double" : {
+    ":class" : "Test using 64-bit precision apply a radius of 1"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.IrregularTest": {
-    ":class": "Convert from 7 bands to 5; this is meant to not divide evenly for testing. (64-bit)"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.Float" : {
+    ":class" : "Test using 32-bit precision apply a radius of 1"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.IrregularTest_Float": {
-    ":class": "Convert from 7 bands to 5; this is meant to not divide evenly for testing. (32-bit)"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.IrregularGrid" : {
+    ":class" : "Increases the number of color bands from 3 to 6 (radius 3; 64-bit precision)"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.NoPadding": {
-    ":class": "Tests apply no zero-padding; the output will be radius-1 smaller than the input. This currently tests a workaround where CudaSystem does not seem to support convolutions that change resolution."
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.IrregularTest" : {
+    ":class" : "Convert from 7 bands to 5; this is meant to not divide evenly for testing. (64-bit)"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.SqGrid": {
-    ":class": "Increases the number of color bands from 3 to 6 (radius 3; 64-bit precision)"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.IrregularTest_Float" : {
+    ":class" : "Convert from 7 bands to 5; this is meant to not divide evenly for testing. (32-bit)"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.VeryBigTest": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.NoPadding" : {
+    ":class" : "Tests apply no zero-padding; the output will be radius-1 smaller than the input. This currently tests a workaround where CudaSystem does not seem to support convolutions that change resolution."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionParams": {
-    ":class": "Contains the parameters of a convolution"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.SqGrid" : {
+    ":class" : "Increases the number of color bands from 3 to 6 (radius 3; 64-bit precision)"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ExplodedConvolutionGrid": {
-    ":class": "The higher level of convolution construction logic. Provides support for large numbers of input bands by splitting the network into sub-networks that consider only a subset of the input bands, then summing the results together. This strategy remains valid so long as the sub-networks are purely linear."
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayerTest.VeryBigTest" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.ExplodedConvolutionLeg": {
-    ":class": "A lower level of convolution desconstruction logic, implements support for an arbitrary number of output bands by splitting the convolution into even batches of input x input kernel dimensions. These results are then concatenated together as successive png bands. Even at small scale, this breakdown is required because CuDNN only supports convolutions apply equal input/output band counts."
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionParams" : {
+    ":class" : "Contains the parameters of a convolution"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.FullyConnectedLayer": {
-    ":class": "A dense matrix operator using vector-matrix multiplication. Represents a fully connected key of synapses, where all inputs are connected to all outputs via seperate coefficients.",
-    "batchBands": "Sets batch bands.",
-    "weights": "Sets weights.",
-    "weightsLog": "Sets weights log."
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ExplodedConvolutionGrid" : {
+    ":class" : "The higher level of convolution construction logic. Provides support for large numbers of input bands by splitting the network into sub-networks that consider only a subset of the input bands, then summing the results together. This strategy remains valid so long as the sub-networks are purely linear."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.FullyConnectedLayerTest": {
-    ":class": "The type Fully connected key apply."
+  "com.simiacryptus.mindseye.layers.cudnn.conv.ExplodedConvolutionLeg" : {
+    ":class" : "A lower level of convolution desconstruction logic, implements support for an arbitrary number of output bands by splitting the convolution into even batches of input x input kernel dimensions. These results are then concatenated together as successive png bands. Even at small scale, this breakdown is required because CuDNN only supports convolutions apply equal input/output band counts."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.FullyConnectedLayerTest.Basic": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.FullyConnectedLayer" : {
+    ":class" : "A dense matrix operator using vector-matrix multiplication. Represents a fully connected key of synapses, where all inputs are connected to all outputs via seperate coefficients.",
+    "batchBands" : "Sets batch bands.",
+    "weights" : "Sets weights.",
+    "weightsLog" : "Sets weights log."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.FullyConnectedLayerTest.Big1": {
-    ":class": "Large-dimension test"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.FullyConnectedLayerTest" : {
+    ":class" : "The type Fully connected key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.FullyConnectedLayerTest.BigTests": {
-    ":class": "Basic Test"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.FullyConnectedLayerTest.Basic" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.FullyConnectedLayerTest.Big_VGG": {
-    ":class": "Large-dimension test using the size of the largest key in VGG16"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.FullyConnectedLayerTest.Big1" : {
+    ":class" : "Large-dimension test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayer": {
-    ":class": "This convolution key only supports an equal number of input and output bands. It is used as the foundational component for ConvolutionLayer, since the CudaSystem api has this restriction (in recent versions).",
-    "paddingX": "Sets padding x.",
-    "paddingY": "Sets padding y.",
-    "strideX": "Sets stride x.",
-    "strideY": "Sets stride y.",
-    "weightsLog": "Sets weights log."
+  "com.simiacryptus.mindseye.layers.cudnn.conv.FullyConnectedLayerTest.BigTests" : {
+    ":class" : "Basic Test"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest": {
-    ":class": "The type Simple convolution key apply.",
-    "largeSize": "The Large radius.",
-    "layer": "The LayerBase.",
-    "smallSize": "The Small radius."
+  "com.simiacryptus.mindseye.layers.cudnn.conv.FullyConnectedLayerTest.Big_VGG" : {
+    ":class" : "Large-dimension test using the size of the largest key in VGG16"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Basic": {
-    ":class": "Maximally-basic single-value \"convolution\" in 64 bits"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayer" : {
+    ":class" : "This convolution key only supports an equal number of input and output bands. It is used as the foundational component for ConvolutionLayer, since the CudaSystem api has this restriction (in recent versions).",
+    "paddingX" : "Sets padding x.",
+    "paddingY" : "Sets padding y.",
+    "strideX" : "Sets stride x.",
+    "strideY" : "Sets stride y.",
+    "weightsLog" : "Sets weights log."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Big": {
-    ":class": "Simple 256x256 band 1-pixel \"convolution\""
+  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest" : {
+    ":class" : "The type Simple convolution key apply.",
+    "largeSize" : "The Large radius.",
+    "layer" : "The LayerBase.",
+    "smallSize" : "The Small radius."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Big0": {
-    ":class": "Simple 256x256 band 1-pixel \"convolution\""
+  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Basic" : {
+    ":class" : "Maximally-basic single-value \"convolution\" in 64 bits"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Bug_Control": {
-    ":class": "Base allocationOverflow configuration demonstrating the absence of failure in this case."
+  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Big" : {
+    ":class" : "Simple 256x256 band 1-pixel \"convolution\""
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Image": {
-    ":class": "Typical 3x3 png convolution (64-bit)"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Big0" : {
+    ":class" : "Simple 256x256 band 1-pixel \"convolution\""
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Image_Float": {
-    ":class": "Typical 3x3 png convolution (32-bit)"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Bug_Control" : {
+    ":class" : "Base allocationOverflow configuration demonstrating the absence of failure in this case."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Matrix": {
-    ":class": "Basic single-band 3x3 png filter."
+  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Image" : {
+    ":class" : "Typical 3x3 png convolution (64-bit)"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.MultiBand": {
-    ":class": "Basic multi-band, 1-pixel-radius filter."
+  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Image_Float" : {
+    ":class" : "Typical 3x3 png convolution (32-bit)"
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.PaddingBug": {
-    ":class": "Demonstration of a suspected CudaSystem bug when using 0 padding apply the GPU convolution operation."
+  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Matrix" : {
+    ":class" : "Basic single-band 3x3 png filter."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.SpanBug": {
-    ":class": "Typical 3x3 png convolution (64-bit)"
+  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.MultiBand" : {
+    ":class" : "Basic multi-band, 1-pixel-radius filter."
+  },
+  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.PaddingBug" : {
+    ":class" : "Demonstration of a suspected CudaSystem bug when using 0 padding apply the GPU convolution operation."
+  },
+  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.SpanBug" : {
+    ":class" : "Typical 3x3 png convolution (64-bit)"
   }
 }

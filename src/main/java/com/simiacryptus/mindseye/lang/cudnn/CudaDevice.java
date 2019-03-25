@@ -341,8 +341,8 @@ public class CudaDevice extends CudaSystem {
     assert width > 0;
     assert nStride > 0;
     assert cStride > 0;
-    assert hStride > 0;
-    assert wStride > 0;
+    assert hStride != 0;
+    assert wStride != 0;
     long startTime = System.nanoTime();
     @Nonnull final cudnnTensorDescriptor desc = new cudnnTensorDescriptor();
     int result = JCudnn.cudnnCreateTensorDescriptor(desc);
