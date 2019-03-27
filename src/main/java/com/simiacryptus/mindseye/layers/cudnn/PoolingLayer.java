@@ -139,12 +139,11 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     assert correctionY >= 0;
     @Nullable Result input;
     if (correctionX > 0 || correctionY > 0) {
-      @Nonnull ImgCropLayer imgCropLayer = new ImgCropLayer(rawInputDims[0] + correctionX, rawInputDims[1] + correctionY)
+      @Nonnull Layer imgCropLayer = new ImgPaddingLayer(rawInputDims[0] + correctionX, rawInputDims[1] + correctionY)
           .setPrecision(precision)
-          .setHorizontalAlign(ImgCropLayer.Alignment.Left)
-          .setVerticalAlign(ImgCropLayer.Alignment.Left)
-          .setRoundUp(true)
-          .setBaseValue(Double.NEGATIVE_INFINITY)
+          .setHorizontalAlign(ImgPaddingLayer.Alignment.Center)
+          .setVerticalAlign(ImgPaddingLayer.Alignment.Center)
+          .setRoundUp(false)
           ;
       input = imgCropLayer.evalAndFree(inObj[0]);
       imgCropLayer.freeRef();
@@ -228,7 +227,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
 
       @Override
       protected void _free() {
-        Arrays.stream(inObj).forEach(nnResult -> nnResult.freeRef());
+        input.freeRef();
         inputData.freeRef();
         outputData.freeRef();
       }

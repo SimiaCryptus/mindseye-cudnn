@@ -188,8 +188,11 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
           .setHorizontalAlign(ImgCropLayer.Alignment.Center)
           .setVerticalAlign(ImgCropLayer.Alignment.Center)
           .setRoundUp(false);
-      input = imgCropLayer.evalAndFree(inObj[0]);
-      imgCropLayer.freeRef();
+      try {
+        input = imgCropLayer.evalAndFree(inObj[0]);
+      } finally {
+        imgCropLayer.freeRef();
+      }
     } else {
       input = inObj[0];
     }
@@ -252,7 +255,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
       } catch (@Nonnull final Throwable e) {
         throw new ComponentException(String.format("Error in convolution %s x %s", Arrays.toString(rawInputDims), Arrays.toString(filterDims)), e);
       } finally {
-        Stream.of(inputTensor, filterDescriptor, outputDescriptor, forwardWorkspace, convolutionDescriptor).forEach(ReferenceCounting::freeRef);
+        Stream.of(inputTensor, filterDescriptor, outputDescriptor, forwardWorkspace, convolutionDescriptor, inputDescriptor).forEach(ReferenceCounting::freeRef);
       }
     }, inputData), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
       delta.assertAlive();
@@ -386,7 +389,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
         kernel.assertAlive();
         kernel.freeRef();
         inputData.freeRef();
-        Arrays.stream(inObj).forEach(ReferenceCounting::freeRef);
+        input.freeRef();
         SimpleConvolutionLayer.this.freeRef();
       }
 
