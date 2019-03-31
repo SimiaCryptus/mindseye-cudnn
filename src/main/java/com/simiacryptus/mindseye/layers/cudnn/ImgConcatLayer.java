@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConcatLayer> {
 
   private int maxBands = -1;
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private boolean parallel = true;
 
   /**

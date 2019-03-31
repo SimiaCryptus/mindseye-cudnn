@@ -43,7 +43,7 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
   private final int width;
   private final int strideX;
   private final int strideY;
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private boolean parallel = true;
 
   /**

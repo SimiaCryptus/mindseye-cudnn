@@ -47,7 +47,7 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
 
   private static final Logger logger = LoggerFactory.getLogger(ImgLinearSubnetLayer.class);
   private final List<SubnetLeg> legs = new ArrayList<>();
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private boolean parallel = true;
 
   /**

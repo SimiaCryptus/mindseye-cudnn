@@ -46,7 +46,7 @@ import java.util.stream.Stream;
 public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySumLayer> {
 
   private double leftFactor;
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private double rightFactor;
 
   /**

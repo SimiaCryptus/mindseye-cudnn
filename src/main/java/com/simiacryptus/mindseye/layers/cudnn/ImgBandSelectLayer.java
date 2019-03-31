@@ -42,7 +42,7 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
 
   private int from;
   private int to;
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   /**
    * Instantiates a new Img band select key.

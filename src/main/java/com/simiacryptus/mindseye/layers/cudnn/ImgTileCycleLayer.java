@@ -42,7 +42,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
   private double xPos = 0.5;
   private double yPos = 0.5;
 
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   /**
    * Instantiates a new Img eval key.

@@ -47,12 +47,18 @@ import java.util.stream.Stream;
 public class ActivationLayer extends LayerBase implements MultiPrecision<ActivationLayer> {
   private static final Logger logger = LoggerFactory.getLogger(ActivationLayer.class);
 
+  @Nullable
+  @Override
+  public String getName() {
+    return String.format("Activation (%s)", mode);
+  }
+
   /**
    * The Mode.
    */
   final int mode;
   private double alpha = 1.0;
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
 
   /**

@@ -43,7 +43,7 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
   private static final Logger log = LoggerFactory.getLogger(GramianLayer.class);
 
 
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private double alpha = 1.0;
 
   /**

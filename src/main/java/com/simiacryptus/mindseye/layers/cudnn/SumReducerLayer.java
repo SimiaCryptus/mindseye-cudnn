@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("serial")
 public class SumReducerLayer extends LayerBase implements MultiPrecision<SumReducerLayer> {
 
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   /**
    * Instantiates a new Pooling key.

@@ -47,7 +47,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
   private boolean roundUp = false;
   private int sizeX;
   private int sizeY;
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   /**
    * Instantiates a new Img eval key.

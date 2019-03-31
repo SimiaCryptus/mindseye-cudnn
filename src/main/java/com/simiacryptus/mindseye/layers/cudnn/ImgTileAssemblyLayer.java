@@ -41,7 +41,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision<Im
 
   private int columns;
   private int rows;
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private boolean parallel;
 
   /**

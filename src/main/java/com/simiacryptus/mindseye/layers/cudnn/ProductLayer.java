@@ -41,7 +41,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("serial")
 public class ProductLayer extends LayerBase implements MultiPrecision<ProductLayer> {
 
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   /**
    * Instantiates a new Product inputs key.

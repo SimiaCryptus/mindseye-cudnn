@@ -65,7 +65,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
   private final Map<Integer, CudaMemory> gpuFilters = new ConcurrentHashMap<>();
   private int paddingX;
   private int paddingY;
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private int strideX = 1;
   private int strideY = 1;
 

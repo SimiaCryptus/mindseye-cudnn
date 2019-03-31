@@ -46,7 +46,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("serial")
 public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBandBiasLayer> {
 
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private Tensor bias;
 
   /**

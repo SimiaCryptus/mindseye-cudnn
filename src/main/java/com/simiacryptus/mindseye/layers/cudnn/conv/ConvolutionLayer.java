@@ -56,8 +56,19 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
   private Integer paddingX = null;
   @Nullable
   private Integer paddingY = null;
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private int batchBands = 0;
+
+  @Nullable
+  @Override
+  public String getName() {
+    int[] kernelDimensions = kernel.getDimensions();
+    if(kernelDimensions.length == 4) {
+      return String.format("Conv [%d/%d x %d/%d, %d -> %d]", kernelDimensions[0], strideX, kernelDimensions[1], strideY, kernelDimensions[2], kernelDimensions[3]);
+    } else {
+      return String.format("Conv [%d/%d x %d/%d, %d]", kernelDimensions[0], strideX, kernelDimensions[1], strideY, kernelDimensions[2]);
+    }
+  }
 
   /**
    * Instantiates a new Convolution key.
@@ -183,6 +194,8 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     return explode;
   }
 
+
+
   /**
    * Explode nn key.
    *
@@ -194,7 +207,7 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     @Nonnull ExplodedConvolutionGrid explodedNetwork = getExplodedNetwork();
     try {
       @Nonnull Layer network = explodedNetwork.getNetwork();
-      network.setName(getName());
+      network.setName(getName() + "+");
       return network;
     } finally {
       explodedNetwork.freeRef();

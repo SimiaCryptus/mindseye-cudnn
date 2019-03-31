@@ -49,7 +49,7 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
   private double alpha;
   private double beta;
   private double k;
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   /**
    * Instantiates a new Img eval key.
@@ -90,7 +90,7 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
     if (null != precision) {
       this.setPrecision(Precision.valueOf(precision.getAsString()));
     } else {
-      this.setPrecision(Precision.Double);
+      this.setPrecision(CudaSettings.INSTANCE().defaultPrecision);
     }
     assert 0 < getWidth();
     assert 0 < getAlpha();

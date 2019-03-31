@@ -47,7 +47,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
   private double baseValue = 0.0;
   private int sizeX;
   private int sizeY;
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   /**
    * Instantiates a new Img eval key.

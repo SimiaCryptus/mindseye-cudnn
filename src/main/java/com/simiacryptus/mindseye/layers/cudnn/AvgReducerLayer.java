@@ -40,7 +40,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("serial")
 public class AvgReducerLayer extends LayerBase implements MultiPrecision<AvgReducerLayer> {
 
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   /**
    * Instantiates a new Pooling key.

@@ -44,7 +44,7 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
   private static final Logger log = LoggerFactory.getLogger(SoftmaxActivationLayer.class);
   private SoftmaxAlgorithm algorithm = SoftmaxAlgorithm.ACCURATE;
   private SoftmaxMode mode = SoftmaxMode.INSTANCE;
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   /**
    * Instantiates a new Activation key.

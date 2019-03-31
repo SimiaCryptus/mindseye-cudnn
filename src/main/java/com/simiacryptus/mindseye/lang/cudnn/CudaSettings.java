@@ -41,6 +41,7 @@ public class CudaSettings implements Settings {
    * The Default devices.
    */
   public final String defaultDevices;
+  public final Precision defaultPrecision;
   public final PersistanceMode memoryCacheMode;
   private final long maxTotalMemory;
   private final long maxAllocSize;
@@ -68,12 +69,12 @@ public class CudaSettings implements Settings {
     File sparkHomeFile = new File(spark_home == null ? "." : spark_home);
     if (sparkHomeFile.exists()) appSettings.putAll(LocalAppSettings.read(sparkHomeFile));
     if (appSettings.containsKey("worker.index")) System.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
-    maxTotalMemory = Settings.get("MAX_TOTAL_MEMORY", 8 * CudaMemory.GiB);
-    maxDeviceMemory = Settings.get("MAX_DEVICE_MEMORY", 8 * CudaMemory.GiB);
-    maxAllocSize = Settings.get("MAX_ALLOC_SIZE", Precision.Double.size * (Integer.MAX_VALUE / 2 - 1L));
-    maxFilterElements = Settings.get("MAX_FILTER_ELEMENTS", 512 * CudaMemory.MiB);
+    maxTotalMemory = (long) Settings.get("MAX_TOTAL_MEMORY", 8.0 * CudaMemory.GiB);
+    maxDeviceMemory = (long) Settings.get("MAX_DEVICE_MEMORY", 8.0 * CudaMemory.GiB);
+    maxAllocSize = (long) Settings.get("MAX_ALLOC_SIZE", (double) Precision.Double.size * (Integer.MAX_VALUE / 2 - 1L));
+    maxFilterElements = (long) Settings.get("MAX_FILTER_ELEMENTS", 512.0 * CudaMemory.MiB);
     maxIoElements = Settings.get("MAX_IO_ELEMENTS", 2 * CudaMemory.MiB);
-    convolutionWorkspaceSizeLimit = Settings.get("CONVOLUTION_WORKSPACE_SIZE_LIMIT", 512 * CudaMemory.MiB);
+    convolutionWorkspaceSizeLimit = (long) Settings.get("CONVOLUTION_WORKSPACE_SIZE_LIMIT", 512.0 * CudaMemory.MiB);
     disable = Settings.get("DISABLE_CUDNN", false);
     forceSingleGpu = Settings.get("FORCE_SINGLE_GPU", true);
     conv_para_1 = Settings.get("CONV_PARA_1", false);
@@ -89,6 +90,7 @@ public class CudaSettings implements Settings {
     convolutionCache = true;
     defaultDevices = Settings.get("CUDA_DEVICES", "");
     this.handlesPerDevice = Settings.get("CUDA_HANDLES_PER_DEVICE", 1);
+    defaultPrecision = Precision.valueOf(Settings.get("CUDA_DEFAULT_PRECISION", Precision.Float.name()));
   }
 
   /**

@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
-import com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayer;
 import com.simiacryptus.mindseye.layers.java.AvgPoolingLayer;
 import com.simiacryptus.mindseye.layers.java.MaxPoolingLayer;
 import jcuda.jcudnn.cudnnPoolingDescriptor;
@@ -47,7 +46,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
   private PoolingMode mode = PoolingMode.Max;
   private int paddingX = 0;
   private int paddingY = 0;
-  private Precision precision = Precision.Double;
+  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private int strideX = 2;
   private int strideY = 2;
   private int windowX = 2;
@@ -60,6 +59,12 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
   public PoolingLayer() {
     super();
     alpha = 1.0;
+  }
+
+  @Nullable
+  @Override
+  public String getName() {
+    return String.format("%sPooling [%d/%d x %d/%d]", mode.name(), windowX, strideX, windowY, strideY);
   }
 
   /**
