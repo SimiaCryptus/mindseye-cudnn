@@ -1229,12 +1229,12 @@ public class CudaSystem {
       CharSequence caller = !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller();
       withDevice(device, gpu -> {
         if (null == finalVal || finalVal < time) {
-          synchronized (deviceLocks.computeIfAbsent(device, d -> new Object())) {
-            if (null == finalVal || finalVal < time) {
-              TimedResult<Long> timedResult = TimedResult.time(() -> cudaDeviceSynchronize());
-              CudaTensorList.logger.debug(String.format("Synchronized %d in %.4f (%.6f -> %.6f -> %.6f) via %s", getThreadDeviceId(), timedResult.seconds(), (finalVal - startTime) / 1e9, (time - startTime) / 1e9, (timedResult.result - startTime) / 1e9, caller));
-            }
-          }
+          TimedResult<Long> timedResult = TimedResult.time(() -> cudaDeviceSynchronize());
+          CudaTensorList.logger.debug(String.format("Synchronized %d in %.4f (%.6f -> %.6f -> %.6f) via %s", getThreadDeviceId(), timedResult.seconds(), (finalVal - startTime) / 1e9, (time - startTime) / 1e9, (timedResult.result - startTime) / 1e9, caller));
+//          synchronized (deviceLocks.computeIfAbsent(device, d -> new Object())) {
+//            if (null == finalVal || finalVal < time) {
+//            }
+//          }
         }
       });
     }

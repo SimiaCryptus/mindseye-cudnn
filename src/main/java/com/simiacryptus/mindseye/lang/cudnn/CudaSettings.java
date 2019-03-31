@@ -82,13 +82,13 @@ public class CudaSettings implements Settings {
     memoryCacheMode = Settings.get("CUDA_CACHE_MODE", PersistanceMode.WEAK);
     logStack = Settings.get("CUDA_LOG_STACK", false);
     profileMemoryIO = Settings.get("CUDA_PROFILE_MEM_IO", false);
-    enableManaged = false;
+    enableManaged = true;
     asyncFree = false;
     syncBeforeFree = false;
     memoryCacheTTL = 5;
     convolutionCache = true;
     defaultDevices = Settings.get("CUDA_DEVICES", "");
-    this.handlesPerDevice = Settings.get("CUDA_HANDLES_PER_DEVICE", 8);
+    this.handlesPerDevice = Settings.get("CUDA_HANDLES_PER_DEVICE", 1);
   }
 
   /**
