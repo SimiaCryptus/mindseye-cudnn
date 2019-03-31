@@ -19,6 +19,8 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
+import com.simiacryptus.mindseye.network.DAGNetwork;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -27,6 +29,20 @@ import javax.annotation.Nonnull;
  * @param <T> the parent type, specified for return values.
  */
 public interface MultiPrecision<T> {
+  /**
+   * Sets precision.
+   *  @param network   the network
+   * @param precision the precision
+   */
+  static DAGNetwork setPrecision(final DAGNetwork network, final Precision precision) {
+    network.visitLayers(layer -> {
+      if (layer instanceof MultiPrecision) {
+        ((MultiPrecision) layer).setPrecision(precision);
+      }
+    });
+    return network;
+  }
+
   /**
    * Gets precision.
    *
