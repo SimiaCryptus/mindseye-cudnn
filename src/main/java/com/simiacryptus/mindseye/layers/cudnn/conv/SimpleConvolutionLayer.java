@@ -123,6 +123,10 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
 
   }
 
+  public SimpleConvolutionLayer(int width, int height, int inputBands, int outputBands) {
+    this(width, height, inputBands * outputBands);
+  }
+
   /**
    * From json convolution key.
    *
@@ -817,6 +821,18 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
   }
 
   public SimpleConvolutionLayer explode() {
+    return this;
+  }
+
+  public SimpleConvolutionLayer setStrideXY(int x, int y) {
+    setStrideX(x);
+    setStrideY(y);
+    return this;
+  }
+
+  public SimpleConvolutionLayer setAndFree(Tensor tensor) {
+    set(tensor);
+    tensor.freeRef();
     return this;
   }
 }

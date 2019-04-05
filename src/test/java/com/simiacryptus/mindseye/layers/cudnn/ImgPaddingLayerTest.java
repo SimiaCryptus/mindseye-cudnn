@@ -36,10 +36,12 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
   public ImgPaddingLayerTest() {
   }
 
-  @Nonnull @Override
-  public abstract int[][] getSmallDims(Random random) ;
+  @Nonnull
+  @Override
+  public abstract int[][] getSmallDims(Random random);
 
-  @Nonnull @Override
+  @Nonnull
+  @Override
   public abstract Layer getLayer(final int[][] inputSize, Random random);
 
   @Override
@@ -51,20 +53,29 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
    * Basic Test
    */
   public static class Center extends ImgPaddingLayerTest {
-    @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {SIZE_IN, SIZE_IN, 1} }; }
+    @Nonnull
+    @Override
+    public int[][] getSmallDims(Random random) {
+      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+    }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
     }
 
   }
-  public static class Left extends ImgPaddingLayerTest {
-    @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {SIZE_IN, SIZE_IN, 1} }; }
 
-    @Nonnull @Override
+  public static class Left extends ImgPaddingLayerTest {
+    @Nonnull
+    @Override
+    public int[][] getSmallDims(Random random) {
+      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+    }
+
+    @Nonnull
+    @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setHorizontalAlign(ImgPaddingLayer.Alignment.Left);
     }
@@ -72,10 +83,14 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
   }
 
   public static class Right extends ImgPaddingLayerTest {
-    @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {SIZE_IN, SIZE_IN, 1} }; }
+    @Nonnull
+    @Override
+    public int[][] getSmallDims(Random random) {
+      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+    }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setHorizontalAlign(ImgPaddingLayer.Alignment.Right);
     }
@@ -83,10 +98,14 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
   }
 
   public static class Top extends ImgPaddingLayerTest {
-    @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {SIZE_IN, SIZE_IN, 1} }; }
+    @Nonnull
+    @Override
+    public int[][] getSmallDims(Random random) {
+      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+    }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setVerticalAlign(ImgPaddingLayer.Alignment.Left);
     }
@@ -94,10 +113,14 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
   }
 
   public static class Bottom extends ImgPaddingLayerTest {
-    @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {SIZE_IN, SIZE_IN, 1} }; }
+    @Nonnull
+    @Override
+    public int[][] getSmallDims(Random random) {
+      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+    }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setVerticalAlign(ImgPaddingLayer.Alignment.Right);
     }

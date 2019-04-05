@@ -31,7 +31,8 @@ import javax.annotation.Nonnull;
 public interface MultiPrecision<T> {
   /**
    * Sets precision.
-   *  @param network   the network
+   *
+   * @param network   the network
    * @param precision the precision
    */
   static DAGNetwork setPrecision(final DAGNetwork network, final Precision precision) {

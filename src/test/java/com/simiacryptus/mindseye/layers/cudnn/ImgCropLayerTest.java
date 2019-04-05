@@ -20,16 +20,8 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.mindseye.lang.Tensor;
-import com.simiacryptus.mindseye.network.PipelineNetwork;
-import com.simiacryptus.mindseye.test.ToleranceStatistics;
-import com.simiacryptus.mindseye.test.unit.ComponentTest;
-import com.simiacryptus.mindseye.test.unit.ComponentTestBase;
-import com.simiacryptus.mindseye.test.unit.PerformanceTester;
-import com.simiacryptus.notebook.NotebookOutput;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Random;
 
 
@@ -41,10 +33,12 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
   public ImgCropLayerTest() {
   }
 
-  @Nonnull @Override
-  public abstract int[][] getSmallDims(Random random) ;
+  @Nonnull
+  @Override
+  public abstract int[][] getSmallDims(Random random);
 
-  @Nonnull @Override
+  @Nonnull
+  @Override
   public abstract Layer getLayer(final int[][] inputSize, Random random);
 
   @Override
@@ -56,10 +50,14 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
    * Basic Test
    */
   public static class Center extends ImgCropLayerTest {
-    @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {4, 4, 1} }; }
+    @Nonnull
+    @Override
+    public int[][] getSmallDims(Random random) {
+      return new int[][]{{4, 4, 1}};
+    }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       return new ImgCropLayer(2, 2);
     }
@@ -70,11 +68,16 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
     }
 
   }
-  public static class Left extends ImgCropLayerTest {
-    @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {4, 4, 1} }; }
 
-    @Nonnull @Override
+  public static class Left extends ImgCropLayerTest {
+    @Nonnull
+    @Override
+    public int[][] getSmallDims(Random random) {
+      return new int[][]{{4, 4, 1}};
+    }
+
+    @Nonnull
+    @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       return new ImgCropLayer(2, 2).setHorizontalAlign(ImgCropLayer.Alignment.Left);
     }
@@ -82,10 +85,14 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
   }
 
   public static class Right extends ImgCropLayerTest {
-    @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {4, 4, 1} }; }
+    @Nonnull
+    @Override
+    public int[][] getSmallDims(Random random) {
+      return new int[][]{{4, 4, 1}};
+    }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       return new ImgCropLayer(2, 2).setHorizontalAlign(ImgCropLayer.Alignment.Right);
     }
@@ -93,10 +100,14 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
   }
 
   public static class Top extends ImgCropLayerTest {
-    @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {4, 4, 1} }; }
+    @Nonnull
+    @Override
+    public int[][] getSmallDims(Random random) {
+      return new int[][]{{4, 4, 1}};
+    }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       return new ImgCropLayer(2, 2).setVerticalAlign(ImgCropLayer.Alignment.Left);
     }
@@ -104,10 +115,14 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
   }
 
   public static class Bottom extends ImgCropLayerTest {
-    @Nonnull @Override
-    public int[][] getSmallDims(Random random) { return new int[][]{ {4, 4, 1} }; }
+    @Nonnull
+    @Override
+    public int[][] getSmallDims(Random random) {
+      return new int[][]{{4, 4, 1}};
+    }
 
-    @Nonnull @Override
+    @Nonnull
+    @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       return new ImgCropLayer(2, 2).setVerticalAlign(ImgCropLayer.Alignment.Left);
     }

@@ -152,7 +152,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
     if (bands != outputDimensions[2])
       throw new IllegalArgumentException(String.format("%d != %d", bands, outputDimensions[2]));
     //log.info(String.format("offset=%d,%d", offsetX, offsetY));
-    @Nonnull final int[] viewDim = getViewDimensions(inputDimensions, outputDimensions, new int[]{positionX, positionY, 0});
+    @Nonnull final int[] viewDim = getViewDimensions(inputDimensions, outputDimensions, new int[]{-positionX, -positionY, 0});
     @Nullable final CudaTensor inputTensor = gpu.getTensor(input, precision, MemoryType.Device, false);
     int sourceOffset = 0;
     int destinationOffset = 0;
@@ -186,6 +186,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
       if (Arrays.equals(viewDim, outputDimensions)) {
         assert sourceOffset >= 0;
         assert destinationOffset == 0;
+        outputPtr.freeRef();
         return CudaTensor.wrap(inputTensorMemory.withByteOffset(sourceOffset * precision.size), sourceViewDescriptor, precision);
       }
 
@@ -238,8 +239,14 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
   @Nonnull
   public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions, int[] offset) {
     @Nonnull final int[] viewDim = new int[3];
-    Arrays.parallelSetAll(viewDim, i ->
-        Math.min(sourceDimensions[i], destinationDimensions[i] + offset[i]) - Math.max(offset[i], 0)
+    Arrays.setAll(viewDim, i ->
+        {
+          int value = Math.min(sourceDimensions[i], Math.max(0, destinationDimensions[i] - offset[i] - Math.max(-offset[i], 0)));
+          if (0 >= value) {
+            throw new IllegalArgumentException(String.format("%d: src=%d, dst=%d, offset=%d => %d", i, sourceDimensions[i], destinationDimensions[i], offset[i], value));
+          }
+          return value;
+        }
     );
     return viewDim;
   }
@@ -256,18 +263,20 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
 
   @Nullable
   @Override
-  public Result evalAndFree(@Nonnull final Result... inObj) {
-    if (!CudaSystem.isEnabled()) return getCompatibilityLayer().evalAndFree(inObj);
+  public Result eval(@Nonnull final Result... inObj) {
+    if (!CudaSystem.isEnabled()) return getCompatibilityLayer().eval(inObj);
     assert 1 == inObj.length;
     final Result input = inObj[0];
+    input.addRef();
     final TensorList inputData = input.getData();
+    inputData.assertAlive();
     assert 3 == inputData.getDimensions().length;
     final int length = inputData.length();
     @Nonnull int[] dimIn = inputData.getDimensions();
     if (dimIn[0] == sizeY && dimIn[1] == sizeX) {
       return input;
     }
-    @Nonnull final int[] dimOut = getViewDimensions(dimIn, new int[]{sizeY, sizeX, dimIn[2]}, new int[]{positionX, positionY, 0});
+    @Nonnull final int[] dimOut = getViewDimensions(dimIn, new int[]{sizeX, sizeY, dimIn[2]}, new int[]{-positionX, -positionY, 0});
     final TensorList outputData = CudaSystem.run(gpu -> {
       assert dimOut[0] > 0;
       assert dimOut[1] > 0;
@@ -284,7 +293,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
       if (error.length() != length) {
         throw new AssertionError(error.length() + " != " + length);
       }
-      assert error.length() == inputData.length();
+      assert error.length() == length;
       if (input.isAlive()) {
         input.accumulate(buffer, CudaSystem.run(gpu -> {
           boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
@@ -296,7 +305,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
 
       @Override
       protected void _free() {
-        Arrays.stream(inObj).forEach(nnResult -> nnResult.freeRef());
+        input.freeRef();
       }
 
       @Override
@@ -334,5 +343,16 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
   public ImgTileSelectLayer setPrecision(final Precision precision) {
     this.precision = precision;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return "ImgTileSelectLayer{" +
+        "positionX=" + positionX +
+        ", positionY=" + positionY +
+        ", sizeX=" + sizeX +
+        ", sizeY=" + sizeY +
+        ", precision=" + precision +
+        '}';
   }
 }

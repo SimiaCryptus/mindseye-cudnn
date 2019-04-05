@@ -46,21 +46,12 @@ import java.util.stream.Stream;
 @SuppressWarnings("serial")
 public class ActivationLayer extends LayerBase implements MultiPrecision<ActivationLayer> {
   private static final Logger logger = LoggerFactory.getLogger(ActivationLayer.class);
-
-  @Nullable
-  @Override
-  public String getName() {
-    return String.format("Activation (%s)", mode);
-  }
-
   /**
    * The Mode.
    */
   final int mode;
   private double alpha = 1.0;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
-
-
   /**
    * Instantiates a new Activation key.
    *
@@ -69,6 +60,7 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
   public ActivationLayer(final int id) {
     mode = id;
   }
+
 
   /**
    * Instantiates a new Activation key.
@@ -114,6 +106,12 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
     if (a.cStride != b.cStride) return false;
     if (a.hStride != b.hStride) return false;
     return a.wStride == b.wStride;
+  }
+
+  @Nullable
+  @Override
+  public String getName() {
+    return String.format("Activation (%s)", mode);
   }
 
   /**

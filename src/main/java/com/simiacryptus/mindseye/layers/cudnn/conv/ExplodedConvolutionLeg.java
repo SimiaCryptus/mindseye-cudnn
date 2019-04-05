@@ -28,6 +28,7 @@ import com.simiacryptus.mindseye.layers.cudnn.ImgTileSubnetLayer;
 import com.simiacryptus.mindseye.layers.cudnn.ImgZeroPaddingLayer;
 import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.network.DAGNode;
+import com.simiacryptus.mindseye.network.InnerNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -258,19 +259,19 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
   public DAGNode add(@Nonnull final DAGNode input) {
     assertAlive();
     DAGNetwork network = input.getNetwork();
-    DAGNode head = input;
     final int[] filterDimensions = this.convolutionParams.masterFilterDimensions;
     if (getInputBands() == this.convolutionParams.outputBands) {
       assert 1 == subLayers.size();
-      head = network.add(subLayers.get(0), head);
+      return network.add(subLayers.get(0), input);
     } else {
-      head = network.wrap(new ImgConcatLayer()
+      InnerNode newHead = network.wrap(new ImgConcatLayer()
               .setMaxBands(this.convolutionParams.outputBands)
               .setPrecision(this.convolutionParams.precision)
               .setParallel(CudaSettings.INSTANCE().isConv_para_2()),
-          subLayers.stream().map(l -> network.add(l, input)).toArray(i -> new DAGNode[i])).setParallel(CudaSettings.INSTANCE().isConv_para_2());
+          subLayers.stream().map(l -> network.add(l, input.addRef())).toArray(i -> new DAGNode[i])).setParallel(CudaSettings.INSTANCE().isConv_para_2());
+      input.freeRef();
+      return newHead;
     }
-    return head;
   }
 
   @Nonnull

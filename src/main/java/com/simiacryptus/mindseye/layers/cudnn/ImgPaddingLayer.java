@@ -97,6 +97,110 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
     return new ImgPaddingLayer(json, rs);
   }
 
+  public static void add(CudnnHandle gpu, CudaTensor input, int[] input_dimensions, int[] output_dimensions, int[] offset, int length, Precision precision, CudaMemory output_memory) {
+    CopyParams copyParams = getCopyParams(gpu, input, input_dimensions, output_dimensions, offset, length, precision, output_memory, true);
+    if (null == copyParams) return;
+    if (0 >= copyParams.input_view_descriptor.width) return;
+    if (0 >= copyParams.input_view_descriptor.height) return;
+    copyParams.add();
+    copyParams.freeRef();
+  }
+
+  public static void set(CudnnHandle gpu, CudaTensor input, int[] input_dimensions, int[] output_dimensions, int[] offset, int length, Precision precision, CudaMemory output_memory) {
+    CopyParams copyParams = getCopyParams(gpu, input, input_dimensions, output_dimensions, offset, length, precision, output_memory, false);
+    if (null == copyParams) return;
+    if (0 >= copyParams.input_view_descriptor.width) return;
+    if (0 >= copyParams.input_view_descriptor.height) return;
+    copyParams.set();
+    copyParams.freeRef();
+  }
+
+  public static CopyParams getCopyParams(CudnnHandle gpu, CudaTensor input, int[] input_dimensions, int[] output_dimensions, int[] offset, int length, Precision precision, CudaMemory output_memory, boolean reflect) {
+
+    int offset_left = offset[0];
+    int offset_top = offset[1];
+
+    int input_offset = 0;
+    int output_offset = 0;
+
+    int input_channels = input_dimensions[2];
+    int input_height = input_dimensions[1];
+    int input_width = input_dimensions[0];
+
+    int output_channels = output_dimensions[2];
+    int output_height = output_dimensions[1];
+    int output_width = output_dimensions[0];
+
+    int view_channels = Math.min(input_channels, output_channels);
+    if (input_channels != output_channels) {
+      throw new IllegalArgumentException(String.format("%d != %d", input_channels, output_channels));
+    }
+
+    int input_wStride = input.descriptor.wStride;
+    if (input_width < 0) {
+      input_width *= -1;
+      input_offset += input_wStride * (input_width - 1);
+      input_wStride *= -1;
+    }
+    int output_wStride = 1;
+    if (output_width < 0) {
+      output_width *= -1;
+      output_offset += output_wStride * (output_width - 1);
+      output_wStride *= -1;
+    }
+    int view_width;
+    if (offset_left <= 0) {
+      offset_left *= -1;
+      view_width = Math.min(input_width - offset_left, output_width);
+      input_offset += input_wStride * offset_left;
+    } else {
+      view_width = Math.min(input_width, output_width - offset_left);
+      output_offset += output_wStride * offset_left;
+    }
+    if (view_width <= 0) return null;
+
+    int input_hStride = input.descriptor.hStride;
+    if (input_height < 0) {
+      input_height *= -1;
+      input_offset += input_hStride * (input_height - 1);
+      input_hStride *= -1;
+    }
+    int output_hStride = output_width;
+    if (output_height < 0) {
+      output_height *= -1;
+      output_offset += output_hStride * (output_height - 1);
+      output_hStride *= -1;
+    }
+    int view_height;
+    if (offset_top <= 0) {
+      offset_top *= -1;
+      view_height = Math.min(input_height - offset_top, output_height);
+      input_offset += input_hStride * offset_top;
+    } else {
+      view_height = Math.min(input_height, output_height - offset_top);
+      output_offset += output_hStride * offset_top;
+    }
+    if (view_height <= 0) return null;
+    assert input_offset >= 0 : input_offset;
+    assert output_offset >= 0 : output_offset;
+    return new CopyParams(gpu)
+        .setLength(length)
+        .setPrecision(precision)
+        .setOutput_memory(output_memory)
+        .setInput_memory(input.getMemory(gpu))
+        .setInput_offset(input_offset)
+        .setOutput_offset(output_offset)
+        .setInput_view_descriptor(gpu.newTensorDescriptor(
+            precision, length, view_channels, view_height, view_width,
+            input.descriptor.nStride, input.descriptor.cStride, input_hStride, input_wStride))
+        .setOutput_view_descriptor(gpu.newTensorDescriptor(
+            precision, length, view_channels, view_height, view_width,//
+            output_channels * output_height * output_width,//
+            output_height * output_width,//
+            output_hStride,//
+            output_wStride));
+  }
+
   public Alignment getVerticalAlign() {
     return verticalAlign;
   }
@@ -352,110 +456,6 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
         1);
   }
 
-  public static void add(CudnnHandle gpu, CudaTensor input, int[] input_dimensions, int[] output_dimensions, int[] offset, int length, Precision precision, CudaMemory output_memory) {
-    CopyParams copyParams = getCopyParams(gpu, input, input_dimensions, output_dimensions, offset, length, precision, output_memory, true);
-    if (null == copyParams) return;
-    if (0 >= copyParams.input_view_descriptor.width) return;
-    if (0 >= copyParams.input_view_descriptor.height) return;
-    copyParams.add();
-    copyParams.freeRef();
-  }
-
-  public static void set(CudnnHandle gpu, CudaTensor input, int[] input_dimensions, int[] output_dimensions, int[] offset, int length, Precision precision, CudaMemory output_memory) {
-    CopyParams copyParams = getCopyParams(gpu, input, input_dimensions, output_dimensions, offset, length, precision, output_memory, false);
-    if (null == copyParams) return;
-    if (0 >= copyParams.input_view_descriptor.width) return;
-    if (0 >= copyParams.input_view_descriptor.height) return;
-    copyParams.set();
-    copyParams.freeRef();
-  }
-
-  public static CopyParams getCopyParams(CudnnHandle gpu, CudaTensor input, int[] input_dimensions, int[] output_dimensions, int[] offset, int length, Precision precision, CudaMemory output_memory, boolean reflect) {
-
-    int offset_left = offset[0];
-    int offset_top = offset[1];
-
-    int input_offset = 0;
-    int output_offset = 0;
-
-    int input_channels = input_dimensions[2];
-    int input_height = input_dimensions[1];
-    int input_width = input_dimensions[0];
-
-    int output_channels = output_dimensions[2];
-    int output_height = output_dimensions[1];
-    int output_width = output_dimensions[0];
-
-    int view_channels = Math.min(input_channels, output_channels);
-    if (input_channels != output_channels) {
-      throw new IllegalArgumentException(String.format("%d != %d", input_channels, output_channels));
-    }
-
-    int input_wStride = input.descriptor.wStride;
-    if (input_width < 0) {
-      input_width *= -1;
-      input_offset += input_wStride * (input_width - 1);
-      input_wStride *= -1;
-    }
-    int output_wStride = 1;
-    if (output_width < 0) {
-      output_width *= -1;
-      output_offset += output_wStride * (output_width - 1);
-      output_wStride *= -1;
-    }
-    int view_width;
-    if (offset_left <= 0) {
-      offset_left *= -1;
-      view_width = Math.min(input_width - offset_left, output_width);
-      input_offset += input_wStride * offset_left;
-    } else {
-      view_width = Math.min(input_width, output_width - offset_left);
-      output_offset += output_wStride * offset_left;
-    }
-    if (view_width <= 0) return null;
-
-    int input_hStride = input.descriptor.hStride;
-    if (input_height < 0) {
-      input_height *= -1;
-      input_offset += input_hStride * (input_height - 1);
-      input_hStride *= -1;
-    }
-    int output_hStride = output_width;
-    if (output_height < 0) {
-      output_height *= -1;
-      output_offset += output_hStride * (output_height - 1);
-      output_hStride *= -1;
-    }
-    int view_height;
-    if (offset_top <= 0) {
-      offset_top *= -1;
-      view_height = Math.min(input_height - offset_top, output_height);
-      input_offset += input_hStride * offset_top;
-    } else {
-      view_height = Math.min(input_height, output_height - offset_top);
-      output_offset += output_hStride * offset_top;
-    }
-    if (view_height <= 0) return null;
-    assert input_offset >= 0 : input_offset;
-    assert output_offset >= 0 : output_offset;
-    return new CopyParams(gpu)
-        .setLength(length)
-        .setPrecision(precision)
-        .setOutput_memory(output_memory)
-        .setInput_memory(input.getMemory(gpu))
-        .setInput_offset(input_offset)
-        .setOutput_offset(output_offset)
-        .setInput_view_descriptor(gpu.newTensorDescriptor(
-            precision, length, view_channels, view_height, view_width,
-            input.descriptor.nStride, input.descriptor.cStride, input_hStride, input_wStride))
-        .setOutput_view_descriptor(gpu.newTensorDescriptor(
-            precision, length, view_channels, view_height, view_width,//
-            output_channels * output_height * output_width,//
-            output_height * output_width,//
-            output_hStride,//
-            output_wStride));
-  }
-
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
@@ -519,17 +519,17 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
     public int output_offset;
     public CudaMemory input_memory;
     public CudaDevice.CudaTensorDescriptor input_view_descriptor;
-    private CudaDevice.CudaTensorDescriptor output_view_descriptor;
     public CudaMemory output_memory;
+    private CudaDevice.CudaTensorDescriptor output_view_descriptor;
+
+    public CopyParams(CudnnHandle gpu) {
+      this.gpu = gpu;
+    }
 
     @Override
     protected void _free() {
       input_memory.freeRef();
       super._free();
-    }
-
-    public CopyParams(CudnnHandle gpu) {
-      this.gpu = gpu;
     }
 
     public CopyParams set() {

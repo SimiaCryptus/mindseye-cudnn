@@ -61,12 +61,6 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     alpha = 1.0;
   }
 
-  @Nullable
-  @Override
-  public String getName() {
-    return String.format("%sPooling [%d/%d x %d/%d]", mode.name(), windowX, strideX, windowY, strideY);
-  }
-
   /**
    * Instantiates a new Pooling key.
    *
@@ -97,18 +91,6 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     return new PoolingLayer(json);
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
-  @Nonnull
-  public Layer getCompatibilityLayer() {
-    if (mode == PoolingMode.Max) return this.as(MaxPoolingLayer.class);
-    if (mode == PoolingMode.Avg) return this.as(AvgPoolingLayer.class);
-    else throw new RuntimeException("Not Implemented");
-  }
-
   private static int correct(int dim, int modulus, int offset) {
 
     // modulus * n + offset == r + dim
@@ -124,6 +106,24 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
 //    while (adj < 0) adj += modulus;
 //    while (adj >= modulus) adj -= modulus;
 //    return adj;
+  }
+
+  @Nullable
+  @Override
+  public String getName() {
+    return String.format("%sPooling [%d/%d x %d/%d]", mode.name(), windowX, strideX, windowY, strideY);
+  }
+
+  /**
+   * Gets compatibility key.
+   *
+   * @return the compatibility key
+   */
+  @Nonnull
+  public Layer getCompatibilityLayer() {
+    if (mode == PoolingMode.Max) return this.as(MaxPoolingLayer.class);
+    if (mode == PoolingMode.Avg) return this.as(AvgPoolingLayer.class);
+    else throw new RuntimeException("Not Implemented");
   }
 
   @Nullable
@@ -148,8 +148,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
           .setPrecision(precision)
           .setHorizontalAlign(ImgPaddingLayer.Alignment.Center)
           .setVerticalAlign(ImgPaddingLayer.Alignment.Center)
-          .setRoundUp(false)
-          ;
+          .setRoundUp(false);
       input = imgCropLayer.evalAndFree(inObj[0]);
       imgCropLayer.freeRef();
 //      return input;
