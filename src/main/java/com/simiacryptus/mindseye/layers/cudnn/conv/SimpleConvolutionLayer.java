@@ -169,8 +169,6 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
   @Nullable
   @Override
   public Result evalAndFree(@Nonnull final Result... inObj) {
-    if (!CudaSystem.isEnabled()) return getCompatibilityLayer().eval(inObj);
-
     @Nonnull final int[] rawInputDims = inObj[0].getData().getDimensions();
     @Nonnull final int[] filterDims = kernel.getDimensions();
     kernel.addRef();
@@ -519,64 +517,6 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
     kernel.freeRef(this);
     clearCudaFilters();
     super._free();
-  }
-
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
-  @Nonnull
-  public Layer getCompatibilityLayer() {
-//    log.info(String.format("Using compatibility key for %s", this));
-//    int bands = (int) Math.sqrt(this.kernel.getDimensions()[2]);
-//    @Nonnull final com.simiacryptus.mindseye.layers.aparapi.ConvolutionLayer convolutionLayer = new com.simiacryptus.mindseye.layers.aparapi.ConvolutionLayer(this.kernel.getDimensions()[0], this.kernel.getDimensions()[1], this.kernel.getDimensions()[2], true);
-//    @Nonnull final Tensor tensor = new Tensor(kernel.getDimensions());
-//    tensor.setByCoord(c -> {
-//      final int band = c.getCoords()[2];
-//      final int bandX = band % bands;
-//      final int bandY = (band - bandX) / bands;
-//      assert band == bandX + bandY * bands;
-//      final int bandT = bandY + bandX * bands;
-//      return kernel.get(c.getCoords()[0], c.getCoords()[1], bandT);
-//    });
-//    convolutionLayer.kernel.set(tensor);
-//    return new LayerBase() {
-//      @Nonnull
-//      @Override
-//      public Result eval(@Nonnull Result... array) {
-//        Arrays.stream(array).forEach(x -> x.addRef());
-//        @Nonnull Result result = convolutionLayer.eval(array);
-//        return new Result(result.getData(), (DeltaSet<UUID> buffer, TensorList data) -> {
-//          throw new IllegalStateException();
-//        }) {
-//
-//
-//          @Override
-//          protected void _free() {
-//            Arrays.stream(array).forEach(x -> x.freeRef());
-//          }
-//
-//          @Override
-//          public boolean isAlive() {
-//            return false;
-//          }
-//        };
-//      }
-//
-//      @Nonnull
-//      @Override
-//      public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-//        throw new IllegalStateException();
-//      }
-//
-//      @Nonnull
-//      @Override
-//      public List<double[]> state() {
-//        throw new IllegalStateException();
-//      }
-//    };
-    return null;
   }
 
   @Nonnull
