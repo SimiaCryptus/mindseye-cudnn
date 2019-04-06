@@ -78,6 +78,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
   }
 
   public static PipelineNetwork combine(PipelineNetwork... networks) {
+    if (1 == networks.length) return networks[0];
     Arrays.stream(networks).forEach(ReferenceCountingBase::assertAlive);
     PipelineNetwork pipelineNetwork = new PipelineNetwork(1);
     pipelineNetwork.wrap(new SumInputsLayer(), Arrays.stream(networks).map(network -> {

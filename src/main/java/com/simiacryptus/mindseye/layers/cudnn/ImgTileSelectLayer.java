@@ -46,7 +46,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
 
   private int sizeY;
   private int sizeX;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private @Nonnull Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   /**
    * Instantiates a new Img eval key.
@@ -63,10 +63,24 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
    * @param positionY the position y
    */
   public ImgTileSelectLayer(int sizeX, int sizeY, final int positionX, final int positionY) {
+    this(sizeX, sizeY, positionX, positionY, Precision.Float);
+  }
+
+  /**
+   * Instantiates a new Img crop key.
+   *
+   * @param sizeX     the size y
+   * @param sizeY     the size x
+   * @param positionX the position x
+   * @param positionY the position y
+   * @param precision
+   */
+  public ImgTileSelectLayer(int sizeX, int sizeY, final int positionX, final int positionY, Precision precision) {
     this.sizeY = sizeY;
     this.sizeX = sizeX;
     this.positionX = positionX;
     this.positionY = positionY;
+    this.precision = precision;
   }
 
   /**
@@ -77,8 +91,8 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
    */
   protected ImgTileSelectLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
-    sizeY = json.get("sizeX").getAsInt();
-    sizeX = json.get("sizeY").getAsInt();
+    sizeY = json.get("sizeY").getAsInt();
+    sizeX = json.get("sizeX").getAsInt();
     positionX = json.get("positionX").getAsInt();
     positionY = json.get("positionY").getAsInt();
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
@@ -108,7 +122,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
    * @param dirty            the dirty
    * @return the cuda tensor
    */
-  public static CudaTensor copy(final CudnnHandle gpu, @Nonnull final TensorList input, final int[] inputDimensions, final int[] outputDimensions, Precision precision, final int positionX, final int positionY, final boolean dirty) {
+  public static CudaTensor copy(final CudnnHandle gpu, @Nonnull final TensorList input, final int[] inputDimensions, final int[] outputDimensions, @Nonnull Precision precision, final int positionX, final int positionY, final boolean dirty) {
     @Nonnull final CudaMemory outputPtr = gpu.allocate((long) input.length() * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size, MemoryType.Managed.ifEnabled(), dirty);
     return copy(gpu, input, inputDimensions, outputDimensions, positionX, positionY, precision, outputPtr);
   }
@@ -340,7 +354,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
 
   @Nonnull
   @Override
-  public ImgTileSelectLayer setPrecision(final Precision precision) {
+  public ImgTileSelectLayer setPrecision(@Nonnull final Precision precision) {
     this.precision = precision;
     return this;
   }

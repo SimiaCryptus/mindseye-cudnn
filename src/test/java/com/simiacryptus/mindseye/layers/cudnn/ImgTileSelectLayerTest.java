@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.mindseye.lang.cudnn.Precision;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,22 +43,20 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
   @Override
   public int[][] getSmallDims(Random random) {
     return new int[][]{
-        {8, 8, 1}
+        {8, 6, 1}
     };
   }
 
-  @Override
-  public int[][] getLargeDims(final Random random) {
-    return new int[][]{
-        {1200, 1200, 1}
-    };
-  }
+//  @Override
+//  public int[][] getLargeDims(final Random random) {
+//    return new int[][]{
+//        {1200, 1200, 1}
+//    };
+//  }
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    return new ImgTileSelectLayer(4, 4, 3, 3);
-  }
+  public abstract ImgTileSelectLayer getLayer(final int[][] inputSize, Random random);
 
   @Nullable
   @Override
@@ -65,10 +64,49 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     return com.simiacryptus.mindseye.layers.java.ImgTileSelectLayer.class;
   }
 
-  /**
-   * Basic Test
-   */
-  public static class Basic extends ImgTileSelectLayerTest {
+
+  public static class UL extends ImgTileSelectLayerTest {
+
+    @Nonnull
+    @Override
+    public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
+      return new ImgTileSelectLayer(4, 3, 0, 0)
+          .setPrecision(Precision.Double);
+    }
+
+  }
+
+  public static class LL extends ImgTileSelectLayerTest {
+
+    @Nonnull
+    @Override
+    public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
+      return new ImgTileSelectLayer(4, 3, 4, 0)
+          .setPrecision(Precision.Double);
+    }
+
+  }
+
+  public static class UR extends ImgTileSelectLayerTest {
+
+    @Nonnull
+    @Override
+    public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
+      return new ImgTileSelectLayer(4, 3, 0, 3)
+          .setPrecision(Precision.Double);
+    }
+
+  }
+
+  public static class LR extends ImgTileSelectLayerTest {
+
+    @Nonnull
+    @Override
+    public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
+      return new ImgTileSelectLayer(4, 3, 4, 3)
+          .setPrecision(Precision.Double);
+    }
+
   }
 
 }

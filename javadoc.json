@@ -343,9 +343,10 @@
   "com.simiacryptus.mindseye.layers.cudnn.ImgTileSelectLayerTest": {
     ":class": "The type Img crop key apply."
   },
-  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSelectLayerTest.Basic": {
-    ":class": "Basic Test"
-  },
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSelectLayerTest.LL": {},
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSelectLayerTest.LR": {},
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSelectLayerTest.UL": {},
+  "com.simiacryptus.mindseye.layers.cudnn.ImgTileSelectLayerTest.UR": {},
   "com.simiacryptus.mindseye.layers.cudnn.ImgTileSubnetLayer": {
     ":class": "This key works as a scaling function, similar to a father wavelet. Allows convolutional and pooling layers to work across larger png regions.",
     "parallel": "Sets parallel."
