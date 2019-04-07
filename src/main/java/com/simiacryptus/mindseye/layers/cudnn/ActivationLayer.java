@@ -52,6 +52,7 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
   final int mode;
   private double alpha = 1.0;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+
   /**
    * Instantiates a new Activation key.
    *

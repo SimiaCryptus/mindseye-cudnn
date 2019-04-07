@@ -58,7 +58,7 @@ public class CudaSystem {
   /**
    * The constant apiLog.
    */
-  public static final HashSet<PrintStream> apiLog = new HashSet<>();
+  public static final HashSet<Consumer<String>> apiLog = new HashSet<>();
   /**
    * The constant logger.
    */
@@ -943,7 +943,7 @@ public class CudaSystem {
    * @param apiLog the api log
    * @return the boolean
    */
-  public static boolean removeLog(PrintStream apiLog) {
+  public static boolean removeLog(Consumer<String> apiLog) {
     return CudaSystem.apiLog.remove(apiLog);
   }
 
@@ -954,6 +954,10 @@ public class CudaSystem {
    */
   public static void addLog(@Nonnull PrintStream log) {
     printHeader(log);
+    apiLog.add(s->log.println(s));
+  }
+
+  public static void addLog(@Nonnull Consumer<String> log) {
     apiLog.add(log);
   }
 
@@ -976,7 +980,7 @@ public class CudaSystem {
     @Nonnull final CharSequence paramString = null == args ? "" : Arrays.stream(args).map(CudaSystem::renderToLog).reduce((a, b) -> a + ", " + b).orElse("");
     final String message = String.format("%.6f @ %s(%d): %s(%s) = %s via [%s]", (System.nanoTime() - CudaSystem.start) / 1e9, Thread.currentThread().getName(), getThreadDeviceId(), method, paramString, result, callstack);
     try {
-      CudaSystem.apiLog.forEach(apiLog -> CudaSystem.logThread.submit(() -> apiLog.println(message)));
+      CudaSystem.apiLog.forEach(apiLog -> CudaSystem.logThread.submit(() -> apiLog.accept(message)));
     } catch (ConcurrentModificationException e) {
     }
   }
