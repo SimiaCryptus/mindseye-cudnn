@@ -157,7 +157,7 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
         inputDimensions[0] * inputDimensions[1], //
         inputDimensions[0], //
         1);
-    @Nullable final CudaMemory outputMemory = gpu.allocate((long) outputDescriptor.nStride * precision.size * length, MemoryType.Managed, true);
+    @Nullable final CudaMemory outputMemory = gpu.allocate((long) outputDescriptor.nStride * precision.size * length, MemoryType.Managed.ifEnabled(), true);
     @Nonnull final CudaMemory workspacePtr = gpu.allocate(Math.max(outputMemory.size, inputMemory.size), MemoryType.Device, true);
     @Nonnull final CudaMemory indexPtr = gpu.allocate(12 * length, MemoryType.Device, false);
 

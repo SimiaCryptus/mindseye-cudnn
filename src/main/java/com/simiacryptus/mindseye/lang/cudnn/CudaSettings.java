@@ -73,7 +73,7 @@ public class CudaSettings implements Settings {
     maxDeviceMemory = (long) Settings.get("MAX_DEVICE_MEMORY", 8.0 * CudaMemory.GiB);
     maxAllocSize = (long) Settings.get("MAX_ALLOC_SIZE", (double) Precision.Double.size * (Integer.MAX_VALUE / 2 - 1L));
     maxFilterElements = (long) Settings.get("MAX_FILTER_ELEMENTS", 512.0 * CudaMemory.MiB);
-    maxIoElements = Settings.get("MAX_IO_ELEMENTS", 2 * CudaMemory.MiB);
+    maxIoElements = Settings.get("MAX_IO_ELEMENTS", 32 * CudaMemory.MiB);
     convolutionWorkspaceSizeLimit = (long) Settings.get("CONVOLUTION_WORKSPACE_SIZE_LIMIT", 512.0 * CudaMemory.MiB);
     disable = Settings.get("DISABLE_CUDNN", false);
     forceSingleGpu = Settings.get("FORCE_SINGLE_GPU", true);
@@ -83,13 +83,13 @@ public class CudaSettings implements Settings {
     memoryCacheMode = Settings.get("CUDA_CACHE_MODE", PersistanceMode.WEAK);
     logStack = Settings.get("CUDA_LOG_STACK", false);
     profileMemoryIO = Settings.get("CUDA_PROFILE_MEM_IO", false);
-    enableManaged = true;
-    asyncFree = false;
+    enableManaged = false;
+    asyncFree = true;
     syncBeforeFree = false;
     memoryCacheTTL = 5;
     convolutionCache = true;
     defaultDevices = Settings.get("CUDA_DEVICES", "");
-    this.handlesPerDevice = Settings.get("CUDA_HANDLES_PER_DEVICE", 1);
+    this.handlesPerDevice = Settings.get("CUDA_HANDLES_PER_DEVICE", 4);
     defaultPrecision = Precision.valueOf(Settings.get("CUDA_DEFAULT_PRECISION", Precision.Float.name()));
   }
 

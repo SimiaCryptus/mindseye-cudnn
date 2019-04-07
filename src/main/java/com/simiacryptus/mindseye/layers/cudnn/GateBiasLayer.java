@@ -147,7 +147,7 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision<GateBiasL
                 rightDimensions[0],
                 1);
             long size = (long) precision.size * reducedOutputDescriptor.nStride * rightData.length();
-            @Nonnull final CudaMemory reducedOutputPtr = gpu.allocate(size, MemoryType.Managed, true);
+            @Nonnull final CudaMemory reducedOutputPtr = gpu.allocate(size, MemoryType.Managed.ifEnabled(), true);
             CudaResource<cudnnReduceTensorDescriptor> reduceTensorDescriptor = gpu.cudnnCreateReduceTensorDescriptor(
                 cudnnReduceTensorOp.CUDNN_REDUCE_TENSOR_ADD, precision.code, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN,
                 cudnnReduceTensorIndices.CUDNN_REDUCE_TENSOR_NO_INDICES, cudnnIndicesType.CUDNN_32BIT_INDICES);

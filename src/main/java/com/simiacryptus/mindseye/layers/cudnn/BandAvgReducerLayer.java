@@ -96,7 +96,7 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
       CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
       @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, bands, 1, 1);
       long size = (long) precision.size * outputDescriptor.nStride * length;
-      @Nonnull final CudaMemory outputPtr = gpu.allocate(size, MemoryType.Managed, true);
+      @Nonnull final CudaMemory outputPtr = gpu.allocate(size, MemoryType.Managed.ifEnabled(), true);
       CudaResource<cudnnReduceTensorDescriptor> reduceTensorDescriptor = gpu.cudnnCreateReduceTensorDescriptor(
           cudnnReduceTensorOp.CUDNN_REDUCE_TENSOR_AVG, precision.code, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN,
           cudnnReduceTensorIndices.CUDNN_REDUCE_TENSOR_NO_INDICES, cudnnIndicesType.CUDNN_32BIT_INDICES);

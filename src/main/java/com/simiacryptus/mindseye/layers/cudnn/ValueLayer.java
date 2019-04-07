@@ -87,7 +87,7 @@ public class ValueLayer extends LayerBase {
   public CudaTensorList toDevice(final Tensor data, final Precision precision) {
     if (null == data) return null;
     return CudaSystem.run(gpu -> {
-      CudaMemory cudaMemory = gpu.allocate(data.length() * precision.size, MemoryType.Managed, true);
+      CudaMemory cudaMemory = gpu.allocate(data.length() * precision.size, MemoryType.Managed.ifEnabled(), true);
       cudaMemory.write(precision, data.getData());
       int[] dimensions = data.getDimensions();
       CudaDevice.CudaTensorDescriptor tensorDescriptor = gpu.newTensorDescriptor(precision, 1, dimensions[2], dimensions[1], dimensions[0]);

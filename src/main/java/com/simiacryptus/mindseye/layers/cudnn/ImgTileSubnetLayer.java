@@ -118,7 +118,7 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
     int length = inputData.length();
     CudaTensor passback = CudaSystem.run(gpu -> {
       return CudaTensor.wrap(
-          gpu.allocate(inputData.getElements() * precision.size, MemoryType.Managed, true),
+          gpu.allocate(inputData.getElements() * precision.size, MemoryType.Managed.ifEnabled(), true),
           gpu.newTensorDescriptor(precision, length, inputDims[2], inputDims[1], inputDims[0]),
           precision);
     });
