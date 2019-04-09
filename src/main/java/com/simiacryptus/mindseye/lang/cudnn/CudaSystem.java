@@ -954,7 +954,7 @@ public class CudaSystem {
    */
   public static void addLog(@Nonnull PrintStream log) {
     printHeader(log);
-    apiLog.add(s->log.println(s));
+    apiLog.add(s -> log.println(s));
   }
 
   public static void addLog(@Nonnull Consumer<String> log) {

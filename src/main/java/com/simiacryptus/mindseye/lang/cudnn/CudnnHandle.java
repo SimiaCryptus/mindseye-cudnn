@@ -315,7 +315,7 @@ public class CudnnHandle extends CudaDevice {
     } else {
       result.addRef();
     }
-    if (dense) result = result.getDenseAndFree(this);
+    if (dense || CudaSettings.INSTANCE().allDense) result = result.getDenseAndFree(this);
     if (null == result) {
       throw new IllegalStateException("No data");
     }
@@ -892,21 +892,32 @@ public class CudnnHandle extends CudaDevice {
   /**
    * Gets backward data algorithm.
    *
-   * @param inputDesc          the src tensor desc
+   * @param dyDesc             the src tensor desc
    * @param filterDesc         the filter desc
    * @param convDesc           the conv desc
-   * @param outputDesc         the weight desc
+   * @param dxDesc             the weight desc
    * @param memoryLimitInBytes the memory limit in bytes
    * @return the backward data algorithm
    */
-  public int getBackwardDataAlgorithm(final cudnnTensorDescriptor inputDesc, final cudnnFilterDescriptor filterDesc, final cudnnConvolutionDescriptor convDesc, final cudnnTensorDescriptor outputDesc, final long memoryLimitInBytes) {
+  public int getBackwardDataAlgorithm(
+      final cudnnTensorDescriptor dyDesc,
+      final cudnnFilterDescriptor filterDesc,
+      final cudnnConvolutionDescriptor convDesc,
+      final cudnnTensorDescriptor dxDesc,
+      final long memoryLimitInBytes
+  ) {
     long startTime = System.nanoTime();
     @Nonnull final int algoArray[] = {-1};
     final int result = JCudnn.cudnnGetConvolutionBackwardDataAlgorithm(handle,
-        filterDesc, inputDesc, convDesc, outputDesc,
-        cudnnConvolutionBwdDataPreference.CUDNN_CONVOLUTION_BWD_DATA_PREFER_FASTEST, memoryLimitInBytes, algoArray);
+        filterDesc,
+        dyDesc,
+        convDesc,
+        dxDesc,
+        cudnnConvolutionBwdDataPreference.CUDNN_CONVOLUTION_BWD_DATA_PREFER_FASTEST,
+        memoryLimitInBytes,
+        algoArray);
     getBackwardDataAlgorithm_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudnnGetConvolutionBackwardDataAlgorithm", result, new Object[]{this, filterDesc, inputDesc, convDesc, outputDesc, cudnnConvolutionBwdDataPreference.CUDNN_CONVOLUTION_BWD_DATA_PREFER_FASTEST, memoryLimitInBytes, algoArray});
+    log("cudnnGetConvolutionBackwardDataAlgorithm", result, new Object[]{this, filterDesc, dyDesc, convDesc, dxDesc, cudnnConvolutionBwdDataPreference.CUDNN_CONVOLUTION_BWD_DATA_PREFER_FASTEST, memoryLimitInBytes, algoArray});
     CudaSystem.handle(result);
     return algoArray[0];
   }
@@ -1104,25 +1115,31 @@ public class CudnnHandle extends CudaDevice {
   /**
    * Allocate backward data workspace cuda ptr.
    *
-   * @param inputDesc  the input desc
+   * @param dxDesc     the input desc
    * @param filterDesc the filter desc
    * @param convDesc   the conv desc
-   * @param outputDesc the output desc
+   * @param dyDesc     the output desc
    * @param algorithm  the algorithm
    * @param minSize    the min size
    * @return the cuda ptr
    */
-  public CudaMemory allocateBackwardDataWorkspace(final cudnnTensorDescriptor inputDesc, final cudnnFilterDescriptor filterDesc, final cudnnConvolutionDescriptor convDesc, final cudnnTensorDescriptor outputDesc, final int algorithm, final long minSize) {
-    assert CudaDevice.isThreadDeviceId(getDeviceId());
-    long startTime = System.nanoTime();
-    @Nonnull final long sizeInBytesArray[] = {0};
-    final int result = JCudnn.cudnnGetConvolutionBackwardDataWorkspaceSize(handle,
-        filterDesc, outputDesc, convDesc, inputDesc,
-        algorithm, sizeInBytesArray);
-    allocateBackwardDataWorkspace_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudnnGetConvolutionBackwardDataWorkspaceSize", result, new Object[]{this, filterDesc, outputDesc, convDesc, inputDesc, algorithm, sizeInBytesArray});
-    CudaSystem.handle(result);
-    final long size = sizeInBytesArray[0];
+  public CudaMemory allocateBackwardDataWorkspace(final cudnnTensorDescriptor dxDesc, final cudnnFilterDescriptor filterDesc, final cudnnConvolutionDescriptor convDesc, final cudnnTensorDescriptor dyDesc, final int algorithm, final long minSize) {
+    long size;
+    try {
+      assert CudaDevice.isThreadDeviceId(getDeviceId());
+      long startTime = System.nanoTime();
+      @Nonnull final long sizeInBytesArray[] = {0};
+      final int result = JCudnn.cudnnGetConvolutionBackwardDataWorkspaceSize(handle,
+          filterDesc, dyDesc, convDesc, dxDesc,
+          algorithm, sizeInBytesArray);
+      allocateBackwardDataWorkspace_execution.accept((System.nanoTime() - startTime) / 1e9);
+      log("cudnnGetConvolutionBackwardDataWorkspaceSize", result, new Object[]{this, filterDesc, dyDesc, convDesc, dxDesc, algorithm, sizeInBytesArray});
+      CudaSystem.handle(result);
+      size = sizeInBytesArray[0];
+    } catch (Throwable e) {
+      logger.info("Error in allocateBackwardDataWorkspace", e);
+      size = 0;
+    }
     return this.allocate(Math.max(minSize, size), MemoryType.Device, true);
   }
 

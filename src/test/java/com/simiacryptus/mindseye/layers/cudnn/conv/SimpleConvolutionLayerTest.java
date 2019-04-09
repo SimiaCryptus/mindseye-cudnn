@@ -72,6 +72,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     layer = new SimpleConvolutionLayer(radius, radius, bands * bands).setPrecision(precision).setStrideX(stride).setStrideY(stride).setWeightsLog(-2);
     layer.kernel.set(() -> random());
     smallSize = this.radius;
+    testTraining = false;
     largeSize = 800;
   }
 
@@ -184,6 +185,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
      */
     public MultiBand() {
       super(1, 3, Precision.Double, 1);
+      smallSize = 8;
     }
   }
 

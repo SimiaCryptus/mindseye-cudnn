@@ -85,7 +85,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
       InnerNode node = transferNode(pipelineNetwork, network.getHead());
       network.freeRef();
       return node;
-    }).toArray(i -> new DAGNode[i]));
+    }).toArray(i -> new DAGNode[i])).freeRef();
     return pipelineNetwork;
   }
 

@@ -207,7 +207,7 @@ public enum MemoryType {
         }
       }.setPersistanceMode(CudaSettings.INSTANCE().memoryCacheMode)
           .setMinLengthPerBuffer(1)
-          .setMaxItemsPerBuffer(5)
+          .setMaxItemsPerBuffer(10)
           .setPurgeFreq(CudaSettings.INSTANCE().getMemoryCacheTTL());
     });
   }
