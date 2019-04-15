@@ -73,9 +73,9 @@ public class CudaSettings implements Settings {
     maxTotalMemory = (long) Settings.get("MAX_TOTAL_MEMORY", 7.0 * CudaMemory.GiB);
     maxDeviceMemory = (long) Settings.get("MAX_DEVICE_MEMORY", 7.0 * CudaMemory.GiB);
     maxAllocSize = (long) Settings.get("MAX_ALLOC_SIZE", (double) Precision.Double.size * (Integer.MAX_VALUE / 2 - 1L));
-    maxFilterElements = (long) Settings.get("MAX_FILTER_ELEMENTS", (double) 512 * CudaMemory.MiB);
-    maxIoElements = Settings.get("MAX_IO_ELEMENTS", (double) 256 * CudaMemory.MiB);
-    convolutionWorkspaceSizeLimit = (long) Settings.get("CONVOLUTION_WORKSPACE_SIZE_LIMIT", (double) 512 * CudaMemory.MiB);
+    maxFilterElements = (long) Settings.get("MAX_FILTER_ELEMENTS", (double) 256 * CudaMemory.MiB);
+    maxIoElements = Settings.get("MAX_IO_ELEMENTS", (double) 64 * CudaMemory.MiB);
+    convolutionWorkspaceSizeLimit = (long) Settings.get("CONVOLUTION_WORKSPACE_SIZE_LIMIT", (double) 256 * CudaMemory.MiB);
     disable = Settings.get("DISABLE_CUDNN", false);
     forceSingleGpu = Settings.get("FORCE_SINGLE_GPU", true);
     conv_para_1 = Settings.get("CONV_PARA_1", false);

@@ -52,6 +52,10 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
   public GramianLayer() {
   }
 
+  public GramianLayer(UUID id) {
+    super(id, "Gramian");
+  }
+
   /**
    * Instantiates a new Img eval key.
    *
@@ -83,7 +87,7 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
     int[] inputDimensions = inputData.getDimensions();
     assert 3 == inputDimensions.length;
     return new Result(CudaSystem.run(gpu -> {
-      CudaTensor tensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
+      CudaTensor tensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
       CudaTensorList output = getOutput(gpu, tensor);
       tensor.freeRef();
       return output;
@@ -94,7 +98,7 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
       }
       if (inObj[0].isAlive()) {
         final TensorList passbackTensorList = CudaSystem.run(gpu -> {
-          @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
+          @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
           CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
           delta.freeRef();
           CudaTensorList feedback = getFeedback(gpu, inputTensor, deltaTensor);
