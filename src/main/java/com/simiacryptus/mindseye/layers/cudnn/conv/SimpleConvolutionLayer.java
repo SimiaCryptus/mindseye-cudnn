@@ -781,8 +781,9 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
    *
    * @param kernel the kernel
    */
-  public void set(@Nonnull Tensor kernel) {
+  public SimpleConvolutionLayer set(@Nonnull Tensor kernel) {
     this.kernel.set(kernel);
+    return this;
   }
 
   /**
