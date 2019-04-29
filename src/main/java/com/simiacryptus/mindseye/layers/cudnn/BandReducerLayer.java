@@ -91,8 +91,12 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision<BandRe
     final TensorList batch = input.getData();
     @Nonnull final int[] inputSize = batch.getDimensions();
     @Nonnull PoolingLayer impl = new PoolingLayer().setMode(mode).setPrecision(precision)
-        .setWindowX(inputSize[1])
-        .setWindowY(inputSize[0])
+        .setWindowX(inputSize[0])
+        .setWindowY(inputSize[1])
+        .setStrideX(inputSize[0])
+        .setStrideY(inputSize[1])
+        .setPaddingX(0)
+        .setPaddingY(0)
         .setAlpha(alpha);
     @Nullable Result result = impl.evalAndFree(inObj);
     impl.freeRef();

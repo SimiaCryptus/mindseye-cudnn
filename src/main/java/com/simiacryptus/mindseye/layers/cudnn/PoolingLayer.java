@@ -95,7 +95,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
 
     // modulus * n + offset == r + dim
     // modulus * n + (offset - dim) == r
-
+    if (0 >= modulus) throw new IllegalArgumentException();
     int lastV = 0;
     while (lastV < dim) lastV += modulus;
     lastV -= modulus;
