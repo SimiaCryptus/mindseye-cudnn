@@ -221,7 +221,7 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     json.add("outputDims", JsonUtil.getJson(outputDims));
     json.add("inputDims", JsonUtil.getJson(inputDims));
     @Nullable Tensor tensor = getWeights();
-    json.add("weights", tensor.toJson(resources, dataSerializer));
+    json.add("weights", tensor.getJson(resources, dataSerializer));
     json.addProperty("precision", precision.name());
     return json;
   }

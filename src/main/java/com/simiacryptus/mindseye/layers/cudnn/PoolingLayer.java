@@ -111,7 +111,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
   @Nullable
   @Override
   public String getName() {
-    return String.format("%sPooling [%d/%d x %d/%d]", mode.name(), windowX, strideX, windowY, strideY);
+    return String.format("%sPooling [%d/%d x %d/%d]", mode.name(), windowX, windowY, strideX, strideY);
   }
 
   /**
@@ -144,13 +144,13 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     assert correctionY >= 0;
     @Nullable Result input;
     if (correctionX > 0 || correctionY > 0) {
-      @Nonnull Layer imgCropLayer = new ImgPaddingLayer(rawInputDims[0] + correctionX, rawInputDims[1] + correctionY)
+      @Nonnull Layer paddingLayer = new ImgPaddingLayer(rawInputDims[0] + correctionX, rawInputDims[1] + correctionY)
           .setPrecision(precision)
           .setHorizontalAlign(ImgPaddingLayer.Alignment.Center)
           .setVerticalAlign(ImgPaddingLayer.Alignment.Center)
           .setRoundUp(false);
-      input = imgCropLayer.evalAndFree(inObj[0]);
-      imgCropLayer.freeRef();
+      input = paddingLayer.evalAndFree(inObj[0]);
+      paddingLayer.freeRef();
 //      return input;
     } else {
       input = inObj[0];
@@ -160,9 +160,9 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     final int inputLength = inputData.length();
 
     final int poolDims = 2;
-    @Nonnull final int windowSize[] = {windowX, windowY};
-    @Nonnull final int padding[] = {paddingX, paddingY};
-    @Nonnull final int stride[] = {strideX, strideY};
+    @Nonnull final int windowSize[] = {windowY, windowX};
+    @Nonnull final int padding[] = {paddingY, paddingX};
+    @Nonnull final int stride[] = {strideY, strideX};
     @Nonnull final int[] outputSize = new int[4];
     final CudaTensor outputData = CudaSystem.run(gpu -> {
       try {
@@ -186,7 +186,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
         Stream.<ReferenceCounting>of(inputTensor, poolingDesc, inputDataMemory).forEach(ReferenceCounting::freeRef);
         return CudaTensor.wrap(outputTensor, outputDescriptor, precision);
       } catch (@Nonnull final Throwable e) {
-        throw new ComponentException("Error", e);
+        throw new ComponentException("Error processing " + Arrays.stream(inObj).map(x->Arrays.toString(x.getData().getDimensions())).reduce((a,b)->a+";"+b) + " with " + this.toString(), e);
       }
     }, inputData);
     return new Result(CudaTensorList.create(outputData, inputLength, new int[]{outputSize[3], outputSize[2], outputSize[1]}, precision),

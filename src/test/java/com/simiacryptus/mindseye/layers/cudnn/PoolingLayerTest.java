@@ -63,8 +63,44 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
   @Override
   public int[][] getLargeDims(Random random) {
     return new int[][]{
-        {1200, 1200, 3}
+        {800, 800, 16}
     };
+  }
+
+  /**
+   * Basic 64-bit apply.
+   */
+  public static class Repro extends PoolingLayerTest {
+    /**
+     * Instantiates a new Double.
+     */
+    public Repro() {
+      super(Precision.Double);
+    }
+
+
+    @Nonnull
+    @Override
+    public int[][] getSmallDims(Random random) {
+      return new int[][]{
+          {3, 2, 1}
+      };
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getLargeDims(Random random) {
+      return new int[][]{
+          {3, 2, 512}
+      };
+    }
+
+    @Nonnull
+    @Override
+    public Layer getLayer(final int[][] inputSize, Random random) {
+      return new PoolingLayer().setWindowXY(3,2).setStrideXY(3,2).setPrecision(precision);
+    }
+
   }
 
   /**

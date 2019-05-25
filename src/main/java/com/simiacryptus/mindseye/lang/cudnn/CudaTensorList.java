@@ -237,7 +237,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     assertAlive();
     if (heapCopy != null) return heapCopy.get(i);
     CudaTensor gpuCopy = this.gpuCopy;
-    return CudaSystem.run(gpu -> {
+    Tensor result = CudaSystem.run(gpu -> {
       TimedResult<Tensor> timedResult = TimedResult.time(() -> {
         assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
         Tensor t = new Tensor(getDimensions());
@@ -257,6 +257,9 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
       Tensor tensor = timedResult.result;
       return tensor;
     }, CudaTensorList.this);
+    result.addRef();
+    result.freeRef();
+    return result;
   }
 
   /**
@@ -300,9 +303,9 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
    */
   @Nullable
   private TensorArray heapCopy(final boolean avoidAllocations) {
-    assertAlive();
     TensorArray heapCopy = this.heapCopy;
     if (null == heapCopy || heapCopy.isFinalized()) {
+      assertAlive();
       TensorArray copy = toHeap(avoidAllocations);
       final TensorArray prev;
       synchronized (this) {

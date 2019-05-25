@@ -214,7 +214,7 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBan
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
-    json.add("bias", bias.toJson(resources, dataSerializer));
+    json.add("bias", bias.getJson(resources, dataSerializer));
     return json;
   }
 

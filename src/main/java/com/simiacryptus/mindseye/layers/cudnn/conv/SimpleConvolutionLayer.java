@@ -576,7 +576,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
     @Nonnull final JsonObject json = super.getJsonStub();
     JsonElement value;
     try {
-      value = kernel.toJson(resources, dataSerializer);
+      value = kernel.getJson(resources, dataSerializer);
     } catch (Throwable e) {
       throw new RuntimeException("Error serializing convolution" + Arrays.toString(this.kernel.getDimensions()), e);
     }

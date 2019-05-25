@@ -19,11 +19,17 @@
 
 package com.simiacryptus.mindseye.layers.cudnn;
 
-import com.simiacryptus.mindseye.lang.Layer;
+import com.google.gson.JsonObject;
+import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.notebook.NotebookOutput;
+import org.checkerframework.common.value.qual.IntRange;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 /**
  * The type Fully connected key apply.
@@ -34,6 +40,7 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
    * Instantiates a new Gramian key test.
    */
   public GramianLayerTest() {
+    this.tolerance = 1e-2;
     testingBatchSize = 1;
   }
 
@@ -62,7 +69,40 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
 
   @Override
   public Layer getReferenceLayer() {
-    return null;
+    return new LayerBase() {
+
+      @Nullable
+      @Override
+      public Result evalAndFree(Result... array) {
+        Tensor input = array[0].getData().get(0);
+        int[] inputDimensions = input.getDimensions();
+        int inBands = inputDimensions[2];
+        Tensor output = new Tensor(1,1, inBands * inBands);
+        output.setByCoord(c->{
+          int[] coords = c.getCoords();
+          int outBand = coords[2];
+          int bandA = outBand / inBands;
+          int bandB = outBand % inBands;
+          return IntStream.range(0, inputDimensions[0]).mapToDouble(x->{
+            return IntStream.range(0, inputDimensions[1]).mapToDouble(y->{
+              return input.get(x,y,bandA) * input.get(x,y,bandB);
+            }).average().getAsDouble();
+          }).average().getAsDouble();
+        });
+        return new Result(TensorArray.wrap(output), (a,b)->{});
+      }
+
+      @Override
+      public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
+        return null;
+      }
+
+      @Nullable
+      @Override
+      public List<double[]> state() {
+        return null;
+      }
+    };
   }
 
   @Override

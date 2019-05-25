@@ -124,7 +124,7 @@ public class ValueLayer extends LayerBase {
   public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     Tensor tensor = tensorList.get(0);
-    json.add("value", tensor.toJson(resources, dataSerializer));
+    json.add("value", tensor.getJson(resources, dataSerializer));
     tensor.freeRef();
     json.addProperty("precision", precision.name());
     return json;

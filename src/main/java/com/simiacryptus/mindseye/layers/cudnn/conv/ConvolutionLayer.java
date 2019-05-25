@@ -300,7 +300,7 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
-    json.add("filter", getKernel().toJson(resources, dataSerializer));
+    json.add("filter", getKernel().getJson(resources, dataSerializer));
     json.addProperty("batchBands", getBatchBands());
     json.addProperty("strideX", getStrideX());
     json.addProperty("strideY", getStrideY());
