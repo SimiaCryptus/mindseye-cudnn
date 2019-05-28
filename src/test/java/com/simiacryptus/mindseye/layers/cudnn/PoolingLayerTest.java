@@ -98,7 +98,7 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new PoolingLayer().setWindowXY(3,2).setStrideXY(3,2).setPrecision(precision);
+      return new PoolingLayer().setWindowXY(3, 2).setStrideXY(3, 2).setPrecision(precision);
     }
 
   }

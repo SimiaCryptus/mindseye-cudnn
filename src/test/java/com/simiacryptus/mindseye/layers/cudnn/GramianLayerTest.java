@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.notebook.NotebookOutput;
-import org.checkerframework.common.value.qual.IntRange;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -77,19 +76,20 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
         Tensor input = array[0].getData().get(0);
         int[] inputDimensions = input.getDimensions();
         int inBands = inputDimensions[2];
-        Tensor output = new Tensor(1,1, inBands * inBands);
-        output.setByCoord(c->{
+        Tensor output = new Tensor(1, 1, inBands * inBands);
+        output.setByCoord(c -> {
           int[] coords = c.getCoords();
           int outBand = coords[2];
           int bandA = outBand / inBands;
           int bandB = outBand % inBands;
-          return IntStream.range(0, inputDimensions[0]).mapToDouble(x->{
-            return IntStream.range(0, inputDimensions[1]).mapToDouble(y->{
-              return input.get(x,y,bandA) * input.get(x,y,bandB);
+          return IntStream.range(0, inputDimensions[0]).mapToDouble(x -> {
+            return IntStream.range(0, inputDimensions[1]).mapToDouble(y -> {
+              return input.get(x, y, bandA) * input.get(x, y, bandB);
             }).average().getAsDouble();
           }).average().getAsDouble();
         });
-        return new Result(TensorArray.wrap(output), (a,b)->{});
+        return new Result(TensorArray.wrap(output), (a, b) -> {
+        });
       }
 
       @Override

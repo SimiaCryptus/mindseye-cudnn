@@ -186,7 +186,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
         Stream.<ReferenceCounting>of(inputTensor, poolingDesc, inputDataMemory).forEach(ReferenceCounting::freeRef);
         return CudaTensor.wrap(outputTensor, outputDescriptor, precision);
       } catch (@Nonnull final Throwable e) {
-        throw new ComponentException("Error processing " + Arrays.stream(inObj).map(x->Arrays.toString(x.getData().getDimensions())).reduce((a,b)->a+";"+b) + " with " + this.toString(), e);
+        throw new ComponentException("Error processing " + Arrays.stream(inObj).map(x -> Arrays.toString(x.getData().getDimensions())).reduce((a, b) -> a + ";" + b) + " with " + this.toString(), e);
       }
     }, inputData);
     return new Result(CudaTensorList.create(outputData, inputLength, new int[]{outputSize[3], outputSize[2], outputSize[1]}, precision),
