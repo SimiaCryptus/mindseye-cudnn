@@ -25,26 +25,11 @@ import javax.annotation.Nonnull;
 import java.util.Random;
 
 
-/**
- * The type Img crop key apply.
- */
 public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Modulus.
-   */
   final int modulus;
-  /**
-   * The Offset.
-   */
   final int offset;
 
-  /**
-   * Instantiates a new Img modulus padding key test.
-   *
-   * @param modulus the modulus
-   * @param offset  the offset
-   */
   public ImgModulusCropLayerTest(int modulus, int offset) {
     validateBatchExecution = true;
     validateDifferentials = false;
@@ -84,13 +69,7 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  /**
-   * Basic Test
-   */
   public static class Basic extends ImgModulusCropLayerTest {
-    /**
-     * Instantiates a new Basic.
-     */
     public Basic() {
       super(2, 7);
     }

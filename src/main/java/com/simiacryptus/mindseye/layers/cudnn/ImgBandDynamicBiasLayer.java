@@ -23,9 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
-import com.simiacryptus.mindseye.layers.java.ProductInputsLayer;
-import com.simiacryptus.util.FastRandom;
-import com.simiacryptus.util.Util;
 import jcuda.jcudnn.cudnnOpTensorDescriptor;
 import jcuda.jcudnn.cudnnOpTensorOp;
 
@@ -35,39 +32,28 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.DoubleSupplier;
-import java.util.function.IntToDoubleFunction;
 import java.util.stream.Stream;
 
 @SuppressWarnings("serial")
-public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBandBiasLayer> {
+public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision<ImgBandDynamicBiasLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
-  private Tensor bias;
 
-  public ImgBandBiasLayer(int bands) {
-    this(new Tensor(1, 1, bands));
-    this.bias.freeRef();
+  public ImgBandDynamicBiasLayer() {
   }
 
-  public ImgBandBiasLayer(final Tensor bias) {
-    this.bias = bias;
-    this.bias.addRef();
-  }
-
-  protected ImgBandBiasLayer(@Nonnull final JsonObject id, final Map<CharSequence, byte[]> rs) {
+  protected ImgBandDynamicBiasLayer(@Nonnull final JsonObject id, final Map<CharSequence, byte[]> rs) {
     super(id);
     this.precision = Precision.valueOf(id.getAsJsonPrimitive("precision").getAsString());
-    this.bias = Tensor.fromJson(id.get("bias"), rs);
   }
 
-  public static ImgBandBiasLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new ImgBandBiasLayer(json, rs);
+  public static ImgBandDynamicBiasLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+    return new ImgBandDynamicBiasLayer(json, rs);
   }
 
   @Nonnull
   public Layer getCompatibilityLayer() {
-    return this.as(ProductInputsLayer.class);
+    return null;
   }
 
 
@@ -75,10 +61,16 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBan
   @Override
   public Result evalAndFree(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) return getCompatibilityLayer().evalAndFree(inObj);
-    if (inObj.length != 1) {
+    if (inObj.length != 2) {
       throw new IllegalArgumentException("inObj.length=" + inObj.length);
     }
     Result input = inObj[0];
+    Result biasinput = inObj[1];
+    TensorList biasData = biasinput.getData();
+    if (1 != biasData.length()) {
+      throw new IllegalArgumentException("Input lengths: " + biasData.length());
+    }
+    Tensor bias = biasData.get(0);
     final TensorList inputData = input.getData();
     @Nonnull final int[] inputDimensions = inputData.getDimensions();
     final int length = inputData.length();
@@ -86,9 +78,11 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBan
       throw new IllegalArgumentException("dimensions=" + Arrays.toString(inputDimensions));
     }
     if (0 == Tensor.length(inputData.getDimensions())) {
+      biasinput.freeRef();
       return input;
     }
     if (0 == bias.length()) {
+      bias.freeRef();
       return input;
     }
 //   assert !right.isAlive();
@@ -124,7 +118,7 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBan
       CudaTensor cudaTensor = CudaTensor.wrap(outputPtr, outputDescriptor, precision);
       return CudaTensorList.wrap(cudaTensor, length, inputDimensions, precision);
     }, inputData), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      if (!isFrozen()) {
+      if (biasinput.isAlive()) {
         @Nonnull double[] biasDelta = CudaSystem.run(gpu -> {
           @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, false);
 
@@ -143,7 +137,7 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBan
           Stream.<ReferenceCounting>of(biasMem, deltaTensorMemory, deltaTensor, biasDescriptor).forEach(ReferenceCounting::freeRef);
           return biasV;
         }, delta);
-        buffer.get(ImgBandBiasLayer.this.getId(), bias).addInPlace(biasDelta).freeRef();
+        biasinput.accumulate(buffer, TensorArray.wrap(new Tensor(biasDelta, bias.getDimensions())));
       }
       if (input.isAlive()) {
         input.accumulate(buffer, delta);
@@ -161,6 +155,9 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBan
       protected void _free() {
         inputData.freeRef();
         input.freeRef();
+        biasinput.freeRef();
+        bias.freeRef();
+        biasData.freeRef();
       }
 
 
@@ -182,7 +179,6 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBan
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
-    json.add("bias", bias.getJson(resources, dataSerializer));
     return json;
   }
 
@@ -193,7 +189,7 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBan
 
   @Nonnull
   @Override
-  public ImgBandBiasLayer setPrecision(final Precision precision) {
+  public ImgBandDynamicBiasLayer setPrecision(final Precision precision) {
     this.precision = precision;
     return this;
   }
@@ -201,57 +197,11 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBan
   @Nonnull
   @Override
   public List<double[]> state() {
-    return Arrays.asList(bias.getData());
-  }
-
-  @Nonnull
-  public ImgBandBiasLayer addWeights(@Nonnull final DoubleSupplier f) {
-    Util.add(f, getBias());
-    return this;
-  }
-
-  @Nonnull
-  public ImgBandBiasLayer setWeights(@Nonnull final IntToDoubleFunction f) {
-    bias.setByCoord(c -> f.applyAsDouble(c.getIndex()));
-    return this;
-  }
-
-  @Nonnull
-  public ImgBandBiasLayer setWeightsLog(final double value) {
-    bias.setByCoord(c -> (FastRandom.INSTANCE.random() - 0.5) * Math.pow(10, value));
-    return this;
-  }
-
-  public ImgBandBiasLayer setAndFree(final Tensor tensor) {
-    set(tensor);
-    tensor.freeRef();
-    return this;
-  }
-
-  public ImgBandBiasLayer set(final Tensor tensor) {
-    bias.set(tensor);
-    return this;
-  }
-
-  public double[] getBias() {
-    return bias.getData();
-  }
-
-  public ImgBandBiasLayer setBias(Tensor bias) {
-    if (this.bias != null) {
-      this.bias.freeRef();
-    }
-    this.bias = bias;
-    this.bias.addRef();
-    return this;
+    return Arrays.asList();
   }
 
   @Override
   protected void _free() {
-    if (this.bias != null) {
-      bias.freeRef();
-      bias = null;
-    }
     super._free();
   }
 }

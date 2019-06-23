@@ -31,10 +31,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * This key works as a scaling function, similar to a father wavelet. Allows convolutional and pooling layers to work
- * across larger png regions.
- */
 @SuppressWarnings("serial")
 public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<ImgTileSubnetLayer> {
 
@@ -46,15 +42,6 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private boolean parallel = true;
 
-  /**
-   * Instantiates a new Rescaled subnet key.
-   *
-   * @param subnetwork the subnetwork
-   * @param width      the width
-   * @param height     the scale
-   * @param strideX    the stride x
-   * @param strideY    the stride y
-   */
   public ImgTileSubnetLayer(final Layer subnetwork, final int width, final int height, final int strideX, final int strideY) {
     super(subnetwork);
     this.height = height;
@@ -63,23 +50,10 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
     this.strideY = strideY;
   }
 
-  /**
-   * Instantiates a new Img tile subnet key.
-   *
-   * @param subnetwork the subnetwork
-   * @param width      the width
-   * @param height     the height
-   */
   public ImgTileSubnetLayer(final Layer subnetwork, final int width, final int height) {
     this(subnetwork, width, height, width, height);
   }
 
-  /**
-   * Instantiates a new Rescaled subnet key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected ImgTileSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
@@ -90,13 +64,6 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
     this.parallel = json.get("parallel").getAsBoolean();
   }
 
-  /**
-   * From json rescaled subnet key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the rescaled subnet key
-   */
   public static ImgTileSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgTileSubnetLayer(json, rs);
   }
@@ -230,21 +197,10 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
     return super.setFrozen(frozen);
   }
 
-  /**
-   * Is parallel boolean.
-   *
-   * @return the boolean
-   */
   public boolean isParallel() {
     return parallel;
   }
 
-  /**
-   * Sets parallel.
-   *
-   * @param parallel the parallel
-   * @return the parallel
-   */
   public ImgTileSubnetLayer setParallel(boolean parallel) {
     this.parallel = parallel;
     return this;

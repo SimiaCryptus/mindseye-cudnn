@@ -34,10 +34,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-/**
- * Reduces the resolution of the input by selecting a centered window. The output png will have the same number of
- * color bands.
- */
 @SuppressWarnings("serial")
 public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgCropLayer.class);
@@ -49,18 +45,9 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
   private int sizeY;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Img eval key.
-   */
   private ImgCropLayer() {
   }
 
-  /**
-   * Instantiates a new Img crop key.
-   *
-   * @param sizeX the size x
-   * @param sizeY the size y
-   */
   public ImgCropLayer(int sizeX, int sizeY) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
@@ -68,12 +55,6 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     assert 0 < sizeY;
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected ImgCropLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
@@ -87,13 +68,6 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     assert 0 < sizeY;
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static ImgCropLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgCropLayer(json, rs);
   }
@@ -116,20 +90,6 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     return this;
   }
 
-  /**
-   * Copy cuda tensor.
-   *
-   * @param gpu              the gpu
-   * @param input            the input tensor
-   * @param length           the length
-   * @param inputDimensions  the input dimensions
-   * @param outputDimensions the output dimensions
-   * @param dirty            the dirty
-   * @param precision        the precision
-   * @param horizontalAlign
-   * @param verticalAlign
-   * @return the cuda tensor
-   */
   public CudaTensor copy(final CudnnHandle gpu, final CudaTensor input, final int length, final int[] inputDimensions, final int[] outputDimensions, final boolean dirty, Precision precision, Alignment horizontalAlign, Alignment verticalAlign) {
     if (3 != inputDimensions.length) throw new IllegalArgumentException("inputDimensions.length");
     if (3 != outputDimensions.length) throw new IllegalArgumentException("dimOut.length");
@@ -252,11 +212,6 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     else return (i - 1) / 2;
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(com.simiacryptus.mindseye.layers.java.ImgCropLayer.class);

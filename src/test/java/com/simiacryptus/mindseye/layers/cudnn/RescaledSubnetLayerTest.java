@@ -28,20 +28,11 @@ import org.junit.Test;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-/**
- * The type Rescaled subnet key apply.
- */
 public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Convolution key.
-   */
   @Nonnull
   ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1);
 
-  /**
-   * Instantiates a new Rescaled subnet key allocationOverflow.
-   */
   public RescaledSubnetLayerTest() {
 
   }
@@ -83,9 +74,6 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
     return com.simiacryptus.mindseye.layers.java.RescaledSubnetLayer.class;
   }
 
-  /**
-   * Basic Test
-   */
   public static class Basic extends RescaledSubnetLayerTest {
     @Override
     @Test(timeout = 15 * 60 * 1000)

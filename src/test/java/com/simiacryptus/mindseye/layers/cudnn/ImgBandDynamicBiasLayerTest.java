@@ -21,48 +21,65 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
+import com.simiacryptus.mindseye.test.unit.ComponentTest;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
+import com.simiacryptus.mindseye.test.unit.TrainingTester;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Random;
 
-public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
+public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
 
-  public ImgBandBiasLayerTest(final Precision precision) {
+  public ImgBandDynamicBiasLayerTest(final Precision precision) {
     this.precision = precision;
+    this.testingBatchSize = 1;
+    this.validateBatchExecution = false;
+
+  }
+
+  @Nullable
+  @Override
+  public ComponentTest<TrainingTester.ComponentResult> getTrainingTester() {
+    return isTestTraining() ? new TrainingTester() {
+      @Override
+      protected Layer lossLayer() {
+        return new MeanSqLossLayer();
+      }
+    }.setBatches(1) : null;
   }
 
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
     return new int[][]{
-        {8, 8, 3}
+        {8, 8, 3}, {1, 1, 3}
     };
   }
 
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new ImgBandBiasLayer(3).setPrecision(precision).addWeights(this::random);
+    return new ImgBandDynamicBiasLayer().setPrecision(precision);
   }
 
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
     return new int[][]{
-        {1200, 1200, 3}
+        {1200, 1200, 3}, {1, 1, 3}
     };
   }
 
-  public static class Double extends ImgBandBiasLayerTest {
+  public static class Double extends ImgBandDynamicBiasLayerTest {
     public Double() {
       super(Precision.Double);
     }
   }
 
-  public static class Float extends ImgBandBiasLayerTest {
+  public static class Float extends ImgBandDynamicBiasLayerTest {
     public Float() {
       super(Precision.Float);
     }

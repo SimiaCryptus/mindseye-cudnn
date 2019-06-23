@@ -25,39 +25,18 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.function.ToIntFunction;
 
-/**
- * A managed resource containing a native CudaSystem resource, bound to its lifecycle apply a prearranged destructor.
- *
- * @param <T> the type parameter
- */
 public class CudaResource<T> extends CudaResourceBase<T> {
-  /**
-   * The constant logger.
-   */
   protected static final Logger logger = LoggerFactory.getLogger(CudaResource.class);
 
-  /**
-   * The Device id.
-   */
   public final int deviceId;
   private final ToIntFunction<T> destructor;
 
-  /**
-   * Instantiates a new Cuda resource.
-   *
-   * @param obj        the obj
-   * @param destructor the destructor
-   * @param deviceId   the device id
-   */
   protected CudaResource(final T obj, final ToIntFunction<T> destructor, int deviceId) {
     super(obj);
     this.destructor = destructor;
     this.deviceId = deviceId;
   }
 
-  /**
-   * Free.
-   */
   protected void _free() {
     CudnnHandle threadHandle = CudaSystem.getThreadHandle();
     if (null != threadHandle) threadHandle.cleanupNative.add(this);

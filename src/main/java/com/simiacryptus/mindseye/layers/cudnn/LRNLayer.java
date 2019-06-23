@@ -37,10 +37,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-/**
- * Reduces the resolution of the input by selecting a centered window. The output png will have the same number of
- * color bands.
- */
 @SuppressWarnings("serial")
 public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
   private static final Logger log = LoggerFactory.getLogger(LRNLayer.class);
@@ -51,9 +47,6 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
   private double k;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Img eval key.
-   */
   private LRNLayer() {
   }
 
@@ -61,12 +54,6 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
     this(width, 1e-4, 0.75, 2.0);
   }
 
-  /**
-   * Instantiates a new Img crop key.
-   *
-   * @param width the size x
-   * @param alpha the size y
-   */
   public LRNLayer(int width, double alpha, double beta, double k) {
     this.setWidth(width);
     this.setAlpha(alpha);
@@ -74,12 +61,6 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
     this.setK(k);
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected LRNLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     setWidth(json.get("width").getAsInt());
@@ -96,23 +77,11 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
     assert 0 < getAlpha();
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static LRNLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new LRNLayer(json, rs);
   }
 
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return null;

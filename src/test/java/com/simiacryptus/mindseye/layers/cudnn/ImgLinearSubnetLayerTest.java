@@ -25,9 +25,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-/**
- * The type Rascaled subnet key apply.
- */
 public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
 
   private final Layer layer1 = new ActivationLayer(ActivationLayer.Mode.RELU);
@@ -36,9 +33,6 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
   private final int smallSize;
   private final int largeSize;
 
-  /**
-   * Instantiates a new Img linear subnet key test.
-   */
   public ImgLinearSubnetLayerTest() {
     testingBatchSize = 10;
     smallSize = 2;
@@ -75,9 +69,6 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  /**
-   * Basic Test
-   */
   public static class Basic extends ImgLinearSubnetLayerTest {
 
   }

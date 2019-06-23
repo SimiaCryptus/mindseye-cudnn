@@ -26,14 +26,8 @@ import javax.annotation.Nullable;
 import java.util.Random;
 
 
-/**
- * The type Img crop key apply.
- */
 public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * Instantiates a new Img crop key apply.
-   */
   public ImgTileAssemblyLayerTest() {
     validateBatchExecution = false;
   }
@@ -67,9 +61,6 @@ public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
     return com.simiacryptus.mindseye.layers.java.ImgTileAssemblyLayer.class;
   }
 
-  /**
-   * Basic Test
-   */
   public static class Basic extends ImgTileAssemblyLayerTest {
   }
 

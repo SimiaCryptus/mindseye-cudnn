@@ -31,34 +31,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-/**
- * The type Fully connected key apply.
- */
 public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Input dim.
-   */
   @Nonnull
   protected final int[] inputDim;
-  /**
-   * The Fully connected key.
-   */
   @Nonnull
   protected final FullyConnectedLayer fullyConnectedLayer;
-  /**
-   * The LayerBase.
-   */
   @Nonnull
   protected final Layer layer;
 
-  /**
-   * Instantiates a new Fully connected key allocationOverflow.
-   *
-   * @param inputDims  the input dims
-   * @param outputDims the output dims
-   * @param batchBands the batch bands
-   */
   public FullyConnectedLayerTest(@Nonnull int[] inputDims, @Nonnull int[] outputDims, int batchBands) {
     this.inputDim = inputDims;
     this.fullyConnectedLayer = new FullyConnectedLayer(inputDims, outputDims).setWeightsLog(-2);
@@ -106,30 +87,14 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
     super.run(log);
   }
 
-  /**
-   * Basic Test
-   */
   public static class Basic extends FullyConnectedLayerTest {
-    /**
-     * Instantiates a new Basic.
-     */
     public Basic() {
       super(new int[]{2}, new int[]{2}, 512);
     }
   }
 
-  /**
-   * Basic Test
-   */
   public abstract static class BigTests extends FullyConnectedLayerTest {
 
-    /**
-     * Instantiates a new BigTests.
-     *
-     * @param inputDims  the input dims
-     * @param outputDims the output dims
-     * @param batchBands the batch bands
-     */
     public BigTests(@Nonnull int[] inputDims, @Nonnull int[] outputDims, int batchBands) {
       super(inputDims, outputDims, batchBands);
       validateDifferentials = false;
@@ -169,26 +134,14 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  /**
-   * Large-dimension test using the size of the largest key in VGG16
-   */
   public static class Big_VGG extends BigTests {
-    /**
-     * Instantiates a new BigTests.
-     */
     public Big_VGG() {
       super(new int[]{25088}, new int[]{4096}, 25088 / 2);
     }
 
   }
 
-  /**
-   * Large-dimension test
-   */
   public static class Big1 extends BigTests {
-    /**
-     * Instantiates a new BigTests.
-     */
     public Big1() {
       super(new int[]{2 * 1024}, new int[]{2 * 1024}, 512);
     }

@@ -26,21 +26,10 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-/**
- * The type Product key apply.
- */
 public abstract class NProductLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Precision.
-   */
   final Precision precision;
 
-  /**
-   * Instantiates a new Product key apply.
-   *
-   * @param precision the precision
-   */
   public NProductLayerTest(final Precision precision) {
     this.precision = precision;
   }
@@ -66,25 +55,13 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
     return new NProductLayer().setPrecision(precision);
   }
 
-  /**
-   * Multiplication of 2 inputs using 64-bit precision
-   */
   public static class Double extends NProductLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Double() {
       super(Precision.Double);
     }
   }
 
-  /**
-   * Multiplication of 3 inputs using 64-bit precision
-   */
   public static class Double3 extends NProductLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Double3() {
       super(Precision.Double);
     }
@@ -106,13 +83,7 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Multiplication of 2 inputs using 32-bit precision
-   */
   public static class Float extends NProductLayerTest {
-    /**
-     * Instantiates a new Float.
-     */
     public Float() {
       super(Precision.Float);
     }

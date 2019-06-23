@@ -31,40 +31,17 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-/**
- * A TensorList data object stored on a GPU apply a configurable precision.
- */
 public class CudaTensorList extends RegisteredObjectBase implements TensorList, CudaSystem.CudaDeviceResource {
-  /**
-   * The constant logger.
-   */
   public static final Logger logger = LoggerFactory.getLogger(CudaTensorList.class);
-  /**
-   * The Created by.
-   */
   public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getStackTrace() : new StackTraceElement[]{};
   @Nonnull
   private final int[] dimensions;
   private final int length;
-  /**
-   * The Ptr.
-   */
   @Nullable
   volatile CudaTensor gpuCopy = null;
-  /**
-   * The Heap copy.
-   */
   @Nullable
   volatile TensorArray heapCopy = null;
 
-  /**
-   * Instantiates a new Cu dnn double tensor list.
-   *
-   * @param ptr        the ptr
-   * @param length     the length
-   * @param dimensions the dimensions
-   * @param precision  the precision
-   */
   private CudaTensorList(@Nullable final CudaTensor ptr, final int length, @Nonnull final int[] dimensions, @Nonnull final Precision precision) {
     //assert 1 == ptr.currentRefCount() : ptr.referenceReport(false, false);
     if (null == ptr) throw new IllegalArgumentException("ptr");
@@ -83,12 +60,6 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     //assert this.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(v->Double.isFinite(v));
   }
 
-  /**
-   * Evict to heap.
-   *
-   * @param deviceId the device id
-   * @return the long
-   */
   public static long evictToHeap(int deviceId) {
     return CudaSystem.withDevice(deviceId, gpu -> {
       long size = RegisteredObjectBase.getLivingInstances(CudaTensorList.class)
@@ -99,15 +70,6 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     });
   }
 
-  /**
-   * Wrap gpu tensor list.
-   *
-   * @param ptr        the ptr
-   * @param length     the length
-   * @param dimensions the dimensions
-   * @param precision  the precision
-   * @return the gpu tensor list
-   */
   @Nonnull
   public static CudaTensorList wrap(@Nonnull final CudaTensor ptr, final int length, @Nonnull final int[] dimensions, @Nonnull final Precision precision) {
     @Nonnull CudaTensorList cudaTensorList = new CudaTensorList(ptr, length, dimensions, precision);
@@ -115,29 +77,10 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     return cudaTensorList;
   }
 
-  /**
-   * Create gpu tensor list.
-   *
-   * @param ptr        the ptr
-   * @param length     the length
-   * @param dimensions the dimensions
-   * @param precision  the precision
-   * @return the gpu tensor list
-   */
   public static CudaTensorList create(final CudaTensor ptr, final int length, @Nonnull final int[] dimensions, @Nonnull final Precision precision) {
     return new CudaTensorList(ptr, length, dimensions, precision);
   }
 
-  /**
-   * Create cuda tensor list.
-   *
-   * @param ptr        the ptr
-   * @param descriptor the descriptor
-   * @param length     the length
-   * @param dimensions the dimensions
-   * @param precision  the precision
-   * @return the cuda tensor list
-   */
   public static CudaTensorList create(final CudaMemory ptr, CudaDevice.CudaTensorDescriptor descriptor, final int length, @Nonnull final int[] dimensions, @Nonnull final Precision precision) {
     CudaTensor cudaTensor = new CudaTensor(ptr, descriptor, precision);
     CudaTensorList cudaTensorList = new CudaTensorList(cudaTensor, length, dimensions, precision);
@@ -262,9 +205,6 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     return result;
   }
 
-  /**
-   * The Dimensions.
-   */
   @Nonnull
   @Override
   public int[] getDimensions() {
@@ -274,33 +214,17 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
   /**
    * The Precision.
    */
-  /**
-   * Gets precision.
-   *
-   * @return the precision
-   */
   @Nonnull
   public Precision getPrecision() {
     CudaTensor gpuCopy = this.gpuCopy;
     return null == gpuCopy ? Precision.Double : gpuCopy.getPrecision();
   }
 
-  /**
-   * Inner tensor list.
-   *
-   * @return the tensor list
-   */
   @Nullable
   private TensorArray heapCopy() {
     return heapCopy(false);
   }
 
-  /**
-   * Inner tensor list.
-   *
-   * @param avoidAllocations
-   * @return the tensor list
-   */
   @Nullable
   private TensorArray heapCopy(final boolean avoidAllocations) {
     TensorArray heapCopy = this.heapCopy;
@@ -373,11 +297,6 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     return heapCopy().stream();
   }
 
-  /**
-   * Gets heap copy.
-   *
-   * @return the heap copy
-   */
   @Nullable
   public TensorArray getHeapCopy() {
     @Nullable TensorArray tensorList = heapCopy();
@@ -420,11 +339,6 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     }
   }
 
-  /**
-   * Evict to heap.
-   *
-   * @return the long
-   */
   public long evictToHeap() {
     if (isFinalized()) return 0;
     if (null == heapCopy(true)) {
@@ -450,11 +364,6 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     }
   }
 
-  /**
-   * The Length.
-   *
-   * @return the length
-   */
   public int getLength() {
     return length;
   }

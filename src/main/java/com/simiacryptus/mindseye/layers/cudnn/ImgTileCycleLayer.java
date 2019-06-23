@@ -32,10 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Reduces the resolution of the input by selecting a centered window. The output png will have the same number of
- * color bands.
- */
 @SuppressWarnings("serial")
 public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTileCycleLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgTileCycleLayer.class);
@@ -44,45 +40,18 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Img eval key.
-   */
   public ImgTileCycleLayer() {
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected ImgTileCycleLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static ImgTileCycleLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgTileCycleLayer(json, rs);
   }
 
-  /**
-   * Copy cuda tensor.
-   *
-   * @param gpu       the gpu
-   * @param input     the input tensor
-   * @param length    the length
-   * @param precision the precision
-   * @param splitX    the split x
-   * @param splitY    the split y
-   * @return the cuda tensor
-   */
   public static CudaTensor copy(final CudnnHandle gpu, final CudaTensor input, final int length, Precision precision, final int splitX, final int splitY) {
     CudaMemory inputTensorMemory = input.getMemory(gpu);
     try {
@@ -203,13 +172,6 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
     }
   }
 
-  /**
-   * Get view dimensions int [ ].
-   *
-   * @param sourceDimensions      the source dimensions
-   * @param destinationDimensions the destination dimensions
-   * @return the int [ ]
-   */
   @Nonnull
   public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions) {
     @Nonnull final int[] viewDim = new int[3];
@@ -217,11 +179,6 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
     return viewDim;
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(com.simiacryptus.mindseye.layers.java.ImgCropLayer.class);
@@ -315,41 +272,19 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
     return this;
   }
 
-  /**
-   * Gets pos.
-   *
-   * @return the pos
-   */
   public double getxPos() {
     return xPos;
   }
 
-  /**
-   * Gets pos.
-   *
-   * @return the pos
-   */
   public double getyPos() {
     return yPos;
   }
 
-  /**
-   * Sets x pos.
-   *
-   * @param xPos the x pos
-   * @return the x pos
-   */
   public ImgTileCycleLayer setXPos(double xPos) {
     this.xPos = xPos;
     return this;
   }
 
-  /**
-   * Sets y pos.
-   *
-   * @param yPos the y pos
-   * @return the y pos
-   */
   public ImgTileCycleLayer setYPos(double yPos) {
     this.yPos = yPos;
     return this;

@@ -36,9 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * The classic "softmax" key. All outputs will sum to 1 and be proportional to the log of the input.
- */
 @SuppressWarnings("serial")
 public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<SoftmaxActivationLayer> {
   private static final Logger log = LoggerFactory.getLogger(SoftmaxActivationLayer.class);
@@ -46,18 +43,10 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
   private SoftmaxMode mode = SoftmaxMode.INSTANCE;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Activation key.
-   */
   public SoftmaxActivationLayer() {
 
   }
 
-  /**
-   * Instantiates a new Activation key.
-   *
-   * @param json the json
-   */
   protected SoftmaxActivationLayer(@Nonnull final JsonObject json) {
     super(json);
     precision = Precision.valueOf(json.get("precision").getAsString());
@@ -65,62 +54,28 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
     mode = SoftmaxMode.valueOf(json.get("mode").getAsString());
   }
 
-  /**
-   * From json activation key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the activation key
-   */
   public static SoftmaxActivationLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new SoftmaxActivationLayer(json);
   }
 
-  /**
-   * Gets algorithm.
-   *
-   * @return the algorithm
-   */
   public SoftmaxAlgorithm getAlgorithm() {
     return algorithm;
   }
 
-  /**
-   * Sets algorithm.
-   *
-   * @param algorithm the algorithm
-   * @return the algorithm
-   */
   public SoftmaxActivationLayer setAlgorithm(SoftmaxAlgorithm algorithm) {
     this.algorithm = algorithm;
     return this;
   }
 
-  /**
-   * Gets mode.
-   *
-   * @return the mode
-   */
   public SoftmaxMode getMode() {
     return mode;
   }
 
-  /**
-   * Sets mode.
-   *
-   * @param mode the mode
-   * @return the mode
-   */
   public SoftmaxActivationLayer setMode(SoftmaxMode mode) {
     this.mode = mode;
     return this;
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     assert algorithm != SoftmaxAlgorithm.LOG;
@@ -282,26 +237,11 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
     return Arrays.asList();
   }
 
-  /**
-   * The enum Softmax algorithm.
-   */
   public enum SoftmaxAlgorithm {
-    /**
-     * This implementation applies the straightforward softmax operation.
-     */
     FAST(cudnnSoftmaxAlgorithm.CUDNN_SOFTMAX_FAST),
-    /**
-     * This implementation scales each point of the softmax input domain by its maximum value to avoid potential floating point overflows in the softmax evaluation.
-     */
     ACCURATE(cudnnSoftmaxAlgorithm.CUDNN_SOFTMAX_ACCURATE),
-    /**
-     * This entry performs the Log softmax operation, avoiding overflows by scaling each point in the input domain as in CUDNN_SOFTMAX_ACCURATE.
-     */
     LOG(cudnnSoftmaxAlgorithm.CUDNN_SOFTMAX_LOG);
 
-    /**
-     * The Code.
-     */
     public final int code;
 
     SoftmaxAlgorithm(final int code) {
@@ -309,22 +249,10 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
     }
   }
 
-  /**
-   * The enum Softmax mode.
-   */
   public enum SoftmaxMode {
-    /**
-     * The softmax operation is computed per spatial location (H,W) per png (N) across the dimension C.
-     */
     CHANNEL(cudnnSoftmaxMode.CUDNN_SOFTMAX_MODE_CHANNEL),
-    /**
-     * The softmax operation is computed per png (N) across the dimensions C,H,W.
-     */
     INSTANCE(cudnnSoftmaxMode.CUDNN_SOFTMAX_MODE_INSTANCE);
 
-    /**
-     * The Code.
-     */
     public final int code;
 
     SoftmaxMode(final int code) {

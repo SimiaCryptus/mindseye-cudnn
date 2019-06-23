@@ -33,10 +33,6 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-/**
- * Concatenates two or more inputs, assuming they have the same width and height, to produce an png apply both inputs'
- * color bands. (e.g. Used in Inception modules in GoogLeNet.)
- */
 @SuppressWarnings("serial")
 public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgBandSelectLayer> {
 
@@ -44,22 +40,11 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
   private int to;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Img band select key.
-   *
-   * @param from the from
-   * @param to   the to
-   */
   public ImgBandSelectLayer(int from, int to) {
     this.setFrom(from);
     this.setTo(to);
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   */
   protected ImgBandSelectLayer(@Nonnull final JsonObject json) {
     super(json);
     setFrom(json.get("from").getAsInt());
@@ -67,22 +52,10 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
     precision = Precision.valueOf(json.get("precision").getAsString());
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static ImgBandSelectLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgBandSelectLayer(json);
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return new com.simiacryptus.mindseye.layers.java.ImgBandSelectLayer(IntStream.range(getFrom(), getTo()).toArray());
@@ -194,21 +167,10 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
     return json;
   }
 
-  /**
-   * Gets max bands.
-   *
-   * @return the max bands
-   */
   public int getFrom() {
     return from;
   }
 
-  /**
-   * Sets max bands.
-   *
-   * @param from the max bands
-   * @return the max bands
-   */
   @Nonnull
   public ImgBandSelectLayer setFrom(final int from) {
     this.from = from;
@@ -233,21 +195,10 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
     return Arrays.asList();
   }
 
-  /**
-   * Gets to.
-   *
-   * @return the to
-   */
   public int getTo() {
     return to;
   }
 
-  /**
-   * Sets to.
-   *
-   * @param to the to
-   * @return the to
-   */
   @Nonnull
   public ImgBandSelectLayer setTo(int to) {
     this.to = to;

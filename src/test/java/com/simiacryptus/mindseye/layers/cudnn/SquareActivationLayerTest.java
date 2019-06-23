@@ -30,23 +30,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-/**
- * The type Product key apply.
- */
 public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Precision.
-   */
   final Precision precision;
   private final double alpha;
 
-  /**
-   * Instantiates a new Product key apply.
-   *
-   * @param precision the precision
-   * @param alpha     the alphaList
-   */
   public SquareActivationLayerTest(final Precision precision, final double alpha) {
     this.precision = precision;
     this.alpha = alpha;
@@ -83,37 +71,19 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
     //return new NthPowerActivationLayer().setPower(2);
   }
 
-  /**
-   * Multiplication of 2 inputs using 64-bit precision
-   */
   public static class Double extends SquareActivationLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Double() {
       super(Precision.Double, 1.0);
     }
   }
 
-  /**
-   * Multiplication of 2 inputs using 64-bit precision
-   */
   public static class Negative extends SquareActivationLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Negative() {
       super(Precision.Double, -1.0);
     }
   }
 
-  /**
-   * Multiplication of 2 inputs using 32-bit precision
-   */
   public static class Float extends SquareActivationLayerTest {
-    /**
-     * Instantiates a new Float.
-     */
     public Float() {
       super(Precision.Float, 1.0);
     }

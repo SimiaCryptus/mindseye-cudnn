@@ -29,17 +29,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.HashMap;
 
-/**
- * The type Cuda settings.
- */
 public class CudaSettings implements Settings {
 
   private static final Logger logger = LoggerFactory.getLogger(CudaSettings.class);
 
   private static transient CudaSettings INSTANCE = null;
-  /**
-   * The Default devices.
-   */
   public final String defaultDevices;
   public final PersistanceMode memoryCacheMode;
   private final long maxTotalMemory;
@@ -95,11 +89,6 @@ public class CudaSettings implements Settings {
     allDense = false;
   }
 
-  /**
-   * Instance cuda settings.
-   *
-   * @return the cuda settings
-   */
   public static CudaSettings INSTANCE() {
     if (null == INSTANCE) {
       synchronized (CudaSettings.class) {
@@ -112,164 +101,74 @@ public class CudaSettings implements Settings {
     return INSTANCE;
   }
 
-  /**
-   * The Max total memory.
-   *
-   * @return the max total memory
-   */
   public double getMaxTotalMemory() {
     return maxTotalMemory;
   }
 
-  /**
-   * The Max.
-   *
-   * @return the max alloc size
-   */
   public double getMaxAllocSize() {
     return maxAllocSize;
   }
 
-  /**
-   * The constant MAX_IO_ELEMENTS.
-   *
-   * @return the max io elements
-   */
   public double getMaxIoElements() {
     return maxIoElements;
   }
 
-  /**
-   * The constant CONVOLUTION_WORKSPACE_SIZE_LIMIT.
-   *
-   * @return the convolution workspace size limit
-   */
   public long getConvolutionWorkspaceSizeLimit() {
     return convolutionWorkspaceSizeLimit;
   }
 
-  /**
-   * The constant gpuContexts.
-   *
-   * @return the boolean
-   */
   public boolean isDisable() {
     return disable;
   }
 
-  /**
-   * The constant FORCE_SINGLE_GPU.
-   *
-   * @return the boolean
-   */
   public boolean isForceSingleGpu() {
     return forceSingleGpu;
   }
 
-  /**
-   * Gets max filter elements.
-   *
-   * @return the max filter elements
-   */
   public long getMaxFilterElements() {
     return maxFilterElements;
   }
 
-  /**
-   * Is conv para 2 boolean.
-   *
-   * @return the boolean
-   */
   public boolean isConv_para_2() {
     return conv_para_2;
   }
 
-  /**
-   * Is conv para 1 boolean.
-   *
-   * @return the boolean
-   */
   public boolean isConv_para_1() {
     return conv_para_1;
   }
 
-  /**
-   * Is conv para 3 boolean.
-   *
-   * @return the boolean
-   */
   public boolean isConv_para_3() {
     return conv_para_3;
   }
 
-  /**
-   * Gets max device memory.
-   *
-   * @return the max device memory
-   */
   public double getMaxDeviceMemory() {
     return maxDeviceMemory;
   }
 
-  /**
-   * Is log stack boolean.
-   *
-   * @return the boolean
-   */
   public boolean isLogStack() {
     return logStack;
   }
 
-  /**
-   * Is profile memory io boolean.
-   *
-   * @return the boolean
-   */
   public boolean isProfileMemoryIO() {
     return profileMemoryIO;
   }
 
-  /**
-   * Is async free boolean.
-   *
-   * @return the boolean
-   */
   public boolean isAsyncFree() {
     return asyncFree;
   }
 
-  /**
-   * Is enable managed boolean.
-   *
-   * @return the boolean
-   */
   public boolean isEnableManaged() {
     return enableManaged;
   }
 
-  /**
-   * The Sync before free.
-   *
-   * @return the boolean
-   */
   public boolean isSyncBeforeFree() {
     return syncBeforeFree;
   }
 
-  /**
-   * Gets memory cacheLocal ttl.
-   *
-   * @return the memory cacheLocal ttl
-   */
   public int getMemoryCacheTTL() {
     return memoryCacheTTL;
   }
 
-  /**
-   * Is convolution cacheLocal boolean.
-   *
-   * @return the boolean
-   */
   public boolean isConvolutionCache() {
     return convolutionCache;
   }

@@ -26,21 +26,10 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-/**
- * The type Pooling key apply.
- */
 public abstract class PoolingLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Precision.
-   */
   final Precision precision;
 
-  /**
-   * Instantiates a new Pooling key apply.
-   *
-   * @param precision the precision
-   */
   public PoolingLayerTest(final Precision precision) {
     this.precision = precision;
   }
@@ -67,13 +56,7 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
     };
   }
 
-  /**
-   * Basic 64-bit apply.
-   */
   public static class Repro extends PoolingLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Repro() {
       super(Precision.Double);
     }
@@ -103,25 +86,13 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Basic 64-bit apply.
-   */
   public static class Double extends PoolingLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Double() {
       super(Precision.Double);
     }
   }
 
-  /**
-   * Test using an asymmetric window size.
-   */
   public static class Asymmetric extends PoolingLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Asymmetric() {
       super(Precision.Double);
     }
@@ -134,13 +105,7 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Basic 32-bit apply.
-   */
   public static class Float extends PoolingLayerTest {
-    /**
-     * Instantiates a new Float.
-     */
     public Float() {
       super(Precision.Float);
     }

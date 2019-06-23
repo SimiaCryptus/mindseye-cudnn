@@ -34,49 +34,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * This key multiplies together the inputs, element-by-element. It can be used to implement integer-power activation
- * layers, such as the square needed in MeanSqLossLayer.
- */
 @SuppressWarnings("serial")
 public class SquareActivationLayer extends LayerBase implements MultiPrecision<SquareActivationLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private double alpha = 1.0;
 
-  /**
-   * Instantiates a new Product inputs key.
-   */
   public SquareActivationLayer() {
   }
 
-  /**
-   * Instantiates a new Product inputs key.
-   *
-   * @param id the id
-   */
   protected SquareActivationLayer(@Nonnull final JsonObject id) {
     super(id);
     this.precision = Precision.valueOf(id.getAsJsonPrimitive("precision").getAsString());
     this.alpha = id.getAsJsonPrimitive("alpha").getAsDouble();
   }
 
-  /**
-   * From json product inputs key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the product inputs key
-   */
   public static SquareActivationLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new SquareActivationLayer(json);
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(ProductInputsLayer.class);
@@ -211,21 +187,10 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
     return Arrays.asList();
   }
 
-  /**
-   * Gets alphaList.
-   *
-   * @return the alphaList
-   */
   public double getAlpha() {
     return alpha;
   }
 
-  /**
-   * Sets alphaList.
-   *
-   * @param alpha the alphaList
-   * @return the alphaList
-   */
   public SquareActivationLayer setAlpha(double alpha) {
     this.alpha = alpha;
     return this;

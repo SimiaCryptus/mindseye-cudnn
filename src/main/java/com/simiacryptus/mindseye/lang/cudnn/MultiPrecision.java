@@ -23,19 +23,8 @@ import com.simiacryptus.mindseye.network.DAGNetwork;
 
 import javax.annotation.Nonnull;
 
-/**
- * An interface for CuDNN layers apply configurable numeric precision.
- *
- * @param <T> the parent type, specified for return values.
- */
 public interface MultiPrecision<T> {
-  /**
-   * Sets precision.
-   *
-   * @param network   the network
-   * @param precision the precision
-   */
-  static DAGNetwork setPrecision(final DAGNetwork network, final Precision precision) {
+  static <T extends DAGNetwork> T setPrecision(final T network, final Precision precision) {
     network.visitLayers(layer -> {
       if (layer instanceof MultiPrecision) {
         ((MultiPrecision) layer).setPrecision(precision);
@@ -44,19 +33,8 @@ public interface MultiPrecision<T> {
     return network;
   }
 
-  /**
-   * Gets precision.
-   *
-   * @return the precision
-   */
   Precision getPrecision();
 
-  /**
-   * Sets precision.
-   *
-   * @param precision the precision
-   * @return the precision
-   */
   @Nonnull
   T setPrecision(Precision precision);
 }

@@ -25,9 +25,6 @@ import javax.annotation.Nonnull;
 import java.util.Random;
 
 
-/**
- * The type Img crop key apply.
- */
 public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   private static final int SIZE_OUT = 4;
@@ -49,9 +46,6 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  /**
-   * Basic Test
-   */
   public static class Center extends ImgPaddingLayerTest {
     @Nonnull
     @Override

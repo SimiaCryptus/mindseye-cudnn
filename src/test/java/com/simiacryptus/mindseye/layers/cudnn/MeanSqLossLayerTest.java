@@ -24,9 +24,6 @@ import com.simiacryptus.mindseye.lang.Layer;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-/**
- * The type Mean sq loss key apply.
- */
 public abstract class MeanSqLossLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
@@ -56,17 +53,11 @@ public abstract class MeanSqLossLayerTest extends CudnnLayerTestBase {
     };
   }
 
-  /**
-   * Basic apply.
-   */
   public class Basic extends MeanSqLossLayerTest {
 
 
   }
 
-  /**
-   * Test using asymmetric input.
-   */
   public class Asymetric extends MeanSqLossLayerTest {
 
     @Nonnull

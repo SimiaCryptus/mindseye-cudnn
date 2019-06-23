@@ -34,47 +34,24 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-/**
- * Similar to the pooling key, but the pool size is always the png size. The output dimensions are always 1x1xN.
- */
 @SuppressWarnings("serial")
 public class AvgReducerLayer extends LayerBase implements MultiPrecision<AvgReducerLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Pooling key.
-   */
   public AvgReducerLayer() {
     super();
   }
 
-  /**
-   * Instantiates a new Pooling key.
-   *
-   * @param json the json
-   */
   protected AvgReducerLayer(@Nonnull final JsonObject json) {
     super(json);
     precision = Precision.valueOf(json.get("precision").getAsString());
   }
 
-  /**
-   * From json pooling key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the pooling key
-   */
   public static AvgReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new AvgReducerLayer(json);
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     throw new RuntimeException("Not Implemented");

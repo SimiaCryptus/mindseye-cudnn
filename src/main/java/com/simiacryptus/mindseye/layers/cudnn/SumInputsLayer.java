@@ -38,41 +38,22 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-/**
- * Computes a weighted binary sum of two layers. Provides two weighting coefficients, one for each input. This can be
- * used to implement a summation key, a difference key, a scaling key, or any combination.
- */
 @SuppressWarnings("serial")
 public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInputsLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private boolean parallel = true;
 
-  /**
-   * Instantiates a new Product inputs key.
-   */
   public SumInputsLayer() {
     super();
   }
 
-  /**
-   * Instantiates a new Product inputs key.
-   *
-   * @param json the id
-   */
   protected SumInputsLayer(@Nonnull final JsonObject json) {
     super(json);
     precision = Precision.valueOf(json.get("precision").getAsString());
     setParallel(json.get("parallel").getAsBoolean());
   }
 
-  /**
-   * From json product inputs key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the product inputs key
-   */
   public static SumInputsLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new SumInputsLayer(json);
   }
@@ -89,11 +70,6 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
     return pipelineNetwork;
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return new com.simiacryptus.mindseye.layers.java.SumInputsLayer();
@@ -171,21 +147,10 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
     return Arrays.asList();
   }
 
-  /**
-   * Is parallel boolean.
-   *
-   * @return the boolean
-   */
   public boolean isParallel() {
     return parallel;
   }
 
-  /**
-   * Sets parallel.
-   *
-   * @param parallel the parallel
-   * @return the parallel
-   */
   public SumInputsLayer setParallel(boolean parallel) {
     this.parallel = parallel;
     return this;

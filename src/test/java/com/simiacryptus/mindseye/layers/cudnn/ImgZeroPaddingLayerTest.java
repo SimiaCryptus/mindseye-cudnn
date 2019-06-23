@@ -25,14 +25,8 @@ import javax.annotation.Nonnull;
 import java.util.Random;
 
 
-/**
- * The type Img crop key apply.
- */
 public abstract class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * Instantiates a new Img crop key apply.
-   */
   public ImgZeroPaddingLayerTest() {
     validateBatchExecution = false;
   }
@@ -64,9 +58,6 @@ public abstract class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
     return com.simiacryptus.mindseye.layers.java.ImgZeroPaddingLayer.class;
   }
 
-  /**
-   * Basic Test
-   */
   public static class Basic extends ImgZeroPaddingLayerTest {
   }
 

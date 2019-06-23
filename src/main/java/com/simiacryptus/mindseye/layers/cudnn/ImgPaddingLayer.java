@@ -35,10 +35,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-/**
- * Reduces the resolution of the input by selecting a centered window. The output png will have the same number of
- * color bands.
- */
 @SuppressWarnings("serial")
 public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPaddingLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgPaddingLayer.class);
@@ -49,18 +45,9 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
   private int sizeY;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Img eval key.
-   */
   private ImgPaddingLayer() {
   }
 
-  /**
-   * Instantiates a new Img crop key.
-   *
-   * @param sizeX the size x
-   * @param sizeY the size y
-   */
   public ImgPaddingLayer(int sizeX, int sizeY) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
@@ -68,12 +55,6 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
     assert 0 < sizeY;
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected ImgPaddingLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
@@ -86,13 +67,6 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
     assert 0 < sizeY;
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static ImgPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgPaddingLayer(json, rs);
   }
@@ -227,11 +201,6 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
     else return (i - 1) / 2;
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(com.simiacryptus.mindseye.layers.java.ImgCropLayer.class);

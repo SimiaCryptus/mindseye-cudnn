@@ -34,10 +34,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
-/**
- * A dense matrix operator using vector-matrix multiplication. Represents a fully connected key of synapses, where all
- * inputs are connected to all outputs via seperate coefficients.
- */
 @SuppressWarnings("serial")
 public class GramianLayer extends LayerBase implements MultiPrecision<GramianLayer> {
   private static final Logger log = LoggerFactory.getLogger(GramianLayer.class);
@@ -46,9 +42,6 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private double alpha = 1.0;
 
-  /**
-   * Instantiates a new Img eval key.
-   */
   public GramianLayer() {
   }
 
@@ -56,25 +49,12 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
     super(id, "Gramian");
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected GramianLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     this.alpha = json.getAsJsonPrimitive("alpha").getAsDouble();
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static GramianLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new GramianLayer(json, rs);
   }
@@ -131,14 +111,6 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
 
   }
 
-  /**
-   * Gets feedback.
-   *
-   * @param gpu         the gpu
-   * @param inputTensor the input tensor
-   * @param deltaTensor the evalInputDelta tensor
-   * @return the feedback
-   */
   @Nonnull
   public CudaTensorList getFeedback(final CudnnHandle gpu, final CudaTensor inputTensor, final CudaTensor deltaTensor) {
     int pixels = inputTensor.descriptor.height * inputTensor.descriptor.width;
@@ -237,13 +209,6 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
     return feedback;
   }
 
-  /**
-   * Gets output.
-   *
-   * @param gpu         the gpu
-   * @param inputTensor the input tensor
-   * @return the output
-   */
   @Nonnull
   public CudaTensorList getOutput(final CudnnHandle gpu, final CudaTensor inputTensor) {
     int pixels = inputTensor.descriptor.height * inputTensor.descriptor.width;
@@ -353,21 +318,10 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
     return this;
   }
 
-  /**
-   * Gets alphaList.
-   *
-   * @return the alphaList
-   */
   public double getAlpha() {
     return alpha;
   }
 
-  /**
-   * Sets alphaList.
-   *
-   * @param alpha the alphaList
-   * @return the alphaList
-   */
   public GramianLayer setAlpha(final double alpha) {
     this.alpha = alpha;
     return this;

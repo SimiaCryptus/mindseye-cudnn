@@ -37,10 +37,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * This key works as a scaling function, similar to a father wavelet. Allows convolutional and pooling layers to work
- * across larger png regions. Implemented via CudaSystem.
- */
 @SuppressWarnings("serial")
 public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<RescaledSubnetLayer> {
   private static final Logger log = LoggerFactory.getLogger(RescaledSubnetLayer.class);
@@ -49,29 +45,14 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
   private Layer layer;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Img eval key.
-   */
   private RescaledSubnetLayer() {
   }
 
-  /**
-   * Instantiates a new Rescaled subnet key.
-   *
-   * @param scale the scale
-   * @param layer the key
-   */
   public RescaledSubnetLayer(int scale, Layer layer) {
     this.scale = scale;
     this.layer = layer;
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected RescaledSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     scale = json.get("scale").getAsInt();
@@ -79,22 +60,10 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static RescaledSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new RescaledSubnetLayer(json, rs);
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return new com.simiacryptus.mindseye.layers.java.RescaledSubnetLayer(scale, layer);

@@ -31,41 +31,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-/**
- * The type Simple convolution key apply.
- */
 public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Radius.
-   */
   public final int radius;
-  /**
-   * The Bands.
-   */
   public final int bands;
-  /**
-   * The Large radius.
-   */
   public int largeSize;
-  /**
-   * The Small radius.
-   */
   public int smallSize;
-  /**
-   * The LayerBase.
-   */
   SimpleConvolutionLayer layer;
 
 
-  /**
-   * Instantiates a new Simple convolution key apply.
-   *
-   * @param radius    the radius
-   * @param bands     the bands
-   * @param precision the precision
-   * @param stride    the stride
-   */
   protected SimpleConvolutionLayerTest(final int radius, final int bands, final Precision precision, int stride) {
     this.radius = radius;
     this.bands = bands;
@@ -117,13 +91,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 //    return convolutionLayer;
   }
 
-  /**
-   * Maximally-basic single-value "convolution" in 64 bits
-   */
   public static class Basic extends SimpleConvolutionLayerTest {
-    /**
-     * Instantiates a new Image.
-     */
     public Basic() {
       super(1, 1, Precision.Double, 1);
     }
@@ -131,13 +99,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Typical 3x3 png convolution (64-bit)
-   */
   public static class Image extends SimpleConvolutionLayerTest {
-    /**
-     * Instantiates a new Image.
-     */
     public Image() {
       super(3, 3, Precision.Double, 1);
       largeSize = 1200;
@@ -145,13 +107,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  /**
-   * Typical 3x3 png convolution (32-bit)
-   */
   public static class Image_Float extends SimpleConvolutionLayerTest {
-    /**
-     * Instantiates a new Image float.
-     */
     public Image_Float() {
       super(3, 3, Precision.Float, 1);
       tolerance = 1e-2;
@@ -164,38 +120,20 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Basic single-band 3x3 png filter.
-   */
   public static class Matrix extends SimpleConvolutionLayerTest {
-    /**
-     * Instantiates a new Matrix.
-     */
     public Matrix() {
       super(3, 1, Precision.Double, 1);
     }
   }
 
-  /**
-   * Basic multi-band, 1-pixel-radius filter.
-   */
   public static class MultiBand extends SimpleConvolutionLayerTest {
-    /**
-     * Instantiates a new Multi band.
-     */
     public MultiBand() {
       super(1, 3, Precision.Double, 1);
       smallSize = 8;
     }
   }
 
-  /**
-   * Base allocationOverflow configuration demonstrating the absence of failure in this case.
-   */
   public abstract static class Bug_Control extends SimpleConvolutionLayerTest {
-    /**
-     * Instantiates a new Multi band.
-     */
     protected Bug_Control() {
       super(3, 8, Precision.Double, 1);
       validateDifferentials = false;
@@ -236,13 +174,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Demonstration of a suspected CudaSystem bug when using 0 padding apply the GPU convolution operation.
-   */
   public static class PaddingBug extends Image {
-    /**
-     * Instantiates a new Multi band.
-     */
     public PaddingBug() {
       super();
       layer.setPaddingXY(0, 0);
@@ -250,13 +182,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Typical 3x3 png convolution (64-bit)
-   */
   public static class SpanBug extends Image {
-    /**
-     * Instantiates a new Image.
-     */
     public SpanBug() {
       layer.setStrideX(2);
       layer.setStrideY(2);
@@ -265,29 +191,13 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  /**
-   * Simple 256x256 band 1-pixel "convolution"
-   */
   public static class Big0 extends Big {
-    /**
-     * Instantiates a new BigTests 0.
-     */
     public Big0() {
       super(1, 2048, Precision.Double);
     }
   }
 
-  /**
-   * Simple 256x256 band 1-pixel "convolution"
-   */
   public abstract static class Big extends SimpleConvolutionLayerTest {
-    /**
-     * Instantiates a new Multi band.
-     *
-     * @param radius  the radius
-     * @param bands   the bands
-     * @param aDouble the a double
-     */
     public Big(int radius, int bands, Precision aDouble) {
       super(radius, bands, aDouble, 1);
       validateDifferentials = false;

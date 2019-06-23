@@ -26,9 +26,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-/**
- * The type Rascaled subnet key apply.
- */
 public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
 
   private final ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1).set(() -> this.random());
@@ -66,9 +63,6 @@ public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
     return com.simiacryptus.mindseye.layers.java.ImgTileSubnetLayer.class;
   }
 
-  /**
-   * Basic Test
-   */
   public static class Basic extends ImgTileSubnetLayerTest {
 
     @Nullable

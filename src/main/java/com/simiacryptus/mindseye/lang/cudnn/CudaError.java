@@ -19,53 +19,23 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
-/**
- * A low-level exception occured while executing GPU instructions
- */
 @SuppressWarnings("serial")
 public class CudaError extends RuntimeException {
-  /**
-   * Instantiates a new Gpu error.
-   */
   public CudaError() {
   }
 
-  /**
-   * Instantiates a new Gpu error.
-   *
-   * @param message the message
-   */
   public CudaError(final String message) {
     super(message);
   }
 
-  /**
-   * Instantiates a new Gpu error.
-   *
-   * @param message the message
-   * @param cause   the cause
-   */
   public CudaError(final String message, final Throwable cause) {
     super(message, cause);
   }
 
-  /**
-   * Instantiates a new Gpu error.
-   *
-   * @param message            the message
-   * @param cause              the cause
-   * @param enableSuppression  the enable suppression
-   * @param writableStackTrace the writable stack trace
-   */
   public CudaError(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }
 
-  /**
-   * Instantiates a new Gpu error.
-   *
-   * @param cause the cause
-   */
   public CudaError(final Throwable cause) {
     super(cause);
   }

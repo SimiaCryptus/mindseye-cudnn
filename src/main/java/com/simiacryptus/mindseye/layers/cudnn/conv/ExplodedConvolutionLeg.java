@@ -41,45 +41,17 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-/**
- * A lower level of convolution desconstruction logic, implements support for an arbitrary number of output bands by
- * splitting the convolution into even batches of input x input kernel dimensions. These results are then concatenated
- * together as successive png bands. Even at small scale, this breakdown is required because CuDNN only supports
- * convolutions apply equal input/output band counts.
- */
 class ExplodedConvolutionLeg extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(ExplodedConvolutionLeg.class);
 
-  /**
-   * The Convolution params.
-   */
   public final ConvolutionParams convolutionParams;
-  /**
-   * The Sub layers.
-   */
   @Nonnull
   public final List<Layer> subLayers;
-  /**
-   * The Sub kernels.
-   */
   @Nonnull
   public final List<SimpleConvolutionLayer> subKernels = new ArrayList<>();
-  /**
-   * The From band.
-   */
   public final int fromBand;
-  /**
-   * The To band.
-   */
   public final int toBand;
 
-  /**
-   * Instantiates a new Exploded convolution leg.
-   *
-   * @param convolutionParams the convolution params
-   * @param fromBand          the from band
-   * @param toBand            the to band
-   */
   public ExplodedConvolutionLeg(ConvolutionParams convolutionParams, int fromBand, int toBand) {
     this.fromBand = fromBand;
     this.toBand = toBand;
@@ -124,12 +96,6 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     super._free();
   }
 
-  /**
-   * Write exploded convolution leg.
-   *
-   * @param filter the kernel
-   * @return the exploded convolution leg
-   */
   @Nonnull
   public ExplodedConvolutionLeg write(@Nonnull Tensor filter) {
     int inputBands = getInputBands();
@@ -158,12 +124,6 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     return this;
   }
 
-  /**
-   * Read tensor.
-   *
-   * @param extractor the extractor
-   * @return the tensor
-   */
   @Nonnull
   public Tensor read(@Nonnull Function<SimpleConvolutionLayer, Tensor> extractor) {
     int inputBands = getInputBands();
@@ -192,14 +152,6 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     return resultDelta;
   }
 
-  /**
-   * Gets filter band.
-   *
-   * @param filterBandOffset  the filter band offset
-   * @param cellFilterBand    the filter band
-   * @param squareOutputBands the square output bands
-   * @return the filter band
-   */
   public int getFilterBand(int filterBandOffset, int cellFilterBand, int squareOutputBands) {
     int inputBands = getInputBands();
     assert cellFilterBand >= 0;
@@ -210,22 +162,10 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     return filterBand;
   }
 
-  /**
-   * Gets input bands.
-   *
-   * @return the input bands
-   */
   public int getInputBands() {
     return this.toBand - this.fromBand;
   }
 
-  /**
-   * Read tensor.
-   *
-   * @param deltaSet the evalInputDelta set
-   * @param remove   the remove
-   * @return the tensor
-   */
   @Nonnull
   public Tensor read(@Nonnull DeltaSet<UUID> deltaSet, boolean remove) {
     return read((sublayer) -> {
@@ -236,11 +176,6 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     });
   }
 
-  /**
-   * Read tensor.
-   *
-   * @return the tensor
-   */
   @Nonnull
   public Tensor read() {
     return read((sublayer) -> {
@@ -250,12 +185,6 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     });
   }
 
-  /**
-   * Add dag node.
-   *
-   * @param input the input
-   * @return the dag node
-   */
   public DAGNode add(@Nonnull final DAGNode input) {
     assertAlive();
     DAGNetwork network = input.getNetwork();

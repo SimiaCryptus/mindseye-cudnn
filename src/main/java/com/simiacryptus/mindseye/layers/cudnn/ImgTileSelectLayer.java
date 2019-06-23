@@ -34,10 +34,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-/**
- * Reduces the resolution of the input by selecting a centered window. The output png will have the same number of
- * color bands.
- */
 @SuppressWarnings("serial")
 public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSelectLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgTileSelectLayer.class);
@@ -49,33 +45,13 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
   private @Nonnull
   Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Img eval key.
-   */
   private ImgTileSelectLayer() {
   }
 
-  /**
-   * Instantiates a new Img crop key.
-   *
-   * @param sizeX     the size y
-   * @param sizeY     the size x
-   * @param positionX the position x
-   * @param positionY the position y
-   */
   public ImgTileSelectLayer(int sizeX, int sizeY, final int positionX, final int positionY) {
     this(sizeX, sizeY, positionX, positionY, Precision.Float);
   }
 
-  /**
-   * Instantiates a new Img crop key.
-   *
-   * @param sizeX     the size y
-   * @param sizeY     the size x
-   * @param positionX the position x
-   * @param positionY the position y
-   * @param precision
-   */
   public ImgTileSelectLayer(int sizeX, int sizeY, final int positionX, final int positionY, Precision precision) {
     this.sizeY = sizeY;
     this.sizeX = sizeX;
@@ -84,12 +60,6 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
     this.precision = precision;
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected ImgTileSelectLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     sizeY = json.get("sizeY").getAsInt();
@@ -99,66 +69,21 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static ImgTileSelectLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgTileSelectLayer(json, rs);
   }
 
-  /**
-   * Copy cuda tensor.
-   *
-   * @param gpu              the gpu
-   * @param input            the input
-   * @param inputDimensions  the input dimensions
-   * @param outputDimensions the output dimensions
-   * @param precision        the precision
-   * @param positionX        the position x
-   * @param positionY        the position y
-   * @param dirty            the dirty
-   * @return the cuda tensor
-   */
   public static CudaTensor copy(final CudnnHandle gpu, @Nonnull final TensorList input, final int[] inputDimensions, final int[] outputDimensions, @Nonnull Precision precision, final int positionX, final int positionY, final boolean dirty) {
     @Nonnull final CudaMemory outputPtr = gpu.allocate((long) input.length() * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size, MemoryType.Managed.ifEnabled(), dirty);
     return copy(gpu, input, inputDimensions, outputDimensions, positionX, positionY, precision, outputPtr);
   }
 
-  /**
-   * Copy cuda tensor.
-   *
-   * @param gpu             the gpu
-   * @param input           the input
-   * @param inputDimensions the input dimensions
-   * @param positionX       the position x
-   * @param positionY       the position y
-   * @param precision       the precision
-   * @param output          the output
-   * @return the cuda tensor
-   */
   public static CudaTensor copy(final CudnnHandle gpu, @Nonnull final TensorList input, final int[] inputDimensions, final int positionX, final int positionY, Precision precision, final CudaTensor output) {
     return copy(gpu, input, inputDimensions,
         new int[]{output.descriptor.width, output.descriptor.height, output.descriptor.channels},
         positionX, positionY, precision, output.getMemory(gpu));
   }
 
-  /**
-   * Copy cuda tensor.
-   *
-   * @param gpu              the gpu
-   * @param input            the input
-   * @param inputDimensions  the input dimensions
-   * @param outputDimensions the output dimensions
-   * @param positionX        the position x
-   * @param positionY        the position y
-   * @param precision        the precision
-   * @param outputPtr        the output ptr
-   * @return the cuda tensor
-   */
   public static CudaTensor copy(final CudnnHandle gpu, @Nonnull final TensorList input, final int[] inputDimensions, final int[] outputDimensions, final int positionX, final int positionY, final Precision precision, final CudaMemory outputPtr) {
     final int length = input.length();
     if (3 != inputDimensions.length) throw new IllegalArgumentException("inputDimensions.length");
@@ -243,14 +168,6 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
     }
   }
 
-  /**
-   * Get view dimensions int [ ].
-   *
-   * @param sourceDimensions      the source dimensions
-   * @param destinationDimensions the destination dimensions
-   * @param offset                the offset
-   * @return the int [ ]
-   */
   @Nonnull
   public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions, int[] offset) {
     @Nonnull final int[] viewDim = new int[3];
@@ -266,11 +183,6 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgT
     return viewDim;
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(com.simiacryptus.mindseye.layers.java.ImgTileSelectLayer.class);

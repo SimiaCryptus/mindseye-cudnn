@@ -50,183 +50,51 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * Main library wrapper class around the CudaSystem API, providing logging and managed wrappers.
- */
 public class CudaSystem {
 
-  /**
-   * The constant apiLog.
-   */
   public static final HashSet<Consumer<String>> apiLog = new HashSet<>();
-  /**
-   * The constant logger.
-   */
   protected static final Logger logger = LoggerFactory.getLogger(CudaSystem.class);
-  /**
-   * The constant propertyCache.
-   */
   protected static final Map<Integer, cudaDeviceProp> propertyCache = new ConcurrentHashMap<>();
-  /**
-   * The constant currentDevice.
-   */
   protected static final ThreadLocal<Integer> currentDeviceId = new ThreadLocal<Integer>();
-  /**
-   * The constant logThread.
-   */
   protected static final ExecutorService logThread = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setDaemon(true).build());
-  /**
-   * The constant start.
-   */
   protected static final long start = System.nanoTime();
-  /**
-   * The constant createPoolingDescriptor_execution.
-   */
   protected static final DoubleStatistics createPoolingDescriptor_execution = new DoubleStatistics();
   protected static final DoubleStatistics createLRNDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant cudaDeviceReset_execution.
-   */
   protected static final DoubleStatistics cudaDeviceReset_execution = new DoubleStatistics();
-  /**
-   * The constant cudaFree_execution.
-   */
   protected static final DoubleStatistics cudaFree_execution = new DoubleStatistics();
-  /**
-   * The constant cudaMalloc_execution.
-   */
   protected static final DoubleStatistics cudaMalloc_execution = new DoubleStatistics();
-  /**
-   * The constant cudaDeviceSynchronize_execution.
-   */
   protected static final DoubleStatistics cudaDeviceSynchronize_execution = new DoubleStatistics();
-  /**
-   * The constant cudaSetDeviceFlags_execution.
-   */
   protected static final DoubleStatistics cudaSetDeviceFlags_execution = new DoubleStatistics();
-  /**
-   * The constant cudaMallocManaged_execution.
-   */
   protected static final DoubleStatistics cudaMallocManaged_execution = new DoubleStatistics();
-  /**
-   * The constant cudaHostAlloc_execution.
-   */
   protected static final DoubleStatistics cudaHostAlloc_execution = new DoubleStatistics();
-  /**
-   * The constant cudaFreeHost_execution.
-   */
   protected static final DoubleStatistics cudaFreeHost_execution = new DoubleStatistics();
-  /**
-   * The constant cudaDeviceGetLimit_execution.
-   */
   protected static final DoubleStatistics cudaDeviceGetLimit_execution = new DoubleStatistics();
-  /**
-   * The constant cudaDeviceSetLimit_execution.
-   */
   protected static final DoubleStatistics cudaDeviceSetLimit_execution = new DoubleStatistics();
-  /**
-   * The constant cudaMemcpyAsync_execution.
-   */
   protected static final DoubleStatistics cudaMemcpyAsync_execution = new DoubleStatistics();
-  /**
-   * The constant cudaMemcpy_execution.
-   */
   protected static final DoubleStatistics cudaMemcpy_execution = new DoubleStatistics();
-  /**
-   * The constant cudaMemset_execution.
-   */
   protected static final DoubleStatistics cudaMemset_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnActivationBackward_execution.
-   */
   protected static final DoubleStatistics cudnnSoftmaxForward_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnActivationBackward_execution.
-   */
   protected static final DoubleStatistics cudnnSoftmaxBackward_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnCreateReduceTensorDescriptor_execution.
-   */
   protected static final DoubleStatistics cudnnCreateReduceTensorDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnSetReduceTensorDescriptor_execution.
-   */
   protected static final DoubleStatistics cudnnSetReduceTensorDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnActivationBackward_execution.
-   */
   protected static final DoubleStatistics cudnnActivationBackward_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnActivationForward_execution.
-   */
   protected static final DoubleStatistics cudnnActivationForward_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnAddTensor_execution.
-   */
   protected static final DoubleStatistics cudnnAddTensor_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnConvolutionBackwardBias_execution.
-   */
   protected static final DoubleStatistics cudnnConvolutionBackwardBias_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnConvolutionBackwardData_execution.
-   */
   protected static final DoubleStatistics cudnnConvolutionBackwardData_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnConvolutionBackwardFilter_execution.
-   */
   protected static final DoubleStatistics cudnnConvolutionBackwardFilter_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnConvolutionForward_execution.
-   */
   protected static final DoubleStatistics cudnnConvolutionForward_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnConvolutionForward_execution.
-   */
   protected static final DoubleStatistics cudnnConvolutionBiasActivationForward_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnDestroyActivationDescriptor_execution.
-   */
   protected static final DoubleStatistics cudnnDestroyActivationDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnDestroyConvolutionDescriptor_execution.
-   */
   protected static final DoubleStatistics cudnnDestroyConvolutionDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnDestroyFilterDescriptor_execution.
-   */
   protected static final DoubleStatistics cudnnDestroyFilterDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnDestroyOpTensorDescriptor_execution.
-   */
   protected static final DoubleStatistics cudnnDestroyOpTensorDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnDestroyPoolingDescriptor_execution.
-   */
   protected static final DoubleStatistics cudnnDestroyPoolingDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnDestroyTensorDescriptor_execution.
-   */
   protected static final DoubleStatistics cudnnDestroyTensorDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnGetPoolingNdForwardOutputDim_execution.
-   */
   protected static final DoubleStatistics cudnnGetPoolingNdForwardOutputDim_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnOpTensor_execution.
-   */
   protected static final DoubleStatistics cudnnOpTensor_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnReduceTensor_execution.
-   */
   protected static final DoubleStatistics cudnnReduceTensor_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnPoolingBackward_execution.
-   */
   protected static final DoubleStatistics cudnnPoolingBackward_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnPoolingForward_execution.
-   */
   protected static final DoubleStatistics cudnnPoolingForward_execution = new DoubleStatistics();
   protected static final DoubleStatistics cudnnSetLRNDescriptor_execution = new DoubleStatistics();
   protected static final DoubleStatistics cudnnCreateLRNDescriptor_execution = new DoubleStatistics();
@@ -234,145 +102,54 @@ public class CudaSystem {
   protected static final DoubleStatistics cudnnLRNCrossChannelForward_execution = new DoubleStatistics();
   protected static final DoubleStatistics cudnnLRNCrossChannelBackward_execution = new DoubleStatistics();
 
-  /**
-   * The constant cudnnTransformTensor_execution.
-   */
   protected static final DoubleStatistics cudnnTransformTensor_execution = new DoubleStatistics();
-  /**
-   * The constant cudnnSetTensor_execution.
-   */
   protected static final DoubleStatistics cudnnSetTensor_execution = new DoubleStatistics();
-  /**
-   * The constant deviceCount_execution.
-   */
   protected static final DoubleStatistics deviceCount_execution = new DoubleStatistics();
-  /**
-   * The constant setDevice_execution.
-   */
   protected static final DoubleStatistics setDevice_execution = new DoubleStatistics();
-  /**
-   * The constant getDeviceProperties_execution.
-   */
   protected static final DoubleStatistics getDeviceProperties_execution = new DoubleStatistics();
-  /**
-   * The constant getOutputDims_execution.
-   */
   protected static final DoubleStatistics getOutputDims_execution = new DoubleStatistics();
-  /**
-   * The constant newActivationDescriptor_execution.
-   */
   protected static final DoubleStatistics newActivationDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant newConvolutionNdDescriptor_execution.
-   */
   protected static final DoubleStatistics newConvolutionNdDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant newConvolutions2dDescriptor_execution.
-   */
   protected static final DoubleStatistics newConvolutions2dDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant newFilterDescriptor_execution.
-   */
   protected static final DoubleStatistics newFilterDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant newOpDescriptor_execution.
-   */
   protected static final DoubleStatistics newOpDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant newTensorDescriptor_execution.
-   */
   protected static final DoubleStatistics newTensorDescriptor_execution = new DoubleStatistics();
-  /**
-   * The constant allocateBackwardDataWorkspace_execution.
-   */
   protected static final DoubleStatistics allocateBackwardDataWorkspace_execution = new DoubleStatistics();
-  /**
-   * The constant allocateBackwardFilterWorkspace_execution.
-   */
   protected static final DoubleStatistics allocateBackwardFilterWorkspace_execution = new DoubleStatistics();
-  /**
-   * The constant allocateForwardWorkspace_execution.
-   */
   protected static final DoubleStatistics allocateForwardWorkspace_execution = new DoubleStatistics();
-  /**
-   * The constant getBackwardDataAlgorithm_execution.
-   */
   protected static final DoubleStatistics getBackwardDataAlgorithm_execution = new DoubleStatistics();
-  /**
-   * The constant getBackwardFilterAlgorithm_execution.
-   */
   protected static final DoubleStatistics getBackwardFilterAlgorithm_execution = new DoubleStatistics();
-  /**
-   * The constant cudaStreamCreate_execution.
-   */
   protected static final DoubleStatistics cudaStreamCreate_execution = new DoubleStatistics();
-  /**
-   * The constant cudaStreamDestroy_execution.
-   */
   protected static final DoubleStatistics cudaStreamDestroy_execution = new DoubleStatistics();
-  /**
-   * The constant cudaStreamSynchronize_execution.
-   */
   protected static final DoubleStatistics cudaStreamSynchronize_execution = new DoubleStatistics();
-  /**
-   * The constant getForwardAlgorithm_execution.
-   */
   protected static final DoubleStatistics getForwardAlgorithm_execution = new DoubleStatistics();
-  /**
-   * The constant syncLock.
-   */
   protected static final Object syncLock = new Object();
-  /**
-   * The constant handlePools.
-   */
   protected static final HashMap<Integer, ResourcePool<CudnnHandle>> handlePools = new HashMap<>();
   private static final Map<Integer, Long> syncTimes = new HashMap<>();
   private static final Executor garbageTruck = MoreExecutors.directExecutor();
   private static final HashMap<Integer, Object> deviceLocks = new HashMap<>();
   private static final long COPY_BLOCK_SIZE = Long.MAX_VALUE;
 //  private final List<StackTraceElement[]> dirty = new ArrayList<>();
-  /**
-   * The constant gpuGeneration.
-   */
   @Nonnull
   public static AtomicInteger gpuGeneration = new AtomicInteger(0);
   //Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("gpu-free-%d").setDaemon(true).getNetwork());
   private static volatile Integer cachedDeviceCount = init();
   private static volatile StaticResourcePool<CudnnHandle> pool;
-  /**
-   * The Execution thread.
-   */
   protected final ExecutorService executionThread = CoreSettings.INSTANCE().isSingleThreaded() ?
       MoreExecutors.newDirectExecutorService() :
       Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat(toString()).build());
 
-  /**
-   * Instantiates a new Gpu system.
-   */
   protected CudaSystem() {
   }
 
-  /**
-   * Log header.
-   */
   public static void logHeader() {
     logger.info(getHeader());
   }
 
-  /**
-   * Gets header.
-   *
-   * @return the header
-   */
   public static String getHeader() {
     return Util.toString(CudaSystem::printHeader);
   }
 
-  /**
-   * Print header.
-   *
-   * @param out the out
-   */
   public static void printHeader(@Nonnull PrintStream out) {
     @Nonnull int[] runtimeVersion = {0};
     @Nonnull int[] driverVersion = {0};
@@ -400,12 +177,6 @@ public class CudaSystem {
     });
   }
 
-  /**
-   * To buildMap buildMap.
-   *
-   * @param obj the obj
-   * @return the buildMap
-   */
   @Nonnull
   protected static Map<CharSequence, CharSequence> toMap(@Nonnull DoubleStatistics obj) {
     @Nonnull HashMap<CharSequence, CharSequence> map = new HashMap<>();
@@ -419,11 +190,6 @@ public class CudaSystem {
     return map;
   }
 
-  /**
-   * Gets execution statistics.
-   *
-   * @return the execution statistics
-   */
   @Nonnull
   public static Map<CharSequence, Map<CharSequence, CharSequence>> getExecutionStatistics() {
     @Nonnull HashMap<CharSequence, Map<CharSequence, CharSequence>> map = new HashMap<>();
@@ -485,11 +251,6 @@ public class CudaSystem {
     return map;
   }
 
-  /**
-   * Cuda device remove int.
-   *
-   * @return the int
-   */
   public static int cudaDeviceReset() {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaDeviceReset();
@@ -499,13 +260,6 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Cuda malloc int.
-   *
-   * @param devPtr the dev ptr
-   * @param size   the size
-   * @return the int
-   */
   public static int cudaMalloc(final CudaPointer devPtr, final long size) {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaMalloc(devPtr, size);
@@ -515,14 +269,6 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Cuda malloc managed int.
-   *
-   * @param devPtr the dev ptr
-   * @param size   the size
-   * @param flags  the flags
-   * @return the int
-   */
   public static int cudaMallocManaged(final CudaPointer devPtr, final long size, int flags) {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaMallocManaged(devPtr, size, flags);
@@ -532,21 +278,10 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Gets device.
-   *
-   * @return the device
-   */
   public static Integer getThreadDeviceId() {
     return CudaSystem.currentDeviceId.get();
   }
 
-  /**
-   * Cuda set device flags int.
-   *
-   * @param flags the flags
-   * @return the int
-   */
   public static int cudaSetDeviceFlags(int flags) {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaSetDeviceFlags(flags);
@@ -556,14 +291,6 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Cuda host alloc int.
-   *
-   * @param devPtr the dev ptr
-   * @param size   the size
-   * @param flags  the flags
-   * @return the int
-   */
   public static int cudaHostAlloc(final CudaPointer devPtr, final long size, int flags) {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaHostAlloc(devPtr, size, flags);
@@ -573,12 +300,6 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Cuda freeRef host int.
-   *
-   * @param devPtr the dev ptr
-   * @return the int
-   */
   public static int cudaFreeHost(final CudaPointer devPtr) {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaFreeHost(devPtr);
@@ -588,12 +309,6 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Cuda device get limit long.
-   *
-   * @param limit the limit
-   * @return the long
-   */
   public static long cudaDeviceGetLimit(final int limit) {
     long startTime = System.nanoTime();
     @Nonnull long[] pValue = new long[1];
@@ -603,12 +318,6 @@ public class CudaSystem {
     return pValue[0];
   }
 
-  /**
-   * Cuda device set limit int.
-   *
-   * @param limit the limit
-   * @param value the value
-   */
   public static void cudaDeviceSetLimit(final int limit, long value) {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaDeviceSetLimit(limit, value);
@@ -617,14 +326,6 @@ public class CudaSystem {
     handle(result);
   }
 
-  /**
-   * Cuda memcpy int.
-   *
-   * @param dst                 the dst
-   * @param src                 the src
-   * @param count               the count
-   * @param cudaMemcpyKind_kind the cuda memcpy kind kind
-   */
   public static void cudaMemcpy(final CudaPointer dst, final CudaPointer src, final long count, final int cudaMemcpyKind_kind) {
     if (count > COPY_BLOCK_SIZE) {
       cudaMemcpy(dst, src, COPY_BLOCK_SIZE, cudaMemcpyKind_kind);
@@ -638,15 +339,6 @@ public class CudaSystem {
     handle(result);
   }
 
-  /**
-   * Cuda memcpy async.
-   *
-   * @param dst                 the dst
-   * @param src                 the src
-   * @param count               the count
-   * @param cudaMemcpyKind_kind the cuda memcpy kind kind
-   * @param stream              the stream
-   */
   public static void cudaMemcpyAsync(final CudaPointer dst, final CudaPointer src, final long count, final int cudaMemcpyKind_kind, cudaStream_t stream) {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaMemcpyAsync(dst, src, count, cudaMemcpyKind_kind, stream);
@@ -655,11 +347,6 @@ public class CudaSystem {
     handle(result);
   }
 
-  /**
-   * Cuda stream create cuda resource.
-   *
-   * @return the cuda resource
-   */
   public static CudaResource<cudaStream_t> cudaStreamCreate() {
     long startTime = System.nanoTime();
     @Nonnull cudaStream_t stream = new cudaStream_t();
@@ -670,12 +357,6 @@ public class CudaSystem {
     return new CudaStream(stream);
   }
 
-  /**
-   * Cuda stream destroy int.
-   *
-   * @param stream the stream
-   * @return the int
-   */
   public static int cudaStreamDestroy(cudaStream_t stream) {
     long startTime = System.nanoTime();
     int result = JCuda.cudaStreamDestroy(stream);
@@ -685,11 +366,6 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Cuda stream synchronize.
-   *
-   * @param stream the stream
-   */
   public static void cudaStreamSynchronize(cudaStream_t stream) {
     long startTime = System.nanoTime();
     int result = JCuda.cudaStreamSynchronize(stream);
@@ -698,13 +374,6 @@ public class CudaSystem {
     handle(result);
   }
 
-  /**
-   * Cuda memset int.
-   *
-   * @param mem   the mem
-   * @param c     the c
-   * @param count the count
-   */
   public static void cudaMemset(final CudaPointer mem, final int c, final long count) {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaMemset(mem, c, count);
@@ -714,12 +383,6 @@ public class CudaSystem {
     handle(result);
   }
 
-  /**
-   * Cudnn destroy activation descriptor int.
-   *
-   * @param activationDesc the activation desc
-   * @return the int
-   */
   public static int cudnnDestroyActivationDescriptor(final cudnnActivationDescriptor activationDesc) {
     long startTime = System.nanoTime();
     final int result = JCudnn.cudnnDestroyActivationDescriptor(activationDesc);
@@ -728,12 +391,6 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Cudnn destroy convolution descriptor int.
-   *
-   * @param convDesc the conv desc
-   * @return the int
-   */
   public static int cudnnDestroyConvolutionDescriptor(final cudnnConvolutionDescriptor convDesc) {
     long startTime = System.nanoTime();
     final int result = JCudnn.cudnnDestroyConvolutionDescriptor(convDesc);
@@ -742,12 +399,6 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Cudnn destroy filter descriptor int.
-   *
-   * @param filterDesc the filter desc
-   * @return the int
-   */
   public static int cudnnDestroyFilterDescriptor(final cudnnFilterDescriptor filterDesc) {
     long startTime = System.nanoTime();
     final int result = JCudnn.cudnnDestroyFilterDescriptor(filterDesc);
@@ -756,12 +407,6 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Cudnn destroy op tensor descriptor int.
-   *
-   * @param opTensorDesc the op tensor desc
-   * @return the int
-   */
   public static int cudnnDestroyOpTensorDescriptor(final cudnnOpTensorDescriptor opTensorDesc) {
     long startTime = System.nanoTime();
     final int result = JCudnn.cudnnDestroyOpTensorDescriptor(opTensorDesc);
@@ -770,12 +415,6 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Cudnn destroy pooling descriptor int.
-   *
-   * @param poolingDesc the pooling desc
-   * @return the int
-   */
   public static int cudnnDestroyPoolingDescriptor(final cudnnPoolingDescriptor poolingDesc) {
     long startTime = System.nanoTime();
     final int result = JCudnn.cudnnDestroyPoolingDescriptor(poolingDesc);
@@ -784,12 +423,6 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Cudnn destroy tensor descriptor int.
-   *
-   * @param tensorDesc the tensor desc
-   * @return the int
-   */
   public static int cudnnDestroyTensorDescriptor(final cudnnTensorDescriptor tensorDesc) {
     long startTime = System.nanoTime();
     final int result = JCudnn.cudnnDestroyTensorDescriptor(tensorDesc);
@@ -798,15 +431,6 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Cudnn get pooling nd forward output length int.
-   *
-   * @param poolingDesc      the pooling desc
-   * @param inputTensorDesc  the input tensor desc
-   * @param nbDims           the nb dims
-   * @param outputTensorDimA the output tensor length a
-   * @return the int
-   */
   public static int cudnnGetPoolingNdForwardOutputDim(
       final cudnnPoolingDescriptor poolingDesc,
       final cudnnTensorDescriptor inputTensorDesc,
@@ -819,11 +443,6 @@ public class CudaSystem {
     return result;
   }
 
-  /**
-   * Device count int.
-   *
-   * @return the int
-   */
   public static int deviceCount() {
     long startTime = System.nanoTime();
     @Nonnull final int[] deviceCount = new int[1];
@@ -834,12 +453,6 @@ public class CudaSystem {
     return deviceCount[0];
   }
 
-  /**
-   * Is oom boolean.
-   *
-   * @param t the t
-   * @return the boolean
-   */
   public static boolean isOom(final Throwable t) {
     if (t instanceof OutOfMemoryError) return true;
     //if (t instanceof com.simiacryptus.mindseye.lang.cudnn.CudaError) return true;
@@ -847,21 +460,10 @@ public class CudaSystem {
     return false;
   }
 
-  /**
-   * Get stride int [ ].
-   *
-   * @param array the array
-   * @return the int [ ]
-   */
   public static int[] getStride(@Nonnull final int[] array) {
     return IntStream.range(0, array.length).map(i -> IntStream.range(i + 1, array.length).map(ii -> array[ii]).reduce((a, b) -> a * b).orElse(1)).toArray();
   }
 
-  /**
-   * Handle.
-   *
-   * @param returnCode the return run
-   */
   public static void handle(final int returnCode) {
     if (returnCode != cudnnStatus.CUDNN_STATUS_SUCCESS) {
       CudaError cudaError = new CudaError("returnCode = " + cudnnStatus.stringFor(returnCode));
@@ -870,12 +472,6 @@ public class CudaSystem {
     }
   }
 
-  /**
-   * Render to log string.
-   *
-   * @param obj the obj
-   * @return the string
-   */
   protected static CharSequence renderToLog(final Object obj) {
     if (obj instanceof int[]) {
       if (((int[]) obj).length < 10) {
@@ -900,14 +496,6 @@ public class CudaSystem {
     return obj.toString();
   }
 
-  /**
-   * Get output dims int [ ].
-   *
-   * @param srcTensorDesc the src tensor desc
-   * @param filterDesc    the filter desc
-   * @param convDesc      the conv desc
-   * @return the int [ ]
-   */
   @Nonnull
   public static int[] getOutputDims(final cudnnTensorDescriptor srcTensorDesc, final cudnnFilterDescriptor filterDesc, final cudnnConvolutionDescriptor convDesc) {
     long startTime = System.nanoTime();
@@ -937,21 +525,10 @@ public class CudaSystem {
 //    }
 //  }
 
-  /**
-   * Remove log boolean.
-   *
-   * @param apiLog the api log
-   * @return the boolean
-   */
   public static boolean removeLog(Consumer<String> apiLog) {
     return CudaSystem.apiLog.remove(apiLog);
   }
 
-  /**
-   * Add log.
-   *
-   * @param log the log
-   */
   public static void addLog(@Nonnull PrintStream log) {
     printHeader(log);
     apiLog.add(s -> log.println(s));
@@ -961,13 +538,6 @@ public class CudaSystem {
     apiLog.add(log);
   }
 
-  /**
-   * Log.
-   *
-   * @param method the method
-   * @param result the result
-   * @param args   the args
-   */
   public static void log(final CharSequence method, final Object result, @Nullable final Object[] args) {
     CharSequence callstack = !CudaSettings.INSTANCE().isLogStack() ? "" : Util.toString(Arrays.stream(Thread.currentThread().getStackTrace())
         .filter(x -> true
@@ -985,32 +555,15 @@ public class CudaSystem {
     }
   }
 
-  /**
-   * Is thread device id boolean.
-   *
-   * @param deviceId the device id
-   * @return the boolean
-   */
   public static boolean isThreadDeviceId(int deviceId) {
     Integer integer = getThreadDeviceId();
     return integer != null && (deviceId == integer);
   }
 
-  /**
-   * Is enabled boolean.
-   *
-   * @return the boolean
-   */
   public static boolean isEnabled() {
     return 0 < getCachedDeviceCount();
   }
 
-  /**
-   * Run.
-   *
-   * @param deviceId the device id
-   * @param fn       the fn
-   */
   public static void withDevice(int deviceId, @Nonnull final Consumer<CudnnHandle> fn) {
     CudnnHandle threadlocal = CudnnHandle.threadContext.get();
     final Integer incumbantDevice = getThreadDeviceId();
@@ -1033,14 +586,6 @@ public class CudaSystem {
     }
   }
 
-  /**
-   * Run.
-   *
-   * @param <T>      the type parameter
-   * @param deviceId the device id
-   * @param action   the action
-   * @return the t
-   */
   public static <T> T withDevice(int deviceId, @Nonnull Function<CudnnHandle, T> action) {
     CudnnHandle threadlocal = CudnnHandle.threadContext.get();
     final Integer incumbantDevice = getThreadDeviceId();
@@ -1059,12 +604,6 @@ public class CudaSystem {
     }
   }
 
-  /**
-   * Run.
-   *
-   * @param fn    the fn
-   * @param hints the hints
-   */
   public static void run(@Nonnull final Consumer<CudnnHandle> fn, Object... hints) {
     CudnnHandle threadlocal = CudnnHandle.threadContext.get();
     final Integer incumbantDevice = getThreadDeviceId();
@@ -1088,23 +627,10 @@ public class CudaSystem {
     }
   }
 
-  /**
-   * Gets thread handle.
-   *
-   * @return the thread handle
-   */
   public static CudnnHandle getThreadHandle() {
     return CudnnHandle.threadContext.get();
   }
 
-  /**
-   * Call t.
-   *
-   * @param <T>   the type parameter
-   * @param fn    the fn
-   * @param hints the hints
-   * @return the t
-   */
   public static <T> T run(@Nonnull final Function<CudnnHandle, T> fn, Object... hints) {
     CudnnHandle threadlocal = CudnnHandle.threadContext.get();
     final Integer incumbantDevice = getThreadDeviceId();
@@ -1127,12 +653,6 @@ public class CudaSystem {
     }
   }
 
-  /**
-   * Gets preference predicate.
-   *
-   * @param hints the hints
-   * @return the preference predicate
-   */
   public static int chooseDevice(final Object[] hints) {
     Set<Integer> devices = Arrays.stream(hints).map(hint -> {
       if (hint instanceof Result) {
@@ -1169,12 +689,6 @@ public class CudaSystem {
     }
   }
 
-  /**
-   * Load gpu contexts list. If the property disableCuDnn is set to true, no GPUs will be recognized. This is useful for
-   * testing CPU-only compatibility.
-   *
-   * @return the list
-   */
   static int init() {
     if (CudaSettings.INSTANCE().isDisable()) {
       CudaDevice.logger.warn("Disabled CudaSystem");
@@ -1218,12 +732,6 @@ public class CudaSystem {
     return deviceCount;
   }
 
-  /**
-   * Synchronize.
-   *
-   * @param time   the time
-   * @param device the device
-   */
   public static void synchronize(long time, int device) {
     long startTime = System.nanoTime();
     Long val = syncTimes.get(device);
@@ -1244,11 +752,6 @@ public class CudaSystem {
     }
   }
 
-  /**
-   * Cuda device synchronize int.
-   *
-   * @return the int
-   */
   public static long cudaDeviceSynchronize() {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaDeviceSynchronize();
@@ -1259,12 +762,6 @@ public class CudaSystem {
     return startTime;
   }
 
-  /**
-   * The constant POOL.
-   *
-   * @param deviceId the device id
-   * @return the pool
-   */
   public static ResourcePool<CudnnHandle> getPool(final int deviceId) {
     assert deviceId >= 0;
     return handlePools.computeIfAbsent(deviceId, d -> {
@@ -1277,11 +774,6 @@ public class CudaSystem {
     });
   }
 
-  /**
-   * Gets cached device count.
-   *
-   * @return the cached device count
-   */
   public static int getCachedDeviceCount() {
     if (null == cachedDeviceCount) {
       synchronized (CudaSystem.class) {
@@ -1293,22 +785,11 @@ public class CudaSystem {
     return cachedDeviceCount;
   }
 
-  /**
-   * Cleanup.
-   */
   protected void cleanup() {
     CudnnHandle.threadContext.remove();
   }
 
-  /**
-   * The interface Cuda device resource.
-   */
   public interface CudaDeviceResource {
-    /**
-     * Gets device id.
-     *
-     * @return the device id
-     */
     int getDeviceId();
   }
 }

@@ -26,34 +26,14 @@ import com.simiacryptus.notebook.NotebookOutput;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-/**
- * The type Img eval key apply.
- */
 public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Precision.
-   */
   final Precision precision;
   private final int smallSize;
   private final int largeSize;
-  /**
-   * The LayerBase.
-   */
   ImgBandSelectLayer layer;
-  /**
-   * The Input bands.
-   */
   int inputBands;
 
-  /**
-   * Instantiates a new Img eval key apply.
-   *
-   * @param precision  the precision
-   * @param inputBands the input bands
-   * @param fromBand   the from band
-   * @param toBand     the output bands
-   */
   public ImgBandSelectLayerTest(final Precision precision, int inputBands, final int fromBand, int toBand) {
     this.precision = precision;
     layer = new ImgBandSelectLayer(fromBand, toBand).setPrecision(precision);
@@ -101,13 +81,7 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
     return layer.getCompatibilityLayer();
   }
 
-  /**
-   * Basic 64-bit apply
-   */
   public static class Double extends ImgBandSelectLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Double() {
       super(Precision.Double, 5, 2, 4);
     }
@@ -125,13 +99,7 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 //    }
 //  }
 
-  /**
-   * Basic 32-bit apply
-   */
   public static class Float extends ImgBandSelectLayerTest {
-    /**
-     * Instantiates a new Float.
-     */
     public Float() {
       super(Precision.Float, 2, 0, 1);
     }

@@ -30,35 +30,13 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.function.Function;
 
-/**
- * The type Cuda tensor.
- */
 public class CudaTensor extends ReferenceCountingBase implements CudaSystem.CudaDeviceResource {
-  /**
-   * The Log.
-   */
   static final Logger log = LoggerFactory.getLogger(CudaTensor.class);
 
-  /**
-   * The Descriptor.
-   */
   public final CudaDevice.CudaTensorDescriptor descriptor;
-  /**
-   * The Created by.
-   */
   public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getStackTrace() : new StackTraceElement[]{};
-  /**
-   * The Memory.
-   */
   final CudaMemory memory;
 
-  /**
-   * Instantiates a new Cuda tensor.
-   *
-   * @param memory     the memory
-   * @param descriptor the descriptor
-   * @param precision  the precision
-   */
   public CudaTensor(final CudaMemory memory, final CudaDevice.CudaTensorDescriptor descriptor, final Precision precision) {
     this.memory = memory;
     this.memory.addRef();
@@ -68,14 +46,6 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     assert this.descriptor.dataType == precision;
   }
 
-  /**
-   * Wrap cuda tensor.
-   *
-   * @param ptr        the ptr
-   * @param descriptor the descriptor
-   * @param precision  the precision
-   * @return the cuda tensor
-   */
   public static CudaTensor wrap(final CudaMemory ptr, final CudaDevice.CudaTensorDescriptor descriptor, final Precision precision) {
     CudaTensor cudaTensor = new CudaTensor(ptr, descriptor, precision);
     ptr.freeRef();
@@ -90,23 +60,10 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     super._free();
   }
 
-  /**
-   * Gets memory.
-   *
-   * @param cudaDevice the cuda device
-   * @return the memory
-   */
   public CudaMemory getMemory(final CudaDevice cudaDevice) {
     return getMemory(cudaDevice, MemoryType.Device);
   }
 
-  /**
-   * Gets memory.
-   *
-   * @param cudaDevice the cuda device
-   * @param memoryType the memory type
-   * @return the memory
-   */
   public CudaMemory getMemory(final CudaDevice cudaDevice, final MemoryType memoryType) {
     assertAlive();
 //    memory.synchronize();
@@ -126,12 +83,6 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     }
   }
 
-  /**
-   * Gets dense and free.
-   *
-   * @param gpu the gpu
-   * @return the dense and free
-   */
   public CudaTensor getDenseAndFree(CudnnHandle gpu) {
     CudaTensor result;
     if (isDense()) {
@@ -143,12 +94,6 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     return result;
   }
 
-  /**
-   * Gets dense.
-   *
-   * @param gpu the gpu
-   * @return the dense
-   */
   public CudaTensor getDense(CudnnHandle gpu) {
     assertAlive();
     if (isDense()) {
@@ -180,14 +125,6 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
 
   }
 
-  /**
-   * Read.
-   *
-   * @param gpu              the gpu
-   * @param index            the index
-   * @param result           the result
-   * @param avoidAllocations the avoid allocations
-   */
   @Nonnull
   public void read(final CudnnHandle gpu, final int index, final Tensor result, final boolean avoidAllocations) {
     assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
@@ -237,15 +174,6 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     }
   }
 
-  /**
-   * With dense t.
-   *
-   * @param <T>    the type parameter
-   * @param gpu    the gpu
-   * @param index  the index
-   * @param result the result
-   * @return the t
-   */
   @Nonnull
   public <T> T withDense(final CudnnHandle gpu, final int index, final Function<CudaMemory, T> result) {
     assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
@@ -287,11 +215,6 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     }
   }
 
-  /**
-   * Is dense boolean.
-   *
-   * @return the boolean
-   */
   public boolean isDense() {
     if (descriptor.nStride != descriptor.channels * descriptor.height * descriptor.width) return false;
     if (descriptor.cStride != descriptor.height * descriptor.width) return false;
@@ -299,49 +222,22 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     return descriptor.wStride == 1;
   }
 
-  /**
-   * The Descriptor.
-   *
-   * @return the type
-   */
   public MemoryType getType() {
     return memory.getType();
   }
 
-  /**
-   * The Descriptor.
-   *
-   * @return the device id
-   */
   public int getDeviceId() {
     return memory.getDeviceId();
   }
 
-  /**
-   * The Precision.
-   *
-   * @return the precision
-   */
   public Precision getPrecision() {
     return descriptor.dataType;
   }
 
-  /**
-   * Copy and free cuda tensor.
-   *
-   * @param device the device
-   * @param type   the type
-   * @return the cuda tensor
-   */
   public CudaTensor copyAndFree(final CudaDevice device, final MemoryType type) {
     return new CudaTensor(memory.copy(device, type), descriptor, getPrecision());
   }
 
-  /**
-   * Size long.
-   *
-   * @return the long
-   */
   public long size() {
     return memory.size;
   }

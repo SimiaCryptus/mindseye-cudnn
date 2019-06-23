@@ -38,10 +38,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-/**
- * This key works as a scaling function, similar to a father wavelet. Allows convolutional and pooling layers to work
- * across larger png regions.
- */
 @SuppressWarnings("serial")
 public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<ImgLinearSubnetLayer> {
 
@@ -50,19 +46,10 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private boolean parallel = true;
 
-  /**
-   * Instantiates a new Rescaled subnet key.
-   */
   public ImgLinearSubnetLayer() {
     super();
   }
 
-  /**
-   * Instantiates a new Rescaled subnet key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected ImgLinearSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
@@ -73,34 +60,14 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
     }
   }
 
-  /**
-   * From json rescaled subnet key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the rescaled subnet key
-   */
   public static ImgLinearSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgLinearSubnetLayer(json, rs);
   }
 
-  /**
-   * Gets legs.
-   *
-   * @return the legs
-   */
   public List<SubnetLeg> getLegs() {
     return legs;
   }
 
-  /**
-   * Add img linear subnet key.
-   *
-   * @param from  the from
-   * @param to    the to
-   * @param layer the key
-   * @return the img linear subnet key
-   */
   public ImgLinearSubnetLayer add(final int from, final int to, final Layer layer) {
     getLegs().add(new SubnetLeg(layer, from, to));
     return this;
@@ -232,42 +199,21 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
     return super.setFrozen(frozen);
   }
 
-  /**
-   * Is parallel boolean.
-   *
-   * @return the boolean
-   */
   public boolean isParallel() {
     return parallel;
   }
 
-  /**
-   * Sets parallel.
-   *
-   * @param parallel the parallel
-   * @return the parallel
-   */
   public ImgLinearSubnetLayer setParallel(boolean parallel) {
     this.parallel = parallel;
     return this;
   }
 
-  /**
-   * The type Subnet leg.
-   */
   public static class SubnetLeg extends ReferenceCountingBase {
 
     private final Layer inner;
     private final int fromBand;
     private final int toBand;
 
-    /**
-     * Instantiates a new Subnet leg.
-     *
-     * @param inner    the inner
-     * @param fromBand the from band
-     * @param toBand   the to band
-     */
     public SubnetLeg(final Layer inner, final int fromBand, final int toBand) {
       this.inner = inner;
       this.fromBand = fromBand;
@@ -275,12 +221,6 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
       this.inner.addRef();
     }
 
-    /**
-     * Instantiates a new Rescaled subnet key.
-     *
-     * @param json the json
-     * @param rs   the rs
-     */
     protected SubnetLeg(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
       fromBand = json.getAsJsonPrimitive("fromBand").getAsInt();
       toBand = json.getAsJsonPrimitive("toBand").getAsInt();
@@ -293,13 +233,6 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
       inner.freeRef();
     }
 
-    /**
-     * Gets json.
-     *
-     * @param resources      the resources
-     * @param dataSerializer the data serializer
-     * @return the json
-     */
     @Nonnull
     public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
       @Nonnull final JsonObject json = new JsonObject();

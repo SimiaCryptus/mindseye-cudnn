@@ -39,35 +39,18 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-/**
- * The generic Activation key, exposing the activation types provided by CudaSystem. This key is stateless and is
- * determined by a univariate function, e.g. ReLU or Sigmoid.
- */
 @SuppressWarnings("serial")
 public class ActivationLayer extends LayerBase implements MultiPrecision<ActivationLayer> {
   private static final Logger logger = LoggerFactory.getLogger(ActivationLayer.class);
-  /**
-   * The Mode.
-   */
   final int mode;
   private double alpha = 1.0;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Activation key.
-   *
-   * @param id the id
-   */
   public ActivationLayer(final int id) {
     mode = id;
   }
 
 
-  /**
-   * Instantiates a new Activation key.
-   *
-   * @param json the json
-   */
   protected ActivationLayer(@Nonnull final JsonObject json) {
     super(json);
     mode = json.getAsJsonPrimitive("mode").getAsInt();
@@ -75,33 +58,14 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
     precision = Precision.valueOf(json.get("precision").getAsString());
   }
 
-  /**
-   * Instantiates a new Activation key.
-   *
-   * @param mode the mode
-   */
   public ActivationLayer(@Nonnull final Mode mode) {
     this(mode.id);
   }
 
-  /**
-   * From json activation key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the activation key
-   */
   public static ActivationLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ActivationLayer(json);
   }
 
-  /**
-   * Same strides boolean.
-   *
-   * @param a the a
-   * @param b the b
-   * @return the boolean
-   */
   public static boolean sameStrides(final CudaDevice.CudaTensorDescriptor a, final CudaDevice.CudaTensorDescriptor b) {
     if (a.nStride != b.nStride) return false;
     if (a.cStride != b.cStride) return false;
@@ -115,11 +79,6 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
     return String.format("Activation (%s)", mode);
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     if (mode == Mode.SIGMOID.id) {
@@ -284,42 +243,19 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
     return Arrays.asList();
   }
 
-  /**
-   * Gets alpha.
-   *
-   * @return the alpha
-   */
   public double getAlpha() {
     return alpha;
   }
 
-  /**
-   * Sets alpha.
-   *
-   * @param alpha the alpha
-   * @return the alpha
-   */
   public ActivationLayer setAlpha(double alpha) {
     this.alpha = alpha;
     return this;
   }
 
 
-  /**
-   * The enum Mode.
-   */
   public enum Mode {
-    /**
-     * Relu mode.
-     */
     RELU(cudnnActivationMode.CUDNN_ACTIVATION_RELU),
-    /**
-     * Sigmoid mode.
-     */
     SIGMOID(cudnnActivationMode.CUDNN_ACTIVATION_SIGMOID);
-    /**
-     * The Id.
-     */
     public final int id;
 
     Mode(final int id) {

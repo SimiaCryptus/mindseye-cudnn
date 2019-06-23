@@ -23,57 +23,25 @@ import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The type Cuda resource base.
- *
- * @param <T> the type parameter
- */
 public abstract class CudaResourceBase<T> extends ReferenceCountingBase implements CudaSystem.CudaDeviceResource {
   private static final Logger logger = LoggerFactory.getLogger(CudaResourceBase.class);
-  /**
-   * The Obj generation.
-   */
   public final int objGeneration = CudaSystem.gpuGeneration.get();
-  /**
-   * The Ptr.
-   */
   protected T ptr;
 
-  /**
-   * Instantiates a new Cuda resource base.
-   *
-   * @param obj the obj
-   */
   public CudaResourceBase(final T obj) {
     this.ptr = obj;
   }
 
-  /**
-   * Gets ptr.
-   *
-   * @return the ptr
-   */
   public T getPtr() {
     assertAlive();
     return ptr;
   }
 
-  /**
-   * Free.
-   */
   protected abstract void _free();
 
-  /**
-   * Is active obj boolean.
-   *
-   * @return the boolean
-   */
   public boolean isActiveObj() {
     return objGeneration == CudaSystem.gpuGeneration.get();
   }
 
-  /**
-   * Release.
-   */
   public abstract void release();
 }

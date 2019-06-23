@@ -34,47 +34,23 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-/**
- * This key multiplies together the inputs, element-by-element. It can be used to implement integer-power activation
- * layers, such as the square needed in MeanSqLossLayer.
- */
 @SuppressWarnings("serial")
 public class GateBiasLayer extends LayerBase implements MultiPrecision<GateBiasLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Product inputs key.
-   */
   public GateBiasLayer() {
   }
 
-  /**
-   * Instantiates a new Product inputs key.
-   *
-   * @param id the id
-   */
   protected GateBiasLayer(@Nonnull final JsonObject id) {
     super(id);
     this.precision = Precision.valueOf(id.getAsJsonPrimitive("precision").getAsString());
   }
 
-  /**
-   * From json product inputs key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the product inputs key
-   */
   public static GateBiasLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new GateBiasLayer(json);
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(ProductInputsLayer.class);

@@ -35,27 +35,13 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * The type Activation key apply.
- */
 public abstract class ActivationLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Mode.
-   */
   final ActivationLayer.Mode mode;
   private final Precision precision;
   private final int smallSize;
   private final int largeSize;
 
-  /**
-   * Instantiates a new Activation key apply.
-   *
-   * @param mode      the mode
-   * @param precision the precision
-   * @param smallSize the small size
-   * @param largeSize the large size
-   */
   public ActivationLayerTest(final ActivationLayer.Mode mode, final Precision precision, final int smallSize, final int largeSize) {
     this.mode = mode;
     this.precision = precision;
@@ -118,13 +104,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Configured apply double (64-bit) precision, y=x&lt;0?0:x
-   */
   public static class ReLu_Double extends ActivationLayerTest {
-    /**
-     * Instantiates a new Re lu double.
-     */
     public ReLu_Double() {
       super(ActivationLayer.Mode.RELU, Precision.Double, 2, 800);
     }
@@ -135,13 +115,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  /**
-   * Configured apply float (32-bit) precision, y=x&lt;0?0:x
-   */
   public static class ReLu_Float extends ActivationLayerTest {
-    /**
-     * Instantiates a new Re lu float.
-     */
     public ReLu_Float() {
       super(ActivationLayer.Mode.RELU, Precision.Float, 2, 1200);
     }
@@ -152,13 +126,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  /**
-   * Configured apply double (64-bit) precision using the Sigmoid function
-   */
   public static class Sigmoid_Double extends ActivationLayerTest {
-    /**
-     * Instantiates a new Sigmoid double.
-     */
     public Sigmoid_Double() {
       super(ActivationLayer.Mode.SIGMOID, Precision.Double, 2, 1200);
     }
@@ -169,13 +137,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  /**
-   * Configured apply float (32-bit) precision using the Sigmoid function
-   */
   public static class Sigmoid_Float extends ActivationLayerTest {
-    /**
-     * Instantiates a new Sigmoid float.
-     */
     public Sigmoid_Float() {
       super(ActivationLayer.Mode.SIGMOID, Precision.Float, 2, 1200);
     }

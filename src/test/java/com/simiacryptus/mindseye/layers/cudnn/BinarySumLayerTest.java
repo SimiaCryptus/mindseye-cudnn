@@ -30,29 +30,12 @@ import javax.annotation.Nonnull;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-/**
- * The type BinarySumLayerTest key apply.
- */
 public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Precision.
-   */
   final Precision precision;
-  /**
-   * The Large size.
-   */
   final int largeSize;
-  /**
-   * The Small size.
-   */
   int smallSize;
 
-  /**
-   * Instantiates a new Product key apply.
-   *
-   * @param precision the precision
-   */
   public BinarySumLayerTest(final Precision precision) {
     this.precision = precision;
     smallSize = 2;
@@ -79,13 +62,7 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
     };
   }
 
-  /**
-   * The type Double list.
-   */
   public static class Double_List extends BinarySumLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Double_List() {
       super(Precision.Double);
     }
@@ -102,14 +79,8 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Ensures addition can be used to implement a doubling (x2) function
-   */
   public static class OnePlusOne extends CudnnLayerTestBase {
 
-    /**
-     * Instantiates a new Asymmetric apply.
-     */
     public OnePlusOne() {
       super();
     }
@@ -155,25 +126,13 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Adds using double (64-bit) precision, C = A + B
-   */
   public static class Double_Add extends BinarySumLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Double_Add() {
       super(Precision.Double);
     }
   }
 
-  /**
-   * Subtracts using double (64-bit) precision, C = A - B
-   */
   public static class Double_Subtract extends BinarySumLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Double_Subtract() {
       super(Precision.Double);
     }
@@ -186,13 +145,7 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Adds using float (32-bit) precision, C = A + B
-   */
   public static class Float_Add extends BinarySumLayerTest {
-    /**
-     * Instantiates a new Float.
-     */
     public Float_Add() {
       super(Precision.Float);
     }
@@ -204,13 +157,7 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Binary averaging using float (32-bit) precision, C = (A + B) / 2
-   */
   public static class Float_Avg extends BinarySumLayerTest {
-    /**
-     * Instantiates a new Float.
-     */
     public Float_Avg() {
       super(Precision.Float);
     }

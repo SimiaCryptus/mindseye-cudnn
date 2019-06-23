@@ -35,10 +35,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Increases the resolution of the input by selecting a larger centered window. The output png will have the same
- * number of color bands, and the area outside the source png will be setWeights to 0.
- */
 @SuppressWarnings("serial")
 public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<ImgModulusPaddingLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusPaddingLayer.class);
@@ -50,20 +46,9 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private boolean roundUp;
 
-  /**
-   * Instantiates a new Img eval key.
-   */
   private ImgModulusPaddingLayer() {
   }
 
-  /**
-   * Instantiates a new Img zero padding key.
-   *
-   * @param sizeX   the size x
-   * @param sizeY   the size y
-   * @param offsetX the offset x
-   * @param offsetY the offset y
-   */
   public ImgModulusPaddingLayer(int sizeX, int sizeY, int offsetX, int offsetY) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
@@ -71,22 +56,10 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
     this.offsetY = offsetY;
   }
 
-  /**
-   * Instantiates a new Img modulus padding key.
-   *
-   * @param sizeX the size x
-   * @param sizeY the size y
-   */
   public ImgModulusPaddingLayer(int sizeX, int sizeY) {
     this(sizeX, sizeY, 0, 0);
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected ImgModulusPaddingLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
@@ -97,13 +70,6 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static ImgModulusPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgModulusPaddingLayer(json, rs);
   }
@@ -175,20 +141,10 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
     return this;
   }
 
-  /**
-   * Gets offset x.
-   *
-   * @return the offset x
-   */
   public int getOffsetX() {
     return offsetX;
   }
 
-  /**
-   * Sets offset x.
-   *
-   * @param offsetX the offset x
-   */
   public void setOffsetX(int offsetX) {
     this.offsetX = offsetX;
   }

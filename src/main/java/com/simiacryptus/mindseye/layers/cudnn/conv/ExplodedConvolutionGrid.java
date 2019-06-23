@@ -40,30 +40,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * The higher level of convolution construction logic. Provides support for large numbers of input bands by splitting
- * the network into sub-networks that consider only a subset of the input bands, then summing the results together. This
- * strategy remains valid so long as the sub-networks are purely linear.
- */
 class ExplodedConvolutionGrid extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(ExplodedConvolutionGrid.class);
 
-  /**
-   * The Sub layers.
-   */
   public final List<ExplodedConvolutionLeg> subLayers;
-  /**
-   * The Convolution params.
-   */
   @Nonnull
   public final ConvolutionParams convolutionParams;
 
-  /**
-   * Instantiates a new Exploded network.
-   *
-   * @param convolutionParams the convolution params
-   * @param maxBandBatch      the max band batch
-   */
   public ExplodedConvolutionGrid(@Nonnull ConvolutionParams convolutionParams, int maxBandBatch) {
     this.convolutionParams = convolutionParams;
     int bandWidth = (maxBandBatch == 0) ? convolutionParams.inputBands : maxBandBatch;
@@ -81,12 +64,6 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     super._free();
   }
 
-  /**
-   * Write exploded convolution grid.
-   *
-   * @param filter the kernel
-   * @return the exploded convolution grid
-   */
   @Nonnull
   public ExplodedConvolutionGrid write(@Nonnull Tensor filter) {
     if (1 == subLayers.size()) {
@@ -107,12 +84,6 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     return this;
   }
 
-  /**
-   * Read tensor.
-   *
-   * @param extractor the extractor
-   * @return the tensor
-   */
   public Tensor read(@Nonnull Function<ExplodedConvolutionLeg, Tensor> extractor) {
     if (1 == subLayers.size()) {
       return extractor.apply(subLayers.get(0));
@@ -130,22 +101,10 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     }
   }
 
-  /**
-   * Read tensor.
-   *
-   * @return the tensor
-   */
   public Tensor read() {
     return read(l -> l.read());
   }
 
-  /**
-   * Read tensor.
-   *
-   * @param deltaSet the evalInputDelta set
-   * @param remove   the remove
-   * @return the tensor
-   */
   public Tensor read(@Nonnull DeltaSet<UUID> deltaSet, boolean remove) {
     return read(l -> l.read(deltaSet, remove));
   }
@@ -156,11 +115,6 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     return filterBand;
   }
 
-  /**
-   * Gets network.
-   *
-   * @return the network
-   */
   @Nonnull
   public PipelineNetwork getNetwork() {
     assertAlive();
@@ -169,12 +123,6 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     return network;
   }
 
-  /**
-   * Add dag node.
-   *
-   * @param input the input
-   * @return the dag node
-   */
   public DAGNode add(@Nonnull DAGNode input) {
     assertAlive();
     DAGNetwork network = input.getNetwork();

@@ -21,22 +21,11 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import jcuda.runtime.cudaStream_t;
 
-/**
- * The type Cuda stream.
- */
 public class CudaStream extends CudaResource<cudaStream_t> {
-  /**
-   * Instantiates a new Cuda stream.
-   *
-   * @param stream the stream
-   */
   CudaStream(cudaStream_t stream) {
     super(stream, CudaSystem::cudaStreamDestroy, CudaSystem.getThreadDeviceId());
   }
 
-  /**
-   * Sync.
-   */
   public void sync() {
     CudaSystem.cudaStreamSynchronize(getPtr());
   }

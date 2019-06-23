@@ -35,45 +35,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Increases the resolution of the input by selecting a larger centered window. The output png will have the same
- * number of color bands, and the area outside the source png will be setWeights to 0.
- */
 @SuppressWarnings("serial")
 public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<ImgZeroPaddingLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgZeroPaddingLayer.class);
-  /**
-   * The Created by.
-   */
   public StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private int sizeX;
   private int sizeY;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Img eval key.
-   */
   private ImgZeroPaddingLayer() {
   }
 
-  /**
-   * Instantiates a new Img zero padding key.
-   *
-   * @param sizeX the size x
-   * @param sizeY the size y
-   */
   public ImgZeroPaddingLayer(int sizeX, int sizeY) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
     assert sizeY != 0 || sizeX != 0;
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected ImgZeroPaddingLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
@@ -82,13 +60,6 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<Img
     assert sizeY != 0 || sizeX != 0;
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static ImgZeroPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgZeroPaddingLayer(json, rs);
   }

@@ -36,48 +36,15 @@ import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.stream.Stream;
 
-/**
- * The type Convolution key apply.
- */
 public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Input bands.
-   */
   final int inputBands;
-  /**
-   * The Output bands.
-   */
   final int outputBands;
-  /**
-   * The Radius.
-   */
   final int radius;
-  /**
-   * The Convolution key.
-   */
   ConvolutionLayer convolutionLayer;
-  /**
-   * The Small size.
-   */
   int smallSize;
-  /**
-   * The Large size.
-   */
   int largeSize;
 
-  /**
-   * Instantiates a new Convolution key apply.
-   *
-   * @param radius      the radius
-   * @param inputBands  the input bands
-   * @param outputBands the output bands
-   * @param precision   the precision
-   * @param batchBands  the batch bands
-   * @param stride      the stride
-   * @param smallSize   the small size
-   * @param largeSize   the large size
-   */
   protected ConvolutionLayerTest(final int radius, final int inputBands, final int outputBands, final Precision precision, int batchBands, int stride, final int smallSize, final int largeSize) {
     this.radius = radius;
     this.inputBands = inputBands;
@@ -103,9 +70,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 //    CudaSystem.apiLog.remove(apiLog);
   }
 
-  /**
-   * Verify weights.
-   */
   @Test
   public void verifyWeights() {
     @Nonnull ExplodedConvolutionGrid explodedNetwork = this.convolutionLayer.getExplodedNetwork();
@@ -163,14 +127,8 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     return ConvolutionLayer.class;
   }
 
-  /**
-   * Increases the number of color bands from 3 to 6 (radius 3; 64-bit precision)
-   */
   public static class BandExpand extends ConvolutionLayerTest {
 
-    /**
-     * Instantiates a new Asymmetric apply.
-     */
     public BandExpand() {
       super(1, 3, 6, Precision.Double, 16, 1, 3, 600);
     }
@@ -191,84 +149,47 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Increases the number of color bands from 3 to 6 (radius 3; 64-bit precision)
-   */
   public static class BandLimit extends ConvolutionLayerTest {
 
-    /**
-     * Instantiates a new Asymmetric apply.
-     */
     public BandLimit() {
       super(1, 3, 2, Precision.Double, 16, 1, 3, 600);
     }
 
   }
 
-  /**
-   * Increases the number of color bands from 3 to 6 (radius 3; 64-bit precision)
-   */
   public static class SqGrid extends ConvolutionLayerTest {
 
-    /**
-     * Instantiates a new Asymmetric apply.
-     */
     public SqGrid() {
       super(3, 4, 4, Precision.Double, 2, 1, 3, 600);
     }
 
   }
 
-  /**
-   * Increases the number of color bands from 3 to 6 (radius 3; 64-bit precision)
-   */
   public static class IrregularGrid extends ConvolutionLayerTest {
 
-    /**
-     * Instantiates a new Asymmetric apply.
-     */
     public IrregularGrid() {
       super(3, 5, 3, Precision.Double, 2, 1, 3, 600);
     }
 
   }
 
-  /**
-   * Reduces the number of color bands from 6 to 3 (radius 3; 64-bit precision)
-   */
   public static class BandReduceTest extends ConvolutionLayerTest {
 
-    /**
-     * Instantiates a new Asymmetric apply.
-     */
     public BandReduceTest() {
       super(3, 6, 3, Precision.Double, 16, 1, 3, 600);
     }
 
   }
 
-  /**
-   * Test using 64-bit precision apply a radius of 1
-   */
   public static class Double extends ConvolutionLayerTest {
 
-    /**
-     * Instantiates a new Double.
-     */
     public Double() {
       super(3, 4, 4, Precision.Double, 16, 1, 3, 600);
     }
 
   }
 
-  /**
-   * Tests apply no zero-padding; the output will be radius-1 smaller than the input. This currently tests a workaround
-   * where CudaSystem does not seem to support convolutions that change resolution.
-   */
   public static class NoPadding extends ConvolutionLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public NoPadding() {
       super(3, 3, 3, Precision.Double, 16, 1, 3, 600);
       convolutionLayer.setPaddingXY(0, 0);
@@ -276,39 +197,21 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Test using 32-bit precision apply a radius of 1
-   */
   public static class Float extends ConvolutionLayerTest {
-    /**
-     * Instantiates a new Float.
-     */
     public Float() {
       super(1, 2, 2, Precision.Float, 16, 1, 3, 600);
     }
   }
 
-  /**
-   * Convert from 7 bands to 5; this is meant to not divide evenly for testing. (64-bit)
-   */
   public static class IrregularTest extends ConvolutionLayerTest {
 
-    /**
-     * Instantiates a new Irregular apply.
-     */
     public IrregularTest() {
       super(3, 7, 5, Precision.Double, 16, 1, 3, 600);
     }
   }
 
-  /**
-   * Convert from 7 bands to 5; this is meant to not divide evenly for testing. (32-bit)
-   */
   public static class IrregularTest_Float extends ConvolutionLayerTest {
 
-    /**
-     * Instantiates a new Irregular apply float.
-     */
     public IrregularTest_Float() {
       super(3, 7, 5, Precision.Float, 16, 1, 3, 600);
     }
@@ -340,22 +243,11 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 //
 //  }
 
-  /**
-   * The type Big 1.
-   */
   public static class Big1 extends VeryBigTest {
-    /**
-     * Instantiates a new BigTests.
-     */
     public Big1() {
       this(1024);
     }
 
-    /**
-     * Instantiates a new BigTests.
-     *
-     * @param size
-     */
     private Big1(int size) {
       super(1, size, size, Precision.Float, size);
     }
@@ -369,20 +261,8 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  /**
-   * Basic Test
-   */
   public abstract static class VeryBigTest extends Big {
 
-    /**
-     * Instantiates a new V big.
-     *
-     * @param radius      the radius
-     * @param inputBands  the input bands
-     * @param outputBands the output bands
-     * @param precision   the precision
-     * @param batchBands  the batch bands
-     */
     protected VeryBigTest(final int radius, final int inputBands, final int outputBands, final Precision precision, final int batchBands) {
       super(radius, inputBands, outputBands, precision, batchBands);
     }
@@ -404,20 +284,8 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  /**
-   * Basic Test
-   */
   public abstract static class Big extends ConvolutionLayerTest {
 
-    /**
-     * Instantiates a new BigTests.
-     *
-     * @param radius      the radius
-     * @param inputBands  the input bands
-     * @param outputBands the output bands
-     * @param precision   the precision
-     * @param batchBands  the batch bands
-     */
     public Big(final int radius, final int inputBands, final int outputBands, final Precision precision, int batchBands) {
       super(radius, inputBands, outputBands, precision, batchBands, 1, 3, 600);
       validateDifferentials = false;

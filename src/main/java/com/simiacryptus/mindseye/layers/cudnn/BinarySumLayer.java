@@ -38,10 +38,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-/**
- * Computes a weighted binary sum of two layers. Provides two weighting coefficients, one for each input. This can be
- * used to implement a summation key, a difference key, a scaling key, or any combination.
- */
 @SuppressWarnings("serial")
 public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySumLayer> {
 
@@ -49,29 +45,15 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private double rightFactor;
 
-  /**
-   * Instantiates a new Product inputs key.
-   */
   public BinarySumLayer() {
     this(1.0, 1.0);
   }
 
-  /**
-   * Instantiates a new Binary sum key.
-   *
-   * @param leftFactor  the left factor
-   * @param rightFactor the right factor
-   */
   public BinarySumLayer(final double leftFactor, final double rightFactor) {
     this.leftFactor = leftFactor;
     this.rightFactor = rightFactor;
   }
 
-  /**
-   * Instantiates a new Product inputs key.
-   *
-   * @param json the id
-   */
   protected BinarySumLayer(@Nonnull final JsonObject json) {
     super(json);
     rightFactor = json.get("rightFactor").getAsDouble();
@@ -79,22 +61,10 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
     precision = Precision.valueOf(json.get("precision").getAsString());
   }
 
-  /**
-   * From json product inputs key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the product inputs key
-   */
   public static BinarySumLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new BinarySumLayer(json);
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     @Nonnull PipelineNetwork network = new PipelineNetwork(2);
@@ -257,21 +227,10 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
     return json;
   }
 
-  /**
-   * Gets left factor.
-   *
-   * @return the left factor
-   */
   public double getLeftFactor() {
     return leftFactor;
   }
 
-  /**
-   * Sets left factor.
-   *
-   * @param leftFactor the left factor
-   * @return the left factor
-   */
   @Nonnull
   public BinarySumLayer setLeftFactor(final double leftFactor) {
     this.leftFactor = leftFactor;
@@ -290,21 +249,10 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
     return this;
   }
 
-  /**
-   * Gets right factor.
-   *
-   * @return the right factor
-   */
   public double getRightFactor() {
     return rightFactor;
   }
 
-  /**
-   * Sets right factor.
-   *
-   * @param rightFactor the right factor
-   * @return the right factor
-   */
   @Nonnull
   public BinarySumLayer setRightFactor(final double rightFactor) {
     this.rightFactor = rightFactor;

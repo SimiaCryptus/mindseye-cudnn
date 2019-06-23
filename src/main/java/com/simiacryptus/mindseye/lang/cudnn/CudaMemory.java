@@ -34,58 +34,22 @@ import java.util.stream.Collectors;
 
 import static jcuda.runtime.cudaMemcpyKind.cudaMemcpyDeviceToHost;
 
-/**
- * A GPU memory segment
- */
 public class CudaMemory extends CudaResourceBase<CudaPointer> {
 
-  /**
-   * The constant METRICS.
-   */
   public static final Map<Integer, DeviceMetrics> METRICS = new ConcurrentHashMap<>();
-  /**
-   * The K.
-   */
   public static final int K = 1024;
-  /**
-   * The Mi b.
-   */
   public static final long MiB = K * 1024;
-  /**
-   * The Gi b.
-   */
   public static final long GiB = 1024 * MiB;
-  /**
-   * The constant logger.
-   */
   protected static final Logger logger = LoggerFactory.getLogger(CudaMemory.class);
-  /**
-   * The Size.
-   */
   public final long size;
   private final int deviceId;
   private final MemoryType type;
   private long writtenAt = System.nanoTime();
 
-  /**
-   * Instantiates a new Cuda ptr.
-   *
-   * @param gpu  the device id
-   * @param size the size
-   * @param type the type
-   */
   CudaMemory(final CudaDevice gpu, final long size, @Nonnull MemoryType type) {
     this(size, type, gpu.acquire(size, type, 1), gpu.getDeviceId());
   }
 
-  /**
-   * Instantiates a new Cuda ptr.
-   *
-   * @param size     the size
-   * @param type     the type
-   * @param memory   the memory
-   * @param deviceId the device id
-   */
   CudaMemory(final long size, @Nonnull MemoryType type, final CudaPointer memory, final int deviceId) {
     super(memory);
     this.size = size;
@@ -93,12 +57,6 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     this.type = type;
   }
 
-  /**
-   * Clear memory.
-   *
-   * @param deviceId the device id
-   * @return the long
-   */
   public static double clearWeakMemory(final int deviceId) {
     double totalFreed = 0;
     for (final MemoryType type : MemoryType.values()) {
@@ -107,12 +65,6 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     return totalFreed;
   }
 
-  /**
-   * Clear memory double.
-   *
-   * @param deviceId the device id
-   * @return the double
-   */
   public static double clearMemory(final int deviceId) {
     double totalFreed = evictMemory(deviceId);
     for (final MemoryType type : MemoryType.values()) {
@@ -130,12 +82,6 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     return totalFreed;
   }
 
-  /**
-   * Evict memory long.
-   *
-   * @param deviceId the device id
-   * @return the long
-   */
   public static double evictMemory(final int deviceId) {
     double bytes = RegisteredObjectBase.getLivingInstances(SimpleConvolutionLayer.class).mapToLong(x -> x.evictDeviceData(deviceId)).sum();
     logger.info(String.format("Cleared %e bytes from ConvolutionFilters for device %s", bytes, deviceId));
@@ -150,23 +96,10 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
   }
 
 
-  /**
-   * Gets gpu stats.
-   *
-   * @param deviceId the device id
-   * @return the gpu stats
-   */
   public static DeviceMetrics getGpuStats(final int deviceId) {
     return CudaMemory.METRICS.computeIfAbsent(deviceId, device -> new DeviceMetrics());
   }
 
-  /**
-   * From device double tensor.
-   *
-   * @param precision  the precision
-   * @param dimensions the dimensions  @return the tensor
-   * @return the tensor
-   */
   @Nonnull
   public Tensor read(@Nonnull final Precision precision, final int[] dimensions) {
     synchronize();
@@ -190,13 +123,6 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     return tensor;
   }
 
-  /**
-   * Copy to cuda ptr.
-   *
-   * @param deviceId   the device id
-   * @param memoryType the memory type
-   * @return the cuda ptr
-   */
   public CudaMemory copy(CudaDevice deviceId, final MemoryType memoryType) {
     @Nonnull CudaMemory copy = deviceId.allocate(size, memoryType, true);
     synchronize();
@@ -205,9 +131,6 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
   }
 
 
-  /**
-   * Free.
-   */
   protected void _free() {
     if (ptr.getByteOffset() != 0) return;
     CudnnHandle threadHandle = CudaSystem.getThreadHandle();
@@ -226,26 +149,11 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     }
   }
 
-  /**
-   * Read cuda ptr.
-   *
-   * @param precision   the precision
-   * @param destination the data
-   * @return the cuda ptr
-   */
   @Nonnull
   public CudaMemory read(@Nonnull final Precision precision, @Nonnull final double[] destination) {
     return read(precision, destination, 0);
   }
 
-  /**
-   * Read cuda ptr.
-   *
-   * @param precision   the precision
-   * @param destination the data
-   * @param offset      the offset
-   * @return the cuda ptr
-   */
   @Nonnull
   public CudaMemory read(@Nonnull final Precision precision, @Nonnull final double[] destination, int offset) {
     if (size < (long) (offset + destination.length) * precision.size) {
@@ -267,26 +175,11 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     return this;
   }
 
-  /**
-   * Read cuda ptr.
-   *
-   * @param precision   the precision
-   * @param destination the data
-   * @return the cuda ptr
-   */
   @Nonnull
   public CudaMemory read(@Nonnull final Precision precision, @Nonnull final float[] destination) {
     return read(precision, destination, 0);
   }
 
-  /**
-   * Read cuda ptr.
-   *
-   * @param precision   the precision
-   * @param destination the data
-   * @param offset      the offset
-   * @return the cuda ptr
-   */
   @Nonnull
   public CudaMemory read(@Nonnull final Precision precision, @Nonnull final float[] destination, int offset) {
     if (size < (long) destination.length * precision.size) {
@@ -306,26 +199,11 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     return this;
   }
 
-  /**
-   * Write cuda ptr.
-   *
-   * @param precision the precision
-   * @param data      the data
-   * @return the cuda ptr
-   */
   @Nonnull
   public CudaMemory write(@Nonnull final Precision precision, @Nonnull final double[] data) {
     return write(precision, data, 0);
   }
 
-  /**
-   * Write cuda ptr.
-   *
-   * @param precision the precision
-   * @param data      the data
-   * @param offset    the offset
-   * @return the cuda ptr
-   */
   @Nonnull
   public CudaMemory write(@Nonnull final Precision precision, @Nonnull final double[] data, long offset) {
     assert getType() == MemoryType.Managed || CudaDevice.isThreadDeviceId(getDeviceId());
@@ -336,26 +214,11 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     return this;
   }
 
-  /**
-   * Write cuda ptr.
-   *
-   * @param precision the precision
-   * @param data      the data
-   * @return the cuda ptr
-   */
   @Nonnull
   public CudaMemory write(@Nonnull final Precision precision, @Nonnull final float[] data) {
     return write(precision, data, 0);
   }
 
-  /**
-   * Write cuda ptr.
-   *
-   * @param precision the precision
-   * @param data      the data
-   * @param offset    the offset
-   * @return the cuda ptr
-   */
   @Nonnull
   public CudaMemory write(@Nonnull final Precision precision, @Nonnull final float[] data, int offset) {
     if (size < (offset + data.length) * precision.size)
@@ -365,42 +228,21 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     return this;
   }
 
-  /**
-   * Gets device id.
-   *
-   * @return the device id
-   */
   public int getDeviceId() {
     return deviceId;
   }
 
-  /**
-   * Gets type.
-   *
-   * @return the type
-   */
   @Nonnull
   public MemoryType getType() {
     return type;
   }
 
-  /**
-   * Clear cuda ptr.
-   *
-   * @return the cuda ptr
-   */
   @Nonnull
   CudaMemory clear() {
     CudaSystem.cudaMemset(getPtr(), 0, size);
     return this;
   }
 
-  /**
-   * With byte offset cuda memory.
-   *
-   * @param byteOffset the byte offset
-   * @return the cuda memory
-   */
   public CudaMemory withByteOffset(final int byteOffset) {
     if (size <= byteOffset) throw new IllegalArgumentException(size + " <= " + byteOffset);
     if (0 > byteOffset) throw new IllegalArgumentException(Integer.toString(byteOffset));
@@ -419,20 +261,12 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     };
   }
 
-  /**
-   * Dirty cuda memory.
-   *
-   * @return the cuda memory
-   */
   public CudaMemory dirty() {
     assert type == MemoryType.Managed || CudaDevice.isThreadDeviceId(getDeviceId()) : getDeviceId() + " != " + CudaSystem.getThreadDeviceId();
     writtenAt = System.nanoTime();
     return this;
   }
 
-  /**
-   * Synchronize.
-   */
   public void synchronize() {
     if (deviceId >= 0) CudaSystem.synchronize(writtenAt, deviceId);
   }

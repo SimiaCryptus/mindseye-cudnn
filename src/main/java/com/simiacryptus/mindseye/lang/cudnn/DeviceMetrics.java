@@ -21,29 +21,11 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * The type Gpu stats.
- */
 public class DeviceMetrics {
-  /**
-   * The Memory reads.
-   */
   public final AtomicLong memoryReads = new AtomicLong(0);
-  /**
-   * The Memory writes.
-   */
   public final AtomicLong memoryWrites = new AtomicLong(0);
-  /**
-   * The Peak memory.
-   */
   public final AtomicLong peakMemory = new AtomicLong(0);
-  /**
-   * The Used memory.
-   */
   public final AtomicLong activeMemory = new AtomicLong(0);
 
-  /**
-   * The Used memory.
-   */
   public final AtomicLong usedMemory = new AtomicLong(0);
 }

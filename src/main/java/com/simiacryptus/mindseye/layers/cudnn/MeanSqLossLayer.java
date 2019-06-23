@@ -30,9 +30,6 @@ import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Implements the RMS loss key (without the final square root). Implemented as a sutnetwork.
- */
 @SuppressWarnings("serial")
 public class MeanSqLossLayer extends PipelineNetwork {
 
@@ -41,9 +38,6 @@ public class MeanSqLossLayer extends PipelineNetwork {
   private final InnerNode binaryNode;
   private double alpha = 1.0;
 
-  /**
-   * Instantiates a new Mean sq loss key.
-   */
   public MeanSqLossLayer() {
     super(2);
     this.binaryNode = wrap(new BinarySumLayer(alpha, -alpha), getInput(0), getInput(1));
@@ -51,25 +45,12 @@ public class MeanSqLossLayer extends PipelineNetwork {
     wrap(new AvgReducerLayer()).freeRef();
   }
 
-  /**
-   * Instantiates a new Mean sq loss key.
-   *
-   * @param id the id
-   * @param rs the rs
-   */
   protected MeanSqLossLayer(@Nonnull final JsonObject id, Map<CharSequence, byte[]> rs) {
     super(id, rs);
     alpha = id.get("alpha").getAsDouble();
     binaryNode = (InnerNode) getNodeById(UUID.fromString(id.get("binaryNode").getAsString()));
   }
 
-  /**
-   * From json mean sq loss key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the mean sq loss key
-   */
   public static MeanSqLossLayer fromJson(final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new MeanSqLossLayer(json, rs);
   }
@@ -88,21 +69,10 @@ public class MeanSqLossLayer extends PipelineNetwork {
     return json;
   }
 
-  /**
-   * Gets alphaList.
-   *
-   * @return the alphaList
-   */
   public double getAlpha() {
     return alpha;
   }
 
-  /**
-   * Sets alphaList.
-   *
-   * @param alpha the alphaList
-   * @return the alphaList
-   */
   public MeanSqLossLayer setAlpha(final double alpha) {
     this.alpha = alpha;
     BinarySumLayer binarySumLayer = binaryNode.getLayer();

@@ -24,17 +24,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * The type LayerBase apply base.
- */
 public abstract class LayerTestBase extends StandardLayerTests {
 
 
-  /**
-   * Test.
-   *
-   * @throws Throwable the throwable
-   */
   @Test(timeout = 15 * 60 * 1000)
   public void test() throws Throwable {
     run(this::run);
@@ -45,18 +37,12 @@ public abstract class LayerTestBase extends StandardLayerTests {
 //    apply(this::monteCarlo);
 //  }
 
-  /**
-   * Clean all.
-   */
   @Before
   public void setup() {
     reportingFolder = "reports/_reports";
     //GpuController.remove();
   }
 
-  /**
-   * Cleanup.
-   */
   @After
   public void cleanup() {
     System.gc();

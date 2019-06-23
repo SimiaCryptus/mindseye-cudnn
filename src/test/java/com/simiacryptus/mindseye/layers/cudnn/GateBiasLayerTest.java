@@ -26,21 +26,10 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-/**
- * The type Product key apply.
- */
 public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Precision.
-   */
   final Precision precision;
 
-  /**
-   * Instantiates a new Product key apply.
-   *
-   * @param precision the precision
-   */
   public GateBiasLayerTest(final Precision precision) {
     this.precision = precision;
   }
@@ -66,25 +55,13 @@ public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
     return new GateBiasLayer().setPrecision(precision);
   }
 
-  /**
-   * Multiplication of 2 inputs using 64-bit precision
-   */
   public static class Double extends GateBiasLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Double() {
       super(Precision.Double);
     }
   }
 
-  /**
-   * Multiplication of 2 inputs using 32-bit precision
-   */
   public static class Float extends GateBiasLayerTest {
-    /**
-     * Instantiates a new Float.
-     */
     public Float() {
       super(Precision.Float);
     }

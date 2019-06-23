@@ -29,22 +29,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * This key does not require any input, and produces a constant output. This constant can be tuned by optimization
- * processes.
- */
 @SuppressWarnings("serial")
 public class ValueLayer extends LayerBase {
 
   private final Precision precision;
   private final CudaTensorList tensorList;
 
-  /**
-   * Instantiates a new Const nn key.
-   *
-   * @param json      the json
-   * @param resources the resources
-   */
   protected ValueLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
     super(json);
     this.precision = Precision.valueOf(json.get("precision").getAsString());
@@ -53,11 +43,6 @@ public class ValueLayer extends LayerBase {
     value.freeRef();
   }
 
-  /**
-   * Instantiates a new Const nn key.
-   *
-   * @param data the data
-   */
   public ValueLayer(final Tensor data) {
     super();
     this.precision = Precision.Float;
@@ -66,24 +51,10 @@ public class ValueLayer extends LayerBase {
     this.frozen = true;
   }
 
-  /**
-   * From json const nn key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the const nn key
-   */
   public static ValueLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ValueLayer(json, rs);
   }
 
-  /**
-   * To device cuda tensor list.
-   *
-   * @param data      the data
-   * @param precision the precision
-   * @return the cuda tensor list
-   */
   public CudaTensorList toDevice(final Tensor data, final Precision precision) {
     if (null == data) return null;
     return CudaSystem.run(gpu -> {

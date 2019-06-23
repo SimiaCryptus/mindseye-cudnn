@@ -42,21 +42,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
 
-/**
- * A dense matrix operator using vector-matrix multiplication. Represents a fully connected key of synapses, where all
- * inputs are connected to all outputs via seperate coefficients.
- */
 @SuppressWarnings("serial")
 public class FullyConnectedLayer extends LayerBase implements MultiPrecision<FullyConnectedLayer>, Explodable {
   private static final Logger log = LoggerFactory.getLogger(FullyConnectedLayer.class);
-  /**
-   * The Input dims.
-   */
   @Nullable
   public final int[] inputDims;
-  /**
-   * The Output dims.
-   */
   @Nullable
   public final int[] outputDims;
   @Nullable
@@ -65,21 +55,12 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private int batchBands = 0;
 
-  /**
-   * Instantiates a new Img eval key.
-   */
   private FullyConnectedLayer() {
     outputDims = null;
     weights = null;
     inputDims = null;
   }
 
-  /**
-   * Instantiates a new Fully connected key.
-   *
-   * @param inputDims  the input dims
-   * @param outputDims the output dims
-   */
   public FullyConnectedLayer(@Nonnull final int[] inputDims, @Nonnull final int[] outputDims) {
     final int inputs = Tensor.length(inputDims);
     this.inputDims = Arrays.copyOf(inputDims, inputDims.length);
@@ -94,12 +75,6 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     });
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected FullyConnectedLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     outputDims = JsonUtil.getIntArray(json.getAsJsonArray("outputDims"));
@@ -109,13 +84,6 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static FullyConnectedLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new FullyConnectedLayer(json, rs);
   }
@@ -126,47 +94,24 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     super._free();
   }
 
-  /**
-   * Sets weights.
-   *
-   * @param data the data
-   * @return the weights
-   */
   @Nonnull
   public FullyConnectedLayer set(final double[] data) {
     weights.set(data);
     return this;
   }
 
-  /**
-   * Set fully connected key.
-   *
-   * @param data the data
-   * @return the fully connected key
-   */
   @Nonnull
   public FullyConnectedLayer set(@Nonnull final Tensor data) {
     weights.set(data);
     return this;
   }
 
-  /**
-   * Sets weights log.
-   *
-   * @param value the value
-   * @return the weights log
-   */
   @Nonnull
   public FullyConnectedLayer setWeightsLog(final double value) {
     getWeights().setByCoord(c -> (FastRandom.INSTANCE.random() - 0.5) * Math.pow(10, value));
     return this;
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return new FullyConnectedReferenceLayer(inputDims, outputDims).set(getWeights());
@@ -188,11 +133,6 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     return explode;
   }
 
-  /**
-   * Explode pipeline network.
-   *
-   * @return the pipeline network
-   */
   @Nonnull
   public Layer explode() {
     int inputVol = Tensor.length(inputDims);
@@ -244,43 +184,21 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     return this;
   }
 
-  /**
-   * The Weights.
-   *
-   * @return the weights
-   */
   @Nullable
   public Tensor getWeights() {
     return weights;
   }
 
-  /**
-   * Sets weights.
-   *
-   * @param f the f
-   * @return the weights
-   */
   @Nonnull
   public FullyConnectedLayer setWeights(@Nonnull final DoubleSupplier f) {
     Arrays.parallelSetAll(getWeights().getData(), i -> f.getAsDouble());
     return this;
   }
 
-  /**
-   * Gets batch bands.
-   *
-   * @return the batch bands
-   */
   public int getBatchBands() {
     return batchBands;
   }
 
-  /**
-   * Sets batch bands.
-   *
-   * @param batchBands the batch bands
-   * @return the batch bands
-   */
   @Nonnull
   public FullyConnectedLayer setBatchBands(int batchBands) {
     this.batchBands = batchBands;

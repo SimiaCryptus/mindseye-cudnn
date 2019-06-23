@@ -33,10 +33,6 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-/**
- * Concatenates two or more inputs, assuming they have the same width and height, to produce an png apply both inputs'
- * color bands. (e.g. Used in Inception modules in GoogLeNet.)
- */
 @SuppressWarnings("serial")
 public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConcatLayer> {
 
@@ -44,17 +40,9 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private boolean parallel = true;
 
-  /**
-   * Instantiates a new Img eval key.
-   */
   public ImgConcatLayer() {
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   */
   protected ImgConcatLayer(@Nonnull final JsonObject json) {
     super(json);
     maxBands = json.get("maxBands").getAsInt();
@@ -62,23 +50,10 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
     this.parallel = json.get("parallel").getAsBoolean();
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static ImgConcatLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgConcatLayer(json);
   }
 
-  /**
-   * Eval tensor.
-   *
-   * @param featureImage the feature png
-   * @return the tensor
-   */
   public static Tensor eval(final List<Tensor> featureImage) {
     ImgConcatLayer layer = new ImgConcatLayer();
     TensorList data = layer.eval(featureImage.toArray(new Tensor[]{})).getDataAndFree();
@@ -88,11 +63,6 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
     return tensor;
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(com.simiacryptus.mindseye.layers.java.ImgConcatLayer.class);
@@ -277,21 +247,10 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
     return json;
   }
 
-  /**
-   * Gets max bands.
-   *
-   * @return the max bands
-   */
   public int getMaxBands() {
     return maxBands;
   }
 
-  /**
-   * Sets max bands.
-   *
-   * @param maxBands the max bands
-   * @return the max bands
-   */
   @Nonnull
   public ImgConcatLayer setMaxBands(final int maxBands) {
     this.maxBands = maxBands;
@@ -317,21 +276,10 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
   }
 
 
-  /**
-   * Is parallel boolean.
-   *
-   * @return the boolean
-   */
   public boolean isParallel() {
     return parallel;
   }
 
-  /**
-   * Sets parallel.
-   *
-   * @param parallel the parallel
-   * @return the parallel
-   */
   public ImgConcatLayer setParallel(boolean parallel) {
     this.parallel = parallel;
     return this;

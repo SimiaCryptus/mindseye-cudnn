@@ -32,31 +32,14 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.function.Function;
 
-/**
- * The type Gpu device.
- */
 public class CudaDevice extends CudaSystem {
-  /**
-   * The constant logger.
-   */
   protected static final Logger logger = LoggerFactory.getLogger(CudnnHandle.class);
   private static final Object memoryManagementLock = new Object();
-  /**
-   * The Device name.
-   */
   @Nullable
   protected final String deviceName;
-  /**
-   * The Device number.
-   */
   protected final int deviceId;
   private volatile cudaDeviceProp deviceProperties;
 
-  /**
-   * Instantiates a new Gpu device.
-   *
-   * @param deviceId the device number
-   */
   protected CudaDevice(final int deviceId) {
     super();
     this.deviceId = deviceId;
@@ -69,13 +52,6 @@ public class CudaDevice extends CudaSystem {
     }
   }
 
-  /**
-   * Cuda freeRef int.
-   *
-   * @param deviceId the device id
-   * @param devPtr   the dev ptr
-   * @return the int
-   */
   public static int cudaFree(int deviceId, final CudaPointer devPtr) {
     long startTime = System.nanoTime();
     if (null == devPtr) return 0;
@@ -93,22 +69,10 @@ public class CudaDevice extends CudaSystem {
     }
   }
 
-  /**
-   * Gets device name.
-   *
-   * @param device the device
-   * @return the device name
-   */
   public static String getDeviceName(final int device) {
     return new String(CudaDevice.getDeviceProperties(device).name, Charset.forName("ASCII")).trim();
   }
 
-  /**
-   * Gets device properties.
-   *
-   * @param device the device
-   * @return the device properties
-   */
   public static cudaDeviceProp getDeviceProperties(final int device) {
     return propertyCache.computeIfAbsent(device, deviceId -> {
       long startTime = System.nanoTime();
@@ -120,11 +84,6 @@ public class CudaDevice extends CudaSystem {
     });
   }
 
-  /**
-   * Sets device.
-   *
-   * @param cudaDeviceId the cuda device id
-   */
   public static void setDevice(final int cudaDeviceId) {
     if (cudaDeviceId < 0) throw new IllegalArgumentException("cudaDeviceId=" + cudaDeviceId);
     if (!isThreadDeviceId(cudaDeviceId)) {
@@ -137,14 +96,6 @@ public class CudaDevice extends CudaSystem {
     }
   }
 
-  /**
-   * Acquire pointer.
-   *
-   * @param size    the size
-   * @param type    the type
-   * @param retries the retries
-   * @return the pointer
-   */
   @Nonnull
   CudaPointer acquire(long size, @Nonnull MemoryType type, int retries) {
     assert isThreadDeviceId(getDeviceId());
@@ -170,13 +121,6 @@ public class CudaDevice extends CudaSystem {
     return this.acquire(size, type, retries - 1);
   }
 
-  /**
-   * Ensure capacity device metrics.
-   *
-   * @param size the size
-   * @param type the type
-   * @return the device metrics
-   */
   @Nonnull
   public DeviceMetrics ensureCapacity(final long size, final MemoryType type) {
     final DeviceMetrics metrics;
@@ -212,16 +156,6 @@ public class CudaDevice extends CudaSystem {
     return metrics;
   }
 
-  /**
-   * New convolution nd descriptor cuda resource.
-   *
-   * @param mode     the mode
-   * @param dataType the data type
-   * @param padding  the padding
-   * @param stride   the stride
-   * @param dilation the dilation
-   * @return the cuda resource
-   */
   public CudaResource<cudnnConvolutionDescriptor> newConvolutionNdDescriptor(final int mode, final int dataType, @Nonnull final int[] padding, @Nonnull final int[] stride, @Nonnull final int[] dilation) {
     long startTime = System.nanoTime();
     assert padding.length == stride.length;
@@ -257,14 +191,6 @@ public class CudaDevice extends CudaSystem {
     };
   }
 
-  /**
-   * New filter descriptor cuda resource.
-   *
-   * @param dataType     the data type
-   * @param tensorLayout the tensor layout
-   * @param dimensions   the dimensions
-   * @return the cuda resource
-   */
   public CudaResource<cudnnFilterDescriptor> newFilterDescriptor(final int dataType, final int tensorLayout, @Nonnull final int[] dimensions) {
     long startTime = System.nanoTime();
     @Nonnull final cudnnFilterDescriptor filterDesc = new cudnnFilterDescriptor();
@@ -286,14 +212,6 @@ public class CudaDevice extends CudaSystem {
     };
   }
 
-  /**
-   * Allocate cuda ptr.
-   *
-   * @param size  the size
-   * @param type  the type
-   * @param dirty the dirty
-   * @return the cuda ptr
-   */
   @Nonnull
   public CudaMemory allocate(final long size, @Nonnull MemoryType type, boolean dirty) {
     assert isThreadDeviceId(getDeviceId());
@@ -303,35 +221,11 @@ public class CudaDevice extends CudaSystem {
   }
 
 
-  /**
-   * New tensor descriptor cuda resource.
-   *
-   * @param dataType   the data type
-   * @param batchCount the batch count
-   * @param channels   the channels
-   * @param height     the height
-   * @param width      the width
-   * @return the cuda resource
-   */
   public CudaTensorDescriptor newTensorDescriptor(final Precision dataType,
                                                   final int batchCount, final int channels, final int height, final int width) {
     return newTensorDescriptor(dataType, batchCount, channels, height, width, channels * height * width, height * width, width, 1);
   }
 
-  /**
-   * New tensor descriptor cuda resource.
-   *
-   * @param dataType   the data type
-   * @param batchCount the batch count
-   * @param channels   the channels
-   * @param height     the height
-   * @param width      the width
-   * @param nStride    the n stride
-   * @param cStride    the c stride
-   * @param hStride    the h stride
-   * @param wStride    the w stride
-   * @return the cuda resource
-   */
   public CudaTensorDescriptor newTensorDescriptor(final Precision dataType,
                                                   final int batchCount, final int channels, final int height, final int width,
                                                   final int nStride, final int cStride, final int hStride, final int wStride) {
@@ -355,13 +249,6 @@ public class CudaDevice extends CudaSystem {
     return new CudaTensorDescriptor(desc, getDeviceId(), dataType, batchCount, channels, height, width, nStride, cStride, hStride, wStride);
   }
 
-  /**
-   * New op descriptor cuda resource.
-   *
-   * @param opType   the op type
-   * @param dataType the data type
-   * @return the cuda resource
-   */
   public CudaResource<cudnnOpTensorDescriptor> newOpDescriptor(final int opType, final Precision dataType) {
     long startTime = System.nanoTime();
     @Nonnull final cudnnOpTensorDescriptor opDesc = new cudnnOpTensorDescriptor();
@@ -375,17 +262,6 @@ public class CudaDevice extends CudaSystem {
     return new CudaResource<>(opDesc, CudaSystem::cudnnDestroyOpTensorDescriptor, getDeviceId());
   }
 
-  /**
-   * New filter descriptor cuda resource.
-   *
-   * @param dataType       the data type
-   * @param tensorLayout   the tensor layout
-   * @param outputChannels the output channels
-   * @param inputChannels  the input channels
-   * @param height         the height
-   * @param width          the width
-   * @return the cuda resource
-   */
   public CudaResource<cudnnFilterDescriptor> newFilterDescriptor(final Precision dataType, final int tensorLayout, final int outputChannels, final int inputChannels, final int height, final int width) {
     long startTime = System.nanoTime();
     @Nonnull final cudnnFilterDescriptor filterDesc = new cudnnFilterDescriptor();
@@ -410,19 +286,6 @@ public class CudaDevice extends CudaSystem {
     };
   }
 
-  /**
-   * New convolutions 2 d descriptor cuda resource.
-   *
-   * @param mode         the mode
-   * @param dataType     the data type
-   * @param paddingY     the padding y
-   * @param paddingX     the padding x
-   * @param strideHeight the stride height
-   * @param strideWidth  the stride width
-   * @param dilationY    the dilation y
-   * @param dilationX    the dilation x
-   * @return the cuda resource
-   */
   public CudaResource<cudnnConvolutionDescriptor> newConvolutions2dDescriptor(final int mode, final Precision dataType, final int paddingY, final int paddingX, final int strideHeight, final int strideWidth, int dilationY, int dilationX) {
     long startTime = System.nanoTime();
     @Nonnull final cudnnConvolutionDescriptor convDesc = new cudnnConvolutionDescriptor();
@@ -446,14 +309,6 @@ public class CudaDevice extends CudaSystem {
     return new CudaResource<>(convDesc, CudaSystem::cudnnDestroyConvolutionDescriptor, getDeviceId());
   }
 
-  /**
-   * New activation descriptor cuda resource.
-   *
-   * @param mode     the mode
-   * @param reluNan  the relu nan
-   * @param reluCeil the relu ceil
-   * @return the cuda resource
-   */
   public CudaResource<cudnnActivationDescriptor> newActivationDescriptor(final int mode, final int reluNan, final double reluCeil) {
     long startTime = System.nanoTime();
     @Nonnull final cudnnActivationDescriptor desc = new cudnnActivationDescriptor();
@@ -467,16 +322,6 @@ public class CudaDevice extends CudaSystem {
     return new CudaResource<>(desc, CudaSystem::cudnnDestroyActivationDescriptor, getDeviceId());
   }
 
-  /**
-   * Create pooling descriptor cuda resource.
-   *
-   * @param mode       the mode
-   * @param poolDims   the pool dims
-   * @param windowSize the window size
-   * @param padding    the padding
-   * @param stride     the stride
-   * @return the cuda resource
-   */
   public CudaResource<cudnnPoolingDescriptor> createPoolingDescriptor(final int mode, final int poolDims, final int[] windowSize, final int[] padding, final int[] stride) {
     long startTime = System.nanoTime();
     @Nonnull final cudnnPoolingDescriptor poolingDesc = new cudnnPoolingDescriptor();
@@ -505,18 +350,10 @@ public class CudaDevice extends CudaSystem {
     return new CudaResource<>(poolingDesc, JCudnn::cudnnDestroyLRNDescriptor, getDeviceId());
   }
 
-  /**
-   * Init thread.
-   */
   public void initThread() {
     setDevice(getDeviceId());
   }
 
-  /**
-   * Gets device properties.
-   *
-   * @return the device properties
-   */
   public cudaDeviceProp getDeviceProperties() {
     if (null == deviceProperties) {
       deviceProperties = getDeviceProperties(getDeviceId());
@@ -524,82 +361,27 @@ public class CudaDevice extends CudaSystem {
     return deviceProperties;
   }
 
-  /**
-   * Gets device number.
-   *
-   * @return the device number
-   */
   public int getDeviceId() {
     return deviceId;
   }
 
-  /**
-   * Gets device name.
-   *
-   * @return the device name
-   */
   @Nonnull
   public CharSequence getDeviceName() {
     return new String(getDeviceProperties().name, Charset.forName("ASCII")).trim();
   }
 
-  /**
-   * The type Cuda tensor descriptor.
-   */
   public static class CudaTensorDescriptor extends CudaResource<cudnnTensorDescriptor> {
 
-    /**
-     * The W stride.
-     */
     public final int wStride;
-    /**
-     * The H stride.
-     */
     public final int hStride;
-    /**
-     * The C stride.
-     */
     public final int cStride;
-    /**
-     * The N stride.
-     */
     public final int nStride;
-    /**
-     * The Width.
-     */
     public final int width;
-    /**
-     * The Height.
-     */
     public final int height;
-    /**
-     * The Channels.
-     */
     public final int channels;
-    /**
-     * The Batch count.
-     */
     public final int batchCount;
-    /**
-     * The Data type.
-     */
     public final Precision dataType;
 
-    /**
-     * Instantiates a new Cuda resource.
-     *
-     * @param obj        the obj
-     * @param deviceId   the device id
-     * @param dataType   the data type
-     * @param batchCount the batch count
-     * @param channels   the channels
-     * @param height     the height
-     * @param width      the width
-     * @param nStride    the n stride
-     * @param cStride    the c stride
-     * @param hStride    the h stride
-     * @param wStride    the w stride
-     */
     protected CudaTensorDescriptor(final cudnnTensorDescriptor obj, final int deviceId, final Precision dataType,
                                    final int batchCount, final int channels, final int height, final int width,
                                    final int nStride, final int cStride, final int hStride, final int wStride) {
@@ -615,12 +397,6 @@ public class CudaDevice extends CudaSystem {
       this.wStride = wStride;
     }
 
-    /**
-     * Copy cuda tensor descriptor.
-     *
-     * @param device the device
-     * @return the cuda tensor descriptor
-     */
     public CudaTensorDescriptor copy(CudaDevice device) {
       return device.newTensorDescriptor(dataType, batchCount, channels, height, width, nStride, cStride, hStride, wStride);
     }

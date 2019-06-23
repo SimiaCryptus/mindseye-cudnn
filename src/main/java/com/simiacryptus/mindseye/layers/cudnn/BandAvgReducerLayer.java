@@ -33,49 +33,26 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-/**
- * Similar to the pooling key, but the pool size is always the png size. The output dimensions are always 1x1xN.
- */
 @SuppressWarnings("serial")
 public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<BandAvgReducerLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private double alpha = 1.0;
 
-  /**
-   * Instantiates a new Pooling key.
-   */
   public BandAvgReducerLayer() {
     super();
   }
 
-  /**
-   * Instantiates a new Pooling key.
-   *
-   * @param json the json
-   */
   protected BandAvgReducerLayer(@Nonnull final JsonObject json) {
     super(json);
     precision = Precision.valueOf(json.get("precision").getAsString());
     alpha = json.get("alpha").getAsDouble();
   }
 
-  /**
-   * From json pooling key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the pooling key
-   */
   public static BandAvgReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new BandAvgReducerLayer(json);
   }
 
-  /**
-   * Gets compatibility key.
-   *
-   * @return the compatibility key
-   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     throw new RuntimeException("Not Implemented");
@@ -185,21 +162,10 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
     return Arrays.asList();
   }
 
-  /**
-   * Gets alphaList.
-   *
-   * @return the alphaList
-   */
   public double getAlpha() {
     return alpha;
   }
 
-  /**
-   * Sets alphaList.
-   *
-   * @param alpha the alphaList
-   * @return the alphaList
-   */
   public BandAvgReducerLayer setAlpha(double alpha) {
     this.alpha = alpha;
     return this;

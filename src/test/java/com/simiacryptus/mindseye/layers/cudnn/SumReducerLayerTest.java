@@ -26,21 +26,10 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-/**
- * The type Img band bias key apply.
- */
 public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Precision.
-   */
   final Precision precision;
 
-  /**
-   * Instantiates a new Img band bias key apply.
-   *
-   * @param precision the precision
-   */
   public SumReducerLayerTest(final Precision precision) {
     this.precision = precision;
   }
@@ -67,25 +56,13 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
     };
   }
 
-  /**
-   * Basic apply in double (64-bit) precision
-   */
   public static class Double extends SumReducerLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Double() {
       super(Precision.Double);
     }
   }
 
-  /**
-   * Inputs asymmetric (height != width) images
-   */
   public static class Asymmetric extends SumReducerLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Asymmetric() {
       super(Precision.Double);
     }
@@ -108,13 +85,7 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Basic apply using float (32-bit) precision.
-   */
   public static class Float extends SumReducerLayerTest {
-    /**
-     * Instantiates a new Float.
-     */
     public Float() {
       super(Precision.Float);
     }

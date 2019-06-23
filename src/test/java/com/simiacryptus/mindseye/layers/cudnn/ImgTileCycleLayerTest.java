@@ -25,14 +25,8 @@ import javax.annotation.Nonnull;
 import java.util.Random;
 
 
-/**
- * The type Img crop key apply.
- */
 public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * Instantiates a new Img crop key apply.
-   */
   public ImgTileCycleLayerTest() {
     validateBatchExecution = false;
   }
@@ -65,9 +59,6 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
   }
 
 
-  /**
-   * The type One third.
-   */
   public static class OneThird extends ImgTileCycleLayerTest {
 
     @Nonnull
@@ -78,9 +69,6 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Basic Test
-   */
   public static class Basic extends ImgTileCycleLayerTest {
   }
 }

@@ -30,14 +30,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-/**
- * The type Fully connected key apply.
- */
 public abstract class GramianLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * Instantiates a new Gramian key test.
-   */
   public GramianLayerTest() {
     this.tolerance = 1e-2;
     testingBatchSize = 1;
@@ -113,13 +107,7 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
     super.run(log);
   }
 
-  /**
-   * Basic Test
-   */
   public static class Image extends GramianLayerTest {
-    /**
-     * Instantiates a new Basic.
-     */
     public Image() {
       super();
     }
@@ -133,13 +121,7 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * The type Deep.
-   */
   public static class Deep extends GramianLayerTest {
-    /**
-     * Instantiates a new Basic.
-     */
     public Deep() {
       super();
     }

@@ -33,33 +33,13 @@ import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-/**
- * The type BinarySumLayerTest key apply.
- */
 public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
 
   private static int largeSize;
-  /**
-   * The Precision.
-   */
   final Precision precision;
-  /**
-   * The Input bands.
-   */
   int inputBands;
-  /**
-   * The Inputs.
-   */
   int inputs;
 
-  /**
-   * Instantiates a new Product key apply.
-   *
-   * @param precision  the precision
-   * @param inputBands the input bands
-   * @param inputs     the inputs
-   * @param largeSize  the large size
-   */
   public SumInputsLayerTest(final Precision precision, int inputBands, int inputs, final int largeSize) {
     this.precision = precision;
     this.inputBands = inputBands;
@@ -88,28 +68,16 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     return com.simiacryptus.mindseye.layers.java.SumInputsLayer.class;
   }
 
-  /**
-   * The type Double list.
-   */
   public static class Double_List extends SumInputsLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Double_List() {
       super(Precision.Double, 1, 5, 1200);
     }
 
   }
 
-  /**
-   * Ensures addition can be used to implement a doubling (x2) function
-   */
   public static class OnePlusOne extends CudnnLayerTestBase {
 
 
-    /**
-     * Instantiates a new Asymmetric apply.
-     */
     public OnePlusOne() {
       super();
     }
@@ -159,39 +127,21 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Adds using double (64-bit) precision, C = A + B
-   */
   public static class Big_Double_Add extends Big {
-    /**
-     * Instantiates a new Double.
-     */
     public Big_Double_Add() {
       super(Precision.Double, 256, 8, 100);
       testingBatchSize = 2;
     }
   }
 
-  /**
-   * The type Double add.
-   */
   public static class Double_Add extends SumInputsLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Double_Add() {
       super(Precision.Double, 1, 2, 1200);
     }
   }
 
 
-  /**
-   * Adds using float (32-bit) precision, C = A + B
-   */
   public static class Float_Add extends SumInputsLayerTest {
-    /**
-     * Instantiates a new Float.
-     */
     public Float_Add() {
       super(Precision.Float, 1, 2, 1200);
     }
@@ -203,19 +153,8 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Basic Test
-   */
   public abstract static class Big extends SumInputsLayerTest {
 
-    /**
-     * Instantiates a new BigTests.
-     *
-     * @param precision  the precision
-     * @param inputBands the input bands
-     * @param inputs     the inputs
-     * @param largeSize  the large size
-     */
     public Big(final Precision precision, int inputBands, int inputs, final int largeSize) {
       super(precision, inputBands, inputs, largeSize);
       validateDifferentials = false;

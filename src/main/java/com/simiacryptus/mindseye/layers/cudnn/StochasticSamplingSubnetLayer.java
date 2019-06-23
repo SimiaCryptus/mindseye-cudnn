@@ -42,10 +42,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-/**
- * This key works as a scaling function, similar to a father wavelet. Allows convolutional and pooling layers to work
- * across larger png regions.
- */
 @SuppressWarnings("serial")
 public class StochasticSamplingSubnetLayer extends WrapperLayer implements StochasticComponent, MultiPrecision<StochasticSamplingSubnetLayer> {
 
@@ -54,23 +50,11 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer implements Stoch
   private long seed = System.nanoTime();
   private long layerSeed = System.nanoTime();
 
-  /**
-   * Instantiates a new Rescaled subnet key.
-   *
-   * @param subnetwork the subnetwork
-   * @param samples    the samples
-   */
   public StochasticSamplingSubnetLayer(final Layer subnetwork, final int samples) {
     super(subnetwork);
     this.samples = samples;
   }
 
-  /**
-   * Instantiates a new Rescaled subnet key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected StochasticSamplingSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     samples = json.getAsJsonPrimitive("samples").getAsInt();
@@ -79,24 +63,10 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer implements Stoch
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
-  /**
-   * From json rescaled subnet key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the rescaled subnet key
-   */
   public static StochasticSamplingSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new StochasticSamplingSubnetLayer(json, rs);
   }
 
-  /**
-   * Average result.
-   *
-   * @param samples   the samples
-   * @param precision the precision
-   * @return the result
-   */
   public static Result average(final Result[] samples, final Precision precision) {
     PipelineNetwork gateNetwork = new PipelineNetwork(1);
     gateNetwork.wrap(new ProductLayer().setPrecision(precision),
@@ -145,11 +115,6 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer implements Stoch
     }).toArray(i -> new Result[i]), precision);
   }
 
-  /**
-   * Get seeds long [ ].
-   *
-   * @return the long [ ]
-   */
   public long[] getSeeds() {
     Random random = new Random(seed + layerSeed);
     return IntStream.range(0, this.samples).mapToLong(i -> random.nextLong()).toArray();

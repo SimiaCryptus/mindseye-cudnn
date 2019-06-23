@@ -36,10 +36,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Increases the resolution of the input by selecting a larger centered window. The output png will have the same
- * number of color bands, and the area outside the source png will be setWeights to 0.
- */
 @SuppressWarnings("serial")
 public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiPrecision<ImgModulusPaddingSubnetLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusPaddingSubnetLayer.class);
@@ -50,21 +46,9 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
   private int offsetY;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Img eval key.
-   */
   private ImgModulusPaddingSubnetLayer() {
   }
 
-  /**
-   * Instantiates a new Img zero padding key.
-   *
-   * @param sizeX   the size x
-   * @param sizeY   the size y
-   * @param offsetX the offset x
-   * @param offsetY the offset y
-   * @param inner
-   */
   public ImgModulusPaddingSubnetLayer(int sizeX, int sizeY, int offsetX, int offsetY, Layer inner) {
     super(inner);
     this.sizeX = sizeX;
@@ -73,23 +57,10 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     this.offsetY = offsetY;
   }
 
-  /**
-   * Instantiates a new Img modulus padding key.
-   *
-   * @param sizeX the size x
-   * @param sizeY the size y
-   * @param inner
-   */
   public ImgModulusPaddingSubnetLayer(int sizeX, int sizeY, Layer inner) {
     this(sizeX, sizeY, 0, 0, inner);
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected ImgModulusPaddingSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     sizeX = json.get("sizeX").getAsInt();
@@ -99,13 +70,6 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static ImgModulusPaddingSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgModulusPaddingSubnetLayer(json, rs);
   }
@@ -179,20 +143,10 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     return this;
   }
 
-  /**
-   * Gets offset x.
-   *
-   * @return the offset x
-   */
   public int getOffsetX() {
     return offsetX;
   }
 
-  /**
-   * Sets offset x.
-   *
-   * @param offsetX the offset x
-   */
   public void setOffsetX(int offsetX) {
     this.offsetX = offsetX;
   }

@@ -35,10 +35,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Increases the resolution of the input by selecting a larger centered window. The output png will have the same
- * number of color bands, and the area outside the source png will be setWeights to 0.
- */
 @SuppressWarnings("serial")
 public class ImgMinSizeLayer extends LayerBase implements MultiPrecision<ImgMinSizeLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgMinSizeLayer.class);
@@ -47,29 +43,14 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision<ImgMinS
   private int sizeY;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
-  /**
-   * Instantiates a new Img eval key.
-   */
   private ImgMinSizeLayer() {
   }
 
-  /**
-   * Instantiates a new Img zero padding key.
-   *
-   * @param sizeX the size x
-   * @param sizeY the size y
-   */
   public ImgMinSizeLayer(int sizeX, int sizeY) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
   }
 
-  /**
-   * Instantiates a new Img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected ImgMinSizeLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
@@ -77,13 +58,6 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision<ImgMinS
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
-  /**
-   * From json img eval key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the img eval key
-   */
   public static ImgMinSizeLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgMinSizeLayer(json, rs);
   }

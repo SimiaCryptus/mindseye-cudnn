@@ -26,25 +26,12 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-/**
- * The type Img band bias key apply.
- */
 public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
 
-  /**
-   * The Precision.
-   */
   final Precision precision;
   private final int smallSize;
   private final int largeSize;
 
-  /**
-   * Instantiates a new Img band bias key apply.
-   *
-   * @param precision the precision
-   * @param smallSize the small size
-   * @param largeSize the large size
-   */
   public AvgReducerLayerTest(final Precision precision, final int smallSize, final int largeSize) {
     this.precision = precision;
     this.smallSize = smallSize;
@@ -73,25 +60,13 @@ public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
     };
   }
 
-  /**
-   * Basic apply in double (64-bit) precision
-   */
   public static class Double extends AvgReducerLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Double() {
       super(Precision.Double, 2, 1200);
     }
   }
 
-  /**
-   * Inputs asymmetric (height != width) images
-   */
   public static class Asymmetric extends AvgReducerLayerTest {
-    /**
-     * Instantiates a new Double.
-     */
     public Asymmetric() {
       super(Precision.Double, 2, 1200);
     }
@@ -114,13 +89,7 @@ public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
 
   }
 
-  /**
-   * Basic apply using float (32-bit) precision.
-   */
   public static class Float extends AvgReducerLayerTest {
-    /**
-     * Instantiates a new Float.
-     */
     public Float() {
       super(Precision.Float, 2, 1200);
     }
