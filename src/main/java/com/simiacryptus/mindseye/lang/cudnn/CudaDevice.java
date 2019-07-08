@@ -34,7 +34,8 @@ import java.util.function.Function;
 
 public class CudaDevice extends CudaSystem {
   protected static final Logger logger = LoggerFactory.getLogger(CudnnHandle.class);
-  private static final Object memoryManagementLock = new Object();
+  private final Object memoryManagementLock = new Object();
+  final Object allocationLock = new Object();
   @Nullable
   protected final String deviceName;
   protected final int deviceId;
@@ -98,39 +99,48 @@ public class CudaDevice extends CudaSystem {
 
   @Nonnull
   CudaPointer acquire(long size, @Nonnull MemoryType type, int retries) {
+    if (size <= 0) throw new IllegalArgumentException();
     assert isThreadDeviceId(getDeviceId());
     if (retries < 0) throw new IllegalArgumentException();
-    final DeviceMetrics metrics = ensureCapacity(size, type);
-    try {
-      @Nonnull CudaPointer pointer = type.allocCached(size, this);
-      final long finalMemory = metrics.activeMemory.addAndGet(size);
-      metrics.peakMemory.updateAndGet(l -> Math.max(finalMemory, l));
-      return pointer;
-    } catch (@Nonnull final ThreadDeath e) {
-      throw e;
-    } catch (@Nonnull final Throwable e) {
-      if (retries <= 0)
-        throw new RuntimeException(String.format(String.format("Error allocating %e bytes; %s currently allocated to device %s", (double) size, metrics.usedMemory, this)), e);
-      final long startMemory = metrics.usedMemory.get();
-      @Nonnull TimedResult<Double> timedResult = TimedResult.time(() -> CudaMemory.clearMemory(getDeviceId()));
-      final long freedMemory = startMemory - metrics.usedMemory.get();
-      CudaMemory.logger.warn(String.format("Low GPU Memory while allocating %s bytes; %s freed in %.4fs resulting in %s total (triggered by %s)",
-          size, freedMemory, timedResult.seconds(), metrics.usedMemory.get(), e.getMessage()));
-    }
+    @Nonnull CudaPointer pointer = _acquire(size, type, retries);
+    if(null != pointer) return pointer;
     if (retries < 0) throw new IllegalStateException();
     return this.acquire(size, type, retries - 1);
   }
 
+  private CudaPointer _acquire(long size, @Nonnull MemoryType type, int retries) {
+    synchronized (allocationLock) {
+      final DeviceMetrics metrics = ensureCapacity(size);
+      @Nonnull CudaPointer pointer = null;
+      try {
+        pointer = type.allocCached(size, this);
+        final long finalMemory = metrics.activeMemory.addAndGet(size);
+        metrics.peakMemory.updateAndGet(l -> Math.max(finalMemory, l));
+      } catch (@Nonnull final ThreadDeath e) {
+        throw e;
+      } catch (@Nonnull final Throwable e) {
+        if (retries <= 0)
+          throw new RuntimeException(String.format(String.format("Error allocating %e bytes; %s currently allocated to device %s", (double) size, metrics.usedMemory, this)), e);
+        final long startMemory = metrics.usedMemory.get();
+        @Nonnull TimedResult<Double> timedResult = TimedResult.time(() -> CudaMemory.clearMemory(getDeviceId()));
+        final long freedMemory = startMemory - metrics.usedMemory.get();
+        CudaMemory.logger.warn(String.format("Low GPU Memory while allocating %s bytes; %s freed in %.4fs resulting in %s total (triggered by %s)",
+            size, freedMemory, timedResult.seconds(), metrics.usedMemory.get(), e.getMessage()));
+      }
+      return pointer;
+    }
+  }
+
   @Nonnull
-  public DeviceMetrics ensureCapacity(final long size, final MemoryType type) {
+  public DeviceMetrics ensureCapacity(final long size) {
+    if (size <= 0) {
+      throw new OutOfMemoryError("Allocated block is too large: " + size);
+    }
+    if (size > CudaSettings.INSTANCE().getMaxAllocSize()) {
+      throw new OutOfMemoryError("Allocated block is too large: " + size);
+    }
     final DeviceMetrics metrics;
     synchronized (memoryManagementLock) {
-      if (size <= 0) {
-        throw new OutOfMemoryError("Allocated block is too large: " + size);
-      }
-      if (size > CudaSettings.INSTANCE().getMaxAllocSize()) {
-        throw new OutOfMemoryError("Allocated block is too large: " + size);
-      }
       metrics = CudaMemory.getGpuStats(deviceId);
       double resultingTotalMemory = CudaMemory.METRICS.values().stream().mapToLong(m -> m.usedMemory.get()).sum() + size;
       if (resultingTotalMemory > CudaSettings.INSTANCE().getMaxTotalMemory()) {

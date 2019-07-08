@@ -177,7 +177,6 @@ public class CudnnHandle extends CudaDevice {
   @Nonnull
   public CudaTensor getTensor(@Nonnull final TensorList data, @Nonnull final Precision precision, final MemoryType memoryType, final boolean dense) {
     assert CudaDevice.isThreadDeviceId(getDeviceId());
-    int[] inputSize = data.getDimensions();
     data.assertAlive();
     if (data instanceof ReshapedTensorList) {
       ReshapedTensorList reshapedTensorList = (ReshapedTensorList) data;
@@ -205,11 +204,16 @@ public class CudnnHandle extends CudaDevice {
       if (precision == cudaTensorList.getPrecision()) {
         return this.getTensor(cudaTensorList, memoryType, dense);
       } else {
-        CudaTensorList.logger.warn(String.format("Incompatible precision types %s != %s for Tensor %s in GPU at %s, created by %s",
+        String msg = String.format("Incompatible precision types %s != %s for Tensor %s in GPU at %s, created by %s",
             precision, cudaTensorList.getPrecision(),
             Integer.toHexString(System.identityHashCode(cudaTensorList)),
-            Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
-            Util.toString(cudaTensorList.createdBy).replaceAll("\n", "\n\t")));
+            Util.toString(Util.getStackTrace()).replaceAll("\n", ", "),
+            Util.toString(cudaTensorList.createdBy).replaceAll("\n", ", "));
+        if(CudaSettings.INSTANCE().verbose) {
+          CudaTensorList.logger.warn(msg);
+        } else {
+          CudaTensorList.logger.debug(msg);
+        }
       }
     }
     final int listLength = data.length();
@@ -226,6 +230,7 @@ public class CudnnHandle extends CudaDevice {
       ptr.write(precision, tensorData, (long) i * elementLength);
       tensor.freeRef();
     }
+    int[] inputSize = data.getDimensions();
     final int channels = inputSize.length < 3 ? 1 : inputSize[2];
     final int height = inputSize.length < 2 ? 1 : inputSize[1];
     final int width = inputSize.length < 1 ? 1 : inputSize[0];
@@ -236,30 +241,40 @@ public class CudnnHandle extends CudaDevice {
   @Nonnull
   public CudaTensor getTensor(@Nonnull final CudaTensorList data, @Nonnull final MemoryType memoryType, final boolean dense) {
     assert CudaDevice.isThreadDeviceId(getDeviceId());
-    CudaTensor gpuCopy = data.gpuCopy;
-    CudaTensor result = gpuCopy;
-    TensorArray heapCopy = data.heapCopy;
-    if ((null == result || result.isFinalized()) && null != heapCopy && !heapCopy.isFinalized()) {
-      result = getTensor(heapCopy, data.getPrecision(), memoryType, dense);
-    } else {
-      result.addRef();
-    }
-    if (dense || CudaSettings.INSTANCE().allDense) result = result.getDenseAndFree(this);
-    if (null == result) {
-      throw new IllegalStateException("No data");
-    }
-    CudaTensor prev = null;
+    final CudaTensor gpuCopy;
+    final TensorArray heapCopy;
     synchronized (data) {
-      if (result != gpuCopy) {
-        if (null != data.gpuCopy) {
-          prev = data.gpuCopy;
-        }
-        data.gpuCopy = result;
-        data.gpuCopy.addRef();
-      }
+      gpuCopy = data.gpuCopy;
+      heapCopy = data.heapCopy;
+      if(null != gpuCopy) gpuCopy.addRef();
+      if(null != heapCopy) heapCopy.addRef();
     }
-    if (null != prev) prev.freeRef();
-    return result;
+    try {
+      CudaTensor result;
+      if ((null == gpuCopy || gpuCopy.isFinalized()) && null != heapCopy && !heapCopy.isFinalized()) {
+        result = getTensor(heapCopy, data.getPrecision(), memoryType, dense);
+      } else {
+        result = gpuCopy.addRef();
+      }
+      if (dense || CudaSettings.INSTANCE().allDense) result = result.getDenseAndFree(this);
+      if (null == result) {
+        throw new IllegalStateException("No data");
+      }
+      CudaTensor prev = null;
+      synchronized (data) {
+        if (result != data.gpuCopy) {
+          if (null != data.gpuCopy) {
+            prev = data.gpuCopy;
+          }
+          data.gpuCopy = result.addRef();
+        }
+      }
+      if (null != prev) prev.freeRef();
+      return result;
+    } finally {
+      if(null != gpuCopy) gpuCopy.freeRef();
+      if(null != heapCopy) heapCopy.freeRef();
+    }
   }
 
   private TensorList addInPlaceAndFree(final CudaTensorList left, final TensorList right) {

@@ -21,6 +21,7 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.lang.ref.RecycleBin;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.util.Util;
@@ -240,5 +241,11 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
 
   public long size() {
     return memory.size;
+  }
+
+  @Override
+  public CudaTensor addRef() {
+    addRef(this);
+    return this;
   }
 }

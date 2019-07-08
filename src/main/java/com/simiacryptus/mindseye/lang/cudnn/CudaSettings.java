@@ -56,6 +56,7 @@ public class CudaSettings implements Settings {
   private final boolean convolutionCache;
   public Precision defaultPrecision;
   public boolean allDense;
+  public boolean verbose;
   private int handlesPerDevice;
 
   private CudaSettings() {
@@ -64,12 +65,12 @@ public class CudaSettings implements Settings {
     File sparkHomeFile = new File(spark_home == null ? "." : spark_home);
     if (sparkHomeFile.exists()) appSettings.putAll(LocalAppSettings.read(sparkHomeFile));
     if (appSettings.containsKey("worker.index")) System.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
-    maxTotalMemory = (long) Settings.get("MAX_TOTAL_MEMORY", 7.5 * CudaMemory.GiB);
-    maxDeviceMemory = (long) Settings.get("MAX_DEVICE_MEMORY", 7.5 * CudaMemory.GiB);
+    maxTotalMemory = (long) Settings.get("MAX_TOTAL_MEMORY", 12 * CudaMemory.GiB);
+    maxDeviceMemory = (long) Settings.get("MAX_DEVICE_MEMORY", 6 * CudaMemory.GiB);
     maxAllocSize = (long) Settings.get("MAX_ALLOC_SIZE", (double) Precision.Double.size * (Integer.MAX_VALUE / 2 - 1L));
-    maxFilterElements = (long) Settings.get("MAX_FILTER_ELEMENTS", (double) 512 * CudaMemory.MiB);
+    maxFilterElements = (long) Settings.get("MAX_FILTER_ELEMENTS", (double) 256 * CudaMemory.MiB);
     maxIoElements = Settings.get("MAX_IO_ELEMENTS", (double) 128 * CudaMemory.MiB);
-    convolutionWorkspaceSizeLimit = (long) Settings.get("CONVOLUTION_WORKSPACE_SIZE_LIMIT", (double) 512 * CudaMemory.MiB);
+    convolutionWorkspaceSizeLimit = (long) Settings.get("CONVOLUTION_WORKSPACE_SIZE_LIMIT", (double) 256 * CudaMemory.MiB);
     disable = Settings.get("DISABLE_CUDNN", false);
     forceSingleGpu = Settings.get("FORCE_SINGLE_GPU", true);
     conv_para_1 = Settings.get("CONV_PARA_1", false);
@@ -79,7 +80,7 @@ public class CudaSettings implements Settings {
     logStack = Settings.get("CUDA_LOG_STACK", false);
     profileMemoryIO = Settings.get("CUDA_PROFILE_MEM_IO", false);
     enableManaged = false;
-    asyncFree = true;
+    asyncFree = false;
     syncBeforeFree = false;
     memoryCacheTTL = 5;
     convolutionCache = true;
@@ -87,6 +88,7 @@ public class CudaSettings implements Settings {
     this.handlesPerDevice = Settings.get("CUDA_HANDLES_PER_DEVICE", 8);
     defaultPrecision = Precision.valueOf(Settings.get("CUDA_DEFAULT_PRECISION", Precision.Float.name()));
     allDense = false;
+    verbose = false;
   }
 
   public static CudaSettings INSTANCE() {

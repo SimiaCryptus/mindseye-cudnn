@@ -59,7 +59,12 @@ public enum MemoryType {
   Device {
     public CudaPointer alloc(final long size, final CudaDevice cudaDevice) {
       CudaPointer pointer = new CudaPointer();
-      CudaSystem.handle(CudaSystem.cudaMalloc(pointer, size));
+      int returnCode;
+      synchronized (cudaDevice.allocationLock) {
+        cudaDevice.ensureCapacity(size);
+        returnCode = CudaSystem.cudaMalloc(pointer, size);
+      }
+      CudaSystem.handle(returnCode);
       return pointer;
     }
 
