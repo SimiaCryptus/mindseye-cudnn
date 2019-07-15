@@ -125,7 +125,7 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBan
         CudaTensor cudaTensor = CudaTensor.wrap(outputPtr, outputDescriptor, precision);
         return CudaTensorList.wrap(cudaTensor, length, inputDimensions, precision);
       } catch (Throwable e) {
-        throw new RuntimeException(String.format("Error applying bias %s to input %s", Arrays.toString(bias.getDimensions()), Arrays.toString(inputDimensions)),e);
+        throw new RuntimeException(String.format("Error applying bias %s to input %s", Arrays.toString(bias.getDimensions()), Arrays.toString(inputDimensions)), e);
       }
     }, inputData), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
       if (!isFrozen()) {

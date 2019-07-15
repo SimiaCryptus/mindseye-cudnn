@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.layers.cudnn.conv;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.simiacryptus.lang.ref.ReferenceCounting;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer;
@@ -82,8 +83,11 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
     if (kernelSize[0] <= 0) throw new IllegalArgumentException();
     if (kernelSize[1] <= 0) throw new IllegalArgumentException();
     if (kernelSize[2] <= 0) throw new IllegalArgumentException();
+//    if (kernelSize[0] >= 60000) throw new IllegalArgumentException();
+//    if (kernelSize[1] >= 60000) throw new IllegalArgumentException();
+//    if (kernelSize[2] >= 60000) throw new IllegalArgumentException();
     this.kernel = kernel;
-    this.kernel.addRef(this);
+    this.kernel.addRef();
     this.setPaddingX((int) Math.ceil((kernelSize[0] - 1) / 2.0));
     this.setPaddingY((int) Math.ceil((kernelSize[1] - 1) / 2.0));
 
@@ -441,42 +445,39 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<
   }
 
   @Nonnull
-  private synchronized CudaMemory getCudaFilter(final CudaDevice deviceNumber) {
+  private CudaMemory getCudaFilter(final CudaDevice deviceNumber) {
     return CudaSettings.INSTANCE().isConvolutionCache() ? getCudaFilter_cached(deviceNumber) : getCudaFilter_instance(deviceNumber);
   }
 
   @Nonnull
-  private synchronized CudaMemory getCudaFilter_instance(final CudaDevice deviceNumber) {
+  private CudaMemory getCudaFilter_instance(final CudaDevice device) {
     double[] data = kernel.getData();
-    return deviceNumber.allocate((long) data.length * precision.size, MemoryType.Device, true).write(precision, data);
+    return device.allocate((long) data.length * precision.size, MemoryType.Device, true).write(precision, data);
   }
 
+
   @Nonnull
-  private CudaMemory getCudaFilter_cached(final CudaDevice deviceNumber) {
-    CudaMemory cudaMemory;
-    if (gpuFilters.containsKey(deviceNumber.getDeviceId())) {
-      cudaMemory = gpuFilters.get(deviceNumber.getDeviceId());
-    } else {
-      double[] data = kernel.getData();
-      cudaMemory = deviceNumber.allocate((long) data.length * precision.size, MemoryType.Device, true).write(precision, data);
-      CudaMemory replaced = gpuFilters.put(deviceNumber.getDeviceId(), cudaMemory);
-      if (null != replaced) replaced.freeRef();
+  private CudaMemory getCudaFilter_cached(final CudaDevice device) {
+    CudaMemory cudaMemory = gpuFilters.get(device.getDeviceId());
+    if (null != cudaMemory && cudaMemory.tryAddRef()) {
+      return cudaMemory;
     }
-    cudaMemory.addRef();
-    return cudaMemory;
+    CudaMemory newInstance = getCudaFilter_instance(device);
+    CudaMemory replaced = gpuFilters.put(device.getDeviceId(), newInstance.addRef());
+    if (null != replaced) replaced.freeRef();
+    return newInstance;
   }
 
   @Nonnull
   private void clearCudaFilters() {
-    gpuFilters.keySet().stream().collect(Collectors.toList()).stream().forEach(i -> {
-      CudaMemory cudaMemory = gpuFilters.remove(i);
-      if (null != cudaMemory) cudaMemory.freeRef();
-    });
+    gpuFilters.keySet().stream().collect(Collectors.toList())
+        .stream().map(gpuFilters::remove)
+        .filter(x -> x != null).forEach(ReferenceCountingBase::freeRef);
   }
 
   @Override
   protected void _free() {
-    kernel.freeRef(this);
+    kernel.freeRef();
     clearCudaFilters();
     super._free();
   }

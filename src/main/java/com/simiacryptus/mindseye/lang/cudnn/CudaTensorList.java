@@ -46,8 +46,8 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     //assert 1 == ptr.currentRefCount() : ptr.referenceReport(false, false);
     if (null == ptr) throw new IllegalArgumentException("ptr");
     if (null == ptr.memory.getPtr()) throw new IllegalArgumentException("ptr.getPtr()");
-    if(length <= 0) throw new IllegalArgumentException();
-    if(Tensor.length(dimensions) <= 0) throw new IllegalArgumentException();
+    if (length <= 0) throw new IllegalArgumentException();
+    if (Tensor.length(dimensions) <= 0) throw new IllegalArgumentException();
     this.gpuCopy = ptr;
     this.gpuCopy.addRef();
     this.dimensions = Arrays.copyOf(dimensions, dimensions.length);
@@ -260,7 +260,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
 
   private TensorArray toHeap(final boolean avoidAllocations) {
     CudaTensor gpuCopy = this.gpuCopy;
-    if (null == gpuCopy) {
+    if (null == gpuCopy || !gpuCopy.tryAddRef()) {
       if (null == heapCopy) {
         throw new IllegalStateException("No data");
       } else if (heapCopy.isFinalized()) {
@@ -268,8 +268,6 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
       } else {
         return heapCopy;
       }
-    } else {
-      gpuCopy.addRef();
     }
     int length = getLength();
     if (0 >= length) throw new IllegalStateException();
@@ -291,7 +289,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
         }
         return TensorArray.wrap(output);
       } finally {
-        if(gpuCopy != null) gpuCopy.freeRef();
+        if (gpuCopy != null) gpuCopy.freeRef();
       }
     }, this));
     CudaTensorList.logger.debug(String.format("Read %s bytes in %.4f from Tensor %s on GPU at %s, created by %s",
@@ -310,13 +308,6 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
   @Override
   public Stream<Tensor> stream() {
     return heapCopy().stream();
-  }
-
-  @Nullable
-  public TensorArray getHeapCopy() {
-    @Nullable TensorArray tensorList = heapCopy();
-    tensorList.addRef();
-    return tensorList;
   }
 
   @Override

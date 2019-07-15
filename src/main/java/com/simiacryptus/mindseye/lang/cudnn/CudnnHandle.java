@@ -209,7 +209,7 @@ public class CudnnHandle extends CudaDevice {
             Integer.toHexString(System.identityHashCode(cudaTensorList)),
             Util.toString(Util.getStackTrace()).replaceAll("\n", ", "),
             Util.toString(cudaTensorList.createdBy).replaceAll("\n", ", "));
-        if(CudaSettings.INSTANCE().verbose) {
+        if (CudaSettings.INSTANCE().verbose) {
           CudaTensorList.logger.warn(msg);
         } else {
           CudaTensorList.logger.debug(msg);
@@ -246,8 +246,8 @@ public class CudnnHandle extends CudaDevice {
     synchronized (data) {
       gpuCopy = data.gpuCopy;
       heapCopy = data.heapCopy;
-      if(null != gpuCopy) gpuCopy.addRef();
-      if(null != heapCopy) heapCopy.addRef();
+      if (null != gpuCopy) gpuCopy.addRef();
+      if (null != heapCopy) heapCopy.addRef();
     }
     try {
       CudaTensor result;
@@ -272,8 +272,8 @@ public class CudnnHandle extends CudaDevice {
       if (null != prev) prev.freeRef();
       return result;
     } finally {
-      if(null != gpuCopy) gpuCopy.freeRef();
-      if(null != heapCopy) heapCopy.freeRef();
+      if (null != gpuCopy) gpuCopy.freeRef();
+      if (null != heapCopy) heapCopy.freeRef();
     }
   }
 
@@ -704,7 +704,9 @@ public class CudnnHandle extends CudaDevice {
   }
 
 
-  /** Softmax functions: All of the form "output = alphaList * Op(inputs) + beta * output" */
+  /**
+   * Softmax functions: All of the form "output = alphaList * Op(inputs) + beta * output"
+   */
   public int cudnnSoftmaxForward(
       int algo,
       int mode,
@@ -838,7 +840,8 @@ public class CudnnHandle extends CudaDevice {
     ArrayList<CudaResourceBase> objsToFree = new ArrayList<>();
     cleanupNative.drainTo(objsToFree);
     if (objsToFree.isEmpty()) return;
-    if (CudaSettings.INSTANCE().isAsyncFree()) {
+
+    if (CudaMemory.METRICS.get(deviceId).load() < CudaSettings.INSTANCE().asyncFreeLoadThreshold) {
       cleanupPool.submit(() -> {
         if (CudaSettings.INSTANCE().isSyncBeforeFree()) synchronize(System.nanoTime(), deviceId);
         objsToFree.stream().forEach(CudaResourceBase::release);

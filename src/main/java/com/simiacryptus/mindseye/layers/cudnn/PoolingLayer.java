@@ -54,6 +54,10 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     alpha = 1.0;
   }
 
+  public PoolingLayer(UUID id, String name) {
+    super(id, name);
+  }
+
   protected PoolingLayer(@Nonnull final JsonObject json) {
     super(json);
     mode = Arrays.stream(PoolingMode.values()).filter(i -> i.id == json.get("mode").getAsInt()).findFirst().get();
@@ -87,6 +91,14 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
 //    while (adj < 0) adj += modulus;
 //    while (adj >= modulus) adj -= modulus;
 //    return adj;
+  }
+
+  public static PoolingLayer getPoolingLayer(int radius, PoolingLayer.PoolingMode mode) {
+    String name = String.format("Conv:%s;%s", radius, mode);
+    return new PoolingLayer(UUID.nameUUIDFromBytes(name.getBytes()), name)
+        .setMode(mode)
+        .setStrideXY(radius, radius)
+        .setWindowXY(radius, radius);
   }
 
   @Nullable

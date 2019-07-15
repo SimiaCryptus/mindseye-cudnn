@@ -129,7 +129,7 @@ public class CudaSystem {
   private static final Executor garbageTruck = MoreExecutors.directExecutor();
   private static final HashMap<Integer, Object> deviceLocks = new HashMap<>();
   private static final long COPY_BLOCK_SIZE = Long.MAX_VALUE;
-//  private final List<StackTraceElement[]> dirty = new ArrayList<>();
+  //  private final List<StackTraceElement[]> dirty = new ArrayList<>();
   @Nonnull
   public static AtomicInteger gpuGeneration = new AtomicInteger(0);
   //Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("gpu-free-%d").setDaemon(true).getNetwork());

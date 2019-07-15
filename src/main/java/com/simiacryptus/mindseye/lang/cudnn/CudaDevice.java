@@ -34,11 +34,11 @@ import java.util.function.Function;
 
 public class CudaDevice extends CudaSystem {
   protected static final Logger logger = LoggerFactory.getLogger(CudnnHandle.class);
-  private final Object memoryManagementLock = new Object();
-  final Object allocationLock = new Object();
   @Nullable
   protected final String deviceName;
   protected final int deviceId;
+  final Object allocationLock = new Object();
+  private final Object memoryManagementLock = new Object();
   private volatile cudaDeviceProp deviceProperties;
 
   protected CudaDevice(final int deviceId) {
@@ -103,7 +103,7 @@ public class CudaDevice extends CudaSystem {
     assert isThreadDeviceId(getDeviceId());
     if (retries < 0) throw new IllegalArgumentException();
     @Nonnull CudaPointer pointer = _acquire(size, type, retries);
-    if(null != pointer) return pointer;
+    if (null != pointer) return pointer;
     if (retries < 0) throw new IllegalStateException();
     return this.acquire(size, type, retries - 1);
   }

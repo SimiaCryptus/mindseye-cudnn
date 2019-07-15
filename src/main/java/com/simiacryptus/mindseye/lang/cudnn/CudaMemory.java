@@ -271,4 +271,9 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     if (deviceId >= 0) CudaSystem.synchronize(writtenAt, deviceId);
   }
 
+  @Override
+  public CudaMemory addRef() {
+    return (CudaMemory) super.addRef();
+  }
+
 }
