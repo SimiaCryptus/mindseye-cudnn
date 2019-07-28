@@ -47,11 +47,10 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
   private int strideY = 2;
   private int windowX = 2;
   private int windowY = 2;
-  private double alpha;
+  private double alpha = 1.0;
 
   public PoolingLayer() {
     super();
-    alpha = 1.0;
   }
 
   public PoolingLayer(UUID id, String name) {
@@ -69,7 +68,6 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     strideX = json.get("strideX").getAsInt();
     strideY = json.get("strideY").getAsInt();
     precision = Precision.valueOf(json.get("precision").getAsString());
-    alpha = 1.0;
   }
 
   public static PoolingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -77,24 +75,16 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
   }
 
   private static int correct(int dim, int modulus, int offset) {
-
-    // modulus * n + offset == r + dim
-    // modulus * n + (offset - dim) == r
     if (0 >= modulus) throw new IllegalArgumentException();
     int lastV = 0;
     while (lastV < dim) lastV += modulus;
     lastV -= modulus;
     lastV += offset;
     return lastV - dim;
-
-//    int adj = modulus - ((dim - offset) % modulus);
-//    while (adj < 0) adj += modulus;
-//    while (adj >= modulus) adj -= modulus;
-//    return adj;
   }
 
-  public static PoolingLayer getPoolingLayer(int radius, PoolingLayer.PoolingMode mode) {
-    String name = String.format("Conv:%s;%s", radius, mode);
+  public static PoolingLayer getPoolingLayer(int radius, PoolingLayer.PoolingMode mode, String qualifier) {
+    String name = String.format("%s.pool:%s;%s", qualifier, radius, mode);
     return new PoolingLayer(UUID.nameUUIDFromBytes(name.getBytes()), name)
         .setMode(mode)
         .setStrideXY(radius, radius)
@@ -124,8 +114,6 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     int correctionY = correct(rawInputDims[1], strideY, windowY);
     int paddingX = Math.max(0, PoolingLayer.this.paddingX - ((correctionX + 1) / 2));
     int paddingY = Math.max(0, PoolingLayer.this.paddingY - ((correctionY + 1) / 2));
-//    if (correctionX >= windowX) correctionX -= windowX;
-//    if (correctionY >= windowY) correctionY -= windowY;
     assert paddingX >= 0;
     assert paddingY >= 0;
     assert correctionX >= 0;
@@ -139,7 +127,6 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
           .setRoundUp(false);
       input = paddingLayer.evalAndFree(inObj[0]);
       paddingLayer.freeRef();
-//      return input;
     } else {
       input = inObj[0];
     }
