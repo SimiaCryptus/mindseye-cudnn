@@ -156,6 +156,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
 
   @Nonnull
   public CudaMemory read(@Nonnull final Precision precision, @Nonnull final double[] destination, int offset) {
+    if (0 == destination.length) return this;
     if (size < (long) (offset + destination.length) * precision.size) {
       throw new IllegalArgumentException(String.format("%d < %d + %d", size, (long) destination.length * precision.size, offset));
     }

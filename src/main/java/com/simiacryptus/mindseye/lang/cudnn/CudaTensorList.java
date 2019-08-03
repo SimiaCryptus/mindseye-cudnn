@@ -191,7 +191,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
           Tensor t = new Tensor(getDimensions());
           if (gpuCopy.isDense()) {
             CudaMemory memory = gpuCopy.getMemory(gpu);
-            memory.read(getPrecision(), t.getData(), i * Tensor.length(getDimensions()));
+            memory.read(gpuCopy.getPrecision(), t.getData(), i * Tensor.length(getDimensions()));
             memory.freeRef();
           } else {
             gpuCopy.read(gpu, i, t, false);
