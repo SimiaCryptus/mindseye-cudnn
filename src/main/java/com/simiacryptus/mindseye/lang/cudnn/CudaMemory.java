@@ -84,13 +84,13 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
 
   public static double evictMemory(final int deviceId) {
     double bytes = RegisteredObjectBase.getLivingInstances(SimpleConvolutionLayer.class).mapToLong(x -> x.evictDeviceData(deviceId)).sum();
-    logger.info(String.format("Cleared %e bytes from ConvolutionFilters for device %s", bytes, deviceId));
+    logger.debug(String.format("Cleared %e bytes from ConvolutionFilters for device %s", bytes, deviceId));
     double tensorListsFreed = CudaTensorList.evictToHeap(deviceId);
     return tensorListsFreed + bytes;
   }
 
   private static void logLoad() {
-    logger.info(String.format("Current Load: %s", METRICS.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> {
+    logger.debug(String.format("Current Load: %s", METRICS.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> {
       return String.format("%e / %e", (double) e.getValue().activeMemory.get(), (double) e.getValue().usedMemory.get());
     }))));
   }

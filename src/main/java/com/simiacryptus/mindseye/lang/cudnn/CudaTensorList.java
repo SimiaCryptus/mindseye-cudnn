@@ -68,7 +68,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
       long size = RegisteredObjectBase.getLivingInstances(CudaTensorList.class)
           .filter(x -> x.gpuCopy != null && (x.getDeviceId() == deviceId || deviceId < 0 || x.getDeviceId() < 0))
           .mapToLong(CudaTensorList::evictToHeap).sum();
-      logger.info(String.format("Cleared %s bytes from GpuTensorLists for device %s", size, deviceId));
+      logger.debug(String.format("Cleared %s bytes from GpuTensorLists for device %s", size, deviceId));
       return size;
     });
   }

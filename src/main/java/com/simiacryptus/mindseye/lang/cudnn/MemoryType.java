@@ -186,7 +186,7 @@ public enum MemoryType {
 
   public double purge(final int device) {
     double clear = get(device).clear();
-    logger.info(String.format("Purged %e bytes from pool for %s (device %s)", clear, this, device));
+    logger.debug(String.format("Purged %e bytes from pool for %s (device %s)", clear, this, device));
     return clear;
   }
 
