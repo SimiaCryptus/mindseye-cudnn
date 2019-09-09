@@ -44,7 +44,7 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
   private int offsetX;
   private int offsetY;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
-  private boolean roundUp;
+  private boolean roundUp = false;
 
   private ImgModulusPaddingLayer() {
   }

@@ -50,7 +50,6 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
     mode = id;
   }
 
-
   protected ActivationLayer(@Nonnull final JsonObject json) {
     super(json);
     mode = json.getAsJsonPrimitive("mode").getAsInt();

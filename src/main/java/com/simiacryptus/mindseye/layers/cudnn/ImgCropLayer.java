@@ -207,6 +207,10 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
   public int half(int i, Alignment alignment) {
     if (alignment == Alignment.Left) return 0;
     if (alignment == Alignment.Right) return i;
+    return half(i);
+  }
+
+  public int half(int i) {
     if (i % 2 == 0) return i / 2;
     else if (isRoundUp()) return (i + 1) / 2;
     else return (i - 1) / 2;

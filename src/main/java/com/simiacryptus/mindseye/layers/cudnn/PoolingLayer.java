@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
 import com.simiacryptus.mindseye.layers.java.AvgPoolingLayer;
 import com.simiacryptus.mindseye.layers.java.MaxPoolingLayer;
 import jcuda.jcudnn.cudnnPoolingDescriptor;
@@ -122,8 +123,8 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     if (correctionX > 0 || correctionY > 0) {
       @Nonnull Layer paddingLayer = new ImgPaddingLayer(rawInputDims[0] + correctionX, rawInputDims[1] + correctionY)
           .setPrecision(precision)
-          .setHorizontalAlign(ImgPaddingLayer.Alignment.Center)
-          .setVerticalAlign(ImgPaddingLayer.Alignment.Center)
+          .setHorizontalAlign(Alignment.Center)
+          .setVerticalAlign(Alignment.Center)
           .setRoundUp(false);
       input = paddingLayer.evalAndFree(inObj[0]);
       paddingLayer.freeRef();

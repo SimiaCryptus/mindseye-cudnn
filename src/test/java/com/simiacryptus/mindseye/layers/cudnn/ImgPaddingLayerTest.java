@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
 
 import javax.annotation.Nonnull;
 import java.util.Random;
@@ -71,7 +72,7 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setHorizontalAlign(ImgPaddingLayer.Alignment.Left);
+      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setHorizontalAlign(Alignment.Left);
     }
 
   }
@@ -86,7 +87,7 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setHorizontalAlign(ImgPaddingLayer.Alignment.Right);
+      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setHorizontalAlign(Alignment.Right);
     }
 
   }
@@ -101,7 +102,7 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setVerticalAlign(ImgPaddingLayer.Alignment.Left);
+      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setVerticalAlign(Alignment.Left);
     }
 
   }
@@ -116,7 +117,7 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setVerticalAlign(ImgPaddingLayer.Alignment.Right);
+      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setVerticalAlign(Alignment.Right);
     }
 
   }

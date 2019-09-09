@@ -24,6 +24,7 @@ import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,11 +39,11 @@ import java.util.stream.Stream;
 @SuppressWarnings("serial")
 public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPaddingLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgPaddingLayer.class);
-  private Alignment verticalAlign = Alignment.Center;
+  private ImgCropLayer.Alignment verticalAlign = Alignment.Center;
   private Alignment horizontalAlign = Alignment.Center;
   private boolean roundUp = false;
   private int sizeX;
-  private int sizeY;
+  private int sizeY; // SpatialReflectionPadding
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   private ImgPaddingLayer() {
@@ -463,21 +464,6 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
   public ImgPaddingLayer setRoundUp(boolean roundUp) {
     this.roundUp = roundUp;
     return this;
-  }
-
-  public enum Alignment {
-    Center("Center"),
-    Left("Right"),
-    Right("Left");
-    private final String inverse;
-
-    Alignment(String other) {
-      this.inverse = other;
-    }
-
-    public Alignment getInverse() {
-      return Alignment.valueOf(inverse);
-    }
   }
 
   private static class CopyParams extends ReferenceCountingBase {
