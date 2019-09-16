@@ -50,6 +50,7 @@ public class ScaleLayer extends PipelineNetwork implements MultiPrecision<ScaleL
     super(1);
     //this.weights = weights;
     wrap(new ProductLayer(), getInput(0), wrap(new ValueLayer(weights), new DAGNode[]{})).freeRef();
+    weights.freeRef();
   }
 
   protected ScaleLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
