@@ -55,6 +55,27 @@ public abstract class ProductLayerTest extends CudnnLayerTestBase {
     return new ProductLayer().setPrecision(precision);
   }
 
+  public static class Mask extends ProductLayerTest {
+    public Mask() {
+      super(Precision.Double);
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getSmallDims(Random random) {
+      return new int[][]{
+          {4, 4, 3}, {4, 4, 1}
+      };
+    }
+
+    @Override
+    public int[][] getLargeDims(final Random random) {
+      return new int[][]{
+          {400, 400, 30}, {400, 400, 1}
+      };
+    }
+  }
+
   public static class Double extends ProductLayerTest {
     public Double() {
       super(Precision.Double);

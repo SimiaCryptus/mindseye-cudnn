@@ -38,13 +38,15 @@ import java.util.stream.Stream;
 public class ProductLayer extends LayerBase implements MultiPrecision<ProductLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private boolean bypassOnError = false;
 
   public ProductLayer() {
   }
 
-  protected ProductLayer(@Nonnull final JsonObject id) {
-    super(id);
-    this.precision = Precision.valueOf(id.getAsJsonPrimitive("precision").getAsString());
+  protected ProductLayer(@Nonnull final JsonObject json) {
+    super(json);
+    this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
+    this.setBypassOnError(json.getAsJsonPrimitive("bypassOnError").getAsBoolean());
   }
 
   public static ProductLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -73,6 +75,17 @@ public class ProductLayer extends LayerBase implements MultiPrecision<ProductLay
     final int length = leftData.length();
     if (3 != leftDimensions.length) {
       throw new IllegalArgumentException("dimensions=" + Arrays.toString(leftDimensions));
+    }
+    if ((leftDimensions[0] != rightDimensions[0]) && (leftDimensions[0] != 1 && 1 != rightDimensions[0]) ||
+        (leftDimensions.length > 1 && rightDimensions.length > 1) && (leftDimensions[1] != rightDimensions[1]) && (leftDimensions[1] != 1 && 1 != rightDimensions[1]) ||
+        (leftDimensions.length > 2 && rightDimensions.length > 2) && (leftDimensions[2] != rightDimensions[2]) && (leftDimensions[2] != 1 && 1 != rightDimensions[2])) {
+      if (isBypassOnError()) {
+        inObj[1].getData().freeRef();
+        inObj[1].freeRef();
+        return inObj[0];
+      } else {
+        throw new IllegalArgumentException(String.format("leftDimensions=%s;rightDimensions=%s", Arrays.toString(leftDimensions), Arrays.toString(rightDimensions)));
+      }
     }
     return new Result(CudaSystem.run(gpu -> {
       @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu.newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
@@ -239,6 +252,7 @@ public class ProductLayer extends LayerBase implements MultiPrecision<ProductLay
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
+    json.addProperty("bypassOnError", isBypassOnError());
     return json;
   }
 
@@ -258,5 +272,14 @@ public class ProductLayer extends LayerBase implements MultiPrecision<ProductLay
   @Override
   public List<double[]> state() {
     return Arrays.asList();
+  }
+
+  public boolean isBypassOnError() {
+    return bypassOnError;
+  }
+
+  public ProductLayer setBypassOnError(boolean bypassOnError) {
+    this.bypassOnError = bypassOnError;
+    return this;
   }
 }

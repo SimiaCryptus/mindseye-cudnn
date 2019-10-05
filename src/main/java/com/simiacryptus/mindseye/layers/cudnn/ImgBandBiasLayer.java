@@ -85,6 +85,9 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBan
     if (3 != inputDimensions.length) {
       throw new IllegalArgumentException("dimensions=" + Arrays.toString(inputDimensions));
     }
+    if (bias.getDimensions()[2] != inputDimensions[2]) {
+      throw new IllegalArgumentException(String.format("Input dimensions=%s; Bias dimensions=%s", Arrays.toString(bias.getDimensions())));
+    }
     if (0 == Tensor.length(inputData.getDimensions())) {
       return input;
     }
