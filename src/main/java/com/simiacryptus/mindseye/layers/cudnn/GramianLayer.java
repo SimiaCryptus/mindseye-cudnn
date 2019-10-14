@@ -66,12 +66,17 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
     TensorList inputData = inObj[0].getData();
     int[] inputDimensions = inputData.getDimensions();
     assert 3 == inputDimensions.length;
-    return new Result(CudaSystem.run(gpu -> {
+    if (inputDimensions[0] == 1 && inputDimensions[1] == 1) {
+      log.info("Suspicious Input: " + Arrays.toString(inputDimensions));
+    }
+    final CudaTensorList tensorList = CudaSystem.run(gpu -> {
       CudaTensor tensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
       CudaTensorList output = getOutput(gpu, tensor);
       tensor.freeRef();
       return output;
-    }, inputData), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
+    }, inputData);
+    tensorList.addRef().freeRef();
+    return new Result(tensorList, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
       @Nonnull final int[] outputDimensions = {1, 1, inputDimensions[2] * inputDimensions[2]};
       if (!Arrays.equals(delta.getDimensions(), outputDimensions)) {
         throw new AssertionError(Arrays.toString(delta.getDimensions()) + " != " + Arrays.toString(outputDimensions));

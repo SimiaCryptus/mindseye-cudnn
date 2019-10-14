@@ -61,6 +61,12 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBan
     this.bias = Tensor.fromJson(id.get("bias"), rs);
   }
 
+  public static ImgBandBiasLayer wrap(final Tensor bias) {
+    final ImgBandBiasLayer imgBandBiasLayer = new ImgBandBiasLayer(bias);
+    bias.freeRef();
+    return imgBandBiasLayer;
+  }
+
   public static ImgBandBiasLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgBandBiasLayer(json, rs);
   }

@@ -96,8 +96,14 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
     return new Result(result, (DeltaSet<UUID> ctx, TensorList delta) -> {
       TensorList passback;
       passback = TensorArray.wrap(delta.stream().map(x -> {
-        Tensor tensor = new Tensor(inputSize[0], inputSize[1], inputSize[2])
-            .setByCoord(c -> x.get(c.getCoords()[2]) * alpha / pixels);
+        final double[] xData = Arrays.stream(x.getData()).map(v -> v * alpha / pixels).toArray();
+        final Tensor tensor = new Tensor(inputSize[0], inputSize[1], inputSize[2]);
+        final double[] tensor1Data = tensor.getData();
+        for (int p = 0; p < inputSize[0] * inputSize[1]; p++) {
+          for (int c = 0; c < inputSize[2]; c++) {
+            System.arraycopy(xData, 0, tensor1Data, p * inputSize[2], inputSize[2]);
+          }
+        }
         x.freeRef();
         return tensor;
       }).toArray(i -> new Tensor[i]));

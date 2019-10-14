@@ -90,11 +90,11 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
           precision);
     });
     try {
-      AtomicInteger counter = new AtomicInteger(0);
       int cols = (int) (Math.ceil((inputDims[0] - width) * 1.0 / strideX) + 1);
       int rows = (int) (Math.ceil((inputDims[1] - height) * 1.0 / strideY) + 1);
       if (cols == 1 && rows == 1) return getInner().evalAndFree(inObj);
       int[] tileDimensions = {width, height, bands};
+      AtomicInteger counter = new AtomicInteger(0);
       Result[][] tileResults = new Result[rows][];
       for (int row = 0; row < rows; row++) {
         tileResults[row] = new Result[cols];

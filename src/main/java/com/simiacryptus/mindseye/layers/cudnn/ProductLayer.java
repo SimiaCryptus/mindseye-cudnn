@@ -41,6 +41,11 @@ public class ProductLayer extends LayerBase implements MultiPrecision<ProductLay
   private boolean bypassOnError = false;
 
   public ProductLayer() {
+    this(UUID.randomUUID());
+  }
+
+  public ProductLayer(UUID id) {
+    super(id, "ProductLayer");
   }
 
   protected ProductLayer(@Nonnull final JsonObject json) {
@@ -146,6 +151,7 @@ public class ProductLayer extends LayerBase implements MultiPrecision<ProductLay
           outputPtr.freeRef();
           return CudaTensorList.wrap(cudaTensor, length, leftDimensions, precision);
         }, delta);
+        //data.addRef().freeRef();
         left.accumulate(buffer, data);
       }
       if (right.isAlive()) {
@@ -214,6 +220,7 @@ public class ProductLayer extends LayerBase implements MultiPrecision<ProductLay
             return tensorList;
           }
         }, delta);
+        //data.addRef().freeRef();
         right.accumulate(buffer, data);
       } else {
         delta.freeRef();
