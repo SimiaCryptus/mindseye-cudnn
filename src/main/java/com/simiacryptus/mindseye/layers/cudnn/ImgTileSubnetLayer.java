@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.WrapperLayer;
+import com.simiacryptus.mindseye.network.PipelineNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +67,12 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
 
   public static ImgTileSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgTileSubnetLayer(json, rs);
+  }
+
+  public static ImgTileSubnetLayer wrap(PipelineNetwork network, int width, int height) {
+    final ImgTileSubnetLayer tileSubnetLayer = new ImgTileSubnetLayer(network, width, height);
+    network.freeRef();
+    return tileSubnetLayer;
   }
 
   @Override
