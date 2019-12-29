@@ -49,6 +49,11 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     this.largeSize = largeSize;
   }
 
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return com.simiacryptus.mindseye.layers.java.ImgConcatLayer.class;
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -65,11 +70,6 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
   @Override
   public int[][] getLargeDims(Random random) {
     return Arrays.stream(bandSeq).mapToObj(x -> new int[]{largeSize, largeSize, x}).toArray(i -> new int[i][]);
-  }
-
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return com.simiacryptus.mindseye.layers.java.ImgConcatLayer.class;
   }
 
   public static class BandLimitTest extends ImgConcatLayerTest {

@@ -21,7 +21,6 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import jcuda.jcudnn.cudnnLRNDescriptor;
@@ -35,7 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 @SuppressWarnings("serial")
 public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
@@ -77,82 +75,108 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
     assert 0 < getAlpha();
   }
 
-  public static LRNLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new LRNLayer(json, rs);
+  public double getAlpha() {
+    return alpha;
   }
 
+  public LRNLayer setAlpha(double alpha) {
+    this.alpha = alpha;
+    return this;
+  }
+
+  public double getBeta() {
+    return beta;
+  }
+
+  public LRNLayer setBeta(double beta) {
+    this.beta = beta;
+    return this;
+  }
 
   @Nonnull
   public Layer getCompatibilityLayer() {
     return null;
   }
 
+  public double getK() {
+    return k;
+  }
+
+  public LRNLayer setK(double k) {
+    this.k = k;
+    return this;
+  }
+
+  @Override
+  public Precision getPrecision() {
+    return precision;
+  }
+
+  @Nonnull
+  @Override
+  public LRNLayer setPrecision(final Precision precision) {
+    this.precision = precision;
+    return this;
+  }
+
+  public int getWidth() {
+    return width;
+  }
+
+  public void setWidth(int width) {
+    this.width = width;
+  }
+
+  @SuppressWarnings("unused")
+  public static LRNLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+    return new LRNLayer(json, rs);
+  }
+
   @Nullable
   @Override
-  public Result evalAndFree(@Nonnull final Result... inObj) {
-    if (!CudaSystem.isEnabled()) return getCompatibilityLayer().evalAndFree(inObj);
+  public Result eval(@Nonnull final Result... inObj) {
+    if (!CudaSystem.isEnabled())
+      return getCompatibilityLayer().eval(inObj);
     final Result input = inObj[0];
     final TensorList inputData = input.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     final int length = inputData.length();
     final int inputDims = Tensor.length(inputSize);
-    @Nonnull final int[] outputSize = new int[]{
-        length,
-        inputSize[2],
-        inputSize[1],
-        inputSize[0]
-    };
+    @Nonnull final int[] outputSize = new int[]{length, inputSize[2], inputSize[1], inputSize[0]};
     final CudaTensor outputData = CudaSystem.run(gpu -> {
       try {
         gpu.initThread();
-        @Nonnull final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(this.getWidth(), this.getAlpha(), this.getBeta(), this.getK());
+        @Nonnull final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(this.getWidth(), this.getAlpha(),
+            this.getBeta(), this.getK());
         @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, getPrecision(), MemoryType.Device, false);
-        @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(
-            getPrecision(),
-            outputSize[0],
-            outputSize[1],
-            outputSize[2],
-            outputSize[3],
-            outputSize[1] * outputSize[2] * outputSize[3],
-            outputSize[2] * outputSize[3],
-            outputSize[3],
-            1);
-        @Nonnull final CudaMemory outputTensor = gpu.allocate((long) getPrecision().size * Tensor.length(outputSize), MemoryType.Managed.ifEnabled(), true);
+        @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(getPrecision(), outputSize[0],
+            outputSize[1], outputSize[2], outputSize[3], outputSize[1] * outputSize[2] * outputSize[3],
+            outputSize[2] * outputSize[3], outputSize[3], 1);
+        @Nonnull final CudaMemory outputTensor = gpu.allocate((long) getPrecision().size * Tensor.length(outputSize),
+            MemoryType.Managed.ifEnabled(), true);
         CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
-        CudaSystem.handle(gpu.cudnnLRNCrossChannelForward(
-            descriptor.getPtr(),
-            cudnnLRNMode.CUDNN_LRN_CROSS_CHANNEL_DIM1,
-            getPrecision().getPointer(1.0),
-            inputTensor.descriptor.getPtr(),
-            inputDataMemory.getPtr(),
-            getPrecision().getPointer(0.0),
-            outputDescriptor.getPtr(),
-            outputTensor.getPtr()
-        ));
+        CudaSystem
+            .handle(gpu.cudnnLRNCrossChannelForward(descriptor.getPtr(), cudnnLRNMode.CUDNN_LRN_CROSS_CHANNEL_DIM1,
+                getPrecision().getPointer(1.0), inputTensor.descriptor.getPtr(), inputDataMemory.getPtr(),
+                getPrecision().getPointer(0.0), outputDescriptor.getPtr(), outputTensor.getPtr()));
         assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
         inputDataMemory.dirty();
         outputTensor.dirty();
-        Stream.<ReferenceCounting>of(inputTensor, descriptor, inputDataMemory).forEach(ReferenceCounting::freeRef);
-        return CudaTensor.wrap(outputTensor, outputDescriptor, getPrecision());
+        return new CudaTensor(outputTensor, outputDescriptor, getPrecision());
       } catch (@Nonnull final Throwable e) {
         throw new ComponentException("Error", e);
       }
     }, inputData);
-    return new Result(CudaTensorList.create(outputData, length, new int[]{outputSize[3], outputSize[2], outputSize[1]}, getPrecision()),
+    return new Result(new CudaTensorList(outputData, length, new int[]{outputSize[3], outputSize[2], outputSize[1]}, getPrecision()),
         (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList error) -> {
           assert error.length() == inputData.length();
           if (input.isAlive()) {
             TensorList data = CudaSystem.run(gpu -> {
-              @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(getPrecision(),
-                  length,
-                  inputSize[2],
-                  inputSize[1],
-                  inputSize[0],
-                  inputSize[2] * inputSize[1] * inputSize[0],
-                  inputSize[1] * inputSize[0],
-                  inputSize[0],
-                  1);
-              @Nonnull final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(this.getWidth(), this.getAlpha(), this.getBeta(), this.getK());
+              @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(getPrecision(), length,
+                  inputSize[2], inputSize[1], inputSize[0], inputSize[2] * inputSize[1] * inputSize[0],
+                  inputSize[1] * inputSize[0], inputSize[0], 1);
+              @Nonnull final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(this.getWidth(),
+                  this.getAlpha(), this.getBeta(), this.getK());
               @Nullable final CudaTensor inputTensor;
               synchronized (gpu) {
                 inputTensor = gpu.getTensor(inputData, getPrecision(), MemoryType.Device, true);
@@ -161,47 +185,33 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
               synchronized (gpu) {
                 errorPtr = gpu.getTensor(error, getPrecision(), MemoryType.Device, true);
               }
-              @Nonnull final CudaMemory passbackBuffer = gpu.allocate((long) inputDims * getPrecision().size * length, MemoryType.Managed.ifEnabled(), true);
+              @Nonnull final CudaMemory passbackBuffer = gpu.allocate((long) inputDims * getPrecision().size * length,
+                  MemoryType.Managed.ifEnabled(), true);
               CudaMemory outputDataMemory = outputData.getMemory(gpu);
               CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
               CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
-              CudaSystem.handle(gpu.cudnnLRNCrossChannelBackward(
-                  descriptor.getPtr(),
-                  cudnnLRNMode.CUDNN_LRN_CROSS_CHANNEL_DIM1,
-                  getPrecision().getPointer(1.0),
-                  outputData.descriptor.getPtr(),
-                  outputDataMemory.getPtr(),
-                  errorPtr.descriptor.getPtr(),
-                  errorPtrMemory.getPtr(),
-                  inputTensor.descriptor.getPtr(),
-                  inputDataMemory.getPtr(),
-                  getPrecision().getPointer(0.0),
-                  passbackDescriptor.getPtr(),
-                  passbackBuffer.getPtr()
-              ));
+              CudaSystem.handle(gpu.cudnnLRNCrossChannelBackward(descriptor.getPtr(),
+                  cudnnLRNMode.CUDNN_LRN_CROSS_CHANNEL_DIM1, getPrecision().getPointer(1.0),
+                  outputData.descriptor.getPtr(), outputDataMemory.getPtr(), errorPtr.descriptor.getPtr(),
+                  errorPtrMemory.getPtr(), inputTensor.descriptor.getPtr(), inputDataMemory.getPtr(),
+                  getPrecision().getPointer(0.0), passbackDescriptor.getPtr(), passbackBuffer.getPtr()));
               outputDataMemory.dirty();
               errorPtrMemory.dirty();
               inputDataMemory.dirty();
               passbackBuffer.dirty();
-
-              Stream.<ReferenceCounting>of(errorPtr, inputTensor, descriptor, outputDataMemory, errorPtrMemory, inputDataMemory).forEach(ReferenceCounting::freeRef);
-              return CudaTensorList.wrap(CudaTensor.wrap(passbackBuffer, passbackDescriptor, getPrecision()), length, inputSize, getPrecision());
+              return new CudaTensorList(new CudaTensor(passbackBuffer, passbackDescriptor, getPrecision()), length, inputSize, getPrecision());
             }, error);
             input.accumulate(buffer, data);
           }
-          error.freeRef();
         }) {
-
-      @Override
-      protected void _free() {
-        Arrays.stream(inObj).forEach(nnResult -> nnResult.freeRef());
-        inputData.freeRef();
-        outputData.freeRef();
-      }
 
       @Override
       public boolean isAlive() {
         return input.isAlive() || !isFrozen();
+      }
+
+      @Override
+      protected void _free() {
       }
     };
   }
@@ -222,53 +232,5 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
   @Override
   public List<double[]> state() {
     return Arrays.asList();
-  }
-
-  @Override
-  public Precision getPrecision() {
-    return precision;
-  }
-
-  @Nonnull
-  @Override
-  public LRNLayer setPrecision(final Precision precision) {
-    this.precision = precision;
-    return this;
-  }
-
-  public int getWidth() {
-    return width;
-  }
-
-  public LRNLayer setWidth(int width) {
-    this.width = width;
-    return this;
-  }
-
-  public double getAlpha() {
-    return alpha;
-  }
-
-  public LRNLayer setAlpha(double alpha) {
-    this.alpha = alpha;
-    return this;
-  }
-
-  public double getBeta() {
-    return beta;
-  }
-
-  public LRNLayer setBeta(double beta) {
-    this.beta = beta;
-    return this;
-  }
-
-  public double getK() {
-    return k;
-  }
-
-  public LRNLayer setK(double k) {
-    this.k = k;
-    return this;
   }
 }

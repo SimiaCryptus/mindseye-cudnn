@@ -41,6 +41,12 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
     this.largeSize = largeSize;
   }
 
+  @Nullable
+  @Override
+  public Layer getReferenceLayer() {
+    return new BandReducerLayer().setMode(PoolingLayer.PoolingMode.Avg).setAlpha(alpha).setPrecision(precision);
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -53,12 +59,6 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     return new BandAvgReducerLayer().setAlpha(alpha).setPrecision(precision);
-  }
-
-  @Nullable
-  @Override
-  public Layer getReferenceLayer() {
-    return new BandReducerLayer().setMode(PoolingLayer.PoolingMode.Avg).setAlpha(alpha).setPrecision(precision);
   }
 
   @Nonnull

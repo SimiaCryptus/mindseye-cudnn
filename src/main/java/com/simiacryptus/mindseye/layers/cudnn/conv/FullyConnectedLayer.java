@@ -70,8 +70,7 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     setWeights(() -> {
       final double ratio = Math.sqrt(6. / (inputs + outs + 1));
       final double fate = Util.R.get().nextDouble();
-      final double v = (1 - 2 * fate) * ratio;
-      return v;
+      return (1 - 2 * fate) * ratio;
     });
   }
 
@@ -84,92 +83,19 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
-  public static FullyConnectedLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new FullyConnectedLayer(json, rs);
-  }
-
-  @Override
-  protected void _free() {
-    weights.freeRef();
-    super._free();
+  public int getBatchBands() {
+    return batchBands;
   }
 
   @Nonnull
-  public FullyConnectedLayer set(final double[] data) {
-    weights.set(data);
-    return this;
-  }
-
-  @Nonnull
-  public FullyConnectedLayer set(@Nonnull final Tensor data) {
-    weights.set(data);
-    return this;
-  }
-
-  @Nonnull
-  public FullyConnectedLayer setWeightsLog(final double value) {
-    getWeights().setByCoord(c -> (FastRandom.INSTANCE.random() - 0.5) * Math.pow(10, value));
+  public FullyConnectedLayer setBatchBands(int batchBands) {
+    this.batchBands = batchBands;
     return this;
   }
 
   @Nonnull
   public Layer getCompatibilityLayer() {
     return new FullyConnectedReferenceLayer(inputDims, outputDims).set(getWeights());
-  }
-
-  @Nullable
-  @Override
-  public Result evalAndFree(final Result... inObj) {
-    if (!CudaSystem.isEnabled()) return getCompatibilityLayer().evalAndFree(inObj);
-    Layer explode = explode();
-    Result eval = explode.evalAndFree(inObj);
-    explode.freeRef();
-    return eval;
-  }
-
-  public Layer explodeAndFree() {
-    Layer explode = explode();
-    freeRef();
-    return explode;
-  }
-
-  @Nonnull
-  public Layer explode() {
-    int inputVol = Tensor.length(inputDims);
-    int outVol = Tensor.length(outputDims);
-    @Nonnull PipelineNetwork network = new PipelineNetwork(1);
-    network.wrap(new ReshapeLayer(1, 1, inputVol)).freeRef();
-    @Nullable Tensor tensor = this.weights.reshapeCast(1, 1, inputVol * outVol);
-    @Nonnull ConvolutionLayer convolutionLayer = new ConvolutionLayer(1, 1, inputVol, outVol)
-        .set(tensor)
-        .setBatchBands(getBatchBands());
-    @Nonnull ExplodedConvolutionGrid grid = convolutionLayer
-        .getExplodedNetwork();
-    convolutionLayer.freeRef();
-    tensor.freeRef();
-    grid.add(network.getHead());
-    grid.freeRef();
-    network.wrap(new ReshapeLayer(outputDims)).freeRef();
-    network.setName(getName());
-    return network;
-  }
-
-  @Nonnull
-  @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
-    json.add("outputDims", JsonUtil.getJson(outputDims));
-    json.add("inputDims", JsonUtil.getJson(inputDims));
-    @Nullable Tensor tensor = getWeights();
-    json.add("weights", tensor.getJson(resources, dataSerializer));
-    json.addProperty("precision", precision.name());
-    return json;
-  }
-
-  @Nonnull
-  @Override
-  public List<double[]> state() {
-    return Arrays.asList(getWeights().getData());
   }
 
   @Override
@@ -190,23 +116,88 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
   }
 
   @Nonnull
-  public FullyConnectedLayer setWeights(@Nonnull final DoubleSupplier f) {
+  public void setWeights(@Nonnull final DoubleSupplier f) {
     Arrays.parallelSetAll(getWeights().getData(), i -> f.getAsDouble());
-    return this;
-  }
-
-  public int getBatchBands() {
-    return batchBands;
   }
 
   @Nonnull
-  public FullyConnectedLayer setBatchBands(int batchBands) {
-    this.batchBands = batchBands;
+  public FullyConnectedLayer setWeightsLog(final double value) {
+    getWeights().setByCoord(c -> (FastRandom.INSTANCE.random() - 0.5) * Math.pow(10, value));
     return this;
+  }
+
+  @SuppressWarnings("unused")
+  public static FullyConnectedLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+    return new FullyConnectedLayer(json, rs);
+  }
+
+  @Nonnull
+  public FullyConnectedLayer set(final double[] data) {
+    weights.set(data);
+    return this;
+  }
+
+  @Nonnull
+  public FullyConnectedLayer set(@Nonnull final Tensor data) {
+    weights.set(data);
+    return this;
+  }
+
+  @Nullable
+  @Override
+  public Result eval(final Result... inObj) {
+    if (!CudaSystem.isEnabled())
+      return getCompatibilityLayer().eval(inObj);
+    Layer explode = explode();
+    return explode.eval(inObj);
+  }
+
+  @Nonnull
+  public Layer explode() {
+    int inputVol = Tensor.length(inputDims);
+    int outVol = Tensor.length(outputDims);
+    @Nonnull
+    PipelineNetwork network = new PipelineNetwork(1);
+    network.add(new ReshapeLayer(1, 1, inputVol));
+    @Nullable
+    Tensor tensor = this.weights.reshapeCast(1, 1, inputVol * outVol);
+    @Nonnull
+    ConvolutionLayer convolutionLayer = new ConvolutionLayer(1, 1, inputVol, outVol).set(tensor)
+        .setBatchBands(getBatchBands());
+    @Nonnull
+    ExplodedConvolutionGrid grid = convolutionLayer.getExplodedNetwork();
+    grid.add(network.getHead());
+    network.add(new ReshapeLayer(outputDims));
+    network.setName(getName());
+    return network;
+  }
+
+  @Nonnull
+  @Override
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
+    json.add("outputDims", JsonUtil.getJson(outputDims));
+    json.add("inputDims", JsonUtil.getJson(inputDims));
+    @Nullable
+    Tensor tensor = getWeights();
+    json.add("weights", tensor.getJson(resources, dataSerializer));
+    json.addProperty("precision", precision.name());
+    return json;
+  }
+
+  @Nonnull
+  @Override
+  public List<double[]> state() {
+    return Arrays.asList(getWeights().getData());
   }
 
   public FullyConnectedLayer set(DoubleSupplier fn) {
     weights.set(fn);
     return this;
+  }
+
+  @Override
+  protected void _free() {
+    super._free();
   }
 }

@@ -60,21 +60,34 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
-  public static RescaledSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new RescaledSubnetLayer(json, rs);
-  }
-
   @Nonnull
   public Layer getCompatibilityLayer() {
     return new com.simiacryptus.mindseye.layers.java.RescaledSubnetLayer(scale, layer);
   }
 
+  @Override
+  public Precision getPrecision() {
+    return precision;
+  }
+
+  @Nonnull
+  @Override
+  public RescaledSubnetLayer setPrecision(final Precision precision) {
+    this.precision = precision;
+    return this;
+  }
+
+  @SuppressWarnings("unused")
+  public static RescaledSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+    return new RescaledSubnetLayer(json, rs);
+  }
+
   @Nullable
   @Override
-  public Result evalAndFree(final Result... inObj) {
-    if (!CudaSystem.isEnabled()) return getCompatibilityLayer().evalAndFree(inObj);
+  public Result eval(final Result... inObj) {
+    if (!CudaSystem.isEnabled()) return getCompatibilityLayer().eval(inObj);
     log.warn("Not Implemented: " + getClass().getCanonicalName());
-    return getCompatibilityLayer().evalAndFree(inObj);
+    return getCompatibilityLayer().eval(inObj);
   }
 
   @Nonnull
@@ -91,17 +104,5 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
   @Override
   public List<double[]> state() {
     return Arrays.asList();
-  }
-
-  @Override
-  public Precision getPrecision() {
-    return precision;
-  }
-
-  @Nonnull
-  @Override
-  public RescaledSubnetLayer setPrecision(final Precision precision) {
-    this.precision = precision;
-    return this;
   }
 }

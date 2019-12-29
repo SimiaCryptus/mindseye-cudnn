@@ -54,10 +54,10 @@ public class CudaSettings implements Settings {
   private final int memoryCacheTTL;
   private final boolean convolutionCache;
   public Precision defaultPrecision;
-  public boolean allDense;
-  public boolean verbose;
-  public double asyncFreeLoadThreshold = 0.5;
-  private int handlesPerDevice;
+  public final boolean allDense;
+  public final boolean verbose;
+  public final double asyncFreeLoadThreshold = 0.5;
+  private final int handlesPerDevice;
 
   private CudaSettings() {
     HashMap<String, String> appSettings = LocalAppSettings.read();
@@ -90,60 +90,64 @@ public class CudaSettings implements Settings {
     verbose = false;
   }
 
-  public static CudaSettings INSTANCE() {
-    if (null == INSTANCE) {
-      synchronized (CudaSettings.class) {
-        if (null == INSTANCE) {
-          INSTANCE = new CudaSettings();
-          logger.info(String.format("Initialized %s = %s", INSTANCE.getClass().getSimpleName(), JsonUtil.toJson(INSTANCE)));
-        }
-      }
-    }
-    return INSTANCE;
+  public long getConvolutionWorkspaceSizeLimit() {
+    return convolutionWorkspaceSizeLimit;
   }
 
-  public double getMaxTotalMemory() {
-    return maxTotalMemory;
+  public int getHandlesPerDevice() {
+    return handlesPerDevice;
   }
 
   public double getMaxAllocSize() {
     return maxAllocSize;
   }
 
-  public double getMaxIoElements() {
-    return maxIoElements;
-  }
-
-  public long getConvolutionWorkspaceSizeLimit() {
-    return convolutionWorkspaceSizeLimit;
-  }
-
-  public boolean isDisable() {
-    return disable;
-  }
-
-  public boolean isForceSingleGpu() {
-    return forceSingleGpu;
+  public double getMaxDeviceMemory() {
+    return maxDeviceMemory;
   }
 
   public long getMaxFilterElements() {
     return maxFilterElements;
   }
 
-  public boolean isConv_para_2() {
-    return conv_para_2;
+  public double getMaxIoElements() {
+    return maxIoElements;
+  }
+
+  public double getMaxTotalMemory() {
+    return maxTotalMemory;
+  }
+
+  public int getMemoryCacheTTL() {
+    return memoryCacheTTL;
   }
 
   public boolean isConv_para_1() {
     return conv_para_1;
   }
 
+  public boolean isConv_para_2() {
+    return conv_para_2;
+  }
+
   public boolean isConv_para_3() {
     return conv_para_3;
   }
 
-  public double getMaxDeviceMemory() {
-    return maxDeviceMemory;
+  public boolean isConvolutionCache() {
+    return convolutionCache;
+  }
+
+  public boolean isDisable() {
+    return disable;
+  }
+
+  public boolean isEnableManaged() {
+    return enableManaged;
+  }
+
+  public boolean isForceSingleGpu() {
+    return forceSingleGpu;
   }
 
   public boolean isLogStack() {
@@ -154,24 +158,20 @@ public class CudaSettings implements Settings {
     return profileMemoryIO;
   }
 
-  public boolean isEnableManaged() {
-    return enableManaged;
-  }
-
   public boolean isSyncBeforeFree() {
     return syncBeforeFree;
   }
 
-  public int getMemoryCacheTTL() {
-    return memoryCacheTTL;
-  }
-
-  public boolean isConvolutionCache() {
-    return convolutionCache;
-  }
-
-  public int getHandlesPerDevice() {
-    return handlesPerDevice;
+  public static CudaSettings INSTANCE() {
+    if (null == INSTANCE) {
+      synchronized (CudaSettings.class) {
+        if (null == INSTANCE) {
+          INSTANCE = new CudaSettings();
+          logger.info(String.format("Initialized %s = %s", INSTANCE.getClass().getSimpleName(), JsonUtil.toJson(INSTANCE)));
+        }
+      }
+    }
+    return INSTANCE;
   }
 
 }

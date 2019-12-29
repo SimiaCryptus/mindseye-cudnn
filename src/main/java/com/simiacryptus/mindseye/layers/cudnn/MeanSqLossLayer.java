@@ -21,8 +21,10 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.DataSerializer;
+import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.network.InnerNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,33 +42,16 @@ public class MeanSqLossLayer extends PipelineNetwork {
 
   public MeanSqLossLayer() {
     super(2);
-    this.binaryNode = wrap(new BinarySumLayer(alpha, -alpha), getInput(0), getInput(1));
-    wrap(new SquareActivationLayer()).freeRef();
-    wrap(new AvgReducerLayer()).freeRef();
+    final Layer nextHead = new BinarySumLayer(alpha, -alpha);
+    this.binaryNode = add(nextHead, getInput(0), getInput(1));
+    add(new SquareActivationLayer());
+    add(new AvgReducerLayer());
   }
 
   protected MeanSqLossLayer(@Nonnull final JsonObject id, Map<CharSequence, byte[]> rs) {
     super(id, rs);
     alpha = id.get("alpha").getAsDouble();
     binaryNode = (InnerNode) getNodeById(UUID.fromString(id.get("binaryNode").getAsString()));
-  }
-
-  public static MeanSqLossLayer fromJson(final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new MeanSqLossLayer(json, rs);
-  }
-
-  @Override
-  protected void _free() {
-    binaryNode.freeRef();
-    super._free();
-  }
-
-  @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    JsonObject json = super.getJson(resources, dataSerializer);
-    json.addProperty("alpha", alpha);
-    json.addProperty("binaryNode", binaryNode.id.toString());
-    return json;
   }
 
   public double getAlpha() {
@@ -79,5 +64,23 @@ public class MeanSqLossLayer extends PipelineNetwork {
     binarySumLayer.setLeftFactor(alpha);
     binarySumLayer.setRightFactor(-alpha);
     return this;
+  }
+
+  @SuppressWarnings("unused")
+  public static MeanSqLossLayer fromJson(@NotNull final JsonObject json, Map<CharSequence, byte[]> rs) {
+    return new MeanSqLossLayer(json, rs);
+  }
+
+  @Override
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
+    JsonObject json = super.getJson(resources, dataSerializer);
+    json.addProperty("alpha", alpha);
+    json.addProperty("binaryNode", binaryNode.id.toString());
+    return json;
+  }
+
+  @Override
+  protected void _free() {
+    super._free();
   }
 }

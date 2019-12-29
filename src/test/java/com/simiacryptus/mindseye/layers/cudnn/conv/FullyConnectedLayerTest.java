@@ -26,6 +26,7 @@ import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.BatchingTester;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
 import com.simiacryptus.notebook.NotebookOutput;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,12 +47,17 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
     this.layer = this.fullyConnectedLayer.setBatchBands(batchBands).explode();
   }
 
-  @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{
-        inputDim
-    };
+  public Layer getReferenceLayer() {
+    @Nullable
+    Class<? extends Layer> referenceLayerClass = getReferenceLayerClass();
+    return null == referenceLayerClass ? null : this.fullyConnectedLayer.as(referenceLayerClass);
+  }
+
+  @Nullable
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return FullyConnectedReferenceLayer.class;
   }
 
   @Nonnull
@@ -62,28 +68,21 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
+  public int[][] getSmallDims(Random random) {
+    return new int[][]{inputDim};
+  }
+
+  @Nonnull
+  @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    layer.addRef();
     return layer;
   }
 
   @Override
-  public Layer getReferenceLayer() {
-    @Nullable Class<? extends Layer> referenceLayerClass = getReferenceLayerClass();
-    return null == referenceLayerClass ? null : this.fullyConnectedLayer.as(referenceLayerClass);
-  }
-
-  @Nullable
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return FullyConnectedReferenceLayer.class;
-  }
-
-  @Override
-  public void run(NotebookOutput log) {
-//    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
-//    log.p(log.file((String) null, logName, "GPU Log"));
-//    CudaSystem.addLog(new PrintStream(log.file(logName)));
+  public void run(@NotNull NotebookOutput log) {
+    //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
+    //    log.p(log.file((String) null, logName, "GPU Log"));
+    //    CudaSystem.addLog(new PrintStream(log.file(logName)));
     super.run(log);
   }
 
@@ -102,13 +101,9 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
     }
 
     @Override
-    public Class<? extends Layer> getReferenceLayerClass() {
-      return null;
-    }
-
-    @Override
     public ComponentTest<ToleranceStatistics> getBatchingTester() {
-      if (!validateBatchExecution) return null;
+      if (!validateBatchExecution)
+        return null;
       return (new BatchingTester(1e-2, true) {
         @Override
         public double getRandom() {
@@ -132,6 +127,11 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
       return null;
       //return super.getPerformanceTester();
     }
+
+    @Override
+    public Class<? extends Layer> getReferenceLayerClass() {
+      return null;
+    }
   }
 
   public static class Big_VGG extends BigTests {
@@ -147,6 +147,5 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
     }
 
   }
-
 
 }

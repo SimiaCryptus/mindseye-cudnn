@@ -60,22 +60,36 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<Img
     assert sizeY != 0 || sizeX != 0;
   }
 
+  @Override
+  public Precision getPrecision() {
+    return precision;
+  }
+
+  @Nonnull
+  @Override
+  public ImgZeroPaddingLayer setPrecision(final Precision precision) {
+    this.precision = precision;
+    return this;
+  }
+
+  @SuppressWarnings("unused")
   public static ImgZeroPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgZeroPaddingLayer(json, rs);
   }
 
   @Nullable
   @Override
-  public Result evalAndFree(@Nonnull final Result... inObj) {
+  public Result eval(@Nonnull final Result... inObj) {
     if (sizeX == 0 && sizeY == 0) {
       return inObj[0];
     }
     assert inObj.length == 1;
-    @Nonnull int[] dimensions = inObj[0].getData().getDimensions();
-    @Nonnull ImgCropLayer imgCropLayer = new ImgCropLayer(dimensions[0] + 2 * this.sizeX, dimensions[1] + 2 * this.sizeY).setPrecision(precision);
-    @Nullable Result eval = imgCropLayer.evalAndFree(inObj);
-    imgCropLayer.freeRef();
-    return eval;
+    @Nonnull
+    int[] dimensions = inObj[0].getData().getDimensions();
+    @Nonnull
+    ImgCropLayer imgCropLayer = new ImgCropLayer(dimensions[0] + 2 * this.sizeX, dimensions[1] + 2 * this.sizeY)
+        .setPrecision(precision);
+    return imgCropLayer.eval(inObj);
   }
 
   @Nonnull
@@ -92,18 +106,6 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<Img
   @Override
   public List<double[]> state() {
     return Arrays.asList();
-  }
-
-  @Override
-  public Precision getPrecision() {
-    return precision;
-  }
-
-  @Nonnull
-  @Override
-  public ImgZeroPaddingLayer setPrecision(final Precision precision) {
-    this.precision = precision;
-    return this;
   }
 
 }

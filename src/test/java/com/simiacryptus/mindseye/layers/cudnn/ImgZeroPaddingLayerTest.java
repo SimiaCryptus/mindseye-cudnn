@@ -31,6 +31,11 @@ public abstract class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
     validateBatchExecution = false;
   }
 
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return com.simiacryptus.mindseye.layers.java.ImgZeroPaddingLayer.class;
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -51,11 +56,6 @@ public abstract class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     return new ImgZeroPaddingLayer(1, 1);
-  }
-
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return com.simiacryptus.mindseye.layers.java.ImgZeroPaddingLayer.class;
   }
 
   public static class Basic extends ImgZeroPaddingLayerTest {

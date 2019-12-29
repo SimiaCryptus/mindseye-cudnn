@@ -37,6 +37,11 @@ public class CudaPointer extends Pointer {
     super();
   }
 
+  @Override
+  public long getByteOffset() {
+    return super.getByteOffset();
+  }
+
   public static CudaPointer to(float values[]) {
     return new CudaPointer(Pointer.to(values));
   }
@@ -48,11 +53,6 @@ public class CudaPointer extends Pointer {
   @Override
   public CudaPointer withByteOffset(final long byteOffset) {
     return new CudaPointer(this, byteOffset);
-  }
-
-  @Override
-  public long getByteOffset() {
-    return super.getByteOffset();
   }
 
 

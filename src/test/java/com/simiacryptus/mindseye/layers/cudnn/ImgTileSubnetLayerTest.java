@@ -30,6 +30,18 @@ public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
 
   private final ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1).set(() -> this.random());
 
+  @Nullable
+  @Override
+  public Layer getReferenceLayer() {
+    return new ActivationLayer(ActivationLayer.Mode.RELU);
+  }
+
+  @Nullable
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return com.simiacryptus.mindseye.layers.java.ImgTileSubnetLayer.class;
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -49,18 +61,6 @@ public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     return new ImgTileSubnetLayer(new ActivationLayer(ActivationLayer.Mode.RELU), 3, 3, 2, 2);
-  }
-
-  @Nullable
-  @Override
-  public Layer getReferenceLayer() {
-    return new ActivationLayer(ActivationLayer.Mode.RELU);
-  }
-
-  @Nullable
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return com.simiacryptus.mindseye.layers.java.ImgTileSubnetLayer.class;
   }
 
   public static class Basic extends ImgTileSubnetLayerTest {

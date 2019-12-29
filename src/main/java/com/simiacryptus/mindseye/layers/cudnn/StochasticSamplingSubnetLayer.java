@@ -30,10 +30,7 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.StochasticComponent;
 import com.simiacryptus.mindseye.layers.ValueLayer;
 import com.simiacryptus.mindseye.layers.WrapperLayer;
-import com.simiacryptus.mindseye.network.CountingResult;
-import com.simiacryptus.mindseye.network.DAGNetwork;
-import com.simiacryptus.mindseye.network.DAGNode;
-import com.simiacryptus.mindseye.network.PipelineNetwork;
+import com.simiacryptus.mindseye.network.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,7 +40,8 @@ import java.util.Random;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("serial")
-public class StochasticSamplingSubnetLayer extends WrapperLayer implements StochasticComponent, MultiPrecision<StochasticSamplingSubnetLayer> {
+public class StochasticSamplingSubnetLayer extends WrapperLayer
+    implements StochasticComponent, MultiPrecision<StochasticSamplingSubnetLayer> {
 
   private final int samples;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
@@ -63,23 +61,33 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer implements Stoch
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
+  @Override
+  public Precision getPrecision() {
+    return precision;
+  }
+
+  @Nonnull
+  @Override
+  public StochasticSamplingSubnetLayer setPrecision(Precision precision) {
+    this.precision = precision;
+    return this;
+  }
+
+  public long[] getSeeds() {
+    Random random = new Random(seed + layerSeed);
+    return IntStream.range(0, this.samples).mapToLong(i -> random.nextLong()).toArray();
+  }
+
+  @SuppressWarnings("unused")
   public static StochasticSamplingSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new StochasticSamplingSubnetLayer(json, rs);
   }
 
   public static Result average(final Result[] samples, final Precision precision) {
     PipelineNetwork gateNetwork = new PipelineNetwork(1);
-    gateNetwork.wrap(new ProductLayer().setPrecision(precision),
-        gateNetwork.getInput(0),
-        gateNetwork.wrap(new ValueLayer(new Tensor(1, 1, 1).mapAndFree(v -> 1.0 / samples.length)), new DAGNode[]{}))
-        .freeRef();
+    gateNetwork.add(new ProductLayer().setPrecision(precision), gateNetwork.getInput(0), gateNetwork.add(new ValueLayer(new Tensor(1, 1, 1).map(v -> 1.0 / samples.length)), new DAGNode[]{}));
     SumInputsLayer sumInputsLayer = new SumInputsLayer().setPrecision(precision);
-    try {
-      return gateNetwork.evalAndFree(sumInputsLayer.evalAndFree(samples));
-    } finally {
-      sumInputsLayer.freeRef();
-      gateNetwork.freeRef();
-    }
+    return gateNetwork.eval(sumInputsLayer.eval(samples));
   }
 
   @Nullable
@@ -115,11 +123,6 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer implements Stoch
     }).toArray(i -> new Result[i]), precision);
   }
 
-  public long[] getSeeds() {
-    Random random = new Random(seed + layerSeed);
-    return IntStream.range(0, this.samples).mapToLong(i -> random.nextLong()).toArray();
-  }
-
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
@@ -139,17 +142,5 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer implements Stoch
   @Override
   public void clearNoise() {
     seed = 0;
-  }
-
-  @Override
-  public Precision getPrecision() {
-    return precision;
-  }
-
-  @Nonnull
-  @Override
-  public StochasticSamplingSubnetLayer setPrecision(Precision precision) {
-    this.precision = precision;
-    return this;
   }
 }

@@ -69,52 +69,75 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
     assert 0 < sizeY;
   }
 
-  public static SpatialReflectionPadding fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new SpatialReflectionPadding(json, rs);
-  }
-
-
-  public Alignment getVerticalAlign() {
-    return verticalAlign;
-  }
-
-  public SpatialReflectionPadding setVerticalAlign(Alignment verticalAlign) {
-    this.verticalAlign = verticalAlign;
-    return this;
+  @Nonnull
+  public Layer getCompatibilityLayer() {
+    return this.as(com.simiacryptus.mindseye.layers.java.ImgCropLayer.class);
   }
 
   public Alignment getHorizontalAlign() {
     return horizontalAlign;
   }
 
-  public SpatialReflectionPadding setHorizontalAlign(Alignment horizontalAlign) {
+  public void setHorizontalAlign(Alignment horizontalAlign) {
     this.horizontalAlign = horizontalAlign;
-    return this;
   }
 
-  public int half(int i, Alignment alignment) {
-    if (alignment == Alignment.Left) return 0;
-    if (alignment == Alignment.Right) return i;
-    if (i % 2 == 0) return i / 2;
-    else if (isRoundUp()) return (i + 1) / 2;
-    else return (i - 1) / 2;
+  @Override
+  public Precision getPrecision() {
+    return precision;
   }
 
   @Nonnull
-  public Layer getCompatibilityLayer() {
-    return this.as(com.simiacryptus.mindseye.layers.java.ImgCropLayer.class);
+  @Override
+  public SpatialReflectionPadding setPrecision(final Precision precision) {
+    this.precision = precision;
+    return this;
+  }
+
+  public Alignment getVerticalAlign() {
+    return verticalAlign;
+  }
+
+  public void setVerticalAlign(Alignment verticalAlign) {
+    this.verticalAlign = verticalAlign;
+  }
+
+  public boolean isRoundUp() {
+    return roundUp;
+  }
+
+  public SpatialReflectionPadding setRoundUp(boolean roundUp) {
+    this.roundUp = roundUp;
+    return this;
+  }
+
+  @SuppressWarnings("unused")
+  public static SpatialReflectionPadding fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+    return new SpatialReflectionPadding(json, rs);
+  }
+
+  public int half(int i, Alignment alignment) {
+    if (alignment == Alignment.Left)
+      return 0;
+    if (alignment == Alignment.Right)
+      return i;
+    if (i % 2 == 0)
+      return i / 2;
+    else if (isRoundUp())
+      return (i + 1) / 2;
+    else
+      return (i - 1) / 2;
   }
 
   @Nullable
   @Override
-  public Result evalAndFree(@Nonnull final Result... inObj) {
-    if (inObj.length != 1) throw new IllegalArgumentException();
+  public Result eval(@Nonnull final Result... inObj) {
+    if (inObj.length != 1)
+      throw new IllegalArgumentException();
     final int[] dimensions = inObj[0].getData().getDimensions();
     final ImgPaddingLayer paddingLayer = new ImgPaddingLayer(dimensions[0] + sizeX, dimensions[1] + sizeY)
         .setHorizontalAlign(horizontalAlign).setVerticalAlign(verticalAlign);
-    final Result result = paddingLayer.evalAndFree(inObj);
-    paddingLayer.freeRef();
-    return result;
+    return paddingLayer.eval(inObj);
   }
 
   @Nonnull
@@ -134,27 +157,6 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
   @Override
   public List<double[]> state() {
     return Arrays.asList();
-  }
-
-  @Override
-  public Precision getPrecision() {
-    return precision;
-  }
-
-  @Nonnull
-  @Override
-  public SpatialReflectionPadding setPrecision(final Precision precision) {
-    this.precision = precision;
-    return this;
-  }
-
-  public boolean isRoundUp() {
-    return roundUp;
-  }
-
-  public SpatialReflectionPadding setRoundUp(boolean roundUp) {
-    this.roundUp = roundUp;
-    return this;
   }
 
 }

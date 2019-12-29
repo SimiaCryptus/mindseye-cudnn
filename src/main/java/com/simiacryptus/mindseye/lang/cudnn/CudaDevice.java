@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.function.Function;
 
 public class CudaDevice extends CudaSystem {
@@ -53,9 +52,25 @@ public class CudaDevice extends CudaSystem {
     }
   }
 
-  public static int cudaFree(int deviceId, final CudaPointer devPtr) {
+  public int getDeviceId() {
+    return deviceId;
+  }
+
+  public static void setDevice(final int cudaDeviceId) {
+    if (cudaDeviceId < 0) throw new IllegalArgumentException("cudaDeviceId=" + cudaDeviceId);
+    if (!isThreadDeviceId(cudaDeviceId)) {
+      long startTime = System.nanoTime();
+      final int result = JCuda.cudaSetDevice(cudaDeviceId);
+      setDevice_execution.accept((System.nanoTime() - startTime) / 1e9);
+      log("cudaSetDevice", result, new Object[]{cudaDeviceId});
+      handle(result);
+      currentDeviceId.set(cudaDeviceId);
+    }
+  }
+
+  public static void cudaFree(int deviceId, final CudaPointer devPtr) {
     long startTime = System.nanoTime();
-    if (null == devPtr) return 0;
+    if (null == devPtr) return;
     Function<CudnnHandle, Integer> fn = dev -> {
       final int result = JCuda.cudaFree(devPtr);
       log("cudaFree", result, new Object[]{devPtr});
@@ -64,9 +79,9 @@ public class CudaDevice extends CudaSystem {
       return result;
     };
     if (deviceId < 0) {
-      return fn.apply(null);
+      fn.apply(null);
     } else {
-      return withDevice(deviceId, fn);
+      withDevice(deviceId, fn);
     }
   }
 
@@ -83,52 +98,6 @@ public class CudaDevice extends CudaSystem {
       log("cudaGetDeviceProperties", result, new Object[]{deviceProp, device});
       return deviceProp;
     });
-  }
-
-  public static void setDevice(final int cudaDeviceId) {
-    if (cudaDeviceId < 0) throw new IllegalArgumentException("cudaDeviceId=" + cudaDeviceId);
-    if (!isThreadDeviceId(cudaDeviceId)) {
-      long startTime = System.nanoTime();
-      final int result = JCuda.cudaSetDevice(cudaDeviceId);
-      setDevice_execution.accept((System.nanoTime() - startTime) / 1e9);
-      log("cudaSetDevice", result, new Object[]{cudaDeviceId});
-      handle(result);
-      currentDeviceId.set(cudaDeviceId);
-    }
-  }
-
-  @Nonnull
-  CudaPointer acquire(long size, @Nonnull MemoryType type, int retries) {
-    if (size <= 0) throw new IllegalArgumentException();
-    assert isThreadDeviceId(getDeviceId());
-    if (retries < 0) throw new IllegalArgumentException();
-    @Nonnull CudaPointer pointer = _acquire(size, type, retries);
-    if (null != pointer) return pointer;
-    if (retries < 0) throw new IllegalStateException();
-    return this.acquire(size, type, retries - 1);
-  }
-
-  private CudaPointer _acquire(long size, @Nonnull MemoryType type, int retries) {
-    synchronized (allocationLock) {
-      final DeviceMetrics metrics = ensureCapacity(size);
-      @Nonnull CudaPointer pointer = null;
-      try {
-        pointer = type.allocCached(size, this);
-        final long finalMemory = metrics.activeMemory.addAndGet(size);
-        metrics.peakMemory.updateAndGet(l -> Math.max(finalMemory, l));
-      } catch (@Nonnull final ThreadDeath e) {
-        throw e;
-      } catch (@Nonnull final Throwable e) {
-        if (retries <= 0)
-          throw new RuntimeException(String.format(String.format("Error allocating %e bytes; %s currently allocated to device %s", (double) size, metrics.usedMemory, this)), e);
-        final long startMemory = metrics.usedMemory.get();
-        @Nonnull TimedResult<Double> timedResult = TimedResult.time(() -> CudaMemory.clearMemory(getDeviceId()));
-        final long freedMemory = startMemory - metrics.usedMemory.get();
-        CudaMemory.logger.warn(String.format("Low GPU Memory while allocating %s bytes; %s freed in %.4fs resulting in %s total (triggered by %s)",
-            size, freedMemory, timedResult.seconds(), metrics.usedMemory.get(), e.getMessage()));
-      }
-      return pointer;
-    }
   }
 
   @Nonnull
@@ -166,62 +135,6 @@ public class CudaDevice extends CudaSystem {
     return metrics;
   }
 
-  public CudaResource<cudnnConvolutionDescriptor> newConvolutionNdDescriptor(final int mode, final int dataType, @Nonnull final int[] padding, @Nonnull final int[] stride, @Nonnull final int[] dilation) {
-    long startTime = System.nanoTime();
-    assert padding.length == stride.length;
-    assert padding.length == dilation.length;
-    assert Arrays.stream(padding).allMatch(x -> x >= 0);
-    assert Arrays.stream(stride).allMatch(x -> x > 0);
-    assert Arrays.stream(dilation).allMatch(x -> x > 0);
-    @Nonnull final cudnnConvolutionDescriptor convDesc = new cudnnConvolutionDescriptor();
-    int result = JCudnn.cudnnCreateConvolutionDescriptor(convDesc);
-    newConvolutionNdDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudnnCreateConvolutionDescriptor", result, new Object[]{convDesc});
-    handle(result);
-    result = JCudnn.cudnnSetConvolutionNdDescriptor(convDesc,
-        3,
-        padding,
-        stride,
-        dilation,
-        mode,
-        dataType
-    );
-    log("cudnnSetConvolutionNdDescriptor", result, new Object[]{convDesc, padding.length, padding, stride, dilation, mode, dataType});
-    handle(result);
-    return new CudaResource<cudnnConvolutionDescriptor>(convDesc, CudaSystem::cudnnDestroyConvolutionDescriptor, getDeviceId()) {
-      @Nonnull
-      @Override
-      public String toString() {
-        return "cudnnSetConvolutionNdDescriptor(padding=" + Arrays.toString(padding) +
-            ";stride=" + Arrays.toString(stride) +
-            ";dilation=" + Arrays.toString(dilation) +
-            ";mode=" + mode +
-            ";dataType=" + dataType + ")";
-      }
-    };
-  }
-
-  public CudaResource<cudnnFilterDescriptor> newFilterDescriptor(final int dataType, final int tensorLayout, @Nonnull final int[] dimensions) {
-    long startTime = System.nanoTime();
-    @Nonnull final cudnnFilterDescriptor filterDesc = new cudnnFilterDescriptor();
-    int result = JCudnn.cudnnCreateFilterDescriptor(filterDesc);
-    log("cudnnCreateFilterDescriptor", result, new Object[]{filterDesc});
-    handle(result);
-    result = JCudnn.cudnnSetFilterNdDescriptor(filterDesc, dataType, tensorLayout, dimensions.length, dimensions);
-    newFilterDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudnnSetFilterNdDescriptor", result, new Object[]{filterDesc, dataType, tensorLayout, dimensions.length, dimensions});
-    handle(result);
-    return new CudaResource<cudnnFilterDescriptor>(filterDesc, CudaSystem::cudnnDestroyFilterDescriptor, getDeviceId()) {
-      @Nonnull
-      @Override
-      public String toString() {
-        return "cudnnSetFilterNdDescriptor(dataType=" + dataType +
-            ";tensorLayout=" + tensorLayout +
-            ";dimensions=" + Arrays.toString(dimensions) + ")";
-      }
-    };
-  }
-
   @Nonnull
   public CudaMemory allocate(final long size, @Nonnull MemoryType type, boolean dirty) {
     assert isThreadDeviceId(getDeviceId());
@@ -229,7 +142,6 @@ public class CudaDevice extends CudaSystem {
     if (!dirty) obtain.clear();
     return obtain;
   }
-
 
   public CudaTensorDescriptor newTensorDescriptor(final Precision dataType,
                                                   final int batchCount, final int channels, final int height, final int width) {
@@ -364,20 +276,38 @@ public class CudaDevice extends CudaSystem {
     setDevice(getDeviceId());
   }
 
-  public cudaDeviceProp getDeviceProperties() {
-    if (null == deviceProperties) {
-      deviceProperties = getDeviceProperties(getDeviceId());
-    }
-    return deviceProperties;
-  }
-
-  public int getDeviceId() {
-    return deviceId;
-  }
-
   @Nonnull
-  public CharSequence getDeviceName() {
-    return new String(getDeviceProperties().name, Charset.forName("ASCII")).trim();
+  CudaPointer acquire(long size, @Nonnull MemoryType type, int retries) {
+    if (size <= 0) throw new IllegalArgumentException();
+    assert isThreadDeviceId(getDeviceId());
+    if (retries < 0) throw new IllegalArgumentException();
+    @Nonnull CudaPointer pointer = _acquire(size, type, retries);
+    if (null != pointer) return pointer;
+    if (retries < 0) throw new IllegalStateException();
+    return this.acquire(size, type, retries - 1);
+  }
+
+  private CudaPointer _acquire(long size, @Nonnull MemoryType type, int retries) {
+    synchronized (allocationLock) {
+      final DeviceMetrics metrics = ensureCapacity(size);
+      @Nonnull CudaPointer pointer = null;
+      try {
+        pointer = type.allocCached(size, this);
+        final long finalMemory = metrics.activeMemory.addAndGet(size);
+        metrics.peakMemory.updateAndGet(l -> Math.max(finalMemory, l));
+      } catch (@Nonnull final ThreadDeath e) {
+        throw e;
+      } catch (@Nonnull final Throwable e) {
+        if (retries <= 0)
+          throw new RuntimeException(String.format(String.format("Error allocating %e bytes; %s currently allocated to device %s", (double) size, metrics.usedMemory, this)), e);
+        final long startMemory = metrics.usedMemory.get();
+        @Nonnull TimedResult<Double> timedResult = TimedResult.time(() -> CudaMemory.clearMemory(getDeviceId()));
+        final long freedMemory = startMemory - metrics.usedMemory.get();
+        CudaMemory.logger.warn(String.format("Low GPU Memory while allocating %s bytes; %s freed in %.4fs resulting in %s total (triggered by %s)",
+            size, freedMemory, timedResult.seconds(), metrics.usedMemory.get(), e.getMessage()));
+      }
+      return pointer;
+    }
   }
 
   public static class CudaTensorDescriptor extends CudaResource<cudnnTensorDescriptor> {

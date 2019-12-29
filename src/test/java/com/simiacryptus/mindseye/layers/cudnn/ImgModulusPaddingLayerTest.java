@@ -36,6 +36,11 @@ public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
     this.offset = offset;
   }
 
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return null;
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -56,11 +61,6 @@ public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     return new ImgModulusPaddingLayer(modulus, modulus, offset, offset);
-  }
-
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return null;
   }
 
   public static class Basic extends ImgModulusPaddingLayerTest {

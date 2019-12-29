@@ -23,6 +23,7 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSystem;
 import com.simiacryptus.mindseye.layers.LayerTestBase;
 import com.simiacryptus.notebook.NotebookOutput;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -32,7 +33,7 @@ import java.io.PrintStream;
 public abstract class CudnnLayerTestBase extends LayerTestBase {
 
   @Override
-  public void run(@Nonnull NotebookOutput log) {
+  public void run(@NotNull @Nonnull NotebookOutput log) {
     OutputStream file = log.file("gpu.log");
     log.out(log.link(new File(log.getResourceDir(), "gpu.log"), "Cuda Log"));
     CudaSystem.addLog(new PrintStream(file));

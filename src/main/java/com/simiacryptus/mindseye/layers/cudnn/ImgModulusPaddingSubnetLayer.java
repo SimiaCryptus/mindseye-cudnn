@@ -70,29 +70,57 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
+  public int getOffsetX() {
+    return offsetX;
+  }
+
+  public void setOffsetX(int offsetX) {
+    this.offsetX = offsetX;
+  }
+
+  @Override
+  public Precision getPrecision() {
+    return precision;
+  }
+
+  @Nonnull
+  @Override
+  public ImgModulusPaddingSubnetLayer setPrecision(final Precision precision) {
+    this.precision = precision;
+    return this;
+  }
+
+  @SuppressWarnings("unused")
   public static ImgModulusPaddingSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgModulusPaddingSubnetLayer(json, rs);
   }
 
   @Nullable
   @Override
-  public Result evalAndFree(@Nonnull final Result... inObj) {
+  public Result eval(@Nonnull final Result... inObj) {
     assert inObj.length == 1;
-    @Nonnull int[] dimensions = inObj[0].getData().getDimensions();
+    @Nonnull
+    int[] dimensions = inObj[0].getData().getDimensions();
     int inputWidth = dimensions[0];
     int inputHeight = dimensions[1];
 
     int sizeX = Math.abs(this.sizeX);
     int paddingX = sizeX - ((inputWidth - offsetX) % sizeX);
-    while (paddingX < 0) paddingX += sizeX;
-    while (paddingX >= sizeX) paddingX -= sizeX;
-    if (this.sizeX < 0 && (paddingX + inputWidth) > sizeX) paddingX -= sizeX;
+    while (paddingX < 0)
+      paddingX += sizeX;
+    while (paddingX >= sizeX)
+      paddingX -= sizeX;
+    if (this.sizeX < 0 && (paddingX + inputWidth) > sizeX)
+      paddingX -= sizeX;
 
     int sizeY = Math.abs(this.sizeY);
     int paddingY = sizeY - ((inputHeight - offsetY) % sizeY);
-    while (paddingY < 0) paddingY += sizeY;
-    while (paddingY >= sizeY) paddingY -= sizeY;
-    if (this.sizeY < 0 && (paddingY + inputHeight) > sizeY) paddingY -= sizeY;
+    while (paddingY < 0)
+      paddingY += sizeY;
+    while (paddingY >= sizeY)
+      paddingY -= sizeY;
+    if (this.sizeY < 0 && (paddingY + inputHeight) > sizeY)
+      paddingY -= sizeY;
 
     int ouputWidth = inputWidth + paddingX;
     int outputHeight = inputHeight + paddingY;
@@ -104,13 +132,11 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
       }
     }
 
-    @Nonnull ImgCropLayer imgCropLayer1 = new ImgCropLayer(ouputWidth, outputHeight).setPrecision(precision);
-    @Nonnull ImgCropLayer imgCropLayer2 = new ImgCropLayer(inputWidth, inputHeight).setPrecision(precision);
-    @Nullable Result eval = imgCropLayer2.evalAndFree(super.evalAndFree(imgCropLayer1.evalAndFree(inObj)));
-    imgCropLayer1.freeRef();
-    imgCropLayer2.freeRef();
-
-    return eval;
+    @Nonnull
+    ImgCropLayer imgCropLayer1 = new ImgCropLayer(ouputWidth, outputHeight).setPrecision(precision);
+    @Nonnull
+    ImgCropLayer imgCropLayer2 = new ImgCropLayer(inputWidth, inputHeight).setPrecision(precision);
+    return imgCropLayer2.eval(super.eval(imgCropLayer1.eval(inObj)));
   }
 
   @Nonnull
@@ -129,25 +155,5 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
   @Override
   public List<double[]> state() {
     return Arrays.asList();
-  }
-
-  @Override
-  public Precision getPrecision() {
-    return precision;
-  }
-
-  @Nonnull
-  @Override
-  public ImgModulusPaddingSubnetLayer setPrecision(final Precision precision) {
-    this.precision = precision;
-    return this;
-  }
-
-  public int getOffsetX() {
-    return offsetX;
-  }
-
-  public void setOffsetX(int offsetX) {
-    this.offsetX = offsetX;
   }
 }

@@ -37,11 +37,11 @@ public abstract class CudaResourceBase<T> extends ReferenceCountingBase implemen
     return ptr;
   }
 
-  protected abstract void _free();
-
   public boolean isActiveObj() {
     return objGeneration == CudaSystem.gpuGeneration.get();
   }
 
   public abstract void release();
+
+  protected abstract void _free();
 }

@@ -26,6 +26,11 @@ import java.util.Random;
 
 public abstract class MeanSqLossLayerTest extends CudnnLayerTestBase {
 
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return com.simiacryptus.mindseye.layers.java.MeanSqLossLayer.class;
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -38,11 +43,6 @@ public abstract class MeanSqLossLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     return new MeanSqLossLayer();
-  }
-
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return com.simiacryptus.mindseye.layers.java.MeanSqLossLayer.class;
   }
 
   @Nonnull

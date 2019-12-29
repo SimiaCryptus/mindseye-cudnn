@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.notebook.NotebookOutput;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.Random;
@@ -31,8 +32,8 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
   final Precision precision;
   private final int smallSize;
   private final int largeSize;
-  ImgBandSelectLayer layer;
-  int inputBands;
+  final ImgBandSelectLayer layer;
+  final int inputBands;
 
   public ImgBandSelectLayerTest(final Precision precision, int inputBands, final int fromBand, int toBand) {
     this.precision = precision;
@@ -44,41 +45,36 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
   }
 
   @Override
-  public void run(NotebookOutput log) {
-//    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
-//    log.p(log.file((String) null, logName, "GPU Log"));
-//    @Nonnull PrintStream apiLog = new PrintStream(log.file(logName));
-//    CudaSystem.addLog(apiLog);
+  public Layer getReferenceLayer() {
+    return layer.getCompatibilityLayer();
+  }
+
+  @Override
+  public void run(@NotNull NotebookOutput log) {
+    //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
+    //    log.p(log.file((String) null, logName, "GPU Log"));
+    //    @Nonnull PrintStream apiLog = new PrintStream(log.file(logName));
+    //    CudaSystem.addLog(apiLog);
     super.run(log);
-//    apiLog.close();
-//    CudaSystem.apiLog.remove(apiLog);
+    //    apiLog.close();
+    //    CudaSystem.apiLog.remove(apiLog);
   }
 
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{
-        {smallSize, smallSize, inputBands}
-    };
+    return new int[][]{{smallSize, smallSize, inputBands}};
   }
 
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    layer.addRef();
     return layer;
   }
 
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][]{
-        {largeSize, largeSize, inputBands}
-    };
-  }
-
-  @Override
-  public Layer getReferenceLayer() {
-    return layer.getCompatibilityLayer();
+    return new int[][]{{largeSize, largeSize, inputBands}};
   }
 
   public static class Double extends ImgBandSelectLayerTest {
@@ -87,17 +83,17 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
     }
   }
 
-//  /**
-//   * Basic 64-bit apply
-//   */
-//  public static class BigDouble extends ImgBandSelectLayerTest {
-//    /**
-//     * Instantiates a new Double.
-//     */
-//    public BigDouble() {
-//      super(Precision.Double, 1024, 0, 256);
-//    }
-//  }
+  //  /**
+  //   * Basic 64-bit apply
+  //   */
+  //  public static class BigDouble extends ImgBandSelectLayerTest {
+  //    /**
+  //     * Instantiates a new Double.
+  //     */
+  //    public BigDouble() {
+  //      super(Precision.Double, 1024, 0, 256);
+  //    }
+  //  }
 
   public static class Float extends ImgBandSelectLayerTest {
     public Float() {

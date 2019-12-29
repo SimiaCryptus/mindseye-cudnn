@@ -54,10 +54,6 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
     mode = SoftmaxMode.valueOf(json.get("mode").getAsString());
   }
 
-  public static SoftmaxActivationLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new SoftmaxActivationLayer(json);
-  }
-
   public SoftmaxAlgorithm getAlgorithm() {
     return algorithm;
   }
@@ -65,6 +61,14 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
   public SoftmaxActivationLayer setAlgorithm(SoftmaxAlgorithm algorithm) {
     this.algorithm = algorithm;
     return this;
+  }
+
+  @Nonnull
+  public Layer getCompatibilityLayer() {
+    assert algorithm != SoftmaxAlgorithm.LOG;
+    if (mode == SoftmaxMode.CHANNEL)
+      return this.as(ImgPixelSoftmaxLayer.class);
+    return this.as(SoftmaxLayer.class);
   }
 
   public SoftmaxMode getMode() {
@@ -76,17 +80,28 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
     return this;
   }
 
+  @Override
+  public Precision getPrecision() {
+    return precision;
+  }
+
   @Nonnull
-  public Layer getCompatibilityLayer() {
-    assert algorithm != SoftmaxAlgorithm.LOG;
-    if (mode == SoftmaxMode.CHANNEL) return this.as(ImgPixelSoftmaxLayer.class);
-    return this.as(SoftmaxLayer.class);
+  @Override
+  public SoftmaxActivationLayer setPrecision(final Precision precision) {
+    this.precision = precision;
+    return this;
+  }
+
+  @SuppressWarnings("unused")
+  public static SoftmaxActivationLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+    return new SoftmaxActivationLayer(json);
   }
 
   @Nullable
   @Override
-  public Result evalAndFree(@Nonnull final Result... inObj) {
-    if (!CudaSystem.isEnabled()) return getCompatibilityLayer().evalAndFree(inObj);
+  public Result eval(@Nonnull final Result... inObj) {
+    if (!CudaSystem.isEnabled())
+      return getCompatibilityLayer().eval(inObj);
     final Result inputResult = inObj[0];
     final TensorList inputData = inputResult.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
@@ -95,62 +110,53 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
     final int inputDims = Tensor.length(inputSize);
     try {
       final CudaTensor outPtr = CudaSystem.run(gpu -> {
-        @Nullable CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
+        @Nullable
+        CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
         final CudaTensor outputTensor;
         if (1 == inputData.currentRefCount() && 1 == inputTensor.currentRefCount()) {
           outputTensor = inputTensor;
-          outputTensor.addRef();
         } else {
-          @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision,
-              length, inputSize[2], inputSize[1], inputSize[0],
-              inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0], 1);
-          @Nonnull final CudaMemory outputData =
-              gpu.allocate(precision.size * 1l * inputDims * length, MemoryType.Managed.ifEnabled(), true);
-          outputTensor = CudaTensor.wrap(outputData, outputDescriptor, precision);
+          @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+              inputSize[2], inputSize[1], inputSize[0], inputSize[2] * inputSize[1] * inputSize[0],
+              inputSize[1] * inputSize[0], inputSize[0], 1);
+          @Nonnull final CudaMemory outputData = gpu.allocate(precision.size * 1l * inputDims * length,
+              MemoryType.Managed.ifEnabled(), true);
+          outputTensor = new CudaTensor(outputData, outputDescriptor, precision);
         }
         try {
           CudaMemory inputMemory = inputTensor.getMemory(gpu);
           CudaMemory outputMemory = outputTensor.getMemory(gpu);
-          CudaSystem.handle(gpu.cudnnSoftmaxForward(algorithm.code, mode.code,
-              precision.getPointer(1.0), inputTensor.descriptor.getPtr(), inputMemory.getPtr(),
-              precision.getPointer(0.0), outputTensor.descriptor.getPtr(), outputMemory.getPtr()
-          ));
+          CudaSystem.handle(gpu.cudnnSoftmaxForward(algorithm.code, mode.code, precision.getPointer(1.0),
+              inputTensor.descriptor.getPtr(), inputMemory.getPtr(), precision.getPointer(0.0),
+              outputTensor.descriptor.getPtr(), outputMemory.getPtr()));
           assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
           inputMemory.dirty();
           outputMemory.dirty();
-          outputMemory.freeRef();
-          inputMemory.freeRef();
           return outputTensor;
         } catch (@Nonnull final Throwable e) {
           throw new ComponentException("Error apply " + Arrays.toString(inputSize), e);
         } finally {
-          inputTensor.freeRef();
         }
       }, inputData);
-      return new Result(CudaTensorList.create(outPtr, length, outputSize, precision),
+      return new Result(new CudaTensorList(outPtr, length, outputSize, precision),
           (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
             if (inputResult.isAlive()) {
               final TensorList data = CudaSystem.run(gpu -> {
-                @Nullable CudaTensor inputTensor;
+                @Nullable
+                CudaTensor inputTensor;
                 synchronized (gpu) {
                   inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
                 }
-                @Nullable CudaTensor deltaTensor;
+                @Nullable
+                CudaTensor deltaTensor;
                 synchronized (gpu) {
                   deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
                 }
-                outPtr.addRef();
-                CudaTensor localOut = outPtr.getDenseAndFree(gpu);
-                delta.freeRef();
+                CudaTensor localOut = outPtr.getDense(gpu);
                 CudaTensor passbackTensor;
-                passbackTensor = CudaTensor.wrap(
-                    gpu.allocate((long) Tensor.length(inputSize) * length * precision.size, MemoryType.Managed.ifEnabled(), false),
-                    gpu.newTensorDescriptor(precision,
-                        delta.length(), inputSize[2], inputSize[1], inputSize[0],
-                        inputSize[2] * inputSize[1] * inputSize[0],
-                        inputSize[1] * inputSize[0],
-                        inputSize[0],
-                        1), precision);
+                passbackTensor = new CudaTensor(gpu.allocate((long) Tensor.length(inputSize) * length * precision.size,
+                    MemoryType.Managed.ifEnabled(), false), gpu.newTensorDescriptor(precision, delta.length(), inputSize[2], inputSize[1], inputSize[0],
+                    inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0], 1), precision);
 
                 try {
                   CudaMemory localOutMemory = localOut.getMemory(gpu);
@@ -158,33 +164,27 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
                   CudaMemory inputMemory = inputTensor.getMemory(gpu);
                   CudaMemory passbackMemory = passbackTensor.getMemory(gpu);
 
-                  CudaSystem.handle(gpu.cudnnSoftmaxBackward(algorithm.code, mode.code,
-                      precision.getPointer(1.0), localOut.descriptor.getPtr(), localOutMemory.getPtr(),
-                      deltaTensor.descriptor.getPtr(), deltaTensorMemory.getPtr(),
-                      precision.getPointer(0.0), passbackTensor.descriptor.getPtr(), passbackMemory.getPtr()
-                  ));
+                  CudaSystem.handle(gpu.cudnnSoftmaxBackward(algorithm.code, mode.code, precision.getPointer(1.0),
+                      localOut.descriptor.getPtr(), localOutMemory.getPtr(), deltaTensor.descriptor.getPtr(),
+                      deltaTensorMemory.getPtr(), precision.getPointer(0.0), passbackTensor.descriptor.getPtr(),
+                      passbackMemory.getPtr()));
                   localOutMemory.dirty();
                   deltaTensorMemory.dirty();
                   passbackMemory.dirty();
-
-                  localOutMemory.freeRef();
-                  deltaTensorMemory.freeRef();
-                  inputMemory.freeRef();
-                  passbackMemory.freeRef();
                 } catch (@Nonnull final Throwable e) {
                   throw new ComponentException("Error apply " + Arrays.toString(inputSize), e);
                 } finally {
-                  localOut.freeRef();
-                  inputTensor.freeRef();
-                  deltaTensor.freeRef();
                 }
-                return CudaTensorList.wrap(passbackTensor, length, inputSize, precision);
+                return new CudaTensorList(passbackTensor, length, inputSize, precision);
               }, delta);
               inputResult.accumulate(buffer, data);
-            } else {
-              delta.freeRef();
             }
           }) {
+
+        @Override
+        public boolean isAlive() {
+          return inputResult.isAlive() || !isFrozen();
+        }
 
         @Override
         public final void accumulate(DeltaSet<UUID> buffer, TensorList delta) {
@@ -193,15 +193,6 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
 
         @Override
         protected void _free() {
-          inputData.freeRef();
-          outPtr.freeRef();
-          inputResult.freeRef();
-        }
-
-
-        @Override
-        public boolean isAlive() {
-          return inputResult.isAlive() || !isFrozen();
         }
       };
     } catch (@Nonnull final Throwable e) {
@@ -219,18 +210,6 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
     return json;
   }
 
-  @Override
-  public Precision getPrecision() {
-    return precision;
-  }
-
-  @Nonnull
-  @Override
-  public SoftmaxActivationLayer setPrecision(final Precision precision) {
-    this.precision = precision;
-    return this;
-  }
-
   @Nonnull
   @Override
   public List<double[]> state() {
@@ -238,8 +217,7 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
   }
 
   public enum SoftmaxAlgorithm {
-    FAST(cudnnSoftmaxAlgorithm.CUDNN_SOFTMAX_FAST),
-    ACCURATE(cudnnSoftmaxAlgorithm.CUDNN_SOFTMAX_ACCURATE),
+    FAST(cudnnSoftmaxAlgorithm.CUDNN_SOFTMAX_FAST), ACCURATE(cudnnSoftmaxAlgorithm.CUDNN_SOFTMAX_ACCURATE),
     LOG(cudnnSoftmaxAlgorithm.CUDNN_SOFTMAX_LOG);
 
     public final int code;
@@ -250,8 +228,7 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
   }
 
   public enum SoftmaxMode {
-    CHANNEL(cudnnSoftmaxMode.CUDNN_SOFTMAX_MODE_CHANNEL),
-    INSTANCE(cudnnSoftmaxMode.CUDNN_SOFTMAX_MODE_INSTANCE);
+    CHANNEL(cudnnSoftmaxMode.CUDNN_SOFTMAX_MODE_CHANNEL), INSTANCE(cudnnSoftmaxMode.CUDNN_SOFTMAX_MODE_INSTANCE);
 
     public final int code;
 

@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.notebook.NotebookOutput;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,36 +38,13 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
     testingBatchSize = 1;
   }
 
-  @Nonnull
-  @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{
-        {2, 2, 3}
-    };
-  }
-
-  @Override
-  public abstract int[][] getLargeDims(final Random random);
-
-  @Nonnull
-  @Override
-  protected Class<?> getTargetClass() {
-    return GramianLayer.class;
-  }
-
-  @Nonnull
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    return new GramianLayer();
-  }
-
   @Override
   public Layer getReferenceLayer() {
     return new LayerBase() {
 
       @Nullable
       @Override
-      public Result evalAndFree(Result... array) {
+      public Result eval(Result... array) {
         Tensor input = array[0].getData().get(0);
         int[] inputDimensions = input.getDimensions();
         int inBands = inputDimensions[2];
@@ -82,7 +60,7 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
             }).average().getAsDouble();
           }).average().getAsDouble();
         });
-        return new Result(TensorArray.wrap(output), (a, b) -> {
+        return new Result(new TensorArray(output), (a, b) -> {
         });
       }
 
@@ -99,8 +77,31 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
     };
   }
 
+  @Nonnull
   @Override
-  public void run(NotebookOutput log) {
+  protected Class<?> getTargetClass() {
+    return GramianLayer.class;
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getSmallDims(Random random) {
+    return new int[][]{
+        {2, 2, 3}
+    };
+  }
+
+  @Override
+  public abstract int[][] getLargeDims(final Random random);
+
+  @Nonnull
+  @Override
+  public Layer getLayer(final int[][] inputSize, Random random) {
+    return new GramianLayer();
+  }
+
+  @Override
+  public void run(@NotNull NotebookOutput log) {
 //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
 //    log.p(log.file((String) null, logName, "GPU Log"));
 //    CudaSystem.addLog(new PrintStream(log.file(logName)));

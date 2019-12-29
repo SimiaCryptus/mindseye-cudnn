@@ -37,10 +37,9 @@ public class CudaResource<T> extends CudaResourceBase<T> {
     this.deviceId = deviceId;
   }
 
-  protected void _free() {
-    CudnnHandle threadHandle = CudaSystem.getThreadHandle();
-    if (null != threadHandle) threadHandle.cleanupNative.add(this);
-    else release();
+  @Override
+  public int getDeviceId() {
+    return deviceId;
   }
 
   public void release() {
@@ -55,9 +54,9 @@ public class CudaResource<T> extends CudaResourceBase<T> {
     }
   }
 
-
-  @Override
-  public int getDeviceId() {
-    return deviceId;
+  protected void _free() {
+    CudnnHandle threadHandle = CudaSystem.getThreadHandle();
+    if (null != threadHandle) threadHandle.cleanupNative.add(this);
+    else release();
   }
 }

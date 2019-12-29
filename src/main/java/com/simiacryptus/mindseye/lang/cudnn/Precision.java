@@ -40,6 +40,11 @@ public enum Precision {
     this.size = size;
   }
 
+  @Nonnull
+  public Layer getCompatibilityLayer() {
+    throw new RuntimeException("Not Implemented");
+  }
+
   public static double[] getDoubles(@Nonnull final float[] data) {
     return copy(data, new double[data.length]);
   }
@@ -104,11 +109,6 @@ public enum Precision {
     while (inBuffer.hasRemaining()) {
       outBuffer.put(inBuffer.get());
     }
-  }
-
-  @Nonnull
-  public Layer getCompatibilityLayer() {
-    throw new RuntimeException("Not Implemented");
   }
 
   public CudaPointer getPointer(@Nonnull final double... data) {

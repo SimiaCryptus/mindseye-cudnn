@@ -31,6 +31,11 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
     validateBatchExecution = false;
   }
 
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return null;
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -52,12 +57,6 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
   public Layer getLayer(final int[][] inputSize, Random random) {
     return new ImgTileCycleLayer();
   }
-
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return null;
-  }
-
 
   public static class OneThird extends ImgTileCycleLayerTest {
 

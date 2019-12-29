@@ -30,6 +30,11 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
   public ImgCropLayerTest() {
   }
 
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return null;
+  }
+
   @Nonnull
   @Override
   public abstract int[][] getSmallDims(Random random);
@@ -38,12 +43,12 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
   @Override
   public abstract Layer getLayer(final int[][] inputSize, Random random);
 
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return null;
-  }
-
   public static class Center extends ImgCropLayerTest {
+    @Override
+    public Class<? extends Layer> getReferenceLayerClass() {
+      return com.simiacryptus.mindseye.layers.java.ImgCropLayer.class;
+    }
+
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
@@ -54,11 +59,6 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       return new ImgCropLayer(2, 2);
-    }
-
-    @Override
-    public Class<? extends Layer> getReferenceLayerClass() {
-      return com.simiacryptus.mindseye.layers.java.ImgCropLayer.class;
     }
 
   }

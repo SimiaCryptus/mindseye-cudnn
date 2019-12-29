@@ -32,6 +32,12 @@ public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
     validateBatchExecution = false;
   }
 
+  @Nullable
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return com.simiacryptus.mindseye.layers.java.ImgTileAssemblyLayer.class;
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -53,12 +59,6 @@ public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     return new ImgTileAssemblyLayer(2, 3);
-  }
-
-  @Nullable
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return com.simiacryptus.mindseye.layers.java.ImgTileAssemblyLayer.class;
   }
 
   public static class Basic extends ImgTileAssemblyLayerTest {

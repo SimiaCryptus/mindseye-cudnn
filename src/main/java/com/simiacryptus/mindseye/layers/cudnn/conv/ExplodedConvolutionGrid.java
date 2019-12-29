@@ -19,7 +19,6 @@
 
 package com.simiacryptus.mindseye.layers.cudnn.conv;
 
-import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
@@ -29,6 +28,7 @@ import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.InnerNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,15 +53,19 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     int rows = (int) Math.ceil((double) convolutionParams.inputBands / bandWidth);
     subLayers = IntStream.range(0, rows).map(x -> x * bandWidth).mapToObj(fromBand -> {
       int toBand = Math.min(convolutionParams.inputBands, fromBand + bandWidth);
-      if (fromBand >= toBand) throw new RuntimeException(fromBand + " >= " + toBand);
+      if (fromBand >= toBand)
+        throw new RuntimeException(fromBand + " >= " + toBand);
       return new ExplodedConvolutionLeg(convolutionParams, fromBand, toBand);
     }).collect(Collectors.toList());
   }
 
-  @Override
-  protected void _free() {
-    subLayers.stream().forEach(ReferenceCountingBase::freeRef);
-    super._free();
+  @Nonnull
+  public PipelineNetwork getNetwork() {
+    assertAlive();
+    @Nonnull
+    PipelineNetwork network = new PipelineNetwork(1);
+    add(network.getInput(0));
+    return network;
   }
 
   @Nonnull
@@ -69,16 +73,19 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     if (1 == subLayers.size()) {
       subLayers.get(0).write(filter);
     } else {
-      for (@Nonnull ExplodedConvolutionLeg leg : subLayers) {
-        @Nonnull int[] legDims = {convolutionParams.masterFilterDimensions[0], convolutionParams.masterFilterDimensions[1], leg.getInputBands() * convolutionParams.outputBands};
-        @Nonnull Tensor template = new Tensor(legDims);
-        @Nullable Tensor tensor = template.mapCoords(c -> {
+      for (@Nonnull
+          ExplodedConvolutionLeg leg : subLayers) {
+        @Nonnull
+        int[] legDims = {convolutionParams.masterFilterDimensions[0], convolutionParams.masterFilterDimensions[1],
+            leg.getInputBands() * convolutionParams.outputBands};
+        @Nonnull
+        Tensor template = new Tensor(legDims);
+        @Nullable
+        Tensor tensor = template.mapCoords(c -> {
           int[] coords = c.getCoords();
           return filter.get(coords[0], coords[1], getFilterBand(leg, coords[2]));
         }, false);
-        template.freeRef();
         leg.write(tensor);
-        tensor.freeRef();
       }
     }
     return this;
@@ -89,13 +96,13 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
       return extractor.apply(subLayers.get(0));
     } else {
       @Nonnull final Tensor filterDelta = new Tensor(convolutionParams.masterFilterDimensions);
-      for (@Nonnull ExplodedConvolutionLeg leg : subLayers) {
+      for (@Nonnull
+          ExplodedConvolutionLeg leg : subLayers) {
         Tensor tensor = extractor.apply(leg);
         tensor.forEach((v, c) -> {
           int[] coords = c.getCoords();
           filterDelta.set(coords[0], coords[1], getFilterBand(leg, coords[2]), v);
         }, false);
-        tensor.freeRef();
       }
       return filterDelta;
     }
@@ -109,21 +116,7 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     return read(l -> l.read(deltaSet, remove));
   }
 
-  private int getFilterBand(@Nonnull ExplodedConvolutionLeg leg, int legFilterBand) {
-    int filterBand = legFilterBand;
-    filterBand = filterBand + convolutionParams.outputBands * leg.fromBand;
-    return filterBand;
-  }
-
-  @Nonnull
-  public PipelineNetwork getNetwork() {
-    assertAlive();
-    @Nonnull PipelineNetwork network = new PipelineNetwork(1);
-    add(network.getInput(0)).freeRef();
-    return network;
-  }
-
-  public DAGNode add(@Nonnull DAGNode input) {
+  public void add(@Nonnull DAGNode input) {
     assertAlive();
     DAGNetwork network = input.getNetwork();
     int defaultPaddingX = 0;
@@ -149,7 +142,7 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
         y = 0;
       }
       if (x != 0 || y != 0) {
-        paddedInput = network.wrap(new ImgZeroPaddingLayer(x, y).setPrecision(convolutionParams.precision), input);
+        paddedInput = network.add(new ImgZeroPaddingLayer(x, y).setPrecision(convolutionParams.precision), input);
       } else {
         paddedInput = input;
       }
@@ -168,19 +161,30 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
       });
       boolean isParallel = CudaSettings.INSTANCE().isConv_para_1();
       linearSubnetLayer.setPrecision(convolutionParams.precision).setParallel(isParallel);
-      output = network.wrap(linearSubnetLayer, paddedInput).setParallel(isParallel);
+      output = network.add(linearSubnetLayer, paddedInput).setParallel(isParallel);
     }
     if (customPaddingX || customPaddingY) {
       int x = !customPaddingX ? 0 : (this.convolutionParams.paddingX - defaultPaddingX);
       int y = !customPaddingY ? 0 : (this.convolutionParams.paddingY - defaultPaddingY);
-      if (x > 0) x = 0;
-      if (y > 0) y = 0;
+      if (x > 0)
+        x = 0;
+      if (y > 0)
+        y = 0;
       if (x != 0 || y != 0) {
-        return network.wrap(new ImgZeroPaddingLayer(x, y).setPrecision(convolutionParams.precision), output);
+        network.add(new ImgZeroPaddingLayer(x, y).setPrecision(convolutionParams.precision), output);
       }
     }
-    return output;
   }
 
+  @Override
+  protected void _free() {
+    super._free();
+  }
+
+  private int getFilterBand(@Nonnull ExplodedConvolutionLeg leg, int legFilterBand) {
+    int filterBand = legFilterBand;
+    filterBand = filterBand + convolutionParams.outputBands * leg.fromBand;
+    return filterBand;
+  }
 
 }

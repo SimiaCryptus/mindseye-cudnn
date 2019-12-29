@@ -37,14 +37,19 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
 
   private static int largeSize;
   final Precision precision;
-  int inputBands;
-  int inputs;
+  final int inputBands;
+  final int inputs;
 
   public SumInputsLayerTest(final Precision precision, int inputBands, int inputs, final int largeSize) {
     this.precision = precision;
     this.inputBands = inputBands;
     this.inputs = inputs;
     SumInputsLayerTest.largeSize = largeSize;
+  }
+
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return com.simiacryptus.mindseye.layers.java.SumInputsLayer.class;
   }
 
   @Override
@@ -60,12 +65,8 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
 
   @Override
   public int[][] getLargeDims(Random random) {
-    return IntStream.range(0, inputs).mapToObj(i -> new int[]{largeSize, largeSize, inputBands}).toArray(i -> new int[i][]);
-  }
-
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return com.simiacryptus.mindseye.layers.java.SumInputsLayer.class;
+    return IntStream.range(0, inputs).mapToObj(i -> new int[]{largeSize, largeSize, inputBands})
+        .toArray(i -> new int[i][]);
   }
 
   public static class Double_List extends SumInputsLayerTest {
@@ -77,9 +78,17 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
 
   public static class OnePlusOne extends CudnnLayerTestBase {
 
-
     public OnePlusOne() {
       super();
+    }
+
+    @Override
+    public Layer getReferenceLayer() {
+      @Nonnull
+      PipelineNetwork network = new PipelineNetwork();
+      DAGNode input = network.getInput(0);
+      network.add(new SumInputsLayer(), input, input);
+      return network;
     }
 
     @Override
@@ -87,42 +96,31 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
       return com.simiacryptus.mindseye.layers.java.SumInputsLayer.class;
     }
 
-    @Nonnull
-    @Override
-    public Layer getLayer(int[][] inputSize, Random random) {
-      @Nonnull PipelineNetwork network = new PipelineNetwork();
-      DAGNode input = network.getInput(0);
-      network.wrap(new com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer(), input, input.addRef()).freeRef();
-      return network;
-    }
-
     @Override
     protected Class<?> getTargetClass() {
       return SumInputsLayer.class;
     }
 
+    @Nonnull
     @Override
-    public Layer getReferenceLayer() {
-      @Nonnull PipelineNetwork network = new PipelineNetwork();
+    public Layer getLayer(int[][] inputSize, Random random) {
+      @Nonnull
+      PipelineNetwork network = new PipelineNetwork();
       DAGNode input = network.getInput(0);
-      network.wrap(new SumInputsLayer(), input, input.addRef()).freeRef();
+      network.add(new com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer(), input, input);
       return network;
     }
 
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{
-          {4, 4, 1}
-      };
+      return new int[][]{{4, 4, 1}};
     }
 
     @Nonnull
     @Override
     public int[][] getLargeDims(Random random) {
-      return new int[][]{
-          {1200, 800, 1}
-      };
+      return new int[][]{{1200, 800, 1}};
     }
 
   }
@@ -139,7 +137,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
       super(Precision.Double, 1, 2, 1200);
     }
   }
-
 
   public static class Float_Add extends SumInputsLayerTest {
     public Float_Add() {
@@ -162,11 +159,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
       testingBatchSize = 5;
     }
 
-    @Override
-    public Class<? extends Layer> getReferenceLayerClass() {
-      return null;
-    }
-
     @Nullable
     @Override
     protected ComponentTest<ToleranceStatistics> getJsonTester() {
@@ -178,6 +170,11 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     @Override
     public ComponentTest<ToleranceStatistics> getPerformanceTester() {
       logger.warn("Disabled Performance Test");
+      return null;
+    }
+
+    @Override
+    public Class<? extends Layer> getReferenceLayerClass() {
       return null;
     }
 

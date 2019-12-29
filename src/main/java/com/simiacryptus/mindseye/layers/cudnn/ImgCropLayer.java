@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import org.slf4j.Logger;
@@ -32,7 +31,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 @SuppressWarnings("serial")
 public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLayer> {
@@ -68,17 +66,17 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     assert 0 < sizeY;
   }
 
-  public static ImgCropLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new ImgCropLayer(json, rs);
+  public double getBaseValue() {
+    return baseValue;
   }
 
-  public Alignment getVerticalAlign() {
-    return verticalAlign;
+  public void setBaseValue(double baseValue) {
+    this.baseValue = baseValue;
   }
 
-  public ImgCropLayer setVerticalAlign(Alignment verticalAlign) {
-    this.verticalAlign = verticalAlign;
-    return this;
+  @Nonnull
+  public Layer getCompatibilityLayer() {
+    return this.as(com.simiacryptus.mindseye.layers.java.ImgCropLayer.class);
   }
 
   public Alignment getHorizontalAlign() {
@@ -90,16 +88,56 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     return this;
   }
 
-  public CudaTensor copy(final CudnnHandle gpu, final CudaTensor input, final int length, final int[] inputDimensions, final int[] outputDimensions, final boolean dirty, Precision precision, Alignment horizontalAlign, Alignment verticalAlign) {
-    if (3 != inputDimensions.length) throw new IllegalArgumentException("inputDimensions.length");
-    if (3 != outputDimensions.length) throw new IllegalArgumentException("dimOut.length");
+  @Override
+  public Precision getPrecision() {
+    return precision;
+  }
+
+  @Nonnull
+  @Override
+  public ImgCropLayer setPrecision(final Precision precision) {
+    this.precision = precision;
+    return this;
+  }
+
+  public Alignment getVerticalAlign() {
+    return verticalAlign;
+  }
+
+  public ImgCropLayer setVerticalAlign(Alignment verticalAlign) {
+    this.verticalAlign = verticalAlign;
+    return this;
+  }
+
+  public boolean isRoundUp() {
+    return roundUp;
+  }
+
+  public ImgCropLayer setRoundUp(boolean roundUp) {
+    this.roundUp = roundUp;
+    return this;
+  }
+
+  @SuppressWarnings("unused")
+  public static ImgCropLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+    return new ImgCropLayer(json, rs);
+  }
+
+  public CudaTensor copy(final CudnnHandle gpu, final CudaTensor input, final int length, final int[] inputDimensions,
+                         final int[] outputDimensions, final boolean dirty, Precision precision, Alignment horizontalAlign,
+                         Alignment verticalAlign) {
+    if (3 != inputDimensions.length)
+      throw new IllegalArgumentException("inputDimensions.length");
+    if (3 != outputDimensions.length)
+      throw new IllegalArgumentException("dimOut.length");
     //log.info(String.format("offset=%d,%d", offsetX, offsetY));
     int offset_left = half(outputDimensions[0] - inputDimensions[0], horizontalAlign);
     int offset_top = half(outputDimensions[1] - inputDimensions[1], verticalAlign);
     return copy(gpu, input, length, inputDimensions, outputDimensions, dirty, precision, offset_left, offset_top);
   }
 
-  public CudaTensor copy(CudnnHandle gpu, CudaTensor input, int length, int[] inputDimensions, int[] outputDimensions, boolean dirty, Precision precision, int offset_left, int offset_top) {
+  public CudaTensor copy(CudnnHandle gpu, CudaTensor input, int length, int[] inputDimensions, int[] outputDimensions,
+                         boolean dirty, Precision precision, int offset_left, int offset_top) {
 
     int sourceOffset = 0;
     int destinationOffset = 0;
@@ -131,106 +169,99 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     assert sourceOffset >= 0;
     assert destinationOffset >= 0;
 
-    @Nonnull final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(
-        precision,//
-        length,//
-        view_channels,//
-        view_height,//
-        view_width,//
-        input.descriptor.nStride,//
-        input.descriptor.cStride,//
-        input.descriptor.hStride,//
+    @Nonnull final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(precision, //
+        length, //
+        view_channels, //
+        view_height, //
+        view_width, //
+        input.descriptor.nStride, //
+        input.descriptor.cStride, //
+        input.descriptor.hStride, //
         input.descriptor.wStride);
     CudaMemory inputTensorMemory = input.getMemory(gpu);
-    try {
+    {
       if (output_height == view_height && output_width == view_width) {
         assert sourceOffset >= 0;
         assert destinationOffset == 0;
-        return CudaTensor.wrap(inputTensorMemory.withByteOffset(sourceOffset * precision.size), sourceViewDescriptor, precision);
+        return new CudaTensor(inputTensorMemory.withByteOffset(sourceOffset * precision.size), sourceViewDescriptor, precision);
       }
 
-      @Nonnull final CudaDevice.CudaTensorDescriptor outputViewDescriptor = gpu.newTensorDescriptor(
-          precision,//
-          length,//
-          view_channels,//
-          view_height,//
-          view_width,//
-          output_channels * output_height * output_width,//
-          output_height * output_width,//
-          output_width,//
+      @Nonnull final CudaDevice.CudaTensorDescriptor outputViewDescriptor = gpu.newTensorDescriptor(precision, //
+          length, //
+          view_channels, //
+          view_height, //
+          view_width, //
+          output_channels * output_height * output_width, //
+          output_height * output_width, //
+          output_width, //
           1);
-      @Nonnull final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(
-          precision,//
-          length,//
-          output_channels,//
-          output_height,//
-          output_width,//
-          output_channels * output_height * output_width,//
-          output_height * output_width,//
-          output_width,//
+      @Nonnull final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(precision, //
+          length, //
+          output_channels, //
+          output_height, //
+          output_width, //
+          output_channels * output_height * output_width, //
+          output_height * output_width, //
+          output_width, //
           1);
 
       @Nonnull final CudaMemory outputBuffer;
       if (baseValue == 0.0) {
-        outputBuffer = gpu.allocate((long) length * output_channels * output_height * output_width * precision.size, MemoryType.Device, dirty);
+        outputBuffer = gpu.allocate((long) length * output_channels * output_height * output_width * precision.size,
+            MemoryType.Device, dirty);
       } else {
         Tensor baseView = new Tensor(outputDimensions).setAll(baseValue);
-        outputBuffer = gpu.getTensor(TensorArray.wrap(baseView), precision, MemoryType.Device, true).getMemory(gpu);
+        outputBuffer = gpu.getTensor(new TensorArray(baseView), precision, MemoryType.Device, true).getMemory(gpu);
       }
 
-      CudaSystem.handle(gpu.cudnnTransformTensor(
-          precision.getPointer(1.0),
-          sourceViewDescriptor.getPtr(), inputTensorMemory.getPtr().withByteOffset(sourceOffset * precision.size),
-          precision.getPointer(0.0),
-          outputViewDescriptor.getPtr(), outputBuffer.getPtr().withByteOffset(destinationOffset * precision.size)
-      ));
+      CudaSystem.handle(gpu.cudnnTransformTensor(precision.getPointer(1.0), sourceViewDescriptor.getPtr(),
+          inputTensorMemory.getPtr().withByteOffset(sourceOffset * precision.size), precision.getPointer(0.0),
+          outputViewDescriptor.getPtr(), outputBuffer.getPtr().withByteOffset(destinationOffset * precision.size)));
       assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
       inputTensorMemory.dirty();
       outputBuffer.dirty();
-      Stream.<ReferenceCounting>of(sourceViewDescriptor, outputViewDescriptor, destinationViewDescriptor).forEach(ReferenceCounting::freeRef);
-      CudaDevice.CudaTensorDescriptor descriptorCudaResource = gpu.newTensorDescriptor(
-          precision,//
-          length,//
-          output_channels,//
-          output_height,//
-          output_width,//
-          output_channels * output_height * output_width,//
-          output_height * output_width,//
-          output_width,//
+      CudaDevice.CudaTensorDescriptor descriptorCudaResource = gpu.newTensorDescriptor(precision, //
+          length, //
+          output_channels, //
+          output_height, //
+          output_width, //
+          output_channels * output_height * output_width, //
+          output_height * output_width, //
+          output_width, //
           1);
-      return CudaTensor.wrap(outputBuffer, descriptorCudaResource, precision);
-    } finally {
-      inputTensorMemory.freeRef();
+      return new CudaTensor(outputBuffer, descriptorCudaResource, precision);
     }
   }
 
   public int half(int i, Alignment alignment) {
-    if (alignment == Alignment.Left) return 0;
-    if (alignment == Alignment.Right) return i;
+    if (alignment == Alignment.Left)
+      return 0;
+    if (alignment == Alignment.Right)
+      return i;
     return half(i);
   }
 
   public int half(int i) {
-    if (i % 2 == 0) return i / 2;
-    else if (isRoundUp()) return (i + 1) / 2;
-    else return (i - 1) / 2;
-  }
-
-  @Nonnull
-  public Layer getCompatibilityLayer() {
-    return this.as(com.simiacryptus.mindseye.layers.java.ImgCropLayer.class);
+    if (i % 2 == 0)
+      return i / 2;
+    else if (isRoundUp())
+      return (i + 1) / 2;
+    else
+      return (i - 1) / 2;
   }
 
   @Nullable
   @Override
-  public Result evalAndFree(@Nonnull final Result... inObj) {
-    if (!CudaSystem.isEnabled()) return getCompatibilityLayer().evalAndFree(inObj);
+  public Result eval(@Nonnull final Result... inObj) {
+    if (!CudaSystem.isEnabled())
+      return getCompatibilityLayer().eval(inObj);
     assert 1 == inObj.length;
     final Result input = inObj[0];
     final TensorList inputData = input.getData();
     assert 3 == inputData.getDimensions().length;
     final int length = inputData.length();
-    @Nonnull int[] dimIn = inputData.getDimensions();
+    @Nonnull
+    int[] dimIn = inputData.getDimensions();
     if (dimIn[0] == sizeX && dimIn[1] == sizeY) {
       return input;
     }
@@ -239,14 +270,13 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     dimOut[1] = sizeY;
     final TensorList outputData = CudaSystem.run(gpu -> {
       @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
-      inputData.freeRef();
       boolean dirty = dimOut[0] <= dimIn[0] && dimOut[1] <= dimIn[1];
       assert dimOut[0] > 0;
       assert dimOut[1] > 0;
       assert dimOut[2] > 0;
-      CudaTensor cudaTensor = copy(gpu, inputTensor, length, dimIn, dimOut, dirty, precision, getHorizontalAlign(), getVerticalAlign());
-      Stream.<ReferenceCounting>of(inputTensor).forEach(ReferenceCounting::freeRef);
-      return CudaTensorList.wrap(cudaTensor, length, dimOut, precision);
+      CudaTensor cudaTensor = copy(gpu, inputTensor, length, dimIn, dimOut, dirty, precision, getHorizontalAlign(),
+          getVerticalAlign());
+      return new CudaTensorList(cudaTensor, length, dimOut, precision);
     }, inputData);
     int[] output_dimensions = outputData.getDimensions();
     int output_length = outputData.length();
@@ -259,23 +289,23 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
       }
       assert delta.length() == length;
 
-
       if (input.isAlive()) {
         final TensorList passbackTensorList = CudaSystem.run(gpu -> {
           @Nullable final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
-          delta.freeRef();
           boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
-          CudaTensor cudaTensor = copy(gpu, errorPtr, length, dimOut, dimIn, dirty, precision, getHorizontalAlign(), getVerticalAlign());
-          Stream.<ReferenceCounting>of(errorPtr).forEach(ReferenceCounting::freeRef);
-          return CudaTensorList.wrap(cudaTensor, length, dimIn, precision);
+          CudaTensor cudaTensor = copy(gpu, errorPtr, length, dimOut, dimIn, dirty, precision, getHorizontalAlign(),
+              getVerticalAlign());
+          return new CudaTensorList(cudaTensor, length, dimIn, precision);
         }, delta);
         input.accumulate(buffer, passbackTensorList);
-      } else {
-        delta.freeRef();
       }
 
-
     }) {
+
+      @Override
+      public boolean isAlive() {
+        return Arrays.stream(inObj).anyMatch(x -> x.isAlive());
+      }
 
       @Override
       public void accumulate(final DeltaSet<UUID> buffer, final TensorList delta) {
@@ -284,12 +314,6 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
 
       @Override
       protected void _free() {
-        Arrays.stream(inObj).forEach(nnResult -> nnResult.freeRef());
-      }
-
-      @Override
-      public boolean isAlive() {
-        return Arrays.stream(inObj).anyMatch(x -> x.isAlive());
       }
     };
   }
@@ -314,40 +338,9 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     return Arrays.asList();
   }
 
-  @Override
-  public Precision getPrecision() {
-    return precision;
-  }
-
-  @Nonnull
-  @Override
-  public ImgCropLayer setPrecision(final Precision precision) {
-    this.precision = precision;
-    return this;
-  }
-
-  public boolean isRoundUp() {
-    return roundUp;
-  }
-
-  public ImgCropLayer setRoundUp(boolean roundUp) {
-    this.roundUp = roundUp;
-    return this;
-  }
-
-  public double getBaseValue() {
-    return baseValue;
-  }
-
-  public ImgCropLayer setBaseValue(double baseValue) {
-    this.baseValue = baseValue;
-    return this;
-  }
-
   public enum Alignment {
-    Center("Center"),
-    Left("Right"),
-    Right("Left");
+    Center("Center"), Left("Right"), Right("Left");
+
     private final String inverse;
 
     Alignment(String other) {

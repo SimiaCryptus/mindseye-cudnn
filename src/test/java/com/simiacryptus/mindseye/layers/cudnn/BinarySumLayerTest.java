@@ -34,7 +34,7 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
   final int largeSize;
-  int smallSize;
+  final int smallSize;
 
   public BinarySumLayerTest(final Precision precision) {
     this.precision = precision;
@@ -44,9 +44,7 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{
-        {smallSize, smallSize, 1}, {smallSize, smallSize, 1}
-    };
+    return new int[][]{{smallSize, smallSize, 1}, {smallSize, smallSize, 1}};
   }
 
   @Nonnull
@@ -57,9 +55,7 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][]{
-        {largeSize, largeSize, 1}, {largeSize, largeSize, 1}
-    };
+    return new int[][]{{largeSize, largeSize, 1}, {largeSize, largeSize, 1}};
   }
 
   public static class Double_List extends BinarySumLayerTest {
@@ -85,21 +81,12 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
       super();
     }
 
-
-    @Nonnull
-    @Override
-    public Layer getLayer(int[][] inputSize, Random random) {
-      @Nonnull PipelineNetwork network = new PipelineNetwork();
-      DAGNode input = network.getInput(0);
-      network.wrap(new BinarySumLayer(), input.addRef(), input).freeRef();
-      return network;
-    }
-
     @Override
     public Layer getReferenceLayer() {
-      @Nonnull PipelineNetwork network = new PipelineNetwork();
+      @Nonnull
+      PipelineNetwork network = new PipelineNetwork();
       DAGNode input = network.getInput(0);
-      network.wrap(new SumInputsLayer(), input, input.addRef()).freeRef();
+      network.add(new SumInputsLayer(), input, input);
       return network;
     }
 
@@ -110,18 +97,24 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
+    public Layer getLayer(int[][] inputSize, Random random) {
+      @Nonnull
+      PipelineNetwork network = new PipelineNetwork();
+      DAGNode input = network.getInput(0);
+      network.add(new BinarySumLayer(), input, input);
+      return network;
+    }
+
+    @Nonnull
+    @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{
-          {4, 4, 1}
-      };
+      return new int[][]{{4, 4, 1}};
     }
 
     @Nonnull
     @Override
     public int[][] getLargeDims(Random random) {
-      return new int[][]{
-          {1200, 800, 1}
-      };
+      return new int[][]{{1200, 800, 1}};
     }
 
   }

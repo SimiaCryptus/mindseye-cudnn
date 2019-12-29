@@ -46,50 +46,25 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision<BandRe
 
   protected BandReducerLayer(@Nonnull final JsonObject json) {
     super(json);
-    mode = Arrays.stream(PoolingLayer.PoolingMode.values()).filter(i -> i.id == json.get("mode").getAsInt()).findFirst().get();
+    mode = Arrays.stream(PoolingLayer.PoolingMode.values()).filter(i -> i.id == json.get("mode").getAsInt()).findFirst()
+        .get();
     precision = Precision.valueOf(json.get("precision").getAsString());
     alpha = json.get("alpha").getAsDouble();
   }
 
-  public static BandReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new BandReducerLayer(json);
+  public double getAlpha() {
+    return alpha;
+  }
+
+  public BandReducerLayer setAlpha(double alpha) {
+    this.alpha = alpha;
+    return this;
   }
 
   @Nonnull
   public Layer getCompatibilityLayer() {
     throw new RuntimeException("Not Implemented");
   }
-
-  @Nullable
-  @Override
-  public Result evalAndFree(final Result... inObj) {
-    if (!CudaSystem.isEnabled()) return getCompatibilityLayer().evalAndFree(inObj);
-    final Result input = inObj[0];
-    final TensorList batch = input.getData();
-    @Nonnull final int[] inputSize = batch.getDimensions();
-    @Nonnull PoolingLayer impl = new PoolingLayer().setMode(mode).setPrecision(precision)
-        .setWindowX(inputSize[0])
-        .setWindowY(inputSize[1])
-        .setStrideX(inputSize[0])
-        .setStrideY(inputSize[1])
-        .setPaddingX(0)
-        .setPaddingY(0)
-        .setAlpha(alpha);
-    @Nullable Result result = impl.evalAndFree(inObj);
-    impl.freeRef();
-    return result;
-  }
-
-  @Nonnull
-  @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
-    json.addProperty("alpha", alpha);
-    json.addProperty("mode", mode.id);
-    json.addProperty("precision", precision.name());
-    return json;
-  }
-
 
   public PoolingMode getMode() {
     return mode;
@@ -113,18 +88,39 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision<BandRe
     return this;
   }
 
+  @SuppressWarnings("unused")
+  public static BandReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+    return new BandReducerLayer(json);
+  }
+
+  @Nullable
+  @Override
+  public Result eval(final Result... inObj) {
+    if (!CudaSystem.isEnabled())
+      return getCompatibilityLayer().eval(inObj);
+    final Result input = inObj[0];
+    final TensorList batch = input.getData();
+    @Nonnull final int[] inputSize = batch.getDimensions();
+    @Nonnull
+    PoolingLayer impl = new PoolingLayer().setMode(mode).setPrecision(precision).setWindowX(inputSize[0])
+        .setWindowY(inputSize[1]).setStrideX(inputSize[0]).setStrideY(inputSize[1]).setPaddingX(0).setPaddingY(0)
+        .setAlpha(alpha);
+    return impl.eval(inObj);
+  }
+
+  @Nonnull
+  @Override
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
+    json.addProperty("alpha", alpha);
+    json.addProperty("mode", mode.id);
+    json.addProperty("precision", precision.name());
+    return json;
+  }
+
   @Nonnull
   @Override
   public List<double[]> state() {
     return Arrays.asList();
-  }
-
-  public double getAlpha() {
-    return alpha;
-  }
-
-  public BandReducerLayer setAlpha(double alpha) {
-    this.alpha = alpha;
-    return this;
   }
 }

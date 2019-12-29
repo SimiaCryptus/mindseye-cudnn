@@ -123,61 +123,17 @@ public enum MemoryType {
   protected static final Logger logger = LoggerFactory.getLogger(MemoryType.class);
   private final Map<Integer, RecycleBin<ReferenceWrapper<CudaPointer>>> cache = new ConcurrentHashMap<>();
 
-  abstract void free(CudaPointer ptr, int deviceId);
-
   public void recycle(CudaPointer ptr, int deviceId, final long length) {
-    logger.debug(String.format("Recycle %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(ptr)), length, deviceId, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
+    logger.debug(String.format("Recycle %s %s (%s bytes) in device %s via %s", name(),
+        Integer.toHexString(System.identityHashCode(ptr)), length, deviceId,
+        !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
     get(deviceId).recycle(new ReferenceWrapper<>(ptr, x -> {
-      logger.debug(String.format("Freed %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(ptr)), length, deviceId, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
+      logger.debug(String.format("Freed %s %s (%s bytes) in device %s via %s", name(),
+          Integer.toHexString(System.identityHashCode(ptr)), length, deviceId,
+          !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
       CudaMemory.getGpuStats(deviceId).usedMemory.addAndGet(-length);
       MemoryType.this.free(x, deviceId);
     }), length);
-  }
-
-  protected RecycleBin<ReferenceWrapper<CudaPointer>> get(int device) {
-    return cache.computeIfAbsent(device, d -> {
-      logger.info(String.format("Initialize recycle bin %s (device %s)", this, device));
-      return new RecycleBin<ReferenceWrapper<CudaPointer>>() {
-        @Override
-        protected void free(final ReferenceWrapper<CudaPointer> obj) {
-          MemoryType.logger.debug(String.format("Freed %s %s in device %s at %s", name(), Integer.toHexString(System.identityHashCode(obj.peek())), device, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
-          obj.destroy();
-        }
-
-        @Override
-        public ReferenceWrapper<CudaPointer> obtain(final long length) {
-          assert -1 == device || CudaSystem.getThreadDeviceId() == device;
-          ReferenceWrapper<CudaPointer> referenceWrapper = super.obtain(length);
-          MemoryType.logger.debug(String.format("Obtained %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(referenceWrapper.peek())), length, device, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
-          return referenceWrapper;
-        }
-
-        @Nonnull
-        @Override
-        public ReferenceWrapper<CudaPointer> create(final long length) {
-          assert -1 == device || CudaSystem.getThreadDeviceId() == device;
-          CharSequence caller = !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller();
-          return CudaDevice.run(gpu -> {
-            CudaPointer alloc = MemoryType.this.alloc(length, gpu);
-            MemoryType.logger.debug(String.format("Created %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(alloc)), length, device, caller));
-            CudaMemory.getGpuStats(device).usedMemory.addAndGet(length);
-            return new ReferenceWrapper<>(alloc, x -> {
-              MemoryType.logger.debug(String.format("Freed %s %s (%s bytes) in device %s via %s", name(), Integer.toHexString(System.identityHashCode(alloc)), length, device, !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
-              CudaMemory.getGpuStats(device).usedMemory.addAndGet(-length);
-              MemoryType.this.free(x, device);
-            });
-          });
-        }
-
-        @Override
-        public void reset(final ReferenceWrapper<CudaPointer> data, final long size) {
-          // There is no need to clean new objects - native memory system doesn't either.
-        }
-      }.setPersistanceMode(CudaSettings.INSTANCE().memoryCacheMode)
-          .setMinLengthPerBuffer(1)
-          .setMaxItemsPerBuffer(10)
-          .setPurgeFreq(CudaSettings.INSTANCE().getMemoryCacheTTL());
-    });
   }
 
   public MemoryType ifEnabled() {
@@ -193,12 +149,62 @@ public enum MemoryType {
   public CudaPointer allocCached(final long size, final CudaDevice cudaDevice) {
     RecycleBin<ReferenceWrapper<CudaPointer>> recycleBin = get(cudaDevice.deviceId);
     ReferenceWrapper<CudaPointer> wrapper = recycleBin.obtain(size);
-    CudaPointer ptr = wrapper.unwrap();
-    return ptr;
+    return wrapper.unwrap();
   }
-
 
   public abstract CudaPointer alloc(final long size, final CudaDevice cudaDevice);
 
-}
+  abstract void free(CudaPointer ptr, int deviceId);
 
+  protected RecycleBin<ReferenceWrapper<CudaPointer>> get(int device) {
+    return cache.computeIfAbsent(device, d -> {
+      logger.info(String.format("Initialize recycle bin %s (device %s)", this, device));
+      return new RecycleBin<ReferenceWrapper<CudaPointer>>() {
+        @Override
+        public ReferenceWrapper<CudaPointer> obtain(final long length) {
+          assert -1 == device || CudaSystem.getThreadDeviceId() == device;
+          ReferenceWrapper<CudaPointer> referenceWrapper = super.obtain(length);
+          MemoryType.logger.debug(String.format("Obtained %s %s (%s bytes) in device %s via %s", name(),
+              Integer.toHexString(System.identityHashCode(referenceWrapper.peek())), length, device,
+              !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
+          return referenceWrapper;
+        }
+
+        @Nonnull
+        @Override
+        public ReferenceWrapper<CudaPointer> create(final long length) {
+          assert -1 == device || CudaSystem.getThreadDeviceId() == device;
+          CharSequence caller = !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller();
+          return CudaDevice.run(gpu -> {
+            CudaPointer alloc = MemoryType.this.alloc(length, gpu);
+            MemoryType.logger.debug(String.format("Created %s %s (%s bytes) in device %s via %s", name(),
+                Integer.toHexString(System.identityHashCode(alloc)), length, device, caller));
+            CudaMemory.getGpuStats(device).usedMemory.addAndGet(length);
+            return new ReferenceWrapper<>(alloc, x -> {
+              MemoryType.logger.debug(String.format("Freed %s %s (%s bytes) in device %s via %s", name(),
+                  Integer.toHexString(System.identityHashCode(alloc)), length, device,
+                  !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
+              CudaMemory.getGpuStats(device).usedMemory.addAndGet(-length);
+              MemoryType.this.free(x, device);
+            });
+          });
+        }
+
+        @Override
+        public void reset(final ReferenceWrapper<CudaPointer> data, final long size) {
+          // There is no need to clean new objects - native memory system doesn't either.
+        }
+
+        @Override
+        protected void free(final ReferenceWrapper<CudaPointer> obj) {
+          MemoryType.logger.debug(String.format("Freed %s %s in device %s at %s", name(),
+              Integer.toHexString(System.identityHashCode(obj.peek())), device,
+              !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
+          obj.destroy();
+        }
+      }.setPersistanceMode(CudaSettings.INSTANCE().memoryCacheMode).setMinLengthPerBuffer(1).setMaxItemsPerBuffer(10)
+          .setPurgeFreq(CudaSettings.INSTANCE().getMemoryCacheTTL());
+    });
+  }
+
+}

@@ -33,12 +33,10 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     validateBatchExecution = false;
   }
 
-  @Nonnull
+  @Nullable
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{
-        {8, 6, 1}
-    };
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return com.simiacryptus.mindseye.layers.java.ImgTileSelectLayer.class;
   }
 
 //  @Override
@@ -50,14 +48,15 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public abstract ImgTileSelectLayer getLayer(final int[][] inputSize, Random random);
-
-  @Nullable
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return com.simiacryptus.mindseye.layers.java.ImgTileSelectLayer.class;
+  public int[][] getSmallDims(Random random) {
+    return new int[][]{
+        {8, 6, 1}
+    };
   }
 
+  @Nonnull
+  @Override
+  public abstract ImgTileSelectLayer getLayer(final int[][] inputSize, Random random);
 
   public static class UL extends ImgTileSelectLayerTest {
 

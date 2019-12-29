@@ -40,54 +40,49 @@ public class ValueLayer extends LayerBase {
     this.precision = Precision.valueOf(json.get("precision").getAsString());
     Tensor value = Tensor.fromJson(json.get("value"), resources);
     this.tensorList = toDevice(value, precision);
-    value.freeRef();
   }
 
   public ValueLayer(final Tensor data) {
     super();
     this.precision = Precision.Float;
     this.tensorList = toDevice(data, precision);
-    data.addRef();
     this.frozen = true;
   }
 
+  @SuppressWarnings("unused")
   public static ValueLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ValueLayer(json, rs);
   }
 
   public CudaTensorList toDevice(final Tensor data, final Precision precision) {
-    if (null == data) return null;
+    if (null == data)
+      return null;
     return CudaSystem.run(gpu -> {
       CudaMemory cudaMemory = gpu.allocate(data.length() * precision.size, MemoryType.Managed.ifEnabled(), true);
       cudaMemory.write(precision, data.getData());
       int[] dimensions = data.getDimensions();
-      CudaDevice.CudaTensorDescriptor tensorDescriptor = gpu.newTensorDescriptor(precision, 1, dimensions[2], dimensions[1], dimensions[0]);
-      return CudaTensorList.wrap(CudaTensor.wrap(cudaMemory, tensorDescriptor, precision), 1, dimensions, precision);
+      CudaDevice.CudaTensorDescriptor tensorDescriptor = gpu.newTensorDescriptor(precision, 1, dimensions[2],
+          dimensions[1], dimensions[0]);
+      return new CudaTensorList(new CudaTensor(cudaMemory, tensorDescriptor, precision), 1, dimensions, precision);
     });
   }
 
   @Nonnull
   @Override
-  public Result evalAndFree(@Nonnull final Result... array) {
+  public Result eval(@Nonnull final Result... array) {
     assert 0 == array.length;
-    ValueLayer.this.tensorList.addRef();
     return new Result(tensorList, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
     }) {
-
-      @Override
-      protected void _free() {
-      }
 
       @Override
       public boolean isAlive() {
         return false;
       }
-    };
-  }
 
-  @Override
-  protected void _free() {
-    tensorList.freeRef();
+      @Override
+      protected void _free() {
+      }
+    };
   }
 
   @Nonnull
@@ -96,7 +91,6 @@ public class ValueLayer extends LayerBase {
     @Nonnull final JsonObject json = super.getJsonStub();
     Tensor tensor = tensorList.get(0);
     json.add("value", tensor.getJson(resources, dataSerializer));
-    tensor.freeRef();
     json.addProperty("precision", precision.name());
     return json;
   }
@@ -105,8 +99,10 @@ public class ValueLayer extends LayerBase {
   @Override
   public List<double[]> state() {
     Tensor tensor = tensorList.get(0);
-    List<double[]> list = Arrays.asList(tensor.getData());
-    tensor.freeRef();
-    return list;
+    return Arrays.asList(tensor.getData());
+  }
+
+  @Override
+  protected void _free() {
   }
 }

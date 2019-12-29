@@ -39,6 +39,12 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
     largeSize = 100;
   }
 
+  @Nullable
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return null;
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -61,12 +67,6 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
         .add(0, 1, layer1)
         .add(1, 2, layer2)
         .add(2, 3, layer3);
-  }
-
-  @Nullable
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return null;
   }
 
   public static class Basic extends ImgLinearSubnetLayerTest {

@@ -28,6 +28,7 @@ import com.simiacryptus.mindseye.test.unit.BatchingTester;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.notebook.NotebookOutput;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -41,78 +42,25 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
   final int inputBands;
   final int outputBands;
   final int radius;
-  ConvolutionLayer convolutionLayer;
-  int smallSize;
-  int largeSize;
+  final ConvolutionLayer convolutionLayer;
+  final int smallSize;
+  final int largeSize;
 
-  protected ConvolutionLayerTest(final int radius, final int inputBands, final int outputBands, final Precision precision, int batchBands, int stride, final int smallSize, final int largeSize) {
+  protected ConvolutionLayerTest(final int radius, final int inputBands, final int outputBands,
+                                 final Precision precision, int batchBands, int stride, final int smallSize, final int largeSize) {
     this.radius = radius;
     this.inputBands = inputBands;
     this.outputBands = outputBands;
-    convolutionLayer = new ConvolutionLayer(radius, radius, inputBands, outputBands).setPrecision(precision).setBatchBands(batchBands).setStrideXY(stride, stride);
-    @Nonnull Random random = getRandom();
+    convolutionLayer = new ConvolutionLayer(radius, radius, inputBands, outputBands).setPrecision(precision)
+        .setBatchBands(batchBands).setStrideXY(stride, stride);
+    @Nonnull
+    Random random = getRandom();
     convolutionLayer.getKernel().set(() -> {
       return random(random);
     });
     this.smallSize = smallSize;
     this.largeSize = largeSize;
     this.testingBatchSize = 2;
-  }
-
-  @Override
-  public void run(NotebookOutput log) {
-//    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
-//    log.p(log.file((String) null, logName, "GPU Log"));
-//    @Nonnull PrintStream apiLog = new PrintStream(log.file(logName));
-//    CudaSystem.addLog(apiLog);
-    super.run(log);
-//    apiLog.close();
-//    CudaSystem.apiLog.remove(apiLog);
-  }
-
-  @Test
-  public void verifyWeights() {
-    @Nonnull ExplodedConvolutionGrid explodedNetwork = this.convolutionLayer.getExplodedNetwork();
-    @Nonnull int[] kernelDims = this.convolutionLayer.getKernel().getDimensions();
-    @Nullable Tensor testData = new Tensor(kernelDims).mapAndFree(x -> random());
-    explodedNetwork.write(testData);
-    Tensor echo = explodedNetwork.read();
-    explodedNetwork.freeRef();
-    if (!testData.equals(echo)) {
-      Tensor minus = testData.minus(echo);
-      print(minus.coordStream(false).filter(x -> minus.get(x) != 0).map(x -> String.format("%s=%s", x, minus.get(x))));
-      minus.freeRef();
-      Assert.assertEquals(testData, echo);
-    }
-    echo.freeRef();
-    testData.freeRef();
-  }
-
-  private void print(final Stream<CharSequence> stream) {
-    stream.forEach(x -> System.out.println("Zero: " + x));
-    //System.out.println("Zeros: " + stream.sumChannels((a,b)->a+","+b).get());
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{
-        {smallSize, smallSize, inputBands}
-    };
-  }
-
-  @Nonnull
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    return convolutionLayer.explode();
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{
-        {largeSize, largeSize, inputBands}
-    };
   }
 
   @Nullable
@@ -127,6 +75,57 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     return ConvolutionLayer.class;
   }
 
+  @Override
+  public void run(@NotNull NotebookOutput log) {
+    //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
+    //    log.p(log.file((String) null, logName, "GPU Log"));
+    //    @Nonnull PrintStream apiLog = new PrintStream(log.file(logName));
+    //    CudaSystem.addLog(apiLog);
+    super.run(log);
+    //    apiLog.close();
+    //    CudaSystem.apiLog.remove(apiLog);
+  }
+
+  @Test
+  public void verifyWeights() {
+    @Nonnull
+    ExplodedConvolutionGrid explodedNetwork = this.convolutionLayer.getExplodedNetwork();
+    @Nonnull
+    int[] kernelDims = this.convolutionLayer.getKernel().getDimensions();
+    @Nullable
+    Tensor testData = new Tensor(kernelDims).map(x -> random());
+    explodedNetwork.write(testData);
+    Tensor echo = explodedNetwork.read();
+    if (!testData.equals(echo)) {
+      Tensor minus = testData.minus(echo);
+      print(minus.coordStream(false).filter(x -> minus.get(x) != 0).map(x -> String.format("%s=%s", x, minus.get(x))));
+      Assert.assertEquals(testData, echo);
+    }
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getSmallDims(Random random) {
+    return new int[][]{{smallSize, smallSize, inputBands}};
+  }
+
+  @Nonnull
+  @Override
+  public Layer getLayer(final int[][] inputSize, Random random) {
+    return convolutionLayer.explode();
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getLargeDims(Random random) {
+    return new int[][]{{largeSize, largeSize, inputBands}};
+  }
+
+  private void print(final Stream<CharSequence> stream) {
+    stream.forEach(x -> System.out.println("Zero: " + x));
+    //System.out.println("Zeros: " + stream.sumChannels((a,b)->a+","+b).get());
+  }
+
   public static class BandExpand extends ConvolutionLayerTest {
 
     public BandExpand() {
@@ -136,9 +135,7 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{
-          {1, 1, inputBands}
-      };
+      return new int[][]{{1, 1, inputBands}};
     }
 
     @Nonnull
@@ -218,30 +215,31 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
     @Override
     public ComponentTest<ToleranceStatistics> getDerivativeTester() {
-      if (!validateDifferentials) return null;
+      if (!validateDifferentials)
+        return null;
       return new SingleDerivativeTester(1e-1, 1e-4);
     }
   }
 
-//  /**
-//   * The type BigTests temp 0.
-//   */
-//  public static class Big0 extends VeryBigTest {
-//    /**
-//     * Instantiates a new BigTests.
-//     */
-//    public Big0() {this(512);}
-//
-//    /**
-//     * Instantiates a new BigTests.
-//     *
-//     * @param size
-//     */
-//    private Big0(int size) {
-//      super(1, 16 * size, 16 * size, Precision.Double, size);
-//    }
-//
-//  }
+  //  /**
+  //   * The type BigTests temp 0.
+  //   */
+  //  public static class Big0 extends VeryBigTest {
+  //    /**
+  //     * Instantiates a new BigTests.
+  //     */
+  //    public Big0() {this(512);}
+  //
+  //    /**
+  //     * Instantiates a new BigTests.
+  //     *
+  //     * @param size
+  //     */
+  //    private Big0(int size) {
+  //      super(1, 16 * size, 16 * size, Precision.Double, size);
+  //    }
+  //
+  //  }
 
   public static class Big1 extends VeryBigTest {
     public Big1() {
@@ -255,51 +253,42 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getLargeDims(final Random random) {
-      return new int[][]{
-          {256, 128, inputBands}
-      };
+      return new int[][]{{256, 128, inputBands}};
     }
   }
 
   public abstract static class VeryBigTest extends Big {
 
-    protected VeryBigTest(final int radius, final int inputBands, final int outputBands, final Precision precision, final int batchBands) {
+    protected VeryBigTest(final int radius, final int inputBands, final int outputBands, final Precision precision,
+                          final int batchBands) {
       super(radius, inputBands, outputBands, precision, batchBands);
     }
 
     @Nonnull
     @Override
     public int[][] getSmallDims(final Random random) {
-      return new int[][]{
-          {1, 1, inputBands}
-      };
+      return new int[][]{{1, 1, inputBands}};
     }
 
     @Nonnull
     @Override
     public int[][] getLargeDims(final Random random) {
-      return new int[][]{
-          {100, 100, inputBands}
-      };
+      return new int[][]{{100, 100, inputBands}};
     }
   }
 
   public abstract static class Big extends ConvolutionLayerTest {
 
-    public Big(final int radius, final int inputBands, final int outputBands, final Precision precision, int batchBands) {
+    public Big(final int radius, final int inputBands, final int outputBands, final Precision precision,
+               int batchBands) {
       super(radius, inputBands, outputBands, precision, batchBands, 1, 3, 600);
       validateDifferentials = false;
     }
 
-    @Nullable
-    @Override
-    public Layer getReferenceLayer() {
-      return null;
-    }
-
     @Override
     public ComponentTest<ToleranceStatistics> getBatchingTester() {
-      if (!validateBatchExecution) return null;
+      if (!validateBatchExecution)
+        return null;
       return (new BatchingTester(1e-2, true) {
         @Override
         public double getRandom() {
@@ -322,6 +311,12 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
       logger.warn("Disabled Performance Test");
       return null;
       //return super.getPerformanceTester();
+    }
+
+    @Nullable
+    @Override
+    public Layer getReferenceLayer() {
+      return null;
     }
   }
 

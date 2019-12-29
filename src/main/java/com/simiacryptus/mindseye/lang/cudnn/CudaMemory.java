@@ -57,6 +57,15 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     this.type = type;
   }
 
+  public int getDeviceId() {
+    return deviceId;
+  }
+
+  @Nonnull
+  public MemoryType getType() {
+    return type;
+  }
+
   public static double clearWeakMemory(final int deviceId) {
     double totalFreed = 0;
     for (final MemoryType type : MemoryType.values()) {
@@ -89,15 +98,14 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     return tensorListsFreed + bytes;
   }
 
+  public static DeviceMetrics getGpuStats(final int deviceId) {
+    return CudaMemory.METRICS.computeIfAbsent(deviceId, device -> new DeviceMetrics());
+  }
+
   private static void logLoad() {
     logger.debug(String.format("Current Load: %s", METRICS.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> {
       return String.format("%e / %e", (double) e.getValue().activeMemory.get(), (double) e.getValue().usedMemory.get());
     }))));
-  }
-
-
-  public static DeviceMetrics getGpuStats(final int deviceId) {
-    return CudaMemory.METRICS.computeIfAbsent(deviceId, device -> new DeviceMetrics());
   }
 
   @Nonnull
@@ -128,14 +136,6 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     synchronize();
     CudaSystem.cudaMemcpy(copy.getPtr(), this.getPtr(), size, cudaMemcpyKind.cudaMemcpyDeviceToDevice);
     return copy;
-  }
-
-
-  protected void _free() {
-    if (ptr.getByteOffset() != 0) return;
-    CudnnHandle threadHandle = CudaSystem.getThreadHandle();
-    if (null != threadHandle) threadHandle.cleanupNative.add(this);
-    else release();
   }
 
   @Override
@@ -177,12 +177,12 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
   }
 
   @Nonnull
-  public CudaMemory read(@Nonnull final Precision precision, @Nonnull final float[] destination) {
-    return read(precision, destination, 0);
+  public void read(@Nonnull final Precision precision, @Nonnull final float[] destination) {
+    read(precision, destination, 0);
   }
 
   @Nonnull
-  public CudaMemory read(@Nonnull final Precision precision, @Nonnull final float[] destination, int offset) {
+  public void read(@Nonnull final Precision precision, @Nonnull final float[] destination, int offset) {
     if (size < (long) destination.length * precision.size) {
       throw new IllegalArgumentException(size + " != " + (long) destination.length * precision.size);
     }
@@ -197,7 +197,6 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
       CudaSystem.cudaMemcpy(precision.getPointer(destination), getPtr().withByteOffset((long) offset * precision.size), (long) destination.length * precision.size, cudaMemcpyDeviceToHost);
       CudaMemory.getGpuStats(deviceId).memoryReads.addAndGet((long) destination.length * precision.size);
     }
-    return this;
   }
 
   @Nonnull
@@ -229,21 +228,6 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     return this;
   }
 
-  public int getDeviceId() {
-    return deviceId;
-  }
-
-  @Nonnull
-  public MemoryType getType() {
-    return type;
-  }
-
-  @Nonnull
-  CudaMemory clear() {
-    CudaSystem.cudaMemset(getPtr(), 0, size);
-    return this;
-  }
-
   public CudaMemory withByteOffset(final int byteOffset) {
     if (size <= byteOffset) throw new IllegalArgumentException(size + " <= " + byteOffset);
     if (0 > byteOffset) throw new IllegalArgumentException(Integer.toString(byteOffset));
@@ -251,11 +235,11 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     final CudaMemory baseMemorySegment = this;
     return new CudaMemory(size - byteOffset, type, ptr.withByteOffset(byteOffset), baseMemorySegment.getDeviceId()) {
       @Override
-      protected void _free() {
+      public void release() {
       }
 
       @Override
-      public void release() {
+      protected void _free() {
       }
     };
   }
@@ -273,6 +257,18 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
   @Override
   public CudaMemory addRef() {
     return (CudaMemory) super.addRef();
+  }
+
+  @Nonnull
+  void clear() {
+    CudaSystem.cudaMemset(getPtr(), 0, size);
+  }
+
+  protected void _free() {
+    if (ptr.getByteOffset() != 0) return;
+    CudnnHandle threadHandle = CudaSystem.getThreadHandle();
+    if (null != threadHandle) threadHandle.cleanupNative.add(this);
+    else release();
   }
 
 }

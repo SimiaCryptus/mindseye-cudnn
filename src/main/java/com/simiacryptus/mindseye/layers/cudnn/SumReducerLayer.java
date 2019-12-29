@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import jcuda.jcudnn.*;
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @SuppressWarnings("serial")
 public class SumReducerLayer extends LayerBase implements MultiPrecision<SumReducerLayer> {
@@ -48,19 +46,33 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision<SumRedu
     precision = Precision.valueOf(json.get("precision").getAsString());
   }
 
-  public static SumReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new SumReducerLayer(json);
-  }
-
   @Nonnull
   public Layer getCompatibilityLayer() {
     throw new RuntimeException("Not Implemented");
   }
 
+  @Override
+  public Precision getPrecision() {
+    return precision;
+  }
+
+  @Nonnull
+  @Override
+  public SumReducerLayer setPrecision(final Precision precision) {
+    this.precision = precision;
+    return this;
+  }
+
+  @SuppressWarnings("unused")
+  public static SumReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+    return new SumReducerLayer(json);
+  }
+
   @Nullable
   @Override
-  public Result evalAndFree(final Result... inObj) {
-    if (!CudaSystem.isEnabled()) return getCompatibilityLayer().evalAndFree(inObj);
+  public Result eval(final Result... inObj) {
+    if (!CudaSystem.isEnabled())
+      return getCompatibilityLayer().eval(inObj);
     final Result input = inObj[0];
     final TensorList inputData = input.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
@@ -68,7 +80,6 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision<SumRedu
 
     CudaTensorList result = CudaSystem.run(gpu -> {
       CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
-      inputData.freeRef();
       CudaMemory inputMemory = inputTensor.getMemory(gpu);
 
       @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, 1, 1, 1);
@@ -82,50 +93,25 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision<SumRedu
       @Nonnull final CudaMemory indexPtr = gpu.allocate(12 * length, MemoryType.Device, false);
 
       //outputPtr.synchronize();
-      gpu.cudnnReduceTensor(reduceTensorDescriptor.getPtr(),
-          indexPtr.getPtr(), indexPtr.size, workspacePtr.getPtr(), workspacePtr.size,
-          precision.getPointer(1.0), inputTensor.descriptor.getPtr(), inputMemory.getPtr(),
+      gpu.cudnnReduceTensor(reduceTensorDescriptor.getPtr(), indexPtr.getPtr(), indexPtr.size, workspacePtr.getPtr(),
+          workspacePtr.size, precision.getPointer(1.0), inputTensor.descriptor.getPtr(), inputMemory.getPtr(),
           precision.getPointer(0.0), outputDescriptor.getPtr(), outputMemory.getPtr());
       inputMemory.dirty();
       outputMemory.dirty();
       workspacePtr.dirty();
-
-      Stream.of(inputTensor, inputMemory, reduceTensorDescriptor, workspacePtr, indexPtr).forEach(ReferenceCounting::freeRef);
-      return CudaTensorList.wrap(CudaTensor.wrap(outputMemory, outputDescriptor, precision), length, new int[]{1, 1, 1}, precision);
+      return new CudaTensorList(new CudaTensor(outputMemory, outputDescriptor, precision), length, new int[]{1, 1, 1}, precision);
     });
 
     return new Result(result, (DeltaSet<UUID> ctx, TensorList delta) -> {
-
-      // Not supported by CuDNN?
-//      CudaTensorList passback = CudaSystem.generate(gpu -> {
-//        CudaTensor deltaTensor = gpu.getTensor(evalInputDelta, precision, MemoryType.Device, false);
-//        CudaMemory deltaMemory = deltaTensor.getMemory(gpu);
-//
-//        @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor1 = gpu.newTensorDescriptor(
-//          precision, length, inputSize[2], inputSize[1], inputSize[0]
-//        );
-//        @Nonnull final CudaMemory passbackPtr1 = gpu.allocate((long) precision.size * passbackDescriptor1.nStride * length, MemoryType.Device, false);
-//        gpu.cudnnAddTensor(precision.getPointer(1.0), deltaTensor.descriptor.getPtr(), deltaMemory.getPtr(),
-//          precision.getPointer(1.0), passbackDescriptor1.getPtr(), passbackPtr1.getPtr());
-//        passbackPtr1.dirty();
-//
-//        Stream.of(deltaTensor, deltaMemory, passbackDescriptor1, passbackPtr1).forEach(ReferenceCounting::freeRef);
-//        return CudaTensorList.wrap(CudaTensor.wrap(passbackPtr1, passbackDescriptor1, precision), length, inputSize, precision);
-//      });
-
-      TensorList passback = TensorArray.wrap(IntStream.range(0, length).mapToObj(i -> {
+      TensorList passback = new TensorArray(IntStream.range(0, length).mapToObj(i -> {
         Tensor tensor = delta.get(i);
-        Tensor tensor1 = new Tensor(inputSize).setAll(tensor.get(0));
-        tensor.freeRef();
-        return tensor1;
+        return new Tensor(inputSize).setAll(tensor.get(0));
       }).toArray(i -> new Tensor[i]));
       input.accumulate(ctx, passback);
-      delta.freeRef();
     }) {
       @Override
       protected void _free() {
         super._free();
-        input.freeRef();
       }
     };
   }
@@ -136,19 +122,6 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision<SumRedu
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
     return json;
-  }
-
-
-  @Override
-  public Precision getPrecision() {
-    return precision;
-  }
-
-  @Nonnull
-  @Override
-  public SumReducerLayer setPrecision(final Precision precision) {
-    this.precision = precision;
-    return this;
   }
 
   @Nonnull

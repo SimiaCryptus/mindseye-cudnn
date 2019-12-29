@@ -40,35 +40,30 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
     this.alpha = alpha;
   }
 
+  @Nullable
+  @Override
+  public Layer getReferenceLayer() {
+    PipelineNetwork network = new PipelineNetwork();
+    network.add(new LinearActivationLayer().setScale(alpha), network.add(new NthPowerActivationLayer().setPower(2), network.getInput(0)));
+    return network;
+    //return new NthPowerActivationLayer().setPower(2);
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{
-        {4, 4, 1}
-    };
+    return new int[][]{{4, 4, 1}};
   }
 
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][]{
-        {1200, 1200, 3}
-    };
+    return new int[][]{{1200, 1200, 3}};
   }
 
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     return new SquareActivationLayer().setPrecision(precision).setAlpha(alpha);
-  }
-
-  @Nullable
-  @Override
-  public Layer getReferenceLayer() {
-    PipelineNetwork network = new PipelineNetwork();
-    network.wrap(new LinearActivationLayer().setScale(alpha),
-        network.wrap(new NthPowerActivationLayer().setPower(2), network.getInput(0))).freeRef();
-    return network;
-    //return new NthPowerActivationLayer().setPower(2);
   }
 
   public static class Double extends SquareActivationLayerTest {

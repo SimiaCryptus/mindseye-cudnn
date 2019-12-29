@@ -26,6 +26,7 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.ValueLayer;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,18 +49,12 @@ public class ScaleLayer extends PipelineNetwork implements MultiPrecision<ScaleL
 
   public ScaleLayer(final Tensor weights) {
     super(1);
-    //this.weights = weights;
-    wrap(new ProductLayer(), getInput(0), wrap(new ValueLayer(weights), new DAGNode[]{})).freeRef();
-    weights.freeRef();
+    add(new ProductLayer(), getInput(0), add(new ValueLayer(weights), new DAGNode[]{}));
   }
 
   protected ScaleLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     //weights = new Tensor(1);
-  }
-
-  public static ScaleLayer fromJson(final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new ScaleLayer(json, rs);
   }
 
   @Override
@@ -71,5 +66,10 @@ public class ScaleLayer extends PipelineNetwork implements MultiPrecision<ScaleL
   @Override
   public ScaleLayer setPrecision(Precision precision) {
     return MultiPrecision.setPrecision(this, precision);
+  }
+
+  @SuppressWarnings("unused")
+  public static ScaleLayer fromJson(@NotNull final JsonObject json, Map<CharSequence, byte[]> rs) {
+    return new ScaleLayer(json, rs);
   }
 }
