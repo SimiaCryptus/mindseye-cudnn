@@ -249,11 +249,9 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     if (0 > byteOffset) throw new IllegalArgumentException(Integer.toString(byteOffset));
     assertAlive();
     final CudaMemory baseMemorySegment = this;
-    baseMemorySegment.addRef();
     return new CudaMemory(size - byteOffset, type, ptr.withByteOffset(byteOffset), baseMemorySegment.getDeviceId()) {
       @Override
       protected void _free() {
-        baseMemorySegment.freeRef();
       }
 
       @Override

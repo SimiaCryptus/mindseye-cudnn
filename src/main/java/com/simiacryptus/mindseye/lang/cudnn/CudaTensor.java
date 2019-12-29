@@ -39,9 +39,7 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
 
   public CudaTensor(final CudaMemory memory, final CudaDevice.CudaTensorDescriptor descriptor, final Precision precision) {
     this.memory = memory;
-    this.memory.addRef();
     this.descriptor = descriptor;
-    this.descriptor.addRef();
     assert memory.size >= (long) precision.size * descriptor.nStride * (descriptor.batchCount - 1) : String.format("%d != %d", memory.size, (long) precision.size * descriptor.nStride * descriptor.batchCount);
     assert this.descriptor.dataType == precision;
   }
@@ -68,10 +66,8 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     assertAlive();
 //    memory.synchronize();
     if (memory.getType() == MemoryType.Managed) {
-      memory.addRef();
       return memory;
     } else if (cudaDevice.getDeviceId() == memory.getDeviceId()) {
-      memory.addRef();
       return memory;
     } else {
       TimedResult<CudaMemory> timedResult = TimedResult.time(() -> memory.copy(cudaDevice, memoryType));
@@ -97,7 +93,6 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
   public CudaTensor getDense(CudnnHandle gpu) {
     assertAlive();
     if (isDense()) {
-      addRef();
       return this;
     }
     TimedResult<CudaTensor> timedResult = TimedResult.time(() -> {
