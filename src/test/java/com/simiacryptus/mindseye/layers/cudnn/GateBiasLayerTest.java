@@ -26,7 +26,7 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class GateBiasLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
 
@@ -37,16 +37,12 @@ public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{
-        {4, 4, 3}, {1, 1, 3}
-    };
+    return new int[][] { { 4, 4, 3 }, { 1, 1, 3 } };
   }
 
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][]{
-        {1200, 1200, 3}, {1, 1, 3}
-    };
+    return new int[][] { { 1200, 1200, 3 }, { 1, 1, 3 } };
   }
 
   @Nonnull
@@ -55,13 +51,26 @@ public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
     return new GateBiasLayer().setPrecision(precision);
   }
 
-  public static class Double extends GateBiasLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Double extends GateBiasLayerTest {
     public Double() {
       super(Precision.Double);
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Double addRef() {
+      return (Double) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
+    }
   }
 
-  public static class Float extends GateBiasLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Float extends GateBiasLayerTest {
     public Float() {
       super(Precision.Float);
     }
@@ -71,5 +80,39 @@ public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Float addRef() {
+      return (Float) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
+    }
+
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") GateBiasLayerTest addRef() {
+    return (GateBiasLayerTest) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") GateBiasLayerTest[] addRefs(GateBiasLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayerTest::addRef)
+        .toArray((x) -> new GateBiasLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused") GateBiasLayerTest[][] addRefs(GateBiasLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayerTest::addRefs)
+        .toArray((x) -> new GateBiasLayerTest[x][]);
   }
 }

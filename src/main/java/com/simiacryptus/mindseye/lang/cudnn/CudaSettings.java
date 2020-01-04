@@ -28,8 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.HashMap;
+import com.simiacryptus.ref.wrappers.RefHashMap;
 
-public class CudaSettings implements Settings {
+public @com.simiacryptus.ref.lang.RefAware class CudaSettings implements Settings {
 
   private static final Logger logger = LoggerFactory.getLogger(CudaSettings.class);
 
@@ -60,17 +61,20 @@ public class CudaSettings implements Settings {
   private final int handlesPerDevice;
 
   private CudaSettings() {
-    HashMap<String, String> appSettings = LocalAppSettings.read();
+    com.simiacryptus.ref.wrappers.RefHashMap<String, String> appSettings = LocalAppSettings.read();
     String spark_home = System.getenv("SPARK_HOME");
     File sparkHomeFile = new File(spark_home == null ? "." : spark_home);
-    if (sparkHomeFile.exists()) appSettings.putAll(LocalAppSettings.read(sparkHomeFile));
-    if (appSettings.containsKey("worker.index")) System.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
+    if (sparkHomeFile.exists())
+      appSettings.putAll(LocalAppSettings.read(sparkHomeFile));
+    if (appSettings.containsKey("worker.index"))
+      System.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
     maxTotalMemory = Settings.get("MAX_TOTAL_MEMORY", 12 * CudaMemory.GiB);
     maxDeviceMemory = Settings.get("MAX_DEVICE_MEMORY", 6 * CudaMemory.GiB);
     maxAllocSize = (long) Settings.get("MAX_ALLOC_SIZE", (double) Precision.Double.size * (Integer.MAX_VALUE / 2 - 1L));
     maxFilterElements = (long) Settings.get("MAX_FILTER_ELEMENTS", (double) 126 * CudaMemory.MiB);
     maxIoElements = Settings.get("MAX_IO_ELEMENTS", (double) 126 * CudaMemory.MiB);
-    convolutionWorkspaceSizeLimit = (long) Settings.get("CONVOLUTION_WORKSPACE_SIZE_LIMIT", (double) 126 * CudaMemory.MiB);
+    convolutionWorkspaceSizeLimit = (long) Settings.get("CONVOLUTION_WORKSPACE_SIZE_LIMIT",
+        (double) 126 * CudaMemory.MiB);
     disable = Settings.get("DISABLE_CUDNN", false);
     forceSingleGpu = Settings.get("FORCE_SINGLE_GPU", true);
     conv_para_1 = Settings.get("CONV_PARA_1", false);
@@ -167,7 +171,8 @@ public class CudaSettings implements Settings {
       synchronized (CudaSettings.class) {
         if (null == INSTANCE) {
           INSTANCE = new CudaSettings();
-          logger.info(String.format("Initialized %s = %s", INSTANCE.getClass().getSimpleName(), JsonUtil.toJson(INSTANCE)));
+          logger.info(
+              String.format("Initialized %s = %s", INSTANCE.getClass().getSimpleName(), JsonUtil.toJson(INSTANCE)));
         }
       }
     }

@@ -30,7 +30,7 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-public abstract class CudnnLayerTestBase extends LayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class CudnnLayerTestBase extends LayerTestBase {
 
   @Override
   public void run(@NotNull @Nonnull NotebookOutput log) {
@@ -43,5 +43,26 @@ public abstract class CudnnLayerTestBase extends LayerTestBase {
   @Override
   protected Layer lossLayer() {
     return new MeanSqLossLayer();
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") CudnnLayerTestBase addRef() {
+    return (CudnnLayerTestBase) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") CudnnLayerTestBase[] addRefs(CudnnLayerTestBase[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudnnLayerTestBase::addRef)
+        .toArray((x) -> new CudnnLayerTestBase[x]);
+  }
+
+  public static @SuppressWarnings("unused") CudnnLayerTestBase[][] addRefs(CudnnLayerTestBase[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudnnLayerTestBase::addRefs)
+        .toArray((x) -> new CudnnLayerTestBase[x][]);
   }
 }

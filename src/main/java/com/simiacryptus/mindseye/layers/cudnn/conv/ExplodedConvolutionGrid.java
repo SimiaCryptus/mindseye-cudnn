@@ -39,11 +39,15 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 
+@com.simiacryptus.ref.lang.RefAware
 class ExplodedConvolutionGrid extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(ExplodedConvolutionGrid.class);
 
-  public final List<ExplodedConvolutionLeg> subLayers;
+  public final com.simiacryptus.ref.wrappers.RefList<ExplodedConvolutionLeg> subLayers;
   @Nonnull
   public final ConvolutionParams convolutionParams;
 
@@ -51,12 +55,12 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     this.convolutionParams = convolutionParams;
     int bandWidth = (maxBandBatch == 0) ? convolutionParams.inputBands : maxBandBatch;
     int rows = (int) Math.ceil((double) convolutionParams.inputBands / bandWidth);
-    subLayers = IntStream.range(0, rows).map(x -> x * bandWidth).mapToObj(fromBand -> {
+    subLayers = com.simiacryptus.ref.wrappers.RefIntStream.range(0, rows).map(x -> x * bandWidth).mapToObj(fromBand -> {
       int toBand = Math.min(convolutionParams.inputBands, fromBand + bandWidth);
       if (fromBand >= toBand)
         throw new RuntimeException(fromBand + " >= " + toBand);
       return new ExplodedConvolutionLeg(convolutionParams, fromBand, toBand);
-    }).collect(Collectors.toList());
+    }).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
   }
 
   @Nonnull
@@ -74,10 +78,10 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
       subLayers.get(0).write(filter);
     } else {
       for (@Nonnull
-          ExplodedConvolutionLeg leg : subLayers) {
+      ExplodedConvolutionLeg leg : subLayers) {
         @Nonnull
-        int[] legDims = {convolutionParams.masterFilterDimensions[0], convolutionParams.masterFilterDimensions[1],
-            leg.getInputBands() * convolutionParams.outputBands};
+        int[] legDims = { convolutionParams.masterFilterDimensions[0], convolutionParams.masterFilterDimensions[1],
+            leg.getInputBands() * convolutionParams.outputBands };
         @Nonnull
         Tensor template = new Tensor(legDims);
         @Nullable
@@ -95,9 +99,10 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     if (1 == subLayers.size()) {
       return extractor.apply(subLayers.get(0));
     } else {
-      @Nonnull final Tensor filterDelta = new Tensor(convolutionParams.masterFilterDimensions);
+      @Nonnull
+      final Tensor filterDelta = new Tensor(convolutionParams.masterFilterDimensions);
       for (@Nonnull
-          ExplodedConvolutionLeg leg : subLayers) {
+      ExplodedConvolutionLeg leg : subLayers) {
         Tensor tensor = extractor.apply(leg);
         tensor.forEach((v, c) -> {
           int[] coords = c.getCoords();
@@ -176,8 +181,7 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     }
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
     super._free();
   }
 
@@ -185,6 +189,24 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     int filterBand = legFilterBand;
     filterBand = filterBand + convolutionParams.outputBands * leg.fromBand;
     return filterBand;
+  }
+
+  public @Override @SuppressWarnings("unused") ExplodedConvolutionGrid addRef() {
+    return (ExplodedConvolutionGrid) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ExplodedConvolutionGrid[] addRefs(ExplodedConvolutionGrid[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionGrid::addRef)
+        .toArray((x) -> new ExplodedConvolutionGrid[x]);
+  }
+
+  public static @SuppressWarnings("unused") ExplodedConvolutionGrid[][] addRefs(ExplodedConvolutionGrid[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionGrid::addRefs)
+        .toArray((x) -> new ExplodedConvolutionGrid[x][]);
   }
 
 }

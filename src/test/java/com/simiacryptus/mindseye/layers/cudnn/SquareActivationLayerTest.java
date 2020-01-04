@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class SquareActivationLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
   private final double alpha;
@@ -44,7 +44,8 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getReferenceLayer() {
     PipelineNetwork network = new PipelineNetwork();
-    network.add(new LinearActivationLayer().setScale(alpha), network.add(new NthPowerActivationLayer().setPower(2), network.getInput(0)));
+    network.add(new LinearActivationLayer().setScale(alpha),
+        network.add(new NthPowerActivationLayer().setPower(2), network.getInput(0)));
     return network;
     //return new NthPowerActivationLayer().setPower(2);
   }
@@ -52,12 +53,12 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{{4, 4, 1}};
+    return new int[][] { { 4, 4, 1 } };
   }
 
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][]{{1200, 1200, 3}};
+    return new int[][] { { 1200, 1200, 3 } };
   }
 
   @Nonnull
@@ -66,19 +67,46 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
     return new SquareActivationLayer().setPrecision(precision).setAlpha(alpha);
   }
 
-  public static class Double extends SquareActivationLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Double extends SquareActivationLayerTest {
     public Double() {
       super(Precision.Double, 1.0);
     }
-  }
 
-  public static class Negative extends SquareActivationLayerTest {
-    public Negative() {
-      super(Precision.Double, -1.0);
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Double addRef() {
+      return (Double) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
   }
 
-  public static class Float extends SquareActivationLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Negative extends SquareActivationLayerTest {
+    public Negative() {
+      super(Precision.Double, -1.0);
+    }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Negative addRef() {
+      return (Negative) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Negative[] addRefs(Negative[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Negative::addRef)
+          .toArray((x) -> new Negative[x]);
+    }
+  }
+
+  public static @com.simiacryptus.ref.lang.RefAware class Float extends SquareActivationLayerTest {
     public Float() {
       super(Precision.Float, 1.0);
     }
@@ -88,5 +116,39 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Float addRef() {
+      return (Float) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
+    }
+
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") SquareActivationLayerTest addRef() {
+    return (SquareActivationLayerTest) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") SquareActivationLayerTest[] addRefs(SquareActivationLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayerTest::addRef)
+        .toArray((x) -> new SquareActivationLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused") SquareActivationLayerTest[][] addRefs(SquareActivationLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayerTest::addRefs)
+        .toArray((x) -> new SquareActivationLayerTest[x][]);
   }
 }

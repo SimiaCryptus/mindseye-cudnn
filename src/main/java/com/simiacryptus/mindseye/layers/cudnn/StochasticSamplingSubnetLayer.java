@@ -38,9 +38,12 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefMap;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 
 @SuppressWarnings("serial")
-public class StochasticSamplingSubnetLayer extends WrapperLayer
+public @com.simiacryptus.ref.lang.RefAware class StochasticSamplingSubnetLayer extends WrapperLayer
     implements StochasticComponent, MultiPrecision<StochasticSamplingSubnetLayer> {
 
   private final int samples;
@@ -53,7 +56,8 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
     this.samples = samples;
   }
 
-  protected StochasticSamplingSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected StochasticSamplingSubnetLayer(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json, rs);
     samples = json.getAsJsonPrimitive("samples").getAsInt();
     seed = json.getAsJsonPrimitive("seed").getAsInt();
@@ -75,17 +79,20 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
 
   public long[] getSeeds() {
     Random random = new Random(seed + layerSeed);
-    return IntStream.range(0, this.samples).mapToLong(i -> random.nextLong()).toArray();
+    return com.simiacryptus.ref.wrappers.RefIntStream.range(0, this.samples).mapToLong(i -> random.nextLong())
+        .toArray();
   }
 
   @SuppressWarnings("unused")
-  public static StochasticSamplingSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static StochasticSamplingSubnetLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new StochasticSamplingSubnetLayer(json, rs);
   }
 
   public static Result average(final Result[] samples, final Precision precision) {
     PipelineNetwork gateNetwork = new PipelineNetwork(1);
-    gateNetwork.add(new ProductLayer().setPrecision(precision), gateNetwork.getInput(0), gateNetwork.add(new ValueLayer(new Tensor(1, 1, 1).map(v -> 1.0 / samples.length)), new DAGNode[]{}));
+    gateNetwork.add(new ProductLayer().setPrecision(precision), gateNetwork.getInput(0),
+        gateNetwork.add(new ValueLayer(new Tensor(1, 1, 1).map(v -> 1.0 / samples.length)), new DAGNode[] {}));
     SumInputsLayer sumInputsLayer = new SumInputsLayer().setPrecision(precision);
     return gateNetwork.eval(sumInputsLayer.eval(samples));
   }
@@ -96,10 +103,10 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
     if (seed == 0) {
       return getInner().eval(inObj);
     }
-    Result[] counting = Arrays.stream(inObj).map(r -> {
+    Result[] counting = com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).map(r -> {
       return new CountingResult(r, samples);
     }).toArray(i -> new Result[i]);
-    return average(Arrays.stream(getSeeds()).mapToObj(seed -> {
+    return average(com.simiacryptus.ref.wrappers.RefArrays.stream(getSeeds()).mapToObj(seed -> {
       Layer inner = getInner();
       if (inner instanceof DAGNetwork) {
         ((DAGNetwork) inner).visitNodes(node -> {
@@ -125,8 +132,10 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("samples", samples);
     json.addProperty("seed", seed);
     json.addProperty("layerSeed", layerSeed);
@@ -142,5 +151,28 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
   @Override
   public void clearNoise() {
     seed = 0;
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") StochasticSamplingSubnetLayer addRef() {
+    return (StochasticSamplingSubnetLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") StochasticSamplingSubnetLayer[] addRefs(
+      StochasticSamplingSubnetLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StochasticSamplingSubnetLayer::addRef)
+        .toArray((x) -> new StochasticSamplingSubnetLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") StochasticSamplingSubnetLayer[][] addRefs(
+      StochasticSamplingSubnetLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StochasticSamplingSubnetLayer::addRefs)
+        .toArray((x) -> new StochasticSamplingSubnetLayer[x][]);
   }
 }

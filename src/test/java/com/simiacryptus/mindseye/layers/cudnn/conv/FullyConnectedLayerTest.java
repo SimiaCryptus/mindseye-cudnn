@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   protected final int[] inputDim;
@@ -69,7 +69,7 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{inputDim};
+    return new int[][] { inputDim };
   }
 
   @Nonnull
@@ -86,13 +86,26 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
     super.run(log);
   }
 
-  public static class Basic extends FullyConnectedLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Basic extends FullyConnectedLayerTest {
     public Basic() {
-      super(new int[]{2}, new int[]{2}, 512);
+      super(new int[] { 2 }, new int[] { 2 }, 512);
+    }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Basic addRef() {
+      return (Basic) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
   }
 
-  public abstract static class BigTests extends FullyConnectedLayerTest {
+  public abstract static @com.simiacryptus.ref.lang.RefAware class BigTests extends FullyConnectedLayerTest {
 
     public BigTests(@Nonnull int[] inputDims, @Nonnull int[] outputDims, int batchBands) {
       super(inputDims, outputDims, batchBands);
@@ -108,6 +121,9 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
         @Override
         public double getRandom() {
           return random();
+        }
+
+        public @SuppressWarnings("unused") void _free() {
         }
       }).setBatchSize(5);
     }
@@ -132,20 +148,82 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
     public Class<? extends Layer> getReferenceLayerClass() {
       return null;
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") BigTests addRef() {
+      return (BigTests) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") BigTests[] addRefs(BigTests[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(BigTests::addRef)
+          .toArray((x) -> new BigTests[x]);
+    }
   }
 
-  public static class Big_VGG extends BigTests {
+  public static @com.simiacryptus.ref.lang.RefAware class Big_VGG extends BigTests {
     public Big_VGG() {
-      super(new int[]{25088}, new int[]{4096}, 25088 / 2);
+      super(new int[] { 25088 }, new int[] { 4096 }, 25088 / 2);
+    }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Big_VGG addRef() {
+      return (Big_VGG) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Big_VGG[] addRefs(Big_VGG[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Big_VGG::addRef)
+          .toArray((x) -> new Big_VGG[x]);
     }
 
   }
 
-  public static class Big1 extends BigTests {
+  public static @com.simiacryptus.ref.lang.RefAware class Big1 extends BigTests {
     public Big1() {
-      super(new int[]{2 * 1024}, new int[]{2 * 1024}, 512);
+      super(new int[] { 2 * 1024 }, new int[] { 2 * 1024 }, 512);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Big1 addRef() {
+      return (Big1) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Big1[] addRefs(Big1[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Big1::addRef).toArray((x) -> new Big1[x]);
+    }
+
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") FullyConnectedLayerTest addRef() {
+    return (FullyConnectedLayerTest) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") FullyConnectedLayerTest[] addRefs(FullyConnectedLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayerTest::addRef)
+        .toArray((x) -> new FullyConnectedLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused") FullyConnectedLayerTest[][] addRefs(FullyConnectedLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayerTest::addRefs)
+        .toArray((x) -> new FullyConnectedLayerTest[x][]);
   }
 
 }

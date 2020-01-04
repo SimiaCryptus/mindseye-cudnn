@@ -34,9 +34,13 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<ImgModulusPaddingLayer> {
+public @com.simiacryptus.ref.lang.RefAware class ImgModulusPaddingLayer extends LayerBase
+    implements MultiPrecision<ImgModulusPaddingLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusPaddingLayer.class);
 
   private int sizeX;
@@ -60,7 +64,8 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
     this(sizeX, sizeY, 0, 0);
   }
 
-  protected ImgModulusPaddingLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgModulusPaddingLayer(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -100,7 +105,8 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
   }
 
   @SuppressWarnings("unused")
-  public static ImgModulusPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static ImgModulusPaddingLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgModulusPaddingLayer(json, rs);
   }
 
@@ -148,8 +154,10 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
     json.addProperty("roundUp", roundUp);
     json.addProperty("sizeX", sizeX);
@@ -161,7 +169,28 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return Arrays.asList();
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") ImgModulusPaddingLayer addRef() {
+    return (ImgModulusPaddingLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ImgModulusPaddingLayer[] addRefs(ImgModulusPaddingLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayer::addRef)
+        .toArray((x) -> new ImgModulusPaddingLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") ImgModulusPaddingLayer[][] addRefs(ImgModulusPaddingLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayer::addRefs)
+        .toArray((x) -> new ImgModulusPaddingLayer[x][]);
   }
 }

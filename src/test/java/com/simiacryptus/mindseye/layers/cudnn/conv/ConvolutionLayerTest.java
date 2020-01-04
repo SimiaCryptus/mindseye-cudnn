@@ -36,8 +36,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.stream.Stream;
+import com.simiacryptus.ref.wrappers.RefAssert;
+import com.simiacryptus.ref.wrappers.RefStream;
 
-public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class ConvolutionLayerTest extends CudnnLayerTestBase {
 
   final int inputBands;
   final int outputBands;
@@ -47,7 +49,7 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
   final int largeSize;
 
   protected ConvolutionLayerTest(final int radius, final int inputBands, final int outputBands,
-                                 final Precision precision, int batchBands, int stride, final int smallSize, final int largeSize) {
+      final Precision precision, int batchBands, int stride, final int smallSize, final int largeSize) {
     this.radius = radius;
     this.inputBands = inputBands;
     this.outputBands = outputBands;
@@ -99,14 +101,14 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     if (!testData.equals(echo)) {
       Tensor minus = testData.minus(echo);
       print(minus.coordStream(false).filter(x -> minus.get(x) != 0).map(x -> String.format("%s=%s", x, minus.get(x))));
-      Assert.assertEquals(testData, echo);
+      com.simiacryptus.ref.wrappers.RefAssert.assertEquals(testData, echo);
     }
   }
 
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{{smallSize, smallSize, inputBands}};
+    return new int[][] { { smallSize, smallSize, inputBands } };
   }
 
   @Nonnull
@@ -118,15 +120,15 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][]{{largeSize, largeSize, inputBands}};
+    return new int[][] { { largeSize, largeSize, inputBands } };
   }
 
-  private void print(final Stream<CharSequence> stream) {
+  private void print(final com.simiacryptus.ref.wrappers.RefStream<CharSequence> stream) {
     stream.forEach(x -> System.out.println("Zero: " + x));
     //System.out.println("Zeros: " + stream.sumChannels((a,b)->a+","+b).get());
   }
 
-  public static class BandExpand extends ConvolutionLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class BandExpand extends ConvolutionLayerTest {
 
     public BandExpand() {
       super(1, 3, 6, Precision.Double, 16, 1, 3, 600);
@@ -135,7 +137,7 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{1, 1, inputBands}};
+      return new int[][] { { 1, 1, inputBands } };
     }
 
     @Nonnull
@@ -144,70 +146,193 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
       return getSmallDims(random);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") BandExpand addRef() {
+      return (BandExpand) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") BandExpand[] addRefs(BandExpand[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(BandExpand::addRef)
+          .toArray((x) -> new BandExpand[x]);
+    }
+
   }
 
-  public static class BandLimit extends ConvolutionLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class BandLimit extends ConvolutionLayerTest {
 
     public BandLimit() {
       super(1, 3, 2, Precision.Double, 16, 1, 3, 600);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") BandLimit addRef() {
+      return (BandLimit) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") BandLimit[] addRefs(BandLimit[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(BandLimit::addRef)
+          .toArray((x) -> new BandLimit[x]);
+    }
+
   }
 
-  public static class SqGrid extends ConvolutionLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class SqGrid extends ConvolutionLayerTest {
 
     public SqGrid() {
       super(3, 4, 4, Precision.Double, 2, 1, 3, 600);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") SqGrid addRef() {
+      return (SqGrid) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") SqGrid[] addRefs(SqGrid[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(SqGrid::addRef).toArray((x) -> new SqGrid[x]);
+    }
+
   }
 
-  public static class IrregularGrid extends ConvolutionLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class IrregularGrid extends ConvolutionLayerTest {
 
     public IrregularGrid() {
       super(3, 5, 3, Precision.Double, 2, 1, 3, 600);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") IrregularGrid addRef() {
+      return (IrregularGrid) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") IrregularGrid[] addRefs(IrregularGrid[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(IrregularGrid::addRef)
+          .toArray((x) -> new IrregularGrid[x]);
+    }
+
   }
 
-  public static class BandReduceTest extends ConvolutionLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class BandReduceTest extends ConvolutionLayerTest {
 
     public BandReduceTest() {
       super(3, 6, 3, Precision.Double, 16, 1, 3, 600);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") BandReduceTest addRef() {
+      return (BandReduceTest) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") BandReduceTest[] addRefs(BandReduceTest[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(BandReduceTest::addRef)
+          .toArray((x) -> new BandReduceTest[x]);
+    }
+
   }
 
-  public static class Double extends ConvolutionLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Double extends ConvolutionLayerTest {
 
     public Double() {
       super(3, 4, 4, Precision.Double, 16, 1, 3, 600);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Double addRef() {
+      return (Double) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
+    }
+
   }
 
-  public static class NoPadding extends ConvolutionLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class NoPadding extends ConvolutionLayerTest {
     public NoPadding() {
       super(3, 3, 3, Precision.Double, 16, 1, 3, 600);
       convolutionLayer.setPaddingXY(0, 0);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") NoPadding addRef() {
+      return (NoPadding) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") NoPadding[] addRefs(NoPadding[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(NoPadding::addRef)
+          .toArray((x) -> new NoPadding[x]);
+    }
+
   }
 
-  public static class Float extends ConvolutionLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Float extends ConvolutionLayerTest {
     public Float() {
       super(1, 2, 2, Precision.Float, 16, 1, 3, 600);
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Float addRef() {
+      return (Float) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
+    }
   }
 
-  public static class IrregularTest extends ConvolutionLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class IrregularTest extends ConvolutionLayerTest {
 
     public IrregularTest() {
       super(3, 7, 5, Precision.Double, 16, 1, 3, 600);
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") IrregularTest addRef() {
+      return (IrregularTest) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") IrregularTest[] addRefs(IrregularTest[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(IrregularTest::addRef)
+          .toArray((x) -> new IrregularTest[x]);
+    }
   }
 
-  public static class IrregularTest_Float extends ConvolutionLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class IrregularTest_Float extends ConvolutionLayerTest {
 
     public IrregularTest_Float() {
       super(3, 7, 5, Precision.Float, 16, 1, 3, 600);
@@ -218,6 +343,20 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
       if (!validateDifferentials)
         return null;
       return new SingleDerivativeTester(1e-1, 1e-4);
+    }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") IrregularTest_Float addRef() {
+      return (IrregularTest_Float) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") IrregularTest_Float[] addRefs(IrregularTest_Float[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(IrregularTest_Float::addRef)
+          .toArray((x) -> new IrregularTest_Float[x]);
     }
   }
 
@@ -241,7 +380,7 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
   //
   //  }
 
-  public static class Big1 extends VeryBigTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Big1 extends VeryBigTest {
     public Big1() {
       this(1024);
     }
@@ -253,34 +392,61 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getLargeDims(final Random random) {
-      return new int[][]{{256, 128, inputBands}};
+      return new int[][] { { 256, 128, inputBands } };
+    }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Big1 addRef() {
+      return (Big1) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Big1[] addRefs(Big1[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Big1::addRef).toArray((x) -> new Big1[x]);
     }
   }
 
-  public abstract static class VeryBigTest extends Big {
+  public abstract static @com.simiacryptus.ref.lang.RefAware class VeryBigTest extends Big {
 
     protected VeryBigTest(final int radius, final int inputBands, final int outputBands, final Precision precision,
-                          final int batchBands) {
+        final int batchBands) {
       super(radius, inputBands, outputBands, precision, batchBands);
     }
 
     @Nonnull
     @Override
     public int[][] getSmallDims(final Random random) {
-      return new int[][]{{1, 1, inputBands}};
+      return new int[][] { { 1, 1, inputBands } };
     }
 
     @Nonnull
     @Override
     public int[][] getLargeDims(final Random random) {
-      return new int[][]{{100, 100, inputBands}};
+      return new int[][] { { 100, 100, inputBands } };
+    }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") VeryBigTest addRef() {
+      return (VeryBigTest) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") VeryBigTest[] addRefs(VeryBigTest[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(VeryBigTest::addRef)
+          .toArray((x) -> new VeryBigTest[x]);
     }
   }
 
-  public abstract static class Big extends ConvolutionLayerTest {
+  public abstract static @com.simiacryptus.ref.lang.RefAware class Big extends ConvolutionLayerTest {
 
     public Big(final int radius, final int inputBands, final int outputBands, final Precision precision,
-               int batchBands) {
+        int batchBands) {
       super(radius, inputBands, outputBands, precision, batchBands, 1, 3, 600);
       validateDifferentials = false;
     }
@@ -293,6 +459,9 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
         @Override
         public double getRandom() {
           return random();
+        }
+
+        public @SuppressWarnings("unused") void _free() {
         }
       }).setBatchSize(5);
     }
@@ -318,6 +487,40 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     public Layer getReferenceLayer() {
       return null;
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Big addRef() {
+      return (Big) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Big[] addRefs(Big[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Big::addRef).toArray((x) -> new Big[x]);
+    }
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") ConvolutionLayerTest addRef() {
+    return (ConvolutionLayerTest) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ConvolutionLayerTest[] addRefs(ConvolutionLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayerTest::addRef)
+        .toArray((x) -> new ConvolutionLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused") ConvolutionLayerTest[][] addRefs(ConvolutionLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayerTest::addRefs)
+        .toArray((x) -> new ConvolutionLayerTest[x][]);
   }
 
 }

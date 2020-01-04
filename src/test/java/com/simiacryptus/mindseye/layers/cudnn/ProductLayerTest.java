@@ -26,7 +26,7 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-public abstract class ProductLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class ProductLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
 
@@ -37,16 +37,12 @@ public abstract class ProductLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{
-        {4, 4, 3}, {1, 1, 3}
-    };
+    return new int[][] { { 4, 4, 3 }, { 1, 1, 3 } };
   }
 
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][]{
-        {400, 400, 30}, {1, 1, 30}
-    };
+    return new int[][] { { 400, 400, 30 }, { 1, 1, 30 } };
   }
 
   @Nonnull
@@ -55,7 +51,7 @@ public abstract class ProductLayerTest extends CudnnLayerTestBase {
     return new ProductLayer().setPrecision(precision);
   }
 
-  public static class Mask extends ProductLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Mask extends ProductLayerTest {
     public Mask() {
       super(Precision.Double);
     }
@@ -63,26 +59,48 @@ public abstract class ProductLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{
-          {4, 4, 3}, {4, 4, 1}
-      };
+      return new int[][] { { 4, 4, 3 }, { 4, 4, 1 } };
     }
 
     @Override
     public int[][] getLargeDims(final Random random) {
-      return new int[][]{
-          {400, 400, 30}, {400, 400, 1}
-      };
+      return new int[][] { { 400, 400, 30 }, { 400, 400, 1 } };
+    }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Mask addRef() {
+      return (Mask) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Mask[] addRefs(Mask[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Mask::addRef).toArray((x) -> new Mask[x]);
     }
   }
 
-  public static class Double extends ProductLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Double extends ProductLayerTest {
     public Double() {
       super(Precision.Double);
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Double addRef() {
+      return (Double) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
+    }
   }
 
-  public static class Float extends ProductLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Float extends ProductLayerTest {
     public Float() {
       super(Precision.Float);
     }
@@ -92,5 +110,39 @@ public abstract class ProductLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Float addRef() {
+      return (Float) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
+    }
+
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") ProductLayerTest addRef() {
+    return (ProductLayerTest) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ProductLayerTest[] addRefs(ProductLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ProductLayerTest::addRef)
+        .toArray((x) -> new ProductLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused") ProductLayerTest[][] addRefs(ProductLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ProductLayerTest::addRefs)
+        .toArray((x) -> new ProductLayerTest[x][]);
   }
 }

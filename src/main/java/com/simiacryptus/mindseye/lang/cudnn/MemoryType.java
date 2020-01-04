@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static jcuda.runtime.JCuda.*;
+import com.simiacryptus.ref.wrappers.RefMap;
+import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
 
 public enum MemoryType {
 
@@ -121,7 +123,7 @@ public enum MemoryType {
   };
 
   protected static final Logger logger = LoggerFactory.getLogger(MemoryType.class);
-  private final Map<Integer, RecycleBin<ReferenceWrapper<CudaPointer>>> cache = new ConcurrentHashMap<>();
+  private final com.simiacryptus.ref.wrappers.RefMap<Integer, RecycleBin<ReferenceWrapper<CudaPointer>>> cache = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
 
   public void recycle(CudaPointer ptr, int deviceId, final long length) {
     logger.debug(String.format("Recycle %s %s (%s bytes) in device %s via %s", name(),

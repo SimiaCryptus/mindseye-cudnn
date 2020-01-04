@@ -35,12 +35,17 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
+import com.simiacryptus.ref.wrappers.RefArrayList;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 
 @SuppressWarnings("serial")
-public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<ImgLinearSubnetLayer> {
+public @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayer extends LayerBase
+    implements MultiPrecision<ImgLinearSubnetLayer> {
 
   private static final Logger logger = LoggerFactory.getLogger(ImgLinearSubnetLayer.class);
-  private final List<SubnetLeg> legs = new ArrayList<>();
+  private final com.simiacryptus.ref.wrappers.RefList<SubnetLeg> legs = new com.simiacryptus.ref.wrappers.RefArrayList<>();
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private boolean parallel = true;
 
@@ -48,7 +53,8 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
     super();
   }
 
-  protected ImgLinearSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgLinearSubnetLayer(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     setParallel(json.get("parallel").getAsBoolean());
@@ -58,7 +64,7 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
     }
   }
 
-  public List<SubnetLeg> getLegs() {
+  public com.simiacryptus.ref.wrappers.RefList<SubnetLeg> getLegs() {
     return legs;
   }
 
@@ -83,7 +89,8 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
   }
 
   @SuppressWarnings("unused")
-  public static ImgLinearSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static ImgLinearSubnetLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgLinearSubnetLayer(json, rs);
   }
 
@@ -98,15 +105,17 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
     assert 1 == inObj.length;
     Result input = inObj[0];
     TensorList inputData = input.getData();
-    @Nonnull final int[] inputDims = inputData.getDimensions();
+    @Nonnull
+    final int[] inputDims = inputData.getDimensions();
     assert 3 == inputDims.length;
     int length = inputData.length();
     int maxBand = legs.stream().mapToInt(x -> x.toBand).max().getAsInt();
     assert maxBand == inputDims[2] : maxBand + " != " + inputDims[2];
-    assert IntStream.range(0, maxBand)
+    assert com.simiacryptus.ref.wrappers.RefIntStream.range(0, maxBand)
         .allMatch(i -> 1 == legs.stream().filter(x -> x.fromBand <= i && x.toBand > i).count());
     CudaTensor passback = CudaSystem.run(gpu -> {
-      return new CudaTensor(gpu.allocate(inputData.getElements() * precision.size, MemoryType.Device, true), gpu.newTensorDescriptor(precision, length, inputDims[2], inputDims[1], inputDims[0]), precision);
+      return new CudaTensor(gpu.allocate(inputData.getElements() * precision.size, MemoryType.Device, true),
+          gpu.newTensorDescriptor(precision, length, inputDims[2], inputDims[1], inputDims[0]), precision);
     });
     AtomicInteger counter = new AtomicInteger(0);
     Result[] legResults;
@@ -122,7 +131,8 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
         int[] outputDimensions = delta.getDimensions();
         synchronized (passback) {
           CudaSystem.run(gpu -> {
-            @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
+            @Nonnull
+            final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
                 outputDimensions[2], outputDimensions[1], outputDimensions[0], //
                 inputDims[2] * inputDims[1] * inputDims[0], //
                 inputDims[1] * inputDims[0], //
@@ -132,8 +142,10 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
             assert delta.length() == length;
             assert passback.getDeviceId() == gpu.getDeviceId();
             //assert error.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(Double::isFinite);
-            @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
-            @Nonnull final CudaMemory passbackBuffer = passback.getMemory(gpu);
+            @Nullable
+            final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
+            @Nonnull
+            final CudaMemory passbackBuffer = passback.getMemory(gpu);
             CudaMemory errorPtrMemory = deltaTensor.getMemory(gpu);
             passbackBuffer.synchronize();
             gpu.cudnnTransformTensor(precision.getPointer(1.0), deltaTensor.descriptor.getPtr(),
@@ -148,8 +160,7 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
           input.accumulate(ctx, new CudaTensorList(passback, length, inputDims, precision));
         }
       }) {
-        @Override
-        protected void _free() {
+        public void _free() {
           super._free();
         }
       });
@@ -160,8 +171,10 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
     json.addProperty("parallel", isParallel());
     JsonArray jsonArray = new JsonArray();
@@ -172,8 +185,8 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return new ArrayList<>();
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return new com.simiacryptus.ref.wrappers.RefArrayList<>();
   }
 
   @Nonnull
@@ -183,12 +196,11 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
     return super.setFrozen(frozen);
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
     super._free();
   }
 
-  public static class SubnetLeg extends ReferenceCountingBase {
+  public static @com.simiacryptus.ref.lang.RefAware class SubnetLeg extends ReferenceCountingBase {
 
     private final Layer inner;
     private final int fromBand;
@@ -200,25 +212,55 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
       this.toBand = toBand;
     }
 
-    protected SubnetLeg(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+    protected SubnetLeg(@Nonnull final JsonObject json, com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
       fromBand = json.getAsJsonPrimitive("fromBand").getAsInt();
       toBand = json.getAsJsonPrimitive("toBand").getAsInt();
       inner = Layer.fromJson(json.getAsJsonObject("network"), rs);
     }
 
     @Nonnull
-    public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-      @Nonnull final JsonObject json = new JsonObject();
+    public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+        DataSerializer dataSerializer) {
+      @Nonnull
+      final JsonObject json = new JsonObject();
       json.addProperty("fromBand", fromBand);
       json.addProperty("toBand", toBand);
       json.add("network", inner.getJson(resources, dataSerializer));
       return json;
     }
 
-    @Override
-    protected void _free() {
+    public void _free() {
       super._free();
     }
 
+    public @Override @SuppressWarnings("unused") SubnetLeg addRef() {
+      return (SubnetLeg) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") SubnetLeg[] addRefs(SubnetLeg[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(SubnetLeg::addRef)
+          .toArray((x) -> new SubnetLeg[x]);
+    }
+
+  }
+
+  public @Override @SuppressWarnings("unused") ImgLinearSubnetLayer addRef() {
+    return (ImgLinearSubnetLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ImgLinearSubnetLayer[] addRefs(ImgLinearSubnetLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRef)
+        .toArray((x) -> new ImgLinearSubnetLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") ImgLinearSubnetLayer[][] addRefs(ImgLinearSubnetLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRefs)
+        .toArray((x) -> new ImgLinearSubnetLayer[x][]);
   }
 }

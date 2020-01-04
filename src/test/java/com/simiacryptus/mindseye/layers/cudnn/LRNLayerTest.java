@@ -25,7 +25,7 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-public class LRNLayerTest extends CudnnLayerTestBase {
+public @com.simiacryptus.ref.lang.RefAware class LRNLayerTest extends CudnnLayerTestBase {
 
   private final int smallSize;
   private final int largeSize;
@@ -43,7 +43,7 @@ public class LRNLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{{smallSize, smallSize, 1}};
+    return new int[][] { { smallSize, smallSize, 1 } };
   }
 
   @Nonnull
@@ -55,9 +55,28 @@ public class LRNLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][]{
-        {largeSize, largeSize, 1}
-    };
+    return new int[][] { { largeSize, largeSize, 1 } };
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") LRNLayerTest addRef() {
+    return (LRNLayerTest) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") LRNLayerTest[] addRefs(LRNLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LRNLayerTest::addRef)
+        .toArray((x) -> new LRNLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused") LRNLayerTest[][] addRefs(LRNLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LRNLayerTest::addRefs)
+        .toArray((x) -> new LRNLayerTest[x][]);
   }
 
 }

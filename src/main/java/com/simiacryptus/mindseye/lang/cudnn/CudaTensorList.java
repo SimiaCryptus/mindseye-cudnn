@@ -30,11 +30,15 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefStream;
 
-public class CudaTensorList extends RegisteredObjectBase implements TensorList, CudaSystem.CudaDeviceResource {
+public @com.simiacryptus.ref.lang.RefAware class CudaTensorList extends RegisteredObjectBase
+    implements TensorList, CudaSystem.CudaDeviceResource {
   public static final Logger logger = LoggerFactory.getLogger(CudaTensorList.class);
   public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getStackTrace()
-      : new StackTraceElement[]{};
+      : new StackTraceElement[] {};
   @Nonnull
   private final int[] dimensions;
   private final int length;
@@ -44,7 +48,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
   volatile TensorArray heapCopy = null;
 
   public CudaTensorList(@Nullable final CudaTensor ptr, final int length, @Nonnull final int[] dimensions,
-                         @Nonnull final Precision precision) {
+      @Nonnull final Precision precision) {
     //assert 1 == ptr.currentRefCount() : ptr.referenceReport(false, false);
     if (null == ptr)
       throw new IllegalArgumentException("ptr");
@@ -55,20 +59,20 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     if (Tensor.length(dimensions) <= 0)
       throw new IllegalArgumentException();
     this.gpuCopy = ptr;
-    this.dimensions = Arrays.copyOf(dimensions, dimensions.length);
+    this.dimensions = com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimensions, dimensions.length);
     this.length = length;
     assert ptr.memory.size >= (long) (length - 1) * Tensor.length(dimensions) * precision.size : String
         .format("%s < %s", ptr.memory.size, (long) length * Tensor.length(dimensions) * precision.size);
     assert ptr.descriptor.batchCount == length;
     assert ptr.descriptor.channels == (dimensions.length < 3 ? 1 : dimensions[2]) : String.format("%s != (%d,%d,%d,%d)",
-        Arrays.toString(dimensions), ptr.descriptor.batchCount, ptr.descriptor.channels, ptr.descriptor.height,
-        ptr.descriptor.width);
+        com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions), ptr.descriptor.batchCount,
+        ptr.descriptor.channels, ptr.descriptor.height, ptr.descriptor.width);
     assert ptr.descriptor.height == (dimensions.length < 2 ? 1 : dimensions[1]) : String.format("%s != (%d,%d,%d,%d)",
-        Arrays.toString(dimensions), ptr.descriptor.batchCount, ptr.descriptor.channels, ptr.descriptor.height,
-        ptr.descriptor.width);
+        com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions), ptr.descriptor.batchCount,
+        ptr.descriptor.channels, ptr.descriptor.height, ptr.descriptor.width);
     assert ptr.descriptor.width == (dimensions.length < 1 ? 1 : dimensions[0]) : String.format("%s != (%d,%d,%d,%d)",
-        Arrays.toString(dimensions), ptr.descriptor.batchCount, ptr.descriptor.channels, ptr.descriptor.height,
-        ptr.descriptor.width);
+        com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions), ptr.descriptor.batchCount,
+        ptr.descriptor.channels, ptr.descriptor.height, ptr.descriptor.width);
     assert ptr.getPrecision() == precision;
     assert ptr.memory.getPtr() != null;
     register();
@@ -83,7 +87,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
   @Nonnull
   @Override
   public int[] getDimensions() {
-    return Arrays.copyOf(dimensions, dimensions.length);
+    return com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimensions, dimensions.length);
   }
 
   public int getLength() {
@@ -110,14 +114,9 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
   }
 
   public static CudaTensorList create(final CudaMemory ptr, CudaDevice.CudaTensorDescriptor descriptor,
-                                      final int length, @Nonnull final int[] dimensions, @Nonnull final Precision precision) {
+      final int length, @Nonnull final int[] dimensions, @Nonnull final Precision precision) {
     CudaTensor cudaTensor = new CudaTensor(ptr, descriptor, precision);
     return new CudaTensorList(cudaTensor, length, dimensions, precision);
-  }
-
-  @Override
-  public CudaTensorList addRef() {
-    return (CudaTensorList) super.addRef();
   }
 
   @Override
@@ -132,7 +131,8 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     assert length() == right.length();
     if (heapCopy == null) {
       if (right instanceof CudaTensorList) {
-        @Nonnull final CudaTensorList nativeRight = (CudaTensorList) right;
+        @Nonnull
+        final CudaTensorList nativeRight = (CudaTensorList) right;
         if (nativeRight.getPrecision() == this.getPrecision()) {
           if (nativeRight.heapCopy == null) {
             assert (nativeRight.gpuCopy != this.gpuCopy);
@@ -157,7 +157,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     if (length() == 0)
       throw new IllegalArgumentException();
     assert length() == right.length();
-    return new TensorArray(IntStream.range(0, length()).mapToObj(i -> {
+    return new TensorArray(com.simiacryptus.ref.wrappers.RefIntStream.range(0, length()).mapToObj(i -> {
       Tensor a = get(i);
       Tensor b = right.get(i);
       return a.addAndFree(b);
@@ -173,7 +173,8 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
       return add(((ReshapedTensorList) right).getInner());
     if (heapCopy == null) {
       if (right instanceof CudaTensorList) {
-        @Nonnull final CudaTensorList nativeRight = (CudaTensorList) right;
+        @Nonnull
+        final CudaTensorList nativeRight = (CudaTensorList) right;
         if (nativeRight.getPrecision() == this.getPrecision()) {
           if (nativeRight.heapCopy == null) {
             return CudaSystem.run(gpu -> {
@@ -188,7 +189,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     if (length() == 0)
       throw new IllegalArgumentException();
     assert length() == right.length();
-    return new TensorArray(IntStream.range(0, length()).mapToObj(i -> {
+    return new TensorArray(com.simiacryptus.ref.wrappers.RefIntStream.range(0, length()).mapToObj(i -> {
       Tensor a = get(i);
       Tensor b = right.get(i);
       return a.addAndFree(b);
@@ -230,7 +231,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
   }
 
   @Override
-  public Stream<Tensor> stream() {
+  public com.simiacryptus.ref.wrappers.RefStream<Tensor> stream() {
     return heapCopy().stream();
   }
 
@@ -263,7 +264,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     if (null != ptr && !ptr.isFinalized()) {
       long elements = getElements();
       assert 0 < length;
-      assert 0 < elements : Arrays.toString(dimensions);
+      assert 0 < elements : com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions);
       return elements * getPrecision().size;
     } else {
       synchronized (this) {
@@ -273,8 +274,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     }
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
     synchronized (this) {
       if (null != gpuCopy) {
         gpuCopy = null;
@@ -327,8 +327,8 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     int length = getLength();
     if (0 >= length)
       throw new IllegalStateException();
-    final Tensor[] output = IntStream.range(0, length).mapToObj(dataIndex -> new Tensor(getDimensions()))
-        .toArray(i -> new Tensor[i]);
+    final Tensor[] output = com.simiacryptus.ref.wrappers.RefIntStream.range(0, length)
+        .mapToObj(dataIndex -> new Tensor(getDimensions())).toArray(i -> new Tensor[i]);
     TimedResult<TensorArray> timedResult = TimedResult.time(() -> CudaDevice.run(gpu -> {
       assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
       {
@@ -350,5 +350,23 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
         Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
         Util.toString(createdBy).replaceAll("\n", "\n\t")));
     return timedResult.result;
+  }
+
+  public @Override @SuppressWarnings("unused") CudaTensorList addRef() {
+    return (CudaTensorList) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") CudaTensorList[] addRefs(CudaTensorList[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaTensorList::addRef)
+        .toArray((x) -> new CudaTensorList[x]);
+  }
+
+  public static @SuppressWarnings("unused") CudaTensorList[][] addRefs(CudaTensorList[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaTensorList::addRefs)
+        .toArray((x) -> new CudaTensorList[x][]);
   }
 }

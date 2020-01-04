@@ -35,9 +35,13 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiPrecision<ImgModulusPaddingSubnetLayer> {
+public @com.simiacryptus.ref.lang.RefAware class ImgModulusPaddingSubnetLayer extends WrapperLayer
+    implements MultiPrecision<ImgModulusPaddingSubnetLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusPaddingSubnetLayer.class);
 
   private int sizeX;
@@ -61,7 +65,8 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     this(sizeX, sizeY, 0, 0, inner);
   }
 
-  protected ImgModulusPaddingSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgModulusPaddingSubnetLayer(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json, rs);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -91,7 +96,8 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
   }
 
   @SuppressWarnings("unused")
-  public static ImgModulusPaddingSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static ImgModulusPaddingSubnetLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgModulusPaddingSubnetLayer(json, rs);
   }
 
@@ -141,8 +147,10 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
     json.addProperty("offsetX", offsetX);
@@ -153,7 +161,30 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return Arrays.asList();
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") ImgModulusPaddingSubnetLayer addRef() {
+    return (ImgModulusPaddingSubnetLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ImgModulusPaddingSubnetLayer[] addRefs(
+      ImgModulusPaddingSubnetLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingSubnetLayer::addRef)
+        .toArray((x) -> new ImgModulusPaddingSubnetLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") ImgModulusPaddingSubnetLayer[][] addRefs(
+      ImgModulusPaddingSubnetLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingSubnetLayer::addRefs)
+        .toArray((x) -> new ImgModulusPaddingSubnetLayer[x][]);
   }
 }

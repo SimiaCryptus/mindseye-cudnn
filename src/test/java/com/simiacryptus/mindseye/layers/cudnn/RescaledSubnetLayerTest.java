@@ -29,11 +29,10 @@ import org.junit.Test;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class RescaledSubnetLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
-  final
-  ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1);
+  final ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1);
 
   public RescaledSubnetLayerTest() {
 
@@ -46,28 +45,24 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
 
   @Override
   public void run(@NotNull NotebookOutput log) {
-//    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
-//    log.p(log.file((String) null, logName, "GPU Log"));
-//    @Nonnull PrintStream apiLog = new PrintStream(log.file(logName));
-//    CudaSystem.addLog(apiLog);
+    //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
+    //    log.p(log.file((String) null, logName, "GPU Log"));
+    //    @Nonnull PrintStream apiLog = new PrintStream(log.file(logName));
+    //    CudaSystem.addLog(apiLog);
     super.run(log);
-//    apiLog.close();
-//    CudaSystem.apiLog.remove(apiLog);
+    //    apiLog.close();
+    //    CudaSystem.apiLog.remove(apiLog);
   }
 
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{
-        {8, 8, 1}
-    };
+    return new int[][] { { 8, 8, 1 } };
   }
 
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][]{
-        {1200, 1200, 3}
-    };
+    return new int[][] { { 1200, 1200, 3 } };
   }
 
   @Nonnull
@@ -76,13 +71,47 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
     return new RescaledSubnetLayer(2, convolutionLayer.set(() -> this.random()));
   }
 
-  public static class Basic extends RescaledSubnetLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Basic extends RescaledSubnetLayerTest {
     @Override
     @Test(timeout = 15 * 60 * 1000)
     @Ignore // Crashing SpanBug!?!?
     public void test() throws Throwable {
       super.test();
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Basic addRef() {
+      return (Basic) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
+    }
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") RescaledSubnetLayerTest addRef() {
+    return (RescaledSubnetLayerTest) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") RescaledSubnetLayerTest[] addRefs(RescaledSubnetLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayerTest::addRef)
+        .toArray((x) -> new RescaledSubnetLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused") RescaledSubnetLayerTest[][] addRefs(RescaledSubnetLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayerTest::addRefs)
+        .toArray((x) -> new RescaledSubnetLayerTest[x][]);
   }
 
 }

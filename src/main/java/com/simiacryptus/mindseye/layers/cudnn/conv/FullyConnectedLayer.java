@@ -41,9 +41,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public class FullyConnectedLayer extends LayerBase implements MultiPrecision<FullyConnectedLayer>, Explodable {
+public @com.simiacryptus.ref.lang.RefAware class FullyConnectedLayer extends LayerBase
+    implements MultiPrecision<FullyConnectedLayer>, Explodable {
   private static final Logger log = LoggerFactory.getLogger(FullyConnectedLayer.class);
   @Nullable
   public final int[] inputDims;
@@ -63,8 +67,8 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
 
   public FullyConnectedLayer(@Nonnull final int[] inputDims, @Nonnull final int[] outputDims) {
     final int inputs = Tensor.length(inputDims);
-    this.inputDims = Arrays.copyOf(inputDims, inputDims.length);
-    this.outputDims = Arrays.copyOf(outputDims, outputDims.length);
+    this.inputDims = com.simiacryptus.ref.wrappers.RefArrays.copyOf(inputDims, inputDims.length);
+    this.outputDims = com.simiacryptus.ref.wrappers.RefArrays.copyOf(outputDims, outputDims.length);
     final int outs = Tensor.length(outputDims);
     weights = new Tensor(inputs, outs);
     setWeights(() -> {
@@ -74,11 +78,13 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     });
   }
 
-  protected FullyConnectedLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected FullyConnectedLayer(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     outputDims = JsonUtil.getIntArray(json.getAsJsonArray("outputDims"));
     inputDims = JsonUtil.getIntArray(json.getAsJsonArray("inputDims"));
-    @Nullable final Tensor data = Tensor.fromJson(json.get("weights"), rs);
+    @Nullable
+    final Tensor data = Tensor.fromJson(json.get("weights"), rs);
     weights = data;
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
@@ -117,7 +123,7 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
 
   @Nonnull
   public void setWeights(@Nonnull final DoubleSupplier f) {
-    Arrays.parallelSetAll(getWeights().getData(), i -> f.getAsDouble());
+    com.simiacryptus.ref.wrappers.RefArrays.parallelSetAll(getWeights().getData(), i -> f.getAsDouble());
   }
 
   @Nonnull
@@ -127,7 +133,8 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
   }
 
   @SuppressWarnings("unused")
-  public static FullyConnectedLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static FullyConnectedLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new FullyConnectedLayer(json, rs);
   }
 
@@ -174,8 +181,10 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      @Nonnull DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.add("outputDims", JsonUtil.getJson(outputDims));
     json.add("inputDims", JsonUtil.getJson(inputDims));
     @Nullable
@@ -187,8 +196,8 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return Arrays.asList(getWeights().getData());
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return com.simiacryptus.ref.wrappers.RefArrays.asList(getWeights().getData());
   }
 
   public FullyConnectedLayer set(DoubleSupplier fn) {
@@ -196,8 +205,25 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     return this;
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
     super._free();
+  }
+
+  public @Override @SuppressWarnings("unused") FullyConnectedLayer addRef() {
+    return (FullyConnectedLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") FullyConnectedLayer[] addRefs(FullyConnectedLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayer::addRef)
+        .toArray((x) -> new FullyConnectedLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") FullyConnectedLayer[][] addRefs(FullyConnectedLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayer::addRefs)
+        .toArray((x) -> new FullyConnectedLayer[x][]);
   }
 }

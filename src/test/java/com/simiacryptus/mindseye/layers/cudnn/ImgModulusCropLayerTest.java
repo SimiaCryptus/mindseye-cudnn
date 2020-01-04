@@ -24,8 +24,7 @@ import com.simiacryptus.mindseye.lang.Layer;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-
-public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class ImgModulusCropLayerTest extends CudnnLayerTestBase {
 
   final int modulus;
   final int offset;
@@ -46,18 +45,16 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{
-        {320, 240, 3}
-//        {2, 2, 1}
+    return new int[][] { { 320, 240, 3 }
+        //        {2, 2, 1}
     };
   }
 
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][]{
-        {320, 240, 3}
-//        {1200, 1200, 1}
+    return new int[][] { { 320, 240, 3 }
+        //        {1200, 1200, 1}
     };
   }
 
@@ -65,14 +62,48 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     return new ImgModulusCropLayer(modulus, modulus, offset, offset)
-        //.setRoundUp(true)
-        ;
+    //.setRoundUp(true)
+    ;
   }
 
-  public static class Basic extends ImgModulusCropLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Basic extends ImgModulusCropLayerTest {
     public Basic() {
       super(2, 7);
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Basic addRef() {
+      return (Basic) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
+    }
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") ImgModulusCropLayerTest addRef() {
+    return (ImgModulusCropLayerTest) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ImgModulusCropLayerTest[] addRefs(ImgModulusCropLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayerTest::addRef)
+        .toArray((x) -> new ImgModulusCropLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused") ImgModulusCropLayerTest[][] addRefs(ImgModulusCropLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayerTest::addRefs)
+        .toArray((x) -> new ImgModulusCropLayerTest[x][]);
   }
 
 }

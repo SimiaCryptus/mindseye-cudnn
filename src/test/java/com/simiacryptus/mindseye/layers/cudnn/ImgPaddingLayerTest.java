@@ -25,8 +25,7 @@ import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-
-public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   private static final int SIZE_OUT = 4;
   private static final int SIZE_IN = 2;
@@ -47,11 +46,11 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
   @Override
   public abstract Layer getLayer(final int[][] inputSize, Random random);
 
-  public static class Center extends ImgPaddingLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Center extends ImgPaddingLayerTest {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+      return new int[][] { { SIZE_IN, SIZE_IN, 1 } };
     }
 
     @Nonnull
@@ -60,13 +59,26 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
       return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Center addRef() {
+      return (Center) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Center[] addRefs(Center[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Center::addRef).toArray((x) -> new Center[x]);
+    }
+
   }
 
-  public static class Left extends ImgPaddingLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Left extends ImgPaddingLayerTest {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+      return new int[][] { { SIZE_IN, SIZE_IN, 1 } };
     }
 
     @Nonnull
@@ -75,13 +87,26 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
       return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setHorizontalAlign(Alignment.Left);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Left addRef() {
+      return (Left) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Left[] addRefs(Left[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Left::addRef).toArray((x) -> new Left[x]);
+    }
+
   }
 
-  public static class Right extends ImgPaddingLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Right extends ImgPaddingLayerTest {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+      return new int[][] { { SIZE_IN, SIZE_IN, 1 } };
     }
 
     @Nonnull
@@ -90,13 +115,26 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
       return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setHorizontalAlign(Alignment.Right);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Right addRef() {
+      return (Right) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Right[] addRefs(Right[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Right::addRef).toArray((x) -> new Right[x]);
+    }
+
   }
 
-  public static class Top extends ImgPaddingLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Top extends ImgPaddingLayerTest {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+      return new int[][] { { SIZE_IN, SIZE_IN, 1 } };
     }
 
     @Nonnull
@@ -105,13 +143,26 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
       return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setVerticalAlign(Alignment.Left);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Top addRef() {
+      return (Top) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Top[] addRefs(Top[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Top::addRef).toArray((x) -> new Top[x]);
+    }
+
   }
 
-  public static class Bottom extends ImgPaddingLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Bottom extends ImgPaddingLayerTest {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+      return new int[][] { { SIZE_IN, SIZE_IN, 1 } };
     }
 
     @Nonnull
@@ -120,6 +171,40 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
       return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setVerticalAlign(Alignment.Right);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Bottom addRef() {
+      return (Bottom) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Bottom[] addRefs(Bottom[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Bottom::addRef).toArray((x) -> new Bottom[x]);
+    }
+
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") ImgPaddingLayerTest addRef() {
+    return (ImgPaddingLayerTest) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ImgPaddingLayerTest[] addRefs(ImgPaddingLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayerTest::addRef)
+        .toArray((x) -> new ImgPaddingLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused") ImgPaddingLayerTest[][] addRefs(ImgPaddingLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayerTest::addRefs)
+        .toArray((x) -> new ImgPaddingLayerTest[x][]);
   }
 
 }

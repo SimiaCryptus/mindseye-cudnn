@@ -21,7 +21,7 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import jcuda.Pointer;
 
-public class CudaPointer extends Pointer {
+public @com.simiacryptus.ref.lang.RefAware class CudaPointer extends Pointer {
 
   public final int deviceId = CudaSystem.getThreadDeviceId();
 
@@ -54,6 +54,5 @@ public class CudaPointer extends Pointer {
   public CudaPointer withByteOffset(final long byteOffset) {
     return new CudaPointer(this, byteOffset);
   }
-
 
 }

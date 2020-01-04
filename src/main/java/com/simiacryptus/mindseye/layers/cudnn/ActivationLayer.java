@@ -37,9 +37,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
+import com.simiacryptus.ref.wrappers.RefStream;
 
 @SuppressWarnings("serial")
-public class ActivationLayer extends LayerBase implements MultiPrecision<ActivationLayer> {
+public @com.simiacryptus.ref.lang.RefAware class ActivationLayer extends LayerBase
+    implements MultiPrecision<ActivationLayer> {
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(ActivationLayer.class);
   final int mode;
@@ -99,7 +104,8 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
   }
 
   @SuppressWarnings("unused")
-  public static ActivationLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static ActivationLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ActivationLayer(json);
   }
 
@@ -111,27 +117,33 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
     //assert Arrays.stream(inObj).flatMapToDouble(input->input.data.stream().flatMapToDouble(x-> Arrays.stream(x.getData()))).allMatch(v->Double.isFinite(v));
     final Result inputResult = inObj[0];
     final TensorList inputData = inputResult.getData();
-    @Nonnull final int[] inputSize = inputData.getDimensions();
-    @Nonnull final int[] outputSize = inputSize;
+    @Nonnull
+    final int[] inputSize = inputData.getDimensions();
+    @Nonnull
+    final int[] outputSize = inputSize;
     final int length = inputData.length();
     final int inputDims = Tensor.length(inputSize);
     try {
       final CudaTensor outPtr = CudaSystem.run(gpu -> {
-        @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
+        @Nullable
+        final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
         final CudaTensor outputTensor;
         if (1 == inputData.currentRefCount() && 1 == inputTensor.currentRefCount()
             && (!inputResult.isAlive() || mode == Mode.RELU.id)) {
           outputTensor = inputTensor;
         } else {
-          @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+          @Nonnull
+          final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
               inputSize[2], inputSize[1], inputSize[0], inputSize[2] * inputSize[1] * inputSize[0],
               inputSize[1] * inputSize[0], inputSize[0], 1);
-          @Nonnull final CudaMemory outputData = gpu.allocate((long) precision.size * inputDims * length,
+          @Nonnull
+          final CudaMemory outputData = gpu.allocate((long) precision.size * inputDims * length,
               MemoryType.Managed.ifEnabled(), true);
           outputTensor = new CudaTensor(outputData, outputDescriptor, precision);
         }
 
-        @Nonnull final CudaResource<cudnnActivationDescriptor> activationDesc = gpu.newActivationDescriptor(mode,
+        @Nonnull
+        final CudaResource<cudnnActivationDescriptor> activationDesc = gpu.newActivationDescriptor(mode,
             cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN, 0);
         try {
           CudaMemory memory = inputTensor.getMemory(gpu);
@@ -148,7 +160,7 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
             }
           }
         } catch (@Nonnull final Throwable e) {
-          throw new ComponentException("Error apply " + Arrays.toString(inputSize), e);
+          throw new ComponentException("Error apply " + com.simiacryptus.ref.wrappers.RefArrays.toString(inputSize), e);
         } finally {
         }
       }, inputData);
@@ -162,11 +174,15 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
                 CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
                 assert length == delta.length();
                 CudaTensor localOut = outPtr.getDense(gpu);
-                CudaTensor passbackTensor = new CudaTensor(gpu.allocate((long) Tensor.length(inputSize) * length * precision.size,
-                    MemoryType.Managed.ifEnabled(), false), gpu.newTensorDescriptor(precision, length, inputSize[2], inputSize[1], inputSize[0],
-                    inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0], 1), precision);
+                CudaTensor passbackTensor = new CudaTensor(
+                    gpu.allocate((long) Tensor.length(inputSize) * length * precision.size,
+                        MemoryType.Managed.ifEnabled(), false),
+                    gpu.newTensorDescriptor(precision, length, inputSize[2], inputSize[1], inputSize[0],
+                        inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0], 1),
+                    precision);
 
-                @Nonnull final CudaResource<cudnnActivationDescriptor> activationDesc = gpu.newActivationDescriptor(mode,
+                @Nonnull
+                final CudaResource<cudnnActivationDescriptor> activationDesc = gpu.newActivationDescriptor(mode,
                     cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN, 0);
                 try {
                   CudaMemory localOutMemory = localOut.getMemory(gpu);
@@ -179,11 +195,13 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
                       inputTensorMemory.getPtr(), precision.getPointer(0.0), passbackTensor.descriptor.getPtr(),
                       passbackTensorMemory.getPtr()));
                   assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-                  Stream.of(localOutMemory, deltaTensorMemory, inputTensorMemory, passbackTensorMemory)
+                  com.simiacryptus.ref.wrappers.RefStream
+                      .of(localOutMemory, deltaTensorMemory, inputTensorMemory, passbackTensorMemory)
                       .forEach(CudaMemory::dirty);
                   return new CudaTensorList(passbackTensor, length, inputSize, precision);
                 } catch (@Nonnull final Throwable e) {
-                  throw new ComponentException("Error apply " + Arrays.toString(inputSize), e);
+                  throw new ComponentException(
+                      "Error apply " + com.simiacryptus.ref.wrappers.RefArrays.toString(inputSize), e);
                 }
               }, delta);
               inputResult.accumulate(buffer, data);
@@ -200,19 +218,21 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
           getAccumulator().accept(buffer, delta);
         }
 
-        @Override
-        protected void _free() {
+        public void _free() {
         }
       };
     } catch (@Nonnull final Throwable e) {
-      throw new ComponentException("Error apply png res " + Arrays.toString(inputSize), e);
+      throw new ComponentException("Error apply png res " + com.simiacryptus.ref.wrappers.RefArrays.toString(inputSize),
+          e);
     }
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("alpha", getAlpha());
     json.addProperty("mode", mode);
     json.addProperty("precision", precision.name());
@@ -221,8 +241,8 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return Arrays.asList();
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
   public enum Mode {
@@ -233,6 +253,27 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
     Mode(final int id) {
       this.id = id;
     }
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") ActivationLayer addRef() {
+    return (ActivationLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ActivationLayer[] addRefs(ActivationLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ActivationLayer::addRef)
+        .toArray((x) -> new ActivationLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") ActivationLayer[][] addRefs(ActivationLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ActivationLayer::addRefs)
+        .toArray((x) -> new ActivationLayer[x][]);
   }
 
 }

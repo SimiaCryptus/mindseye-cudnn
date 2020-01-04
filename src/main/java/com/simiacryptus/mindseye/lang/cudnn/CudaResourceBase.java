@@ -23,7 +23,8 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class CudaResourceBase<T> extends ReferenceCountingBase implements CudaSystem.CudaDeviceResource {
+public abstract @com.simiacryptus.ref.lang.RefAware class CudaResourceBase<T> extends ReferenceCountingBase
+    implements CudaSystem.CudaDeviceResource {
   private static final Logger logger = LoggerFactory.getLogger(CudaResourceBase.class);
   public final int objGeneration = CudaSystem.gpuGeneration.get();
   protected T ptr;
@@ -43,5 +44,23 @@ public abstract class CudaResourceBase<T> extends ReferenceCountingBase implemen
 
   public abstract void release();
 
-  protected abstract void _free();
+  public abstract void _free();
+
+  public @Override @SuppressWarnings("unused") CudaResourceBase<T> addRef() {
+    return (CudaResourceBase<T>) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") CudaResourceBase[] addRefs(CudaResourceBase[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaResourceBase::addRef)
+        .toArray((x) -> new CudaResourceBase[x]);
+  }
+
+  public static @SuppressWarnings("unused") CudaResourceBase[][] addRefs(CudaResourceBase[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaResourceBase::addRefs)
+        .toArray((x) -> new CudaResourceBase[x][]);
+  }
 }

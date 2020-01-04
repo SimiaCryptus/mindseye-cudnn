@@ -35,8 +35,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 
-public abstract class ActivationLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class ActivationLayerTest extends CudnnLayerTestBase {
 
   final ActivationLayer.Mode mode;
   private final Precision precision;
@@ -44,7 +47,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
   private final int largeSize;
 
   public ActivationLayerTest(final ActivationLayer.Mode mode, final Precision precision, final int smallSize,
-                             final int largeSize) {
+      final int largeSize) {
     this.mode = mode;
     this.precision = precision;
     this.smallSize = smallSize;
@@ -59,7 +62,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{{smallSize, smallSize, 1}};
+    return new int[][] { { smallSize, smallSize, 1 } };
   }
 
   @Nonnull
@@ -71,7 +74,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][]{{largeSize, largeSize, 1}};
+    return new int[][] { { largeSize, largeSize, 1 } };
   }
 
   @Override
@@ -83,24 +86,27 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     super.run(log);
 
     log.h3("Function Plots");
-    @Nonnull final Layer layer = getLayer(new int[][]{{1, 1, 1}}, new Random());
-    final List<double[]> plotData = IntStream.range(-1000, 1000).mapToDouble(x -> x / 300.0).mapToObj(x -> {
-      @Nonnull
-      Tensor input = new Tensor(new double[]{x}, 1, 1, 1);
-      @Nonnull final SimpleEval eval = SimpleEval.run(layer, input);
-      return new double[]{x, eval.getOutput().get(0), eval.getDerivative()[0].get(0)};
-    }).collect(Collectors.toList());
+    @Nonnull
+    final Layer layer = getLayer(new int[][] { { 1, 1, 1 } }, new Random());
+    final com.simiacryptus.ref.wrappers.RefList<double[]> plotData = com.simiacryptus.ref.wrappers.RefIntStream
+        .range(-1000, 1000).mapToDouble(x -> x / 300.0).mapToObj(x -> {
+          @Nonnull
+          Tensor input = new Tensor(new double[] { x }, 1, 1, 1);
+          @Nonnull
+          final SimpleEval eval = SimpleEval.run(layer, input);
+          return new double[] { x, eval.getOutput().get(0), eval.getDerivative()[0].get(0) };
+        }).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
     log.eval(() -> {
-      return ActivationLayerTestBase.plot("Value Plot", plotData, x -> new double[]{x[0], x[1]});
+      return ActivationLayerTestBase.plot("Value Plot", plotData, x -> new double[] { x[0], x[1] });
     });
 
     log.eval(() -> {
-      return ActivationLayerTestBase.plot("Derivative Plot", plotData, x -> new double[]{x[0], x[2]});
+      return ActivationLayerTestBase.plot("Derivative Plot", plotData, x -> new double[] { x[0], x[2] });
     });
 
   }
 
-  public static class ReLu_Double extends ActivationLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class ReLu_Double extends ActivationLayerTest {
     public ReLu_Double() {
       super(ActivationLayer.Mode.RELU, Precision.Double, 2, 800);
     }
@@ -109,9 +115,23 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     public Layer getReferenceLayer() {
       return new ReLuActivationLayer();
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") ReLu_Double addRef() {
+      return (ReLu_Double) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") ReLu_Double[] addRefs(ReLu_Double[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(ReLu_Double::addRef)
+          .toArray((x) -> new ReLu_Double[x]);
+    }
   }
 
-  public static class ReLu_Float extends ActivationLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class ReLu_Float extends ActivationLayerTest {
     public ReLu_Float() {
       super(ActivationLayer.Mode.RELU, Precision.Float, 2, 1200);
     }
@@ -120,9 +140,23 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     public Layer getReferenceLayer() {
       return new ReLuActivationLayer();
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") ReLu_Float addRef() {
+      return (ReLu_Float) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") ReLu_Float[] addRefs(ReLu_Float[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(ReLu_Float::addRef)
+          .toArray((x) -> new ReLu_Float[x]);
+    }
   }
 
-  public static class Sigmoid_Double extends ActivationLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Sigmoid_Double extends ActivationLayerTest {
     public Sigmoid_Double() {
       super(ActivationLayer.Mode.SIGMOID, Precision.Double, 2, 1200);
     }
@@ -131,9 +165,23 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     public Layer getReferenceLayer() {
       return new SigmoidActivationLayer().setBalanced(false);
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Sigmoid_Double addRef() {
+      return (Sigmoid_Double) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Sigmoid_Double[] addRefs(Sigmoid_Double[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Sigmoid_Double::addRef)
+          .toArray((x) -> new Sigmoid_Double[x]);
+    }
   }
 
-  public static class Sigmoid_Float extends ActivationLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Sigmoid_Float extends ActivationLayerTest {
     public Sigmoid_Float() {
       super(ActivationLayer.Mode.SIGMOID, Precision.Float, 2, 1200);
     }
@@ -142,6 +190,41 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     public Layer getReferenceLayer() {
       return new SigmoidActivationLayer().setBalanced(false);
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Sigmoid_Float addRef() {
+      return (Sigmoid_Float) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Sigmoid_Float[] addRefs(Sigmoid_Float[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Sigmoid_Float::addRef)
+          .toArray((x) -> new Sigmoid_Float[x]);
+    }
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") ActivationLayerTest addRef() {
+    return (ActivationLayerTest) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ActivationLayerTest[] addRefs(ActivationLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ActivationLayerTest::addRef)
+        .toArray((x) -> new ActivationLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused") ActivationLayerTest[][] addRefs(ActivationLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ActivationLayerTest::addRefs)
+        .toArray((x) -> new ActivationLayerTest[x][]);
   }
 
 }

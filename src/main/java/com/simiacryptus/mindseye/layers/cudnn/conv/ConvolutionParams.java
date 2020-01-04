@@ -22,8 +22,9 @@ package com.simiacryptus.mindseye.layers.cudnn.conv;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 
 import java.util.Arrays;
+import com.simiacryptus.ref.wrappers.RefArrays;
 
-public class ConvolutionParams {
+public @com.simiacryptus.ref.lang.RefAware class ConvolutionParams {
   public final int inputBands;
   public final int outputBands;
   public final Precision precision;
@@ -33,7 +34,8 @@ public class ConvolutionParams {
   public final Integer paddingY;
   public final int[] masterFilterDimensions;
 
-  public ConvolutionParams(int inputBands, int outputBands, Precision precision, int strideX, int strideY, Integer paddingX, Integer paddingY, int[] masterFilterDimensions) {
+  public ConvolutionParams(int inputBands, int outputBands, Precision precision, int strideX, int strideY,
+      Integer paddingX, Integer paddingY, int[] masterFilterDimensions) {
     this.inputBands = inputBands;
     this.outputBands = outputBands;
     this.precision = precision;
@@ -46,15 +48,9 @@ public class ConvolutionParams {
 
   @Override
   public String toString() {
-    return "{" +
-        "inputBands=" + inputBands +
-        ", outputBands=" + outputBands +
-        ", filterDimensions=" + Arrays.toString(masterFilterDimensions) +
-        ", precision=" + precision +
-        (strideX == 1 ? "" : (", strideX=" + strideX)) +
-        (strideY == 1 ? "" : (", strideY=" + strideY)) +
-        ", paddingX=" + paddingX +
-        ", paddingY=" + paddingY +
-        '}';
+    return "{" + "inputBands=" + inputBands + ", outputBands=" + outputBands + ", filterDimensions="
+        + com.simiacryptus.ref.wrappers.RefArrays.toString(masterFilterDimensions) + ", precision=" + precision
+        + (strideX == 1 ? "" : (", strideX=" + strideX)) + (strideY == 1 ? "" : (", strideY=" + strideY))
+        + ", paddingX=" + paddingX + ", paddingY=" + paddingY + '}';
   }
 }

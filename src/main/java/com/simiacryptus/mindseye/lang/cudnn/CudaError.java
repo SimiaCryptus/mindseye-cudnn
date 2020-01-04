@@ -20,7 +20,7 @@
 package com.simiacryptus.mindseye.lang.cudnn;
 
 @SuppressWarnings("serial")
-public class CudaError extends RuntimeException {
+public @com.simiacryptus.ref.lang.RefAware class CudaError extends RuntimeException {
   public CudaError() {
   }
 
@@ -32,7 +32,8 @@ public class CudaError extends RuntimeException {
     super(message, cause);
   }
 
-  public CudaError(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
+  public CudaError(final String message, final Throwable cause, final boolean enableSuppression,
+      final boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }
 

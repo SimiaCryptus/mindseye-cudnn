@@ -1,6 +1,5 @@
 com/simiacryptus/mindseye/layers/cudnn/conv/SimpleConvolutionLayer.class
 com/simiacryptus/mindseye/layers/cudnn/ImgPaddingLayer$CopyParams.class
-com/simiacryptus/mindseye/lang/cudnn/CudaDevice$2.class
 com/simiacryptus/mindseye/lang/cudnn/CudaMemory.class
 com/simiacryptus/mindseye/layers/cudnn/NProductLayer$1.class
 com/simiacryptus/mindseye/layers/cudnn/GateBiasLayer.class
@@ -70,7 +69,6 @@ com/simiacryptus/mindseye/lang/cudnn/CudnnHandle.class
 com/simiacryptus/mindseye/layers/cudnn/ImgConcatLayer$1.class
 com/simiacryptus/mindseye/layers/cudnn/SquareActivationLayer.class
 com/simiacryptus/mindseye/layers/cudnn/conv/FullyConnectedLayer.class
-com/simiacryptus/mindseye/lang/cudnn/CudaDevice$3.class
 com/simiacryptus/mindseye/layers/cudnn/ImgPaddingLayer$1.class
 com/simiacryptus/mindseye/layers/cudnn/ImgTileSubnetLayer$2.class
 com/simiacryptus/mindseye/layers/cudnn/ImgCropLayer$Alignment.class

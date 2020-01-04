@@ -35,9 +35,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<SoftmaxActivationLayer> {
+public @com.simiacryptus.ref.lang.RefAware class SoftmaxActivationLayer extends LayerBase
+    implements MultiPrecision<SoftmaxActivationLayer> {
   private static final Logger log = LoggerFactory.getLogger(SoftmaxActivationLayer.class);
   private SoftmaxAlgorithm algorithm = SoftmaxAlgorithm.ACCURATE;
   private SoftmaxMode mode = SoftmaxMode.INSTANCE;
@@ -93,7 +97,8 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
   }
 
   @SuppressWarnings("unused")
-  public static SoftmaxActivationLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static SoftmaxActivationLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new SoftmaxActivationLayer(json);
   }
 
@@ -104,8 +109,10 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
       return getCompatibilityLayer().eval(inObj);
     final Result inputResult = inObj[0];
     final TensorList inputData = inputResult.getData();
-    @Nonnull final int[] inputSize = inputData.getDimensions();
-    @Nonnull final int[] outputSize = inputSize;
+    @Nonnull
+    final int[] inputSize = inputData.getDimensions();
+    @Nonnull
+    final int[] outputSize = inputSize;
     final int length = inputData.length();
     final int inputDims = Tensor.length(inputSize);
     try {
@@ -116,10 +123,12 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
         if (1 == inputData.currentRefCount() && 1 == inputTensor.currentRefCount()) {
           outputTensor = inputTensor;
         } else {
-          @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+          @Nonnull
+          final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
               inputSize[2], inputSize[1], inputSize[0], inputSize[2] * inputSize[1] * inputSize[0],
               inputSize[1] * inputSize[0], inputSize[0], 1);
-          @Nonnull final CudaMemory outputData = gpu.allocate(precision.size * 1l * inputDims * length,
+          @Nonnull
+          final CudaMemory outputData = gpu.allocate(precision.size * 1l * inputDims * length,
               MemoryType.Managed.ifEnabled(), true);
           outputTensor = new CudaTensor(outputData, outputDescriptor, precision);
         }
@@ -134,7 +143,7 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
           outputMemory.dirty();
           return outputTensor;
         } catch (@Nonnull final Throwable e) {
-          throw new ComponentException("Error apply " + Arrays.toString(inputSize), e);
+          throw new ComponentException("Error apply " + com.simiacryptus.ref.wrappers.RefArrays.toString(inputSize), e);
         } finally {
         }
       }, inputData);
@@ -154,9 +163,12 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
                 }
                 CudaTensor localOut = outPtr.getDense(gpu);
                 CudaTensor passbackTensor;
-                passbackTensor = new CudaTensor(gpu.allocate((long) Tensor.length(inputSize) * length * precision.size,
-                    MemoryType.Managed.ifEnabled(), false), gpu.newTensorDescriptor(precision, delta.length(), inputSize[2], inputSize[1], inputSize[0],
-                    inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0], 1), precision);
+                passbackTensor = new CudaTensor(
+                    gpu.allocate((long) Tensor.length(inputSize) * length * precision.size,
+                        MemoryType.Managed.ifEnabled(), false),
+                    gpu.newTensorDescriptor(precision, delta.length(), inputSize[2], inputSize[1], inputSize[0],
+                        inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0], 1),
+                    precision);
 
                 try {
                   CudaMemory localOutMemory = localOut.getMemory(gpu);
@@ -172,7 +184,8 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
                   deltaTensorMemory.dirty();
                   passbackMemory.dirty();
                 } catch (@Nonnull final Throwable e) {
-                  throw new ComponentException("Error apply " + Arrays.toString(inputSize), e);
+                  throw new ComponentException(
+                      "Error apply " + com.simiacryptus.ref.wrappers.RefArrays.toString(inputSize), e);
                 } finally {
                 }
                 return new CudaTensorList(passbackTensor, length, inputSize, precision);
@@ -191,19 +204,21 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
           getAccumulator().accept(buffer, delta);
         }
 
-        @Override
-        protected void _free() {
+        public void _free() {
         }
       };
     } catch (@Nonnull final Throwable e) {
-      throw new ComponentException("Error apply png res " + Arrays.toString(inputSize), e);
+      throw new ComponentException("Error apply png res " + com.simiacryptus.ref.wrappers.RefArrays.toString(inputSize),
+          e);
     }
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
     json.addProperty("algorithm", algorithm.name());
     json.addProperty("mode", mode.name());
@@ -212,8 +227,8 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return Arrays.asList();
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
   public enum SoftmaxAlgorithm {
@@ -235,6 +250,27 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
     SoftmaxMode(final int code) {
       this.code = code;
     }
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") SoftmaxActivationLayer addRef() {
+    return (SoftmaxActivationLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") SoftmaxActivationLayer[] addRefs(SoftmaxActivationLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SoftmaxActivationLayer::addRef)
+        .toArray((x) -> new SoftmaxActivationLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") SoftmaxActivationLayer[][] addRefs(SoftmaxActivationLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SoftmaxActivationLayer::addRefs)
+        .toArray((x) -> new SoftmaxActivationLayer[x][]);
   }
 
 }

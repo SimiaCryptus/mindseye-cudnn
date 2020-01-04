@@ -32,9 +32,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public class SquareActivationLayer extends LayerBase implements MultiPrecision<SquareActivationLayer> {
+public @com.simiacryptus.ref.lang.RefAware class SquareActivationLayer extends LayerBase
+    implements MultiPrecision<SquareActivationLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private double alpha = 1.0;
@@ -75,7 +79,8 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
   }
 
   @SuppressWarnings("unused")
-  public static SquareActivationLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static SquareActivationLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new SquareActivationLayer(json);
   }
 
@@ -89,20 +94,25 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
     }
     Result input = inObj[0];
     final TensorList inputData = input.getData();
-    @Nonnull final int[] dimensions = inputData.getDimensions();
+    @Nonnull
+    final int[] dimensions = inputData.getDimensions();
     final int length = inputData.length();
     if (3 != dimensions.length) {
-      throw new IllegalArgumentException("dimensions=" + Arrays.toString(dimensions));
+      throw new IllegalArgumentException("dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions));
     }
     return new Result(CudaSystem.run(gpu -> {
-      @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+      @Nonnull
+      final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
           .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-      @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, dimensions[2],
+      @Nonnull
+      final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, dimensions[2],
           dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0], dimensions[1] * dimensions[0],
           dimensions[0], 1);
-      @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
+      @Nullable
+      final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
       //assert inputTensor.size == rPtr.size;
-      @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
+      @Nonnull
+      final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
           MemoryType.Device, true);
       CudaMemory lPtrMemory = inputTensor.getMemory(gpu);
       CudaSystem
@@ -119,15 +129,20 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
       if (input.isAlive()) {
         @Nonnull
         TensorList data = CudaSystem.run(gpu -> {
-          @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+          @Nonnull
+          final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
               .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-          @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+          @Nonnull
+          final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
               dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
               dimensions[1] * dimensions[0], dimensions[0], 1);
-          @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
-          @Nullable final CudaTensor inputTensor = gpu.getTensor(input.getData(), precision, MemoryType.Device, false);
+          @Nullable
+          final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
+          @Nullable
+          final CudaTensor inputTensor = gpu.getTensor(input.getData(), precision, MemoryType.Device, false);
           //assert deltaTensor.size == inputTensor.size;
-          @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
+          @Nonnull
+          final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
               MemoryType.Device, true);
           CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
           CudaMemory rightTensorMemory = inputTensor.getMemory(gpu);
@@ -147,7 +162,8 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
 
       @Override
       public boolean isAlive() {
-        for (@Nonnull final Result element : inObj)
+        for (@Nonnull
+        final Result element : inObj)
           if (element.isAlive()) {
             return true;
           }
@@ -159,8 +175,7 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
         getAccumulator().accept(buffer, delta);
       }
 
-      @Override
-      protected void _free() {
+      public void _free() {
       }
 
     };
@@ -168,7 +183,8 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
     @Nonnull
     JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
@@ -178,7 +194,28 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return Arrays.asList();
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") SquareActivationLayer addRef() {
+    return (SquareActivationLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") SquareActivationLayer[] addRefs(SquareActivationLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayer::addRef)
+        .toArray((x) -> new SquareActivationLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") SquareActivationLayer[][] addRefs(SquareActivationLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayer::addRefs)
+        .toArray((x) -> new SquareActivationLayer[x][]);
   }
 }

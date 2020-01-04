@@ -32,9 +32,13 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public class BandReducerLayer extends LayerBase implements MultiPrecision<BandReducerLayer> {
+public @com.simiacryptus.ref.lang.RefAware class BandReducerLayer extends LayerBase
+    implements MultiPrecision<BandReducerLayer> {
 
   private PoolingLayer.PoolingMode mode = PoolingLayer.PoolingMode.Max;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
@@ -46,8 +50,8 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision<BandRe
 
   protected BandReducerLayer(@Nonnull final JsonObject json) {
     super(json);
-    mode = Arrays.stream(PoolingLayer.PoolingMode.values()).filter(i -> i.id == json.get("mode").getAsInt()).findFirst()
-        .get();
+    mode = com.simiacryptus.ref.wrappers.RefArrays.stream(PoolingLayer.PoolingMode.values())
+        .filter(i -> i.id == json.get("mode").getAsInt()).findFirst().get();
     precision = Precision.valueOf(json.get("precision").getAsString());
     alpha = json.get("alpha").getAsDouble();
   }
@@ -89,7 +93,8 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision<BandRe
   }
 
   @SuppressWarnings("unused")
-  public static BandReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static BandReducerLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new BandReducerLayer(json);
   }
 
@@ -100,7 +105,8 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision<BandRe
       return getCompatibilityLayer().eval(inObj);
     final Result input = inObj[0];
     final TensorList batch = input.getData();
-    @Nonnull final int[] inputSize = batch.getDimensions();
+    @Nonnull
+    final int[] inputSize = batch.getDimensions();
     @Nonnull
     PoolingLayer impl = new PoolingLayer().setMode(mode).setPrecision(precision).setWindowX(inputSize[0])
         .setWindowY(inputSize[1]).setStrideX(inputSize[0]).setStrideY(inputSize[1]).setPaddingX(0).setPaddingY(0)
@@ -110,8 +116,10 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision<BandRe
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("alpha", alpha);
     json.addProperty("mode", mode.id);
     json.addProperty("precision", precision.name());
@@ -120,7 +128,28 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision<BandRe
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return Arrays.asList();
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") BandReducerLayer addRef() {
+    return (BandReducerLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") BandReducerLayer[] addRefs(BandReducerLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayer::addRef)
+        .toArray((x) -> new BandReducerLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") BandReducerLayer[][] addRefs(BandReducerLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayer::addRefs)
+        .toArray((x) -> new BandReducerLayer[x][]);
   }
 }

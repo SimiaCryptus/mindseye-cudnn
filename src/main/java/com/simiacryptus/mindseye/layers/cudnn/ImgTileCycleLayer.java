@@ -31,9 +31,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTileCycleLayer> {
+public @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayer extends LayerBase
+    implements MultiPrecision<ImgTileCycleLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgTileCycleLayer.class);
   private double xPos = 0.5;
   private double yPos = 0.5;
@@ -43,7 +47,8 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
   public ImgTileCycleLayer() {
   }
 
-  protected ImgTileCycleLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgTileCycleLayer(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
@@ -84,15 +89,17 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
   }
 
   @SuppressWarnings("unused")
-  public static ImgTileCycleLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static ImgTileCycleLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgTileCycleLayer(json, rs);
   }
 
   public static CudaTensor copy(final CudnnHandle gpu, final CudaTensor input, final int length, Precision precision,
-                                final int splitX, final int splitY) {
+      final int splitX, final int splitY) {
     CudaMemory inputTensorMemory = input.getMemory(gpu);
     {
-      @Nonnull final CudaDevice.CudaTensorDescriptor imageDescriptor = gpu.newTensorDescriptor(precision, //
+      @Nonnull
+      final CudaDevice.CudaTensorDescriptor imageDescriptor = gpu.newTensorDescriptor(precision, //
           length, //
           input.descriptor.channels, //
           input.descriptor.height, //
@@ -101,14 +108,16 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
           input.descriptor.cStride, //
           input.descriptor.hStride, //
           input.descriptor.wStride);
-      @Nonnull final CudaMemory outputBuffer = gpu.allocate((long) length * imageDescriptor.nStride * precision.size,
+      @Nonnull
+      final CudaMemory outputBuffer = gpu.allocate((long) length * imageDescriptor.nStride * precision.size,
           MemoryType.Managed.ifEnabled(), true);
 
       int splitY2 = input.descriptor.height - splitY;
       int splitX2 = input.descriptor.width - splitX;
 
       {
-        @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
+        @Nonnull
+        final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
             length, //
             input.descriptor.channels, //
             splitY, //
@@ -124,7 +133,8 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
       }
 
       {
-        @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
+        @Nonnull
+        final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
             length, //
             input.descriptor.channels, //
             splitY2, //
@@ -140,7 +150,8 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
       }
 
       {
-        @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
+        @Nonnull
+        final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
             length, //
             input.descriptor.channels, //
             splitY, //
@@ -155,7 +166,8 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
             outputBuffer.getPtr().withByteOffset(splitY2 * input.descriptor.hStride * precision.size)));
       }
 
-      @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
+      @Nonnull
+      final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
           length, //
           input.descriptor.channels, //
           splitY2, //
@@ -165,8 +177,8 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
           input.descriptor.hStride, //
           input.descriptor.wStride);
       CudaSystem.handle(gpu.cudnnTransformTensor(precision.getPointer(1.0), tileDescriptor.getPtr(),
-          inputTensorMemory.getPtr().withByteOffset(
-              (splitY * input.descriptor.hStride + splitX * input.descriptor.wStride) * precision.size),
+          inputTensorMemory.getPtr()
+              .withByteOffset((splitY * input.descriptor.hStride + splitX * input.descriptor.wStride) * precision.size),
           precision.getPointer(0.0), tileDescriptor.getPtr(),
           outputBuffer.getPtr().withByteOffset(0 * precision.size)));
 
@@ -178,8 +190,10 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
 
   @Nonnull
   public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions) {
-    @Nonnull final int[] viewDim = new int[3];
-    Arrays.parallelSetAll(viewDim, i -> Math.min(sourceDimensions[i], destinationDimensions[i]));
+    @Nonnull
+    final int[] viewDim = new int[3];
+    com.simiacryptus.ref.wrappers.RefArrays.parallelSetAll(viewDim,
+        i -> Math.min(sourceDimensions[i], destinationDimensions[i]));
     return viewDim;
   }
 
@@ -200,14 +214,15 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
     int splitY1 = (int) (dimIn[1] * getyPos());
     int splitY2 = dimIn[1] - splitY1;
     final TensorList outputData = CudaSystem.run(gpu -> {
-      @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
+      @Nullable
+      final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
       CudaTensor cudaTensor = copy(gpu, inputTensor, length, precision, splitX1, splitY1);
       return new CudaTensorList(cudaTensor, length, dimIn, precision);
     }, inputData);
     return new Result(outputData, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      if (!Arrays.equals(delta.getDimensions(), outputData.getDimensions())) {
-        throw new AssertionError(
-            Arrays.toString(delta.getDimensions()) + " != " + Arrays.toString(outputData.getDimensions()));
+      if (!com.simiacryptus.ref.wrappers.RefArrays.equals(delta.getDimensions(), outputData.getDimensions())) {
+        throw new AssertionError(com.simiacryptus.ref.wrappers.RefArrays.toString(delta.getDimensions()) + " != "
+            + com.simiacryptus.ref.wrappers.RefArrays.toString(outputData.getDimensions()));
       }
       if (delta.length() != outputData.length()) {
         throw new AssertionError(delta.length() + " != " + outputData.length());
@@ -215,7 +230,8 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
       assert delta.length() == length;
       if (input.isAlive()) {
         final TensorList passbackTensorList = CudaSystem.run(gpu -> {
-          @Nullable final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
+          @Nullable
+          final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
           CudaTensor cudaTensor = copy(gpu, errorPtr, length, precision, splitX2, splitY2);
           return new CudaTensorList(cudaTensor, length, dimIn, precision);
         }, delta);
@@ -226,7 +242,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
 
       @Override
       public boolean isAlive() {
-        return Arrays.stream(inObj).anyMatch(x -> x.isAlive());
+        return com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
       }
 
       @Override
@@ -234,23 +250,45 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
         getAccumulator().accept(buffer, delta);
       }
 
-      @Override
-      protected void _free() {
+      public void _free() {
       }
     };
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
     return json;
   }
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return Arrays.asList();
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") ImgTileCycleLayer addRef() {
+    return (ImgTileCycleLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ImgTileCycleLayer[] addRefs(ImgTileCycleLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRef)
+        .toArray((x) -> new ImgTileCycleLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") ImgTileCycleLayer[][] addRefs(ImgTileCycleLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRefs)
+        .toArray((x) -> new ImgTileCycleLayer[x][]);
   }
 }

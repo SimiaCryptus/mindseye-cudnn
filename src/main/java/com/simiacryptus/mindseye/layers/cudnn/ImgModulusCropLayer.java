@@ -34,9 +34,13 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public class ImgModulusCropLayer extends LayerBase implements MultiPrecision<ImgModulusCropLayer> {
+public @com.simiacryptus.ref.lang.RefAware class ImgModulusCropLayer extends LayerBase
+    implements MultiPrecision<ImgModulusCropLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusCropLayer.class);
   private boolean roundUp = false;
 
@@ -60,7 +64,8 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision<Img
     this(sizeX, sizeY, 0, 0);
   }
 
-  protected ImgModulusCropLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgModulusCropLayer(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     setRoundUp(json.get("roundUp").getAsBoolean());
     sizeX = json.get("sizeX").getAsInt();
@@ -99,7 +104,8 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision<Img
   }
 
   @SuppressWarnings("unused")
-  public static ImgModulusCropLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static ImgModulusCropLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgModulusCropLayer(json, rs);
   }
 
@@ -152,8 +158,10 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision<Img
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("roundUp", roundUp);
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
@@ -165,7 +173,28 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision<Img
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return Arrays.asList();
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") ImgModulusCropLayer addRef() {
+    return (ImgModulusCropLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ImgModulusCropLayer[] addRefs(ImgModulusCropLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayer::addRef)
+        .toArray((x) -> new ImgModulusCropLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") ImgModulusCropLayer[][] addRefs(ImgModulusCropLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayer::addRefs)
+        .toArray((x) -> new ImgModulusCropLayer[x][]);
   }
 }

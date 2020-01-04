@@ -28,14 +28,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public class ValueLayer extends LayerBase {
+public @com.simiacryptus.ref.lang.RefAware class ValueLayer extends LayerBase {
 
   private final Precision precision;
   private final CudaTensorList tensorList;
 
-  protected ValueLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
+  protected ValueLayer(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
     super(json);
     this.precision = Precision.valueOf(json.get("precision").getAsString());
     Tensor value = Tensor.fromJson(json.get("value"), resources);
@@ -50,7 +54,8 @@ public class ValueLayer extends LayerBase {
   }
 
   @SuppressWarnings("unused")
-  public static ValueLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static ValueLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ValueLayer(json, rs);
   }
 
@@ -79,16 +84,17 @@ public class ValueLayer extends LayerBase {
         return false;
       }
 
-      @Override
-      protected void _free() {
+      public void _free() {
       }
     };
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      @Nonnull DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     Tensor tensor = tensorList.get(0);
     json.add("value", tensor.getJson(resources, dataSerializer));
     json.addProperty("precision", precision.name());
@@ -97,12 +103,29 @@ public class ValueLayer extends LayerBase {
 
   @Nonnull
   @Override
-  public List<double[]> state() {
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
     Tensor tensor = tensorList.get(0);
-    return Arrays.asList(tensor.getData());
+    return com.simiacryptus.ref.wrappers.RefArrays.asList(tensor.getData());
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") ValueLayer addRef() {
+    return (ValueLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ValueLayer[] addRefs(ValueLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef)
+        .toArray((x) -> new ValueLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") ValueLayer[][] addRefs(ValueLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs)
+        .toArray((x) -> new ValueLayer[x][]);
   }
 }

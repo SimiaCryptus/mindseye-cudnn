@@ -31,16 +31,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision<ImgBandDynamicBiasLayer> {
+public @com.simiacryptus.ref.lang.RefAware class ImgBandDynamicBiasLayer extends LayerBase
+    implements MultiPrecision<ImgBandDynamicBiasLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   public ImgBandDynamicBiasLayer() {
   }
 
-  protected ImgBandDynamicBiasLayer(@Nonnull final JsonObject id, final Map<CharSequence, byte[]> rs) {
+  protected ImgBandDynamicBiasLayer(@Nonnull final JsonObject id,
+      final com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(id);
     this.precision = Precision.valueOf(id.getAsJsonPrimitive("precision").getAsString());
   }
@@ -63,7 +68,8 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
   }
 
   @SuppressWarnings("unused")
-  public static ImgBandDynamicBiasLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static ImgBandDynamicBiasLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgBandDynamicBiasLayer(json, rs);
   }
 
@@ -83,10 +89,12 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
     }
     Tensor bias = biasData.get(0);
     final TensorList inputData = input.getData();
-    @Nonnull final int[] inputDimensions = inputData.getDimensions();
+    @Nonnull
+    final int[] inputDimensions = inputData.getDimensions();
     final int length = inputData.length();
     if (3 != inputDimensions.length) {
-      throw new IllegalArgumentException("dimensions=" + Arrays.toString(inputDimensions));
+      throw new IllegalArgumentException(
+          "dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(inputDimensions));
     }
     if (0 == Tensor.length(inputData.getDimensions())) {
       return input;
@@ -96,20 +104,24 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
     }
     //   assert !right.isAlive();
     return new Result(CudaSystem.run(gpu -> {
-      @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+      @Nonnull
+      final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
           .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_ADD, precision);
-      @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+      @Nonnull
+      final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
           inputDimensions[2], inputDimensions[1], inputDimensions[0],
           inputDimensions[2] * inputDimensions[1] * inputDimensions[0], inputDimensions[1] * inputDimensions[0],
           inputDimensions[0], 1);
-      @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
+      @Nullable
+      final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
       CudaMemory biasMem = gpu.allocate(bias.length() * precision.size, MemoryType.Device, true).write(precision,
           bias.getData());
       int[] biasDim = bias.getDimensions();
       CudaDevice.CudaTensorDescriptor biasDescriptor = gpu.newTensorDescriptor(precision, 1, biasDim[2], biasDim[1],
           biasDim[0], biasDim[2] * biasDim[1] * biasDim[0], biasDim[1] * biasDim[0], biasDim[0], 1);
       //assert lPtr.size == rPtr.size;
-      @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
+      @Nonnull
+      final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
           MemoryType.Managed.ifEnabled(), true);
       CudaMemory inputMemory = inputTensor.getMemory(gpu);
       CudaSystem.handle(gpu.cudnnOpTensor(opDescriptor.getPtr(), precision.getPointer(1.0),
@@ -125,7 +137,8 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
       if (biasinput.isAlive()) {
         @Nonnull
         double[] biasDelta = CudaSystem.run(gpu -> {
-          @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, false);
+          @Nullable
+          final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, false);
 
           CudaMemory biasMem = gpu.allocate(bias.length() * precision.size, MemoryType.Device, true).write(precision,
               bias.getData());
@@ -150,7 +163,8 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
 
       @Override
       public boolean isAlive() {
-        for (@Nonnull final Result element : inObj)
+        for (@Nonnull
+        final Result element : inObj)
           if (element.isAlive()) {
             return true;
           }
@@ -162,8 +176,7 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
         getAccumulator().accept(buffer, delta);
       }
 
-      @Override
-      protected void _free() {
+      public void _free() {
       }
 
     };
@@ -171,7 +184,8 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
     @Nonnull
     JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
@@ -180,12 +194,29 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return Arrays.asList();
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
     super._free();
+  }
+
+  public @Override @SuppressWarnings("unused") ImgBandDynamicBiasLayer addRef() {
+    return (ImgBandDynamicBiasLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ImgBandDynamicBiasLayer[] addRefs(ImgBandDynamicBiasLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandDynamicBiasLayer::addRef)
+        .toArray((x) -> new ImgBandDynamicBiasLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") ImgBandDynamicBiasLayer[][] addRefs(ImgBandDynamicBiasLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandDynamicBiasLayer::addRefs)
+        .toArray((x) -> new ImgBandDynamicBiasLayer[x][]);
   }
 }

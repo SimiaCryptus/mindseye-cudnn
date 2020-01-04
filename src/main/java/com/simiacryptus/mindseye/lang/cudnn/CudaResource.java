@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.function.ToIntFunction;
 
-public class CudaResource<T> extends CudaResourceBase<T> {
+public @com.simiacryptus.ref.lang.RefAware class CudaResource<T> extends CudaResourceBase<T> {
   protected static final Logger logger = LoggerFactory.getLogger(CudaResource.class);
 
   public final int deviceId;
@@ -54,9 +54,29 @@ public class CudaResource<T> extends CudaResourceBase<T> {
     }
   }
 
-  protected void _free() {
+  public void _free() {
     CudnnHandle threadHandle = CudaSystem.getThreadHandle();
-    if (null != threadHandle) threadHandle.cleanupNative.add(this);
-    else release();
+    if (null != threadHandle)
+      threadHandle.cleanupNative.add(this);
+    else
+      release();
+  }
+
+  public @Override @SuppressWarnings("unused") CudaResource<T> addRef() {
+    return (CudaResource<T>) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") CudaResource[] addRefs(CudaResource[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaResource::addRef)
+        .toArray((x) -> new CudaResource[x]);
+  }
+
+  public static @SuppressWarnings("unused") CudaResource[][] addRefs(CudaResource[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaResource::addRefs)
+        .toArray((x) -> new CudaResource[x][]);
   }
 }

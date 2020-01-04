@@ -37,9 +37,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntToDoubleFunction;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public class ConvolutionLayer extends LayerBase implements MultiPrecision<ConvolutionLayer>, Explodable {
+public @com.simiacryptus.ref.lang.RefAware class ConvolutionLayer extends LayerBase
+    implements MultiPrecision<ConvolutionLayer>, Explodable {
 
   @Nullable
   private final Tensor kernel;
@@ -80,7 +84,8 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     setBatchBands(batchBands);
   }
 
-  protected ConvolutionLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
+  protected ConvolutionLayer(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
     super(json);
     this.kernel = Tensor.fromJson(json.get("filter"), resources);
     assert getKernel().isValid();
@@ -206,7 +211,8 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
   }
 
   @SuppressWarnings("unused")
-  public static ConvolutionLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static ConvolutionLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ConvolutionLayer(json, rs);
   }
 
@@ -230,8 +236,8 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     assert kernel.isValid();
     assert 1 == inObj.length;
     assert 3 == inObj[0].getData().getDimensions().length;
-    assert inputBands == inObj[0].getData().getDimensions()[2] : Arrays.toString(inObj[0].getData().getDimensions())
-        + "[2] != " + inputBands;
+    assert inputBands == inObj[0].getData().getDimensions()[2] : com.simiacryptus.ref.wrappers.RefArrays
+        .toString(inObj[0].getData().getDimensions()) + "[2] != " + inputBands;
     if (!CudaSystem.isEnabled())
       return getCompatibilityLayer().eval(inObj);
     @Nonnull
@@ -267,16 +273,17 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
         getAccumulator().accept(buffer, delta);
       }
 
-      @Override
-      protected void _free() {
+      public void _free() {
       }
     };
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      @Nonnull DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.add("filter", getKernel().getJson(resources, dataSerializer));
     json.addProperty("batchBands", getBatchBands());
     json.addProperty("strideX", getStrideX());
@@ -308,8 +315,8 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return Arrays.asList(getKernel().getData());
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return com.simiacryptus.ref.wrappers.RefArrays.asList(getKernel().getData());
   }
 
   @Nonnull
@@ -322,8 +329,25 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     return setPaddingX(x).setPaddingY(y);
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
     super._free();
+  }
+
+  public @Override @SuppressWarnings("unused") ConvolutionLayer addRef() {
+    return (ConvolutionLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ConvolutionLayer[] addRefs(ConvolutionLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayer::addRef)
+        .toArray((x) -> new ConvolutionLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") ConvolutionLayer[][] addRefs(ConvolutionLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayer::addRefs)
+        .toArray((x) -> new ConvolutionLayer[x][]);
   }
 }

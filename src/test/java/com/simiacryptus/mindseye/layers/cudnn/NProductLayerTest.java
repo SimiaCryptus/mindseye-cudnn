@@ -26,7 +26,7 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-public abstract class NProductLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class NProductLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
 
@@ -37,16 +37,12 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{
-        {8, 8, 1}, {8, 8, 1}
-    };
+    return new int[][] { { 8, 8, 1 }, { 8, 8, 1 } };
   }
 
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][]{
-        {1200, 1200, 3}, {1200, 1200, 3}
-    };
+    return new int[][] { { 1200, 1200, 3 }, { 1200, 1200, 3 } };
   }
 
   @Nonnull
@@ -55,13 +51,26 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
     return new NProductLayer().setPrecision(precision);
   }
 
-  public static class Double extends NProductLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Double extends NProductLayerTest {
     public Double() {
       super(Precision.Double);
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Double addRef() {
+      return (Double) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
+    }
   }
 
-  public static class Double3 extends NProductLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Double3 extends NProductLayerTest {
     public Double3() {
       super(Precision.Double);
     }
@@ -69,21 +78,31 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{
-          {8, 8, 1}, {8, 8, 1}, {8, 8, 1}
-      };
+      return new int[][] { { 8, 8, 1 }, { 8, 8, 1 }, { 8, 8, 1 } };
     }
 
     @Override
     public int[][] getLargeDims(final Random random) {
-      return new int[][]{
-          {1200, 1200, 3}, {1200, 1200, 3}, {1200, 1200, 3}
-      };
+      return new int[][] { { 1200, 1200, 3 }, { 1200, 1200, 3 }, { 1200, 1200, 3 } };
+    }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Double3 addRef() {
+      return (Double3) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Double3[] addRefs(Double3[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double3::addRef)
+          .toArray((x) -> new Double3[x]);
     }
 
   }
 
-  public static class Float extends NProductLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware class Float extends NProductLayerTest {
     public Float() {
       super(Precision.Float);
     }
@@ -93,5 +112,39 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Float addRef() {
+      return (Float) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
+    }
+
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") NProductLayerTest addRef() {
+    return (NProductLayerTest) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") NProductLayerTest[] addRefs(NProductLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(NProductLayerTest::addRef)
+        .toArray((x) -> new NProductLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused") NProductLayerTest[][] addRefs(NProductLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(NProductLayerTest::addRefs)
+        .toArray((x) -> new NProductLayerTest[x][]);
   }
 }

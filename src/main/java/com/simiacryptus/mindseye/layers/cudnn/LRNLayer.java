@@ -34,9 +34,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
+public @com.simiacryptus.ref.lang.RefAware class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
   private static final Logger log = LoggerFactory.getLogger(LRNLayer.class);
 
   private int width;
@@ -59,7 +62,7 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
     this.setK(k);
   }
 
-  protected LRNLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected LRNLayer(@Nonnull final JsonObject json, com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     setWidth(json.get("width").getAsInt());
     setAlpha(json.get("alpha").getAsDouble());
@@ -128,7 +131,8 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
   }
 
   @SuppressWarnings("unused")
-  public static LRNLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static LRNLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new LRNLayer(json, rs);
   }
 
@@ -139,20 +143,26 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
       return getCompatibilityLayer().eval(inObj);
     final Result input = inObj[0];
     final TensorList inputData = input.getData();
-    @Nonnull final int[] inputSize = inputData.getDimensions();
+    @Nonnull
+    final int[] inputSize = inputData.getDimensions();
     final int length = inputData.length();
     final int inputDims = Tensor.length(inputSize);
-    @Nonnull final int[] outputSize = new int[]{length, inputSize[2], inputSize[1], inputSize[0]};
+    @Nonnull
+    final int[] outputSize = new int[] { length, inputSize[2], inputSize[1], inputSize[0] };
     final CudaTensor outputData = CudaSystem.run(gpu -> {
       try {
         gpu.initThread();
-        @Nonnull final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(this.getWidth(), this.getAlpha(),
+        @Nonnull
+        final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(this.getWidth(), this.getAlpha(),
             this.getBeta(), this.getK());
-        @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, getPrecision(), MemoryType.Device, false);
-        @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(getPrecision(), outputSize[0],
+        @Nullable
+        final CudaTensor inputTensor = gpu.getTensor(inputData, getPrecision(), MemoryType.Device, false);
+        @Nonnull
+        final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(getPrecision(), outputSize[0],
             outputSize[1], outputSize[2], outputSize[3], outputSize[1] * outputSize[2] * outputSize[3],
             outputSize[2] * outputSize[3], outputSize[3], 1);
-        @Nonnull final CudaMemory outputTensor = gpu.allocate((long) getPrecision().size * Tensor.length(outputSize),
+        @Nonnull
+        final CudaMemory outputTensor = gpu.allocate((long) getPrecision().size * Tensor.length(outputSize),
             MemoryType.Managed.ifEnabled(), true);
         CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
         CudaSystem
@@ -167,25 +177,30 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
         throw new ComponentException("Error", e);
       }
     }, inputData);
-    return new Result(new CudaTensorList(outputData, length, new int[]{outputSize[3], outputSize[2], outputSize[1]}, getPrecision()),
-        (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList error) -> {
+    return new Result(new CudaTensorList(outputData, length, new int[] { outputSize[3], outputSize[2], outputSize[1] },
+        getPrecision()), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList error) -> {
           assert error.length() == inputData.length();
           if (input.isAlive()) {
             TensorList data = CudaSystem.run(gpu -> {
-              @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(getPrecision(), length,
+              @Nonnull
+              final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(getPrecision(), length,
                   inputSize[2], inputSize[1], inputSize[0], inputSize[2] * inputSize[1] * inputSize[0],
                   inputSize[1] * inputSize[0], inputSize[0], 1);
-              @Nonnull final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(this.getWidth(),
+              @Nonnull
+              final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(this.getWidth(),
                   this.getAlpha(), this.getBeta(), this.getK());
-              @Nullable final CudaTensor inputTensor;
+              @Nullable
+              final CudaTensor inputTensor;
               synchronized (gpu) {
                 inputTensor = gpu.getTensor(inputData, getPrecision(), MemoryType.Device, true);
               }
-              @Nullable final CudaTensor errorPtr;
+              @Nullable
+              final CudaTensor errorPtr;
               synchronized (gpu) {
                 errorPtr = gpu.getTensor(error, getPrecision(), MemoryType.Device, true);
               }
-              @Nonnull final CudaMemory passbackBuffer = gpu.allocate((long) inputDims * getPrecision().size * length,
+              @Nonnull
+              final CudaMemory passbackBuffer = gpu.allocate((long) inputDims * getPrecision().size * length,
                   MemoryType.Managed.ifEnabled(), true);
               CudaMemory outputDataMemory = outputData.getMemory(gpu);
               CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
@@ -199,7 +214,8 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
               errorPtrMemory.dirty();
               inputDataMemory.dirty();
               passbackBuffer.dirty();
-              return new CudaTensorList(new CudaTensor(passbackBuffer, passbackDescriptor, getPrecision()), length, inputSize, getPrecision());
+              return new CudaTensorList(new CudaTensor(passbackBuffer, passbackDescriptor, getPrecision()), length,
+                  inputSize, getPrecision());
             }, error);
             input.accumulate(buffer, data);
           }
@@ -210,16 +226,17 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
         return input.isAlive() || !isFrozen();
       }
 
-      @Override
-      protected void _free() {
+      public void _free() {
       }
     };
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("alpha", getAlpha());
     json.addProperty("beta", getBeta());
     json.addProperty("k", getK());
@@ -230,7 +247,28 @@ public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return Arrays.asList();
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") LRNLayer addRef() {
+    return (LRNLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") LRNLayer[] addRefs(LRNLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LRNLayer::addRef)
+        .toArray((x) -> new LRNLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") LRNLayer[][] addRefs(LRNLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LRNLayer::addRefs)
+        .toArray((x) -> new LRNLayer[x][]);
   }
 }
