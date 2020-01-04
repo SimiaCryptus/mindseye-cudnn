@@ -24,7 +24,8 @@ import com.simiacryptus.mindseye.lang.Layer;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware
+class ImgTileCycleLayerTest extends CudnnLayerTestBase {
 
   public ImgTileCycleLayerTest() {
     validateBatchExecution = false;
@@ -35,16 +36,32 @@ public abstract @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayerTest 
     return null;
   }
 
+  public static @SuppressWarnings("unused")
+  ImgTileCycleLayerTest[] addRefs(ImgTileCycleLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayerTest::addRef)
+        .toArray((x) -> new ImgTileCycleLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgTileCycleLayerTest[][] addRefs(ImgTileCycleLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayerTest::addRefs)
+        .toArray((x) -> new ImgTileCycleLayerTest[x][]);
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 8, 8, 1 } };
+    return new int[][]{{8, 8, 1}};
   }
 
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][] { { 1200, 1200, 3 } };
+    return new int[][]{{1200, 1200, 3}};
   }
 
   @Nonnull
@@ -53,7 +70,26 @@ public abstract @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayerTest 
     return new ImgTileCycleLayer();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class OneThird extends ImgTileCycleLayerTest {
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  ImgTileCycleLayerTest addRef() {
+    return (ImgTileCycleLayerTest) super.addRef();
+  }
+
+  public static @com.simiacryptus.ref.lang.RefAware
+  class OneThird extends ImgTileCycleLayerTest {
+
+    public static @SuppressWarnings("unused")
+    OneThird[] addRefs(OneThird[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(OneThird::addRef)
+          .toArray((x) -> new OneThird[x]);
+    }
 
     @Nonnull
     @Override
@@ -61,56 +97,36 @@ public abstract @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayerTest 
       return new ImgTileCycleLayer().setXPos(0.3).setYPos(0.3);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") OneThird addRef() {
+    public @Override
+    @SuppressWarnings("unused")
+    OneThird addRef() {
       return (OneThird) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") OneThird[] addRefs(OneThird[] array) {
-      if (array == null)
-        return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(OneThird::addRef)
-          .toArray((x) -> new OneThird[x]);
     }
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Basic extends ImgTileCycleLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Basic extends ImgTileCycleLayerTest {
 
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") Basic addRef() {
-      return (Basic) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
+    public static @SuppressWarnings("unused")
+    Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
-  }
 
-  public @SuppressWarnings("unused") void _free() {
-  }
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
 
-  public @Override @SuppressWarnings("unused") ImgTileCycleLayerTest addRef() {
-    return (ImgTileCycleLayerTest) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ImgTileCycleLayerTest[] addRefs(ImgTileCycleLayerTest[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayerTest::addRef)
-        .toArray((x) -> new ImgTileCycleLayerTest[x]);
-  }
-
-  public static @SuppressWarnings("unused") ImgTileCycleLayerTest[][] addRefs(ImgTileCycleLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayerTest::addRefs)
-        .toArray((x) -> new ImgTileCycleLayerTest[x][]);
+    public @Override
+    @SuppressWarnings("unused")
+    Basic addRef() {
+      return (Basic) super.addRef();
+    }
   }
 }

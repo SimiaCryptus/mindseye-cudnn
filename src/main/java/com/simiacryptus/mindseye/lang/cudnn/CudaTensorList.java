@@ -27,18 +27,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefIntStream;
-import com.simiacryptus.ref.wrappers.RefStream;
 
-public @com.simiacryptus.ref.lang.RefAware class CudaTensorList extends RegisteredObjectBase
+public @com.simiacryptus.ref.lang.RefAware
+class CudaTensorList extends RegisteredObjectBase
     implements TensorList, CudaSystem.CudaDeviceResource {
   public static final Logger logger = LoggerFactory.getLogger(CudaTensorList.class);
   public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getStackTrace()
-      : new StackTraceElement[] {};
+      : new StackTraceElement[]{};
   @Nonnull
   private final int[] dimensions;
   private final int length;
@@ -48,7 +43,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaTensorList extends Register
   volatile TensorArray heapCopy = null;
 
   public CudaTensorList(@Nullable final CudaTensor ptr, final int length, @Nonnull final int[] dimensions,
-      @Nonnull final Precision precision) {
+                        @Nonnull final Precision precision) {
     //assert 1 == ptr.currentRefCount() : ptr.referenceReport(false, false);
     if (null == ptr)
       throw new IllegalArgumentException("ptr");
@@ -114,9 +109,25 @@ public @com.simiacryptus.ref.lang.RefAware class CudaTensorList extends Register
   }
 
   public static CudaTensorList create(final CudaMemory ptr, CudaDevice.CudaTensorDescriptor descriptor,
-      final int length, @Nonnull final int[] dimensions, @Nonnull final Precision precision) {
+                                      final int length, @Nonnull final int[] dimensions, @Nonnull final Precision precision) {
     CudaTensor cudaTensor = new CudaTensor(ptr, descriptor, precision);
     return new CudaTensorList(cudaTensor, length, dimensions, precision);
+  }
+
+  public static @SuppressWarnings("unused")
+  CudaTensorList[] addRefs(CudaTensorList[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaTensorList::addRef)
+        .toArray((x) -> new CudaTensorList[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  CudaTensorList[][] addRefs(CudaTensorList[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaTensorList::addRefs)
+        .toArray((x) -> new CudaTensorList[x][]);
   }
 
   @Override
@@ -131,8 +142,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaTensorList extends Register
     assert length() == right.length();
     if (heapCopy == null) {
       if (right instanceof CudaTensorList) {
-        @Nonnull
-        final CudaTensorList nativeRight = (CudaTensorList) right;
+        @Nonnull final CudaTensorList nativeRight = (CudaTensorList) right;
         if (nativeRight.getPrecision() == this.getPrecision()) {
           if (nativeRight.heapCopy == null) {
             assert (nativeRight.gpuCopy != this.gpuCopy);
@@ -173,8 +183,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaTensorList extends Register
       return add(((ReshapedTensorList) right).getInner());
     if (heapCopy == null) {
       if (right instanceof CudaTensorList) {
-        @Nonnull
-        final CudaTensorList nativeRight = (CudaTensorList) right;
+        @Nonnull final CudaTensorList nativeRight = (CudaTensorList) right;
         if (nativeRight.getPrecision() == this.getPrecision()) {
           if (nativeRight.heapCopy == null) {
             return CudaSystem.run(gpu -> {
@@ -285,6 +294,12 @@ public @com.simiacryptus.ref.lang.RefAware class CudaTensorList extends Register
     }
   }
 
+  public @Override
+  @SuppressWarnings("unused")
+  CudaTensorList addRef() {
+    return (CudaTensorList) super.addRef();
+  }
+
   @Nullable
   private TensorArray heapCopy() {
     return heapCopy(false);
@@ -350,23 +365,5 @@ public @com.simiacryptus.ref.lang.RefAware class CudaTensorList extends Register
         Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
         Util.toString(createdBy).replaceAll("\n", "\n\t")));
     return timedResult.result;
-  }
-
-  public @Override @SuppressWarnings("unused") CudaTensorList addRef() {
-    return (CudaTensorList) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") CudaTensorList[] addRefs(CudaTensorList[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaTensorList::addRef)
-        .toArray((x) -> new CudaTensorList[x]);
-  }
-
-  public static @SuppressWarnings("unused") CudaTensorList[][] addRefs(CudaTensorList[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaTensorList::addRefs)
-        .toArray((x) -> new CudaTensorList[x][]);
   }
 }

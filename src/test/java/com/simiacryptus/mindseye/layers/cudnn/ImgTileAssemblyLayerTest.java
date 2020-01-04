@@ -25,7 +25,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware
+class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
 
   public ImgTileAssemblyLayerTest() {
     validateBatchExecution = false;
@@ -37,18 +38,34 @@ public abstract @com.simiacryptus.ref.lang.RefAware class ImgTileAssemblyLayerTe
     return com.simiacryptus.mindseye.layers.java.ImgTileAssemblyLayer.class;
   }
 
+  public static @SuppressWarnings("unused")
+  ImgTileAssemblyLayerTest[] addRefs(ImgTileAssemblyLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileAssemblyLayerTest::addRef)
+        .toArray((x) -> new ImgTileAssemblyLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgTileAssemblyLayerTest[][] addRefs(ImgTileAssemblyLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileAssemblyLayerTest::addRefs)
+        .toArray((x) -> new ImgTileAssemblyLayerTest[x][]);
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 2, 2, 1 }, { 1, 2, 1 }, { 2, 2, 1 }, { 1, 2, 1 }, { 2, 1, 1 }, { 1, 1, 1 }
+    return new int[][]{{2, 2, 1}, {1, 2, 1}, {2, 2, 1}, {1, 2, 1}, {2, 1, 1}, {1, 1, 1}
         //      {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}
     };
   }
 
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][] { { 200, 200, 100 }, { 100, 200, 100 }, { 200, 200, 100 }, { 100, 200, 100 }, { 200, 100, 100 },
-        { 100, 100, 100 } };
+    return new int[][]{{200, 200, 100}, {100, 200, 100}, {200, 200, 100}, {100, 200, 100}, {200, 100, 100},
+        {100, 100, 100}};
 
   }
 
@@ -58,41 +75,35 @@ public abstract @com.simiacryptus.ref.lang.RefAware class ImgTileAssemblyLayerTe
     return new ImgTileAssemblyLayer(2, 3);
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Basic extends ImgTileAssemblyLayerTest {
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
+  public @Override
+  @SuppressWarnings("unused")
+  ImgTileAssemblyLayerTest addRef() {
+    return (ImgTileAssemblyLayerTest) super.addRef();
+  }
 
-    public @Override @SuppressWarnings("unused") Basic addRef() {
-      return (Basic) super.addRef();
-    }
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Basic extends ImgTileAssemblyLayerTest {
 
-    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
+    public static @SuppressWarnings("unused")
+    Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
-  }
 
-  public @SuppressWarnings("unused") void _free() {
-  }
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
 
-  public @Override @SuppressWarnings("unused") ImgTileAssemblyLayerTest addRef() {
-    return (ImgTileAssemblyLayerTest) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ImgTileAssemblyLayerTest[] addRefs(ImgTileAssemblyLayerTest[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileAssemblyLayerTest::addRef)
-        .toArray((x) -> new ImgTileAssemblyLayerTest[x]);
-  }
-
-  public static @SuppressWarnings("unused") ImgTileAssemblyLayerTest[][] addRefs(ImgTileAssemblyLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileAssemblyLayerTest::addRefs)
-        .toArray((x) -> new ImgTileAssemblyLayerTest[x][]);
+    public @Override
+    @SuppressWarnings("unused")
+    Basic addRef() {
+      return (Basic) super.addRef();
+    }
   }
 
 }

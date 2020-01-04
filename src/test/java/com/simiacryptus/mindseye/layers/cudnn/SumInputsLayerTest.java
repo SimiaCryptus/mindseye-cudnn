@@ -31,10 +31,9 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
-public abstract @com.simiacryptus.ref.lang.RefAware class SumInputsLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware
+class SumInputsLayerTest extends CudnnLayerTestBase {
 
   private static int largeSize;
   final Precision precision;
@@ -53,9 +52,25 @@ public abstract @com.simiacryptus.ref.lang.RefAware class SumInputsLayerTest ext
     return com.simiacryptus.mindseye.layers.java.SumInputsLayer.class;
   }
 
+  public static @SuppressWarnings("unused")
+  SumInputsLayerTest[] addRefs(SumInputsLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayerTest::addRef)
+        .toArray((x) -> new SumInputsLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  SumInputsLayerTest[][] addRefs(SumInputsLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayerTest::addRefs)
+        .toArray((x) -> new SumInputsLayerTest[x][]);
+  }
+
   @Override
   public int[][] getSmallDims(Random random) {
-    return com.simiacryptus.ref.wrappers.RefIntStream.range(0, inputs).mapToObj(i -> new int[] { 2, 2, inputBands })
+    return com.simiacryptus.ref.wrappers.RefIntStream.range(0, inputs).mapToObj(i -> new int[]{2, 2, inputBands})
         .toArray(i -> new int[i][]);
   }
 
@@ -68,31 +83,47 @@ public abstract @com.simiacryptus.ref.lang.RefAware class SumInputsLayerTest ext
   @Override
   public int[][] getLargeDims(Random random) {
     return com.simiacryptus.ref.wrappers.RefIntStream.range(0, inputs)
-        .mapToObj(i -> new int[] { largeSize, largeSize, inputBands }).toArray(i -> new int[i][]);
+        .mapToObj(i -> new int[]{largeSize, largeSize, inputBands}).toArray(i -> new int[i][]);
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Double_List extends SumInputsLayerTest {
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  SumInputsLayerTest addRef() {
+    return (SumInputsLayerTest) super.addRef();
+  }
+
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Double_List extends SumInputsLayerTest {
     public Double_List() {
       super(Precision.Double, 1, 5, 1200);
     }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") Double_List addRef() {
-      return (Double_List) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") Double_List[] addRefs(Double_List[] array) {
+    public static @SuppressWarnings("unused")
+    Double_List[] addRefs(Double_List[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double_List::addRef)
           .toArray((x) -> new Double_List[x]);
     }
 
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
+
+    public @Override
+    @SuppressWarnings("unused")
+    Double_List addRef() {
+      return (Double_List) super.addRef();
+    }
+
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class OnePlusOne extends CudnnLayerTestBase {
+  public static @com.simiacryptus.ref.lang.RefAware
+  class OnePlusOne extends CudnnLayerTestBase {
 
     public OnePlusOne() {
       super();
@@ -117,6 +148,14 @@ public abstract @com.simiacryptus.ref.lang.RefAware class SumInputsLayerTest ext
       return SumInputsLayer.class;
     }
 
+    public static @SuppressWarnings("unused")
+    OnePlusOne[] addRefs(OnePlusOne[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(OnePlusOne::addRef)
+          .toArray((x) -> new OnePlusOne[x]);
+    }
+
     @Nonnull
     @Override
     public Layer getLayer(int[][] inputSize, Random random) {
@@ -130,73 +169,80 @@ public abstract @com.simiacryptus.ref.lang.RefAware class SumInputsLayerTest ext
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][] { { 4, 4, 1 } };
+      return new int[][]{{4, 4, 1}};
     }
 
     @Nonnull
     @Override
     public int[][] getLargeDims(Random random) {
-      return new int[][] { { 1200, 800, 1 } };
+      return new int[][]{{1200, 800, 1}};
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") OnePlusOne addRef() {
+    public @Override
+    @SuppressWarnings("unused")
+    OnePlusOne addRef() {
       return (OnePlusOne) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") OnePlusOne[] addRefs(OnePlusOne[] array) {
-      if (array == null)
-        return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(OnePlusOne::addRef)
-          .toArray((x) -> new OnePlusOne[x]);
     }
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Big_Double_Add extends Big {
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Big_Double_Add extends Big {
     public Big_Double_Add() {
       super(Precision.Double, 256, 8, 100);
       testingBatchSize = 2;
     }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") Big_Double_Add addRef() {
-      return (Big_Double_Add) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") Big_Double_Add[] addRefs(Big_Double_Add[] array) {
+    public static @SuppressWarnings("unused")
+    Big_Double_Add[] addRefs(Big_Double_Add[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(Big_Double_Add::addRef)
           .toArray((x) -> new Big_Double_Add[x]);
     }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
+
+    public @Override
+    @SuppressWarnings("unused")
+    Big_Double_Add addRef() {
+      return (Big_Double_Add) super.addRef();
+    }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Double_Add extends SumInputsLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Double_Add extends SumInputsLayerTest {
     public Double_Add() {
       super(Precision.Double, 1, 2, 1200);
     }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") Double_Add addRef() {
-      return (Double_Add) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") Double_Add[] addRefs(Double_Add[] array) {
+    public static @SuppressWarnings("unused")
+    Double_Add[] addRefs(Double_Add[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double_Add::addRef)
           .toArray((x) -> new Double_Add[x]);
     }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
+
+    public @Override
+    @SuppressWarnings("unused")
+    Double_Add addRef() {
+      return (Double_Add) super.addRef();
+    }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Float_Add extends SumInputsLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Float_Add extends SumInputsLayerTest {
     public Float_Add() {
       super(Precision.Float, 1, 2, 1200);
     }
@@ -206,23 +252,28 @@ public abstract @com.simiacryptus.ref.lang.RefAware class SumInputsLayerTest ext
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") Float_Add addRef() {
-      return (Float_Add) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") Float_Add[] addRefs(Float_Add[] array) {
+    public static @SuppressWarnings("unused")
+    Float_Add[] addRefs(Float_Add[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float_Add::addRef)
           .toArray((x) -> new Float_Add[x]);
     }
 
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
+
+    public @Override
+    @SuppressWarnings("unused")
+    Float_Add addRef() {
+      return (Float_Add) super.addRef();
+    }
+
   }
 
-  public abstract static @com.simiacryptus.ref.lang.RefAware class Big extends SumInputsLayerTest {
+  public abstract static @com.simiacryptus.ref.lang.RefAware
+  class Big extends SumInputsLayerTest {
 
     public Big(final Precision precision, int inputBands, int inputs, final int largeSize) {
       super(precision, inputBands, inputs, largeSize);
@@ -250,40 +301,23 @@ public abstract @com.simiacryptus.ref.lang.RefAware class SumInputsLayerTest ext
       return null;
     }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") Big addRef() {
-      return (Big) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") Big[] addRefs(Big[] array) {
+    public static @SuppressWarnings("unused")
+    Big[] addRefs(Big[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(Big::addRef).toArray((x) -> new Big[x]);
     }
 
-  }
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
 
-  public @SuppressWarnings("unused") void _free() {
-  }
+    public @Override
+    @SuppressWarnings("unused")
+    Big addRef() {
+      return (Big) super.addRef();
+    }
 
-  public @Override @SuppressWarnings("unused") SumInputsLayerTest addRef() {
-    return (SumInputsLayerTest) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") SumInputsLayerTest[] addRefs(SumInputsLayerTest[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayerTest::addRef)
-        .toArray((x) -> new SumInputsLayerTest[x]);
-  }
-
-  public static @SuppressWarnings("unused") SumInputsLayerTest[][] addRefs(SumInputsLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayerTest::addRefs)
-        .toArray((x) -> new SumInputsLayerTest[x][]);
   }
 
 }

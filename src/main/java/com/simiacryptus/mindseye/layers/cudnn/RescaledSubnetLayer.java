@@ -33,15 +33,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class RescaledSubnetLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class RescaledSubnetLayer extends LayerBase
     implements MultiPrecision<RescaledSubnetLayer> {
   private static final Logger log = LoggerFactory.getLogger(RescaledSubnetLayer.class);
 
@@ -58,7 +53,7 @@ public @com.simiacryptus.ref.lang.RefAware class RescaledSubnetLayer extends Lay
   }
 
   protected RescaledSubnetLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     scale = json.get("scale").getAsInt();
     layer = Layer.fromJson(json, rs);
@@ -84,8 +79,24 @@ public @com.simiacryptus.ref.lang.RefAware class RescaledSubnetLayer extends Lay
 
   @SuppressWarnings("unused")
   public static RescaledSubnetLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                             com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new RescaledSubnetLayer(json, rs);
+  }
+
+  public static @SuppressWarnings("unused")
+  RescaledSubnetLayer[] addRefs(RescaledSubnetLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayer::addRef)
+        .toArray((x) -> new RescaledSubnetLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  RescaledSubnetLayer[][] addRefs(RescaledSubnetLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayer::addRefs)
+        .toArray((x) -> new RescaledSubnetLayer[x][]);
   }
 
   @Nullable
@@ -100,9 +111,8 @@ public @com.simiacryptus.ref.lang.RefAware class RescaledSubnetLayer extends Lay
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("scale", scale);
     json.add("key", layer.getJson(resources, dataSerializer));
     json.addProperty("precision", precision.name());
@@ -115,24 +125,13 @@ public @com.simiacryptus.ref.lang.RefAware class RescaledSubnetLayer extends Lay
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") RescaledSubnetLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  RescaledSubnetLayer addRef() {
     return (RescaledSubnetLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") RescaledSubnetLayer[] addRefs(RescaledSubnetLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayer::addRef)
-        .toArray((x) -> new RescaledSubnetLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") RescaledSubnetLayer[][] addRefs(RescaledSubnetLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayer::addRefs)
-        .toArray((x) -> new RescaledSubnetLayer[x][]);
   }
 }

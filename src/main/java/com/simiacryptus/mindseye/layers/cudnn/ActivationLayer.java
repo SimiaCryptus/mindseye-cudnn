@@ -32,18 +32,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Stream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefStream;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ActivationLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class ActivationLayer extends LayerBase
     implements MultiPrecision<ActivationLayer> {
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(ActivationLayer.class);
@@ -105,8 +98,24 @@ public @com.simiacryptus.ref.lang.RefAware class ActivationLayer extends LayerBa
 
   @SuppressWarnings("unused")
   public static ActivationLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ActivationLayer(json);
+  }
+
+  public static @SuppressWarnings("unused")
+  ActivationLayer[] addRefs(ActivationLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ActivationLayer::addRef)
+        .toArray((x) -> new ActivationLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ActivationLayer[][] addRefs(ActivationLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ActivationLayer::addRefs)
+        .toArray((x) -> new ActivationLayer[x][]);
   }
 
   @Nullable
@@ -117,33 +126,27 @@ public @com.simiacryptus.ref.lang.RefAware class ActivationLayer extends LayerBa
     //assert Arrays.stream(inObj).flatMapToDouble(input->input.data.stream().flatMapToDouble(x-> Arrays.stream(x.getData()))).allMatch(v->Double.isFinite(v));
     final Result inputResult = inObj[0];
     final TensorList inputData = inputResult.getData();
-    @Nonnull
-    final int[] inputSize = inputData.getDimensions();
-    @Nonnull
-    final int[] outputSize = inputSize;
+    @Nonnull final int[] inputSize = inputData.getDimensions();
+    @Nonnull final int[] outputSize = inputSize;
     final int length = inputData.length();
     final int inputDims = Tensor.length(inputSize);
     try {
       final CudaTensor outPtr = CudaSystem.run(gpu -> {
-        @Nullable
-        final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
+        @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
         final CudaTensor outputTensor;
         if (1 == inputData.currentRefCount() && 1 == inputTensor.currentRefCount()
             && (!inputResult.isAlive() || mode == Mode.RELU.id)) {
           outputTensor = inputTensor;
         } else {
-          @Nonnull
-          final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+          @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
               inputSize[2], inputSize[1], inputSize[0], inputSize[2] * inputSize[1] * inputSize[0],
               inputSize[1] * inputSize[0], inputSize[0], 1);
-          @Nonnull
-          final CudaMemory outputData = gpu.allocate((long) precision.size * inputDims * length,
+          @Nonnull final CudaMemory outputData = gpu.allocate((long) precision.size * inputDims * length,
               MemoryType.Managed.ifEnabled(), true);
           outputTensor = new CudaTensor(outputData, outputDescriptor, precision);
         }
 
-        @Nonnull
-        final CudaResource<cudnnActivationDescriptor> activationDesc = gpu.newActivationDescriptor(mode,
+        @Nonnull final CudaResource<cudnnActivationDescriptor> activationDesc = gpu.newActivationDescriptor(mode,
             cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN, 0);
         try {
           CudaMemory memory = inputTensor.getMemory(gpu);
@@ -181,8 +184,7 @@ public @com.simiacryptus.ref.lang.RefAware class ActivationLayer extends LayerBa
                         inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0], 1),
                     precision);
 
-                @Nonnull
-                final CudaResource<cudnnActivationDescriptor> activationDesc = gpu.newActivationDescriptor(mode,
+                @Nonnull final CudaResource<cudnnActivationDescriptor> activationDesc = gpu.newActivationDescriptor(mode,
                     cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN, 0);
                 try {
                   CudaMemory localOutMemory = localOut.getMemory(gpu);
@@ -230,9 +232,8 @@ public @com.simiacryptus.ref.lang.RefAware class ActivationLayer extends LayerBa
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("alpha", getAlpha());
     json.addProperty("mode", mode);
     json.addProperty("precision", precision.name());
@@ -245,6 +246,16 @@ public @com.simiacryptus.ref.lang.RefAware class ActivationLayer extends LayerBa
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  ActivationLayer addRef() {
+    return (ActivationLayer) super.addRef();
+  }
+
   public enum Mode {
     RELU(cudnnActivationMode.CUDNN_ACTIVATION_RELU), SIGMOID(cudnnActivationMode.CUDNN_ACTIVATION_SIGMOID);
 
@@ -253,27 +264,6 @@ public @com.simiacryptus.ref.lang.RefAware class ActivationLayer extends LayerBa
     Mode(final int id) {
       this.id = id;
     }
-  }
-
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") ActivationLayer addRef() {
-    return (ActivationLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ActivationLayer[] addRefs(ActivationLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ActivationLayer::addRef)
-        .toArray((x) -> new ActivationLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ActivationLayer[][] addRefs(ActivationLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ActivationLayer::addRefs)
-        .toArray((x) -> new ActivationLayer[x][]);
   }
 
 }

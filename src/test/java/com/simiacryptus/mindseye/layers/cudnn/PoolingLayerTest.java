@@ -26,12 +26,29 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware class PoolingLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware
+class PoolingLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
 
   public PoolingLayerTest(final Precision precision) {
     this.precision = precision;
+  }
+
+  public static @SuppressWarnings("unused")
+  PoolingLayerTest[] addRefs(PoolingLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PoolingLayerTest::addRef)
+        .toArray((x) -> new PoolingLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  PoolingLayerTest[][] addRefs(PoolingLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PoolingLayerTest::addRefs)
+        .toArray((x) -> new PoolingLayerTest[x][]);
   }
 
   @Nonnull
@@ -43,30 +60,48 @@ public abstract @com.simiacryptus.ref.lang.RefAware class PoolingLayerTest exten
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 8, 8, 1 } };
+    return new int[][]{{8, 8, 1}};
   }
 
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][] { { 800, 800, 16 } };
+    return new int[][]{{800, 800, 16}};
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Repro extends PoolingLayerTest {
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  PoolingLayerTest addRef() {
+    return (PoolingLayerTest) super.addRef();
+  }
+
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Repro extends PoolingLayerTest {
     public Repro() {
       super(Precision.Double);
+    }
+
+    public static @SuppressWarnings("unused")
+    Repro[] addRefs(Repro[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Repro::addRef).toArray((x) -> new Repro[x]);
     }
 
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][] { { 3, 2, 1 } };
+      return new int[][]{{3, 2, 1}};
     }
 
     @Nonnull
     @Override
     public int[][] getLargeDims(Random random) {
-      return new int[][] { { 3, 2, 512 } };
+      return new int[][]{{3, 2, 512}};
     }
 
     @Nonnull
@@ -75,43 +110,54 @@ public abstract @com.simiacryptus.ref.lang.RefAware class PoolingLayerTest exten
       return new PoolingLayer().setWindowXY(3, 2).setStrideXY(3, 2).setPrecision(precision);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Repro addRef() {
+    public @Override
+    @SuppressWarnings("unused")
+    Repro addRef() {
       return (Repro) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") Repro[] addRefs(Repro[] array) {
-      if (array == null)
-        return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Repro::addRef).toArray((x) -> new Repro[x]);
     }
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Double extends PoolingLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Double extends PoolingLayerTest {
     public Double() {
       super(Precision.Double);
     }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") Double addRef() {
-      return (Double) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
+    public static @SuppressWarnings("unused")
+    Double[] addRefs(Double[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
+
+    public @Override
+    @SuppressWarnings("unused")
+    Double addRef() {
+      return (Double) super.addRef();
+    }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Asymmetric extends PoolingLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Asymmetric extends PoolingLayerTest {
     public Asymmetric() {
       super(Precision.Double);
+    }
+
+    public static @SuppressWarnings("unused")
+    Asymmetric[] addRefs(Asymmetric[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Asymmetric::addRef)
+          .toArray((x) -> new Asymmetric[x]);
     }
 
     @Nonnull
@@ -120,23 +166,20 @@ public abstract @com.simiacryptus.ref.lang.RefAware class PoolingLayerTest exten
       return new PoolingLayer().setPrecision(precision).setWindowY(4);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Asymmetric addRef() {
+    public @Override
+    @SuppressWarnings("unused")
+    Asymmetric addRef() {
       return (Asymmetric) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") Asymmetric[] addRefs(Asymmetric[] array) {
-      if (array == null)
-        return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Asymmetric::addRef)
-          .toArray((x) -> new Asymmetric[x]);
     }
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Float extends PoolingLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Float extends PoolingLayerTest {
     public Float() {
       super(Precision.Float);
     }
@@ -146,39 +189,22 @@ public abstract @com.simiacryptus.ref.lang.RefAware class PoolingLayerTest exten
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") Float addRef() {
-      return (Float) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
+    public static @SuppressWarnings("unused")
+    Float[] addRefs(Float[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
-  }
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
 
-  public @SuppressWarnings("unused") void _free() {
-  }
+    public @Override
+    @SuppressWarnings("unused")
+    Float addRef() {
+      return (Float) super.addRef();
+    }
 
-  public @Override @SuppressWarnings("unused") PoolingLayerTest addRef() {
-    return (PoolingLayerTest) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") PoolingLayerTest[] addRefs(PoolingLayerTest[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PoolingLayerTest::addRef)
-        .toArray((x) -> new PoolingLayerTest[x]);
-  }
-
-  public static @SuppressWarnings("unused") PoolingLayerTest[][] addRefs(PoolingLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PoolingLayerTest::addRefs)
-        .toArray((x) -> new PoolingLayerTest[x][]);
   }
 }

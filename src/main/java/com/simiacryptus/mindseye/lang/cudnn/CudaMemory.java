@@ -28,16 +28,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import static jcuda.runtime.cudaMemcpyKind.cudaMemcpyDeviceToHost;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
-import com.simiacryptus.ref.wrappers.RefCollectors;
 
-public @com.simiacryptus.ref.lang.RefAware class CudaMemory extends CudaResourceBase<CudaPointer> {
+public @com.simiacryptus.ref.lang.RefAware
+class CudaMemory extends CudaResourceBase<CudaPointer> {
 
   public static final com.simiacryptus.ref.wrappers.RefMap<Integer, DeviceMetrics> METRICS = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
   public static final int K = 1024;
@@ -106,6 +101,22 @@ public @com.simiacryptus.ref.lang.RefAware class CudaMemory extends CudaResource
     return CudaMemory.METRICS.computeIfAbsent(deviceId, device -> new DeviceMetrics());
   }
 
+  public static @SuppressWarnings("unused")
+  CudaMemory[] addRefs(CudaMemory[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRef)
+        .toArray((x) -> new CudaMemory[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  CudaMemory[][] addRefs(CudaMemory[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRefs)
+        .toArray((x) -> new CudaMemory[x][]);
+  }
+
   private static void logLoad() {
     logger.debug(String.format("Current Load: %s",
         METRICS.entrySet().stream().collect(com.simiacryptus.ref.wrappers.RefCollectors.toMap(e -> e.getKey(), e -> {
@@ -117,25 +128,22 @@ public @com.simiacryptus.ref.lang.RefAware class CudaMemory extends CudaResource
   @Nonnull
   public Tensor read(@Nonnull final Precision precision, final int[] dimensions) {
     synchronize();
-    @Nonnull
-    final Tensor tensor = new Tensor(dimensions);
+    @Nonnull final Tensor tensor = new Tensor(dimensions);
     switch (precision) {
-    case Float:
-      final int length = tensor.length();
-      @Nonnull
-      final float[] data = new float[length];
-      read(precision, data);
-      @Nullable
-      final double[] doubles = tensor.getData();
-      for (int i = 0; i < length; i++) {
-        doubles[i] = data[i];
-      }
-      break;
-    case Double:
-      read(precision, tensor.getData());
-      break;
-    default:
-      throw new IllegalStateException();
+      case Float:
+        final int length = tensor.length();
+        @Nonnull final float[] data = new float[length];
+        read(precision, data);
+        @Nullable final double[] doubles = tensor.getData();
+        for (int i = 0; i < length; i++) {
+          doubles[i] = data[i];
+        }
+        break;
+      case Double:
+        read(precision, tensor.getData());
+        break;
+      default:
+        throw new IllegalStateException();
     }
     return tensor;
   }
@@ -278,11 +286,6 @@ public @com.simiacryptus.ref.lang.RefAware class CudaMemory extends CudaResource
       CudaSystem.synchronize(writtenAt, deviceId);
   }
 
-  @Nonnull
-  void clear() {
-    CudaSystem.cudaMemset(getPtr(), 0, size);
-  }
-
   public void _free() {
     if (ptr.getByteOffset() != 0)
       return;
@@ -293,22 +296,15 @@ public @com.simiacryptus.ref.lang.RefAware class CudaMemory extends CudaResource
       release();
   }
 
-  public @Override @SuppressWarnings("unused") CudaMemory addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  CudaMemory addRef() {
     return (CudaMemory) super.addRef();
   }
 
-  public static @SuppressWarnings("unused") CudaMemory[] addRefs(CudaMemory[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRef)
-        .toArray((x) -> new CudaMemory[x]);
-  }
-
-  public static @SuppressWarnings("unused") CudaMemory[][] addRefs(CudaMemory[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRefs)
-        .toArray((x) -> new CudaMemory[x][]);
+  @Nonnull
+  void clear() {
+    CudaSystem.cudaMemset(getPtr(), 0, size);
   }
 
 }

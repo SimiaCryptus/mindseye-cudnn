@@ -31,18 +31,11 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Stream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefStream;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class SumInputsLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class SumInputsLayer extends LayerBase
     implements MultiPrecision<SumInputsLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
@@ -87,7 +80,7 @@ public @com.simiacryptus.ref.lang.RefAware class SumInputsLayer extends LayerBas
 
   @SuppressWarnings("unused")
   public static SumInputsLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                        com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new SumInputsLayer(json);
   }
 
@@ -102,11 +95,26 @@ public @com.simiacryptus.ref.lang.RefAware class SumInputsLayer extends LayerBas
     return pipelineNetwork;
   }
 
+  public static @SuppressWarnings("unused")
+  SumInputsLayer[] addRefs(SumInputsLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayer::addRef)
+        .toArray((x) -> new SumInputsLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  SumInputsLayer[][] addRefs(SumInputsLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayer::addRefs)
+        .toArray((x) -> new SumInputsLayer[x][]);
+  }
+
   @Nullable
   @Override
   public Result eval(@Nonnull final Result... inObj) {
-    @Nonnull
-    final int[] dimensions = inObj[0].getData().getDimensions();
+    @Nonnull final int[] dimensions = inObj[0].getData().getDimensions();
     if (3 != dimensions.length) {
       throw new IllegalArgumentException("dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions));
     }
@@ -137,8 +145,7 @@ public @com.simiacryptus.ref.lang.RefAware class SumInputsLayer extends LayerBas
 
       @Override
       public boolean isAlive() {
-        for (@Nonnull
-        final Result element : inObj)
+        for (@Nonnull final Result element : inObj)
           if (element.isAlive()) {
             return true;
           }
@@ -154,9 +161,8 @@ public @com.simiacryptus.ref.lang.RefAware class SumInputsLayer extends LayerBas
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
     json.addProperty("parallel", isParallel());
     return json;
@@ -168,24 +174,13 @@ public @com.simiacryptus.ref.lang.RefAware class SumInputsLayer extends LayerBas
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") SumInputsLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  SumInputsLayer addRef() {
     return (SumInputsLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") SumInputsLayer[] addRefs(SumInputsLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayer::addRef)
-        .toArray((x) -> new SumInputsLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") SumInputsLayer[][] addRefs(SumInputsLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayer::addRefs)
-        .toArray((x) -> new SumInputsLayer[x][]);
   }
 }

@@ -23,17 +23,17 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.WrapperLayer;
-import com.simiacryptus.mindseye.network.PipelineNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ImgTileSubnetLayer extends WrapperLayer
+public @com.simiacryptus.ref.lang.RefAware
+class ImgTileSubnetLayer extends WrapperLayer
     implements MultiPrecision<ImgTileSubnetLayer> {
 
   private static final Logger logger = LoggerFactory.getLogger(ImgTileSubnetLayer.class);
@@ -45,7 +45,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSubnetLayer extends Wrap
   private boolean parallel = true;
 
   public ImgTileSubnetLayer(final Layer subnetwork, final int width, final int height, final int strideX,
-      final int strideY) {
+                            final int strideY) {
     super(subnetwork);
     this.height = height;
     this.width = width;
@@ -58,7 +58,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSubnetLayer extends Wrap
   }
 
   protected ImgTileSubnetLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                               com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json, rs);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     height = json.getAsJsonPrimitive("height").getAsInt();
@@ -91,8 +91,24 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSubnetLayer extends Wrap
 
   @SuppressWarnings("unused")
   public static ImgTileSubnetLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                            com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgTileSubnetLayer(json, rs);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgTileSubnetLayer[] addRefs(ImgTileSubnetLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayer::addRef)
+        .toArray((x) -> new ImgTileSubnetLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgTileSubnetLayer[][] addRefs(ImgTileSubnetLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayer::addRefs)
+        .toArray((x) -> new ImgTileSubnetLayer[x][]);
   }
 
   @Nullable
@@ -101,8 +117,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSubnetLayer extends Wrap
     assert 1 == inObj.length;
     Result input = inObj[0];
     TensorList inputData = input.getData();
-    @Nonnull
-    final int[] inputDims = inputData.getDimensions();
+    @Nonnull final int[] inputDims = inputData.getDimensions();
     assert 3 == inputDims.length;
     int bands = inputDims[2];
     int length = inputData.length();
@@ -116,7 +131,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSubnetLayer extends Wrap
       int rows = (int) (Math.ceil((inputDims[1] - height) * 1.0 / strideY) + 1);
       if (cols == 1 && rows == 1)
         return getInner().eval(inObj);
-      int[] tileDimensions = { width, height, bands };
+      int[] tileDimensions = {width, height, bands};
       AtomicInteger counter = new AtomicInteger(0);
       Result[][] tileResults = new Result[rows][];
       for (int row = 0; row < rows; row++) {
@@ -136,14 +151,14 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSubnetLayer extends Wrap
 
           tileResults[row][col] = getInner().eval(new Result(
               new CudaTensorList(tile, length, tileDimensions, precision), (DeltaSet<UUID> ctx, TensorList delta) -> {
-                CudaSystem.run(gpu -> {
-                  ImgTileSelectLayer.copy(gpu, delta, tileDimensions, -positionX, -positionY, precision, passback);
-                });
-                if (counter.incrementAndGet() >= rows * cols) {
-                  counter.set(0);
-                  input.accumulate(ctx, new CudaTensorList(passback, length, inputDims, precision));
-                }
-              }) {
+            CudaSystem.run(gpu -> {
+              ImgTileSelectLayer.copy(gpu, delta, tileDimensions, -positionX, -positionY, precision, passback);
+            });
+            if (counter.incrementAndGet() >= rows * cols) {
+              counter.set(0);
+              input.accumulate(ctx, new CudaTensorList(passback, length, inputDims, precision));
+            }
+          }) {
             public void _free() {
               super._free();
             }
@@ -174,9 +189,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSubnetLayer extends Wrap
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJson(resources, dataSerializer);
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("height", height);
     json.addProperty("width", width);
     json.addProperty("strideX", strideX);
@@ -203,21 +217,9 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSubnetLayer extends Wrap
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") ImgTileSubnetLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  ImgTileSubnetLayer addRef() {
     return (ImgTileSubnetLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ImgTileSubnetLayer[] addRefs(ImgTileSubnetLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayer::addRef)
-        .toArray((x) -> new ImgTileSubnetLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ImgTileSubnetLayer[][] addRefs(ImgTileSubnetLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayer::addRefs)
-        .toArray((x) -> new ImgTileSubnetLayer[x][]);
   }
 }

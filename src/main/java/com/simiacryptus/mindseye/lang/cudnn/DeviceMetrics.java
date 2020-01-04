@@ -21,7 +21,8 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public @com.simiacryptus.ref.lang.RefAware class DeviceMetrics {
+public @com.simiacryptus.ref.lang.RefAware
+class DeviceMetrics {
   public final AtomicLong memoryReads = new AtomicLong(0);
   public final AtomicLong memoryWrites = new AtomicLong(0);
   public final AtomicLong peakMemory = new AtomicLong(0);

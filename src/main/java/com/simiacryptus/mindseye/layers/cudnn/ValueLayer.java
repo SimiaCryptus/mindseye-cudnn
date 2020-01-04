@@ -24,22 +24,17 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ValueLayer extends LayerBase {
+public @com.simiacryptus.ref.lang.RefAware
+class ValueLayer extends LayerBase {
 
   private final Precision precision;
   private final CudaTensorList tensorList;
 
   protected ValueLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
+                       com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
     super(json);
     this.precision = Precision.valueOf(json.get("precision").getAsString());
     Tensor value = Tensor.fromJson(json.get("value"), resources);
@@ -55,8 +50,24 @@ public @com.simiacryptus.ref.lang.RefAware class ValueLayer extends LayerBase {
 
   @SuppressWarnings("unused")
   public static ValueLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                    com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ValueLayer(json, rs);
+  }
+
+  public static @SuppressWarnings("unused")
+  ValueLayer[] addRefs(ValueLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef)
+        .toArray((x) -> new ValueLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ValueLayer[][] addRefs(ValueLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs)
+        .toArray((x) -> new ValueLayer[x][]);
   }
 
   public CudaTensorList toDevice(final Tensor data, final Precision precision) {
@@ -92,9 +103,8 @@ public @com.simiacryptus.ref.lang.RefAware class ValueLayer extends LayerBase {
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      @Nonnull DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            @Nonnull DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     Tensor tensor = tensorList.get(0);
     json.add("value", tensor.getJson(resources, dataSerializer));
     json.addProperty("precision", precision.name());
@@ -111,21 +121,9 @@ public @com.simiacryptus.ref.lang.RefAware class ValueLayer extends LayerBase {
   public void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ValueLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  ValueLayer addRef() {
     return (ValueLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ValueLayer[] addRefs(ValueLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef)
-        .toArray((x) -> new ValueLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ValueLayer[][] addRefs(ValueLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs)
-        .toArray((x) -> new ValueLayer[x][]);
   }
 }

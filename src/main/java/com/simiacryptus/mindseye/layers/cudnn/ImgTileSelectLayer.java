@@ -28,16 +28,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class ImgTileSelectLayer extends LayerBase
     implements MultiPrecision<ImgTileSelectLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgTileSelectLayer.class);
   private int positionX;
@@ -45,7 +40,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends Laye
 
   private int sizeY;
   private int sizeX;
-  private @Nonnull Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private @Nonnull
+  Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   private ImgTileSelectLayer() {
   }
@@ -55,7 +51,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends Laye
   }
 
   public ImgTileSelectLayer(int sizeX, int sizeY, final int positionX, final int positionY,
-      @NotNull Precision precision) {
+                            @NotNull Precision precision) {
     this.sizeY = sizeY;
     this.sizeX = sizeX;
     this.positionX = positionX;
@@ -64,7 +60,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends Laye
   }
 
   protected ImgTileSelectLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                               com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     sizeY = json.get("sizeY").getAsInt();
     sizeX = json.get("sizeX").getAsInt();
@@ -92,30 +88,29 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends Laye
 
   @SuppressWarnings("unused")
   public static ImgTileSelectLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                            com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgTileSelectLayer(json, rs);
   }
 
   public static CudaTensor copy(final CudnnHandle gpu, @Nonnull final TensorList input, final int[] inputDimensions,
-      final int[] outputDimensions, @Nonnull Precision precision, final int positionX, final int positionY,
-      final boolean dirty) {
-    @Nonnull
-    final CudaMemory outputPtr = gpu.allocate(
+                                final int[] outputDimensions, @Nonnull Precision precision, final int positionX, final int positionY,
+                                final boolean dirty) {
+    @Nonnull final CudaMemory outputPtr = gpu.allocate(
         (long) input.length() * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size,
         MemoryType.Managed.ifEnabled(), dirty);
     return copy(gpu, input, inputDimensions, outputDimensions, positionX, positionY, precision, outputPtr);
   }
 
   public static void copy(final CudnnHandle gpu, @Nonnull final TensorList input, final int[] inputDimensions,
-      final int positionX, final int positionY, Precision precision, final CudaTensor output) {
+                          final int positionX, final int positionY, Precision precision, final CudaTensor output) {
     copy(gpu, input, inputDimensions,
-        new int[] { output.descriptor.width, output.descriptor.height, output.descriptor.channels }, positionX,
+        new int[]{output.descriptor.width, output.descriptor.height, output.descriptor.channels}, positionX,
         positionY, precision, output.getMemory(gpu));
   }
 
   public static CudaTensor copy(final CudnnHandle gpu, @Nonnull final TensorList input, final int[] inputDimensions,
-      final int[] outputDimensions, final int positionX, final int positionY, final Precision precision,
-      final CudaMemory outputPtr) {
+                                final int[] outputDimensions, final int positionX, final int positionY, final Precision precision,
+                                final CudaMemory outputPtr) {
     final int length = input.length();
     if (3 != inputDimensions.length)
       throw new IllegalArgumentException("inputDimensions.length");
@@ -125,10 +120,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends Laye
     if (bands != outputDimensions[2])
       throw new IllegalArgumentException(String.format("%d != %d", bands, outputDimensions[2]));
     //log.info(String.format("offset=%d,%d", offsetX, offsetY));
-    @Nonnull
-    final int[] viewDim = getViewDimensions(inputDimensions, outputDimensions, new int[] { -positionX, -positionY, 0 });
-    @Nullable
-    final CudaTensor inputTensor = gpu.getTensor(input, precision, MemoryType.Device, false);
+    @Nonnull final int[] viewDim = getViewDimensions(inputDimensions, outputDimensions, new int[]{-positionX, -positionY, 0});
+    @Nullable final CudaTensor inputTensor = gpu.getTensor(input, precision, MemoryType.Device, false);
     int sourceOffset = 0;
     int destinationOffset = 0;
     if (positionX < 0) {
@@ -146,8 +139,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends Laye
     assert sourceOffset + Tensor.length(viewDim) <= Tensor.length(inputDimensions);
     assert destinationOffset + Tensor.length(viewDim) <= Tensor.length(outputDimensions);
 
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(precision, //
+    @Nonnull final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         viewDim[2], //
         viewDim[1], //
@@ -164,8 +156,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends Laye
           precision);
     }
 
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(precision, //
+    @Nonnull final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         viewDim[2], //
         viewDim[1], //
@@ -180,8 +171,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends Laye
     assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
     outputPtr.dirty();
     inputTensorMemory.dirty();
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, //
+    @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         outputDimensions[2], //
         outputDimensions[1], //
@@ -195,8 +185,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends Laye
 
   @Nonnull
   public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions, int[] offset) {
-    @Nonnull
-    final int[] viewDim = new int[3];
+    @Nonnull final int[] viewDim = new int[3];
     com.simiacryptus.ref.wrappers.RefArrays.setAll(viewDim, i -> {
       int value = Math.min(sourceDimensions[i],
           Math.max(0, destinationDimensions[i] - offset[i] - Math.max(-offset[i], 0)));
@@ -207,6 +196,22 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends Laye
       return value;
     });
     return viewDim;
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgTileSelectLayer[] addRefs(ImgTileSelectLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayer::addRef)
+        .toArray((x) -> new ImgTileSelectLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgTileSelectLayer[][] addRefs(ImgTileSelectLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayer::addRefs)
+        .toArray((x) -> new ImgTileSelectLayer[x][]);
   }
 
   @Nullable
@@ -225,9 +230,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends Laye
     if (dimIn[0] == sizeY && dimIn[1] == sizeX) {
       return input;
     }
-    @Nonnull
-    final int[] dimOut = getViewDimensions(dimIn, new int[] { sizeX, sizeY, dimIn[2] },
-        new int[] { -positionX, -positionY, 0 });
+    @Nonnull final int[] dimOut = getViewDimensions(dimIn, new int[]{sizeX, sizeY, dimIn[2]},
+        new int[]{-positionX, -positionY, 0});
     final TensorList outputData = CudaSystem.run(gpu -> {
       assert dimOut[0] > 0;
       assert dimOut[1] > 0;
@@ -269,9 +273,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends Laye
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("sizeX", sizeX);
     json.addProperty("sizeY", sizeY);
     json.addProperty("positionX", positionX);
@@ -292,24 +295,13 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileSelectLayer extends Laye
         + ", sizeY=" + sizeY + ", precision=" + precision + '}';
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgTileSelectLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  ImgTileSelectLayer addRef() {
     return (ImgTileSelectLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ImgTileSelectLayer[] addRefs(ImgTileSelectLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayer::addRef)
-        .toArray((x) -> new ImgTileSelectLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ImgTileSelectLayer[][] addRefs(ImgTileSelectLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayer::addRefs)
-        .toArray((x) -> new ImgTileSelectLayer[x][]);
   }
 }

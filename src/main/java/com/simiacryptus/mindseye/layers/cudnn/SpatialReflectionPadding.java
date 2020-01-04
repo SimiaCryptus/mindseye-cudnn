@@ -33,15 +33,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class SpatialReflectionPadding extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class SpatialReflectionPadding extends LayerBase
     implements MultiPrecision<SpatialReflectionPadding> {
   private static final Logger log = LoggerFactory.getLogger(SpatialReflectionPadding.class);
   private Alignment verticalAlign = Alignment.Center;
@@ -62,7 +57,7 @@ public @com.simiacryptus.ref.lang.RefAware class SpatialReflectionPadding extend
   }
 
   protected SpatialReflectionPadding(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                     com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -118,8 +113,24 @@ public @com.simiacryptus.ref.lang.RefAware class SpatialReflectionPadding extend
 
   @SuppressWarnings("unused")
   public static SpatialReflectionPadding fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                                  com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new SpatialReflectionPadding(json, rs);
+  }
+
+  public static @SuppressWarnings("unused")
+  SpatialReflectionPadding[] addRefs(SpatialReflectionPadding[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRef)
+        .toArray((x) -> new SpatialReflectionPadding[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  SpatialReflectionPadding[][] addRefs(SpatialReflectionPadding[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRefs)
+        .toArray((x) -> new SpatialReflectionPadding[x][]);
   }
 
   public int half(int i, Alignment alignment) {
@@ -149,9 +160,8 @@ public @com.simiacryptus.ref.lang.RefAware class SpatialReflectionPadding extend
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
     json.addProperty("roundUp", roundUp);
@@ -167,25 +177,14 @@ public @com.simiacryptus.ref.lang.RefAware class SpatialReflectionPadding extend
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") SpatialReflectionPadding addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  SpatialReflectionPadding addRef() {
     return (SpatialReflectionPadding) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") SpatialReflectionPadding[] addRefs(SpatialReflectionPadding[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRef)
-        .toArray((x) -> new SpatialReflectionPadding[x]);
-  }
-
-  public static @SuppressWarnings("unused") SpatialReflectionPadding[][] addRefs(SpatialReflectionPadding[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRefs)
-        .toArray((x) -> new SpatialReflectionPadding[x][]);
   }
 
 }

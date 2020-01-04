@@ -27,13 +27,14 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware class ImgBandSelectLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware
+class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
-  private final int smallSize;
-  private final int largeSize;
   final ImgBandSelectLayer layer;
   final int inputBands;
+  private final int smallSize;
+  private final int largeSize;
 
   public ImgBandSelectLayerTest(final Precision precision, int inputBands, final int fromBand, int toBand) {
     this.precision = precision;
@@ -47,6 +48,22 @@ public abstract @com.simiacryptus.ref.lang.RefAware class ImgBandSelectLayerTest
   @Override
   public Layer getReferenceLayer() {
     return layer.getCompatibilityLayer();
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgBandSelectLayerTest[] addRefs(ImgBandSelectLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayerTest::addRef)
+        .toArray((x) -> new ImgBandSelectLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgBandSelectLayerTest[][] addRefs(ImgBandSelectLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayerTest::addRefs)
+        .toArray((x) -> new ImgBandSelectLayerTest[x][]);
   }
 
   @Override
@@ -63,37 +80,12 @@ public abstract @com.simiacryptus.ref.lang.RefAware class ImgBandSelectLayerTest
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { smallSize, smallSize, inputBands } };
+    return new int[][]{{smallSize, smallSize, inputBands}};
   }
 
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     return layer;
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][] { { largeSize, largeSize, inputBands } };
-  }
-
-  public static @com.simiacryptus.ref.lang.RefAware class Double extends ImgBandSelectLayerTest {
-    public Double() {
-      super(Precision.Double, 5, 2, 4);
-    }
-
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") Double addRef() {
-      return (Double) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
-      if (array == null)
-        return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
-    }
   }
 
   //  /**
@@ -108,44 +100,68 @@ public abstract @com.simiacryptus.ref.lang.RefAware class ImgBandSelectLayerTest
   //    }
   //  }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Float extends ImgBandSelectLayerTest {
+  @Nonnull
+  @Override
+  public int[][] getLargeDims(Random random) {
+    return new int[][]{{largeSize, largeSize, inputBands}};
+  }
+
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  ImgBandSelectLayerTest addRef() {
+    return (ImgBandSelectLayerTest) super.addRef();
+  }
+
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Double extends ImgBandSelectLayerTest {
+    public Double() {
+      super(Precision.Double, 5, 2, 4);
+    }
+
+    public static @SuppressWarnings("unused")
+    Double[] addRefs(Double[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
+
+    public @Override
+    @SuppressWarnings("unused")
+    Double addRef() {
+      return (Double) super.addRef();
+    }
+  }
+
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Float extends ImgBandSelectLayerTest {
     public Float() {
       super(Precision.Float, 2, 0, 1);
     }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") Float addRef() {
-      return (Float) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
+    public static @SuppressWarnings("unused")
+    Float[] addRefs(Float[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
-  }
 
-  public @SuppressWarnings("unused") void _free() {
-  }
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
 
-  public @Override @SuppressWarnings("unused") ImgBandSelectLayerTest addRef() {
-    return (ImgBandSelectLayerTest) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ImgBandSelectLayerTest[] addRefs(ImgBandSelectLayerTest[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayerTest::addRef)
-        .toArray((x) -> new ImgBandSelectLayerTest[x]);
-  }
-
-  public static @SuppressWarnings("unused") ImgBandSelectLayerTest[][] addRefs(ImgBandSelectLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayerTest::addRefs)
-        .toArray((x) -> new ImgBandSelectLayerTest[x][]);
+    public @Override
+    @SuppressWarnings("unused")
+    Float addRef() {
+      return (Float) super.addRef();
+    }
   }
 
 }

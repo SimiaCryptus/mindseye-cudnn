@@ -24,17 +24,34 @@ import com.simiacryptus.mindseye.lang.Layer;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware class MeanSqLossLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware
+class MeanSqLossLayerTest extends CudnnLayerTestBase {
 
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return com.simiacryptus.mindseye.layers.java.MeanSqLossLayer.class;
   }
 
+  public static @SuppressWarnings("unused")
+  MeanSqLossLayerTest[] addRefs(MeanSqLossLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayerTest::addRef)
+        .toArray((x) -> new MeanSqLossLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  MeanSqLossLayerTest[][] addRefs(MeanSqLossLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayerTest::addRefs)
+        .toArray((x) -> new MeanSqLossLayerTest[x][]);
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 8, 8, 1 }, { 8, 8, 1 } };
+    return new int[][]{{8, 8, 1}, {8, 8, 1}};
   }
 
   @Nonnull
@@ -46,74 +63,73 @@ public abstract @com.simiacryptus.ref.lang.RefAware class MeanSqLossLayerTest ex
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][] { { 1200, 1200, 3 }, { 1200, 1200, 3 } };
+    return new int[][]{{1200, 1200, 3}, {1200, 1200, 3}};
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Basic extends MeanSqLossLayerTest {
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
+  public @Override
+  @SuppressWarnings("unused")
+  MeanSqLossLayerTest addRef() {
+    return (MeanSqLossLayerTest) super.addRef();
+  }
 
-    public @Override @SuppressWarnings("unused") Basic addRef() {
-      return (Basic) super.addRef();
-    }
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Basic extends MeanSqLossLayerTest {
 
-    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
+    public static @SuppressWarnings("unused")
+    Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
+
+    public @Override
+    @SuppressWarnings("unused")
+    Basic addRef() {
+      return (Basic) super.addRef();
+    }
+
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Asymetric extends MeanSqLossLayerTest {
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Asymetric extends MeanSqLossLayerTest {
 
-    @Nonnull
-    @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][] { { 2, 3, 1 }, { 2, 3, 1 } };
-    }
-
-    @Nonnull
-    @Override
-    public int[][] getLargeDims(Random random) {
-      return new int[][] { { 200, 300, 100 }, { 200, 300, 100 } };
-    }
-
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") Asymetric addRef() {
-      return (Asymetric) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") Asymetric[] addRefs(Asymetric[] array) {
+    public static @SuppressWarnings("unused")
+    Asymetric[] addRefs(Asymetric[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(Asymetric::addRef)
           .toArray((x) -> new Asymetric[x]);
     }
-  }
 
-  public @SuppressWarnings("unused") void _free() {
-  }
+    @Nonnull
+    @Override
+    public int[][] getSmallDims(Random random) {
+      return new int[][]{{2, 3, 1}, {2, 3, 1}};
+    }
 
-  public @Override @SuppressWarnings("unused") MeanSqLossLayerTest addRef() {
-    return (MeanSqLossLayerTest) super.addRef();
-  }
+    @Nonnull
+    @Override
+    public int[][] getLargeDims(Random random) {
+      return new int[][]{{200, 300, 100}, {200, 300, 100}};
+    }
 
-  public static @SuppressWarnings("unused") MeanSqLossLayerTest[] addRefs(MeanSqLossLayerTest[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayerTest::addRef)
-        .toArray((x) -> new MeanSqLossLayerTest[x]);
-  }
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
 
-  public static @SuppressWarnings("unused") MeanSqLossLayerTest[][] addRefs(MeanSqLossLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayerTest::addRefs)
-        .toArray((x) -> new MeanSqLossLayerTest[x][]);
+    public @Override
+    @SuppressWarnings("unused")
+    Asymetric addRef() {
+      return (Asymetric) super.addRef();
+    }
   }
 
 }

@@ -31,16 +31,11 @@ import jcuda.jcudnn.cudnnOpTensorOp;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class BinarySumLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class BinarySumLayer extends LayerBase
     implements MultiPrecision<BinarySumLayer> {
 
   private double leftFactor;
@@ -106,8 +101,24 @@ public @com.simiacryptus.ref.lang.RefAware class BinarySumLayer extends LayerBas
 
   @SuppressWarnings("unused")
   public static BinarySumLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                        com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new BinarySumLayer(json);
+  }
+
+  public static @SuppressWarnings("unused")
+  BinarySumLayer[] addRefs(BinarySumLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayer::addRef)
+        .toArray((x) -> new BinarySumLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  BinarySumLayer[][] addRefs(BinarySumLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayer::addRefs)
+        .toArray((x) -> new BinarySumLayer[x][]);
   }
 
   @Nullable
@@ -135,9 +146,8 @@ public @com.simiacryptus.ref.lang.RefAware class BinarySumLayer extends LayerBas
       throw new IllegalArgumentException(
           "dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(leftDimensions));
     }
-    @Nonnull
-    final int[] dimensions = { leftDimensions.length < 1 ? 0 : leftDimensions[0],
-        leftDimensions.length < 2 ? 1 : leftDimensions[1], leftDimensions.length < 3 ? 1 : leftDimensions[2] };
+    @Nonnull final int[] dimensions = {leftDimensions.length < 1 ? 0 : leftDimensions[0],
+        leftDimensions.length < 2 ? 1 : leftDimensions[1], leftDimensions.length < 3 ? 1 : leftDimensions[2]};
     final int length = leftData.length();
     if (length != rightData.length())
       throw new IllegalArgumentException();
@@ -153,19 +163,14 @@ public @com.simiacryptus.ref.lang.RefAware class BinarySumLayer extends LayerBas
     if (!CudaSystem.isEnabled())
       return getCompatibilityLayer().eval(inObj);
     return new Result(CudaSystem.run(gpu -> {
-      @Nonnull
-      final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+      @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
           .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_ADD, precision);
-      @Nonnull
-      final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, dimensions[2],
+      @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, dimensions[2],
           dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0], dimensions[1] * dimensions[0],
           dimensions[0], 1);
-      @Nullable
-      final CudaTensor lPtr = gpu.getTensor(leftData, precision, MemoryType.Device, false);
-      @Nullable
-      final CudaTensor rPtr = gpu.getTensor(rightData, precision, MemoryType.Device, false);
-      @Nonnull
-      final CudaMemory outputPtr = gpu.allocate((long) precision.size * Tensor.length(dimensions) * length,
+      @Nullable final CudaTensor lPtr = gpu.getTensor(leftData, precision, MemoryType.Device, false);
+      @Nullable final CudaTensor rPtr = gpu.getTensor(rightData, precision, MemoryType.Device, false);
+      @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * Tensor.length(dimensions) * length,
           MemoryType.Managed.ifEnabled(), true);
       CudaMemory lPtrMemory = lPtr.getMemory(gpu);
       CudaMemory rPtrMemory = rPtr.getMemory(gpu);
@@ -183,13 +188,10 @@ public @com.simiacryptus.ref.lang.RefAware class BinarySumLayer extends LayerBas
       Runnable a = () -> {
         if (inObj[0].isAlive()) {
           CudaTensorList tensorList = CudaSystem.run(gpu -> {
-            @Nullable
-            final CudaTensor lPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
-            @Nonnull
-            final CudaMemory passbackPtr = gpu.allocate(precision.size * Tensor.length(dimensions) * length,
+            @Nullable final CudaTensor lPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
+            @Nonnull final CudaMemory passbackPtr = gpu.allocate(precision.size * Tensor.length(dimensions) * length,
                 MemoryType.Managed.ifEnabled(), true);
-            @Nonnull
-            final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, length,
+            @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, length,
                 dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
                 dimensions[1] * dimensions[0], dimensions[0], 1);
             CudaMemory lPtrMemory = lPtr.getMemory(gpu);
@@ -207,13 +209,10 @@ public @com.simiacryptus.ref.lang.RefAware class BinarySumLayer extends LayerBas
       Runnable b = () -> {
         if (inObj[1].isAlive()) {
           CudaTensorList tensorList = CudaSystem.run(gpu -> {
-            @Nullable
-            final CudaTensor lPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
-            @Nonnull
-            final CudaMemory outputPtr = gpu.allocate(precision.size * Tensor.length(dimensions) * length,
+            @Nullable final CudaTensor lPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
+            @Nonnull final CudaMemory outputPtr = gpu.allocate(precision.size * Tensor.length(dimensions) * length,
                 MemoryType.Managed.ifEnabled(), true);
-            @Nonnull
-            final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, length,
+            @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, length,
                 dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
                 dimensions[1] * dimensions[0], dimensions[0], 1);
             CudaMemory lPtrMemory = lPtr.getMemory(gpu);
@@ -235,8 +234,7 @@ public @com.simiacryptus.ref.lang.RefAware class BinarySumLayer extends LayerBas
 
       @Override
       public boolean isAlive() {
-        for (@Nonnull
-        final Result element : inObj)
+        for (@Nonnull final Result element : inObj)
           if (element.isAlive()) {
             return true;
           }
@@ -252,9 +250,8 @@ public @com.simiacryptus.ref.lang.RefAware class BinarySumLayer extends LayerBas
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("rightFactor", rightFactor);
     json.addProperty("leftFactor", leftFactor);
     json.addProperty("precision", precision.name());
@@ -267,24 +264,13 @@ public @com.simiacryptus.ref.lang.RefAware class BinarySumLayer extends LayerBas
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") BinarySumLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  BinarySumLayer addRef() {
     return (BinarySumLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") BinarySumLayer[] addRefs(BinarySumLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayer::addRef)
-        .toArray((x) -> new BinarySumLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") BinarySumLayer[][] addRefs(BinarySumLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayer::addRefs)
-        .toArray((x) -> new BinarySumLayer[x][]);
   }
 }

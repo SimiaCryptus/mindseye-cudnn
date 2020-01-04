@@ -37,16 +37,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.function.DoubleSupplier;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class FullyConnectedLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class FullyConnectedLayer extends LayerBase
     implements MultiPrecision<FullyConnectedLayer>, Explodable {
   private static final Logger log = LoggerFactory.getLogger(FullyConnectedLayer.class);
   @Nullable
@@ -79,12 +74,11 @@ public @com.simiacryptus.ref.lang.RefAware class FullyConnectedLayer extends Lay
   }
 
   protected FullyConnectedLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     outputDims = JsonUtil.getIntArray(json.getAsJsonArray("outputDims"));
     inputDims = JsonUtil.getIntArray(json.getAsJsonArray("inputDims"));
-    @Nullable
-    final Tensor data = Tensor.fromJson(json.get("weights"), rs);
+    @Nullable final Tensor data = Tensor.fromJson(json.get("weights"), rs);
     weights = data;
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
@@ -134,8 +128,24 @@ public @com.simiacryptus.ref.lang.RefAware class FullyConnectedLayer extends Lay
 
   @SuppressWarnings("unused")
   public static FullyConnectedLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                             com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new FullyConnectedLayer(json, rs);
+  }
+
+  public static @SuppressWarnings("unused")
+  FullyConnectedLayer[] addRefs(FullyConnectedLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayer::addRef)
+        .toArray((x) -> new FullyConnectedLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  FullyConnectedLayer[][] addRefs(FullyConnectedLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayer::addRefs)
+        .toArray((x) -> new FullyConnectedLayer[x][]);
   }
 
   @Nonnull
@@ -182,9 +192,8 @@ public @com.simiacryptus.ref.lang.RefAware class FullyConnectedLayer extends Lay
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      @Nonnull DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            @Nonnull DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.add("outputDims", JsonUtil.getJson(outputDims));
     json.add("inputDims", JsonUtil.getJson(inputDims));
     @Nullable
@@ -209,21 +218,9 @@ public @com.simiacryptus.ref.lang.RefAware class FullyConnectedLayer extends Lay
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") FullyConnectedLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  FullyConnectedLayer addRef() {
     return (FullyConnectedLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") FullyConnectedLayer[] addRefs(FullyConnectedLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayer::addRef)
-        .toArray((x) -> new FullyConnectedLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") FullyConnectedLayer[][] addRefs(FullyConnectedLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayer::addRefs)
-        .toArray((x) -> new FullyConnectedLayer[x][]);
   }
 }

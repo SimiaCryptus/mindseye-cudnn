@@ -27,16 +27,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.HashMap;
-import com.simiacryptus.ref.wrappers.RefHashMap;
 
-public @com.simiacryptus.ref.lang.RefAware class CudaSettings implements Settings {
+public @com.simiacryptus.ref.lang.RefAware
+class CudaSettings implements Settings {
 
   private static final Logger logger = LoggerFactory.getLogger(CudaSettings.class);
 
   private static transient CudaSettings INSTANCE = null;
   public final String defaultDevices;
   public final PersistanceMode memoryCacheMode;
+  public final boolean allDense;
+  public final boolean verbose;
+  public final double asyncFreeLoadThreshold = 0.5;
   private final long maxTotalMemory;
   private final long maxAllocSize;
   private final double maxIoElements;
@@ -54,11 +56,8 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSettings implements Setting
   private final boolean syncBeforeFree;
   private final int memoryCacheTTL;
   private final boolean convolutionCache;
-  public Precision defaultPrecision;
-  public final boolean allDense;
-  public final boolean verbose;
-  public final double asyncFreeLoadThreshold = 0.5;
   private final int handlesPerDevice;
+  public Precision defaultPrecision;
 
   private CudaSettings() {
     com.simiacryptus.ref.wrappers.RefHashMap<String, String> appSettings = LocalAppSettings.read();

@@ -30,26 +30,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.DoubleSupplier;
 import java.util.function.ToDoubleFunction;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
-import com.simiacryptus.ref.wrappers.RefCollectors;
-import com.simiacryptus.ref.wrappers.RefIntStream;
-import com.simiacryptus.ref.wrappers.RefStream;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class SimpleConvolutionLayer extends LayerBase
     implements MultiPrecision<SimpleConvolutionLayer> {
 
   static final Logger log = LoggerFactory.getLogger(SimpleConvolutionLayer.class);
@@ -71,7 +58,7 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
   }
 
   protected SimpleConvolutionLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
+                                   com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
     super(json);
     kernel = Tensor.fromJson(json.get("filter"), resources);
     strideX = json.get("strideX").getAsInt();
@@ -174,7 +161,7 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
 
   @SuppressWarnings("unused")
   public static SimpleConvolutionLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                                com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new SimpleConvolutionLayer(json, rs);
   }
 
@@ -188,12 +175,27 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
     return array;
   }
 
+  public static @SuppressWarnings("unused")
+  SimpleConvolutionLayer[] addRefs(SimpleConvolutionLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleConvolutionLayer::addRef)
+        .toArray((x) -> new SimpleConvolutionLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  SimpleConvolutionLayer[][] addRefs(SimpleConvolutionLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleConvolutionLayer::addRefs)
+        .toArray((x) -> new SimpleConvolutionLayer[x][]);
+  }
+
   @Nullable
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     assertAlive();
-    @Nonnull
-    final int[] rawInputDims = inObj[0].getData().getDimensions();
+    @Nonnull final int[] rawInputDims = inObj[0].getData().getDimensions();
     final int[] kernelDimensions = kernel.getDimensions();
     int kernelLength = kernel.length();
     double[] kernelData = kernel.getData();
@@ -221,8 +223,7 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
       input = inObj[0];
     }
     final TensorList inputData = input.getData();
-    @Nonnull
-    final int[] inputDims = inputData.getDimensions();
+    @Nonnull final int[] inputDims = inputData.getDimensions();
     final int inputLength = inputData.length();
     final int[] outputSize = getOutputSize(inputDims);
     CudaTensorList run = CudaSystem.run(gpu -> {
@@ -240,12 +241,9 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
       assert delta.length() == inputLength;
       Runnable learnFn = () -> {
         if (!isFrozen()) {
-          @Nonnull
-          final Tensor weightGradient = CudaSystem.run(gpu -> {
-            @Nullable
-            final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
-            @Nullable
-            final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
+          @Nonnull final Tensor weightGradient = CudaSystem.run(gpu -> {
+            @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
+            @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
             final CudaResource<cudnnFilterDescriptor> filterDescriptor = gpu.newFilterDescriptor(precision,
                 cudnnTensorFormat.CUDNN_TENSOR_NCHW, outputSize[2], inputDims[2], kernelDimensions[1],
                 kernelDimensions[0]);
@@ -312,12 +310,12 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
   }
 
   public CudaTensorList bck_workaround(CudnnHandle gpu, int paddingX, int paddingY, int inputLength, int[] inputDims,
-      int[] kernelDimensions, int[] outputSize, TensorList delta) {
+                                       int[] kernelDimensions, int[] outputSize, TensorList delta) {
     if (1 != kernelDimensions[0] || 1 != kernelDimensions[1]) {
       return bck(gpu, paddingX, paddingY, inputLength, inputDims, kernelDimensions, outputSize, delta,
           getCudaFilter(gpu));
     } else {
-      return fwd(gpu, paddingX, paddingY, inputLength, outputSize, new int[] { 1, 1, outputSize[2], inputDims[2] },
+      return fwd(gpu, paddingX, paddingY, inputLength, outputSize, new int[]{1, 1, outputSize[2], inputDims[2]},
           inputDims, delta,
           gpu.allocate((long) kernel.length() * precision.size, MemoryType.Device, true).write(precision,
               kernel.reshapeCast(1, 1, inputDims[2], outputSize[2]).permuteDimensions(0, 1, 3, 2).getData()));
@@ -325,7 +323,7 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
   }
 
   public CudaTensorList bck(CudnnHandle gpu, int paddingX, int paddingY, int inputLength, int[] inputDims,
-      int[] kernelDimensions, int[] outputSize, TensorList delta, CudaMemory filterPtr) {
+                            int[] kernelDimensions, int[] outputSize, TensorList delta, CudaMemory filterPtr) {
     final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, inputLength,
         inputDims[2], inputDims[1], inputDims[0], inputDims[2] * inputDims[1] * inputDims[0],
         inputDims[1] * inputDims[0], inputDims[0], 1);
@@ -333,16 +331,14 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
         cudnnTensorFormat.CUDNN_TENSOR_NCHW, outputSize[2], inputDims[2], kernelDimensions[1], kernelDimensions[0]);
     final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor = gpu.newConvolutions2dDescriptor(
         cudnnConvolutionMode.CUDNN_CONVOLUTION, precision, paddingY, paddingX, strideY, strideX, 1, 1);
-    @Nullable
-    final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, false);
+    @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, false);
     final int backwardDataAlgorithm = getBackwardDataAlgorithm(gpu, deltaTensor.descriptor, filterDescriptor,
         convolutionDescriptor, inputDescriptor);
     final CudaMemory backwardsDataWorkSpace = gpu.allocateBackwardDataWorkspace(inputDescriptor.getPtr(),
         filterDescriptor.getPtr(), convolutionDescriptor.getPtr(), deltaTensor.descriptor.getPtr(),
         backwardDataAlgorithm, 1);
     try {
-      @Nonnull
-      final CudaMemory passbackMemory = gpu.allocate((long) Tensor.length(inputDims) * inputLength * precision.size,
+      @Nonnull final CudaMemory passbackMemory = gpu.allocate((long) Tensor.length(inputDims) * inputLength * precision.size,
           MemoryType.Managed.ifEnabled(), true);
       CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
       //              deltaTensorMemory.synchronize();
@@ -366,7 +362,7 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
   }
 
   public CudaTensorList fwd(CudnnHandle gpu, int paddingX, int paddingY, int inputLength, int[] inputDims,
-      int[] kernelDimensions, int[] outputSize, TensorList inputData, CudaMemory filterPtr) {
+                            int[] kernelDimensions, int[] outputSize, TensorList inputData, CudaMemory filterPtr) {
     CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor = gpu.newConvolutions2dDescriptor(
         cudnnConvolutionMode.CUDNN_CONVOLUTION, precision, paddingY, paddingX, strideY, strideX, 1, 1);
     CudaTensor tensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
@@ -389,8 +385,7 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
     final CudaMemory forwardWorkspace = gpu.allocateForwardWorkspace(inputDescriptor.getPtr(),
         filterDescriptor.getPtr(), convolutionDescriptor.getPtr(), outputDescriptor.getPtr(), forwardAlgorithm, 1);
     try {
-      @Nonnull
-      final CudaMemory outputBuffer = gpu.allocate((long) Tensor.length(outputDims) * inputLength * precision.size,
+      @Nonnull final CudaMemory outputBuffer = gpu.allocate((long) Tensor.length(outputDims) * inputLength * precision.size,
           MemoryType.Managed.ifEnabled(), true);
       CudaMemory inputTensorMemory = tensor.getMemory(gpu);
       //        inputTensorMemory.synchronize();
@@ -412,9 +407,9 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
   }
 
   public int getForwardAlgorithm(final CudnnHandle gpu, final CudaTensor inputTensor,
-      final CudaResource<cudnnFilterDescriptor> filterDescriptor,
-      final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor,
-      final CudaDevice.CudaTensorDescriptor outputDescriptor) {
+                                 final CudaResource<cudnnFilterDescriptor> filterDescriptor,
+                                 final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor,
+                                 final CudaDevice.CudaTensorDescriptor outputDescriptor) {
     //    return cudnnConvolutionFwdAlgo.CUDNN_CONVOLUTION_FWD_ALGO_FFT;
     return gpu.getForwardAlgorithm(inputTensor.descriptor.getPtr(), filterDescriptor.getPtr(),
         convolutionDescriptor.getPtr(), outputDescriptor.getPtr(),
@@ -422,17 +417,17 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
   }
 
   public int getBackwardFilterAlgorithm(final CudnnHandle gpu, final CudaTensor deltaTensor,
-      final CudaTensor inputTensor, final CudaResource<cudnnFilterDescriptor> filterDescriptor,
-      final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor) {
+                                        final CudaTensor inputTensor, final CudaResource<cudnnFilterDescriptor> filterDescriptor,
+                                        final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor) {
     return gpu.getBackwardFilterAlgorithm(inputTensor.descriptor.getPtr(), filterDescriptor.getPtr(),
         convolutionDescriptor.getPtr(), deltaTensor.descriptor.getPtr(),
         CudaSettings.INSTANCE().getConvolutionWorkspaceSizeLimit());
   }
 
   public int getBackwardDataAlgorithm(final CudnnHandle gpu, final CudaDevice.CudaTensorDescriptor dyDescriptor,
-      final CudaResource<cudnnFilterDescriptor> filterDescriptor,
-      final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor,
-      CudaDevice.CudaTensorDescriptor dxDescriptor) {
+                                      final CudaResource<cudnnFilterDescriptor> filterDescriptor,
+                                      final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor,
+                                      CudaDevice.CudaTensorDescriptor dxDescriptor) {
     return cudnnConvolutionBwdDataAlgo.CUDNN_CONVOLUTION_BWD_DATA_ALGO_1;
     //    return gpu.getBackwardDataAlgorithm(
     //        dyDescriptor.getPtr(),
@@ -459,9 +454,8 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      @Nonnull DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            @Nonnull DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     JsonElement value;
     try {
       value = kernel.getJson(resources, dataSerializer);
@@ -479,8 +473,7 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
   }
 
   public int[] getOutputSize(final int... inputSize) {
-    @Nonnull
-    final int[] kernelSize = kernel.getDimensions();
+    @Nonnull final int[] kernelSize = kernel.getDimensions();
     try {
       return com.simiacryptus.ref.wrappers.RefIntStream.range(0, kernelSize.length).map(i -> {
         int x;
@@ -567,6 +560,12 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
     super._free();
   }
 
+  public @Override
+  @SuppressWarnings("unused")
+  SimpleConvolutionLayer addRef() {
+    return (SimpleConvolutionLayer) super.addRef();
+  }
+
   private int correct(int dim, int modulus, int offset) {
     int adj = modulus - ((dim - offset) % modulus);
     while (adj < 0)
@@ -602,23 +601,5 @@ public @com.simiacryptus.ref.lang.RefAware class SimpleConvolutionLayer extends 
   private void clearCudaFilters() {
     gpuFilters.keySet().stream().collect(com.simiacryptus.ref.wrappers.RefCollectors.toList()).stream()
         .forEach(gpuFilters::remove);
-  }
-
-  public @Override @SuppressWarnings("unused") SimpleConvolutionLayer addRef() {
-    return (SimpleConvolutionLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") SimpleConvolutionLayer[] addRefs(SimpleConvolutionLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleConvolutionLayer::addRef)
-        .toArray((x) -> new SimpleConvolutionLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") SimpleConvolutionLayer[][] addRefs(SimpleConvolutionLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleConvolutionLayer::addRefs)
-        .toArray((x) -> new SimpleConvolutionLayer[x][]);
   }
 }

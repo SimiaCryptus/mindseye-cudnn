@@ -25,18 +25,11 @@ import com.simiacryptus.mindseye.lang.cudnn.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ImgConcatLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class ImgConcatLayer extends LayerBase
     implements MultiPrecision<ImgConcatLayer> {
 
   private int maxBands = -1;
@@ -91,14 +84,30 @@ public @com.simiacryptus.ref.lang.RefAware class ImgConcatLayer extends LayerBas
 
   @SuppressWarnings("unused")
   public static ImgConcatLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                        com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgConcatLayer(json);
   }
 
   public static Tensor eval(final com.simiacryptus.ref.wrappers.RefList<Tensor> featureImage) {
     ImgConcatLayer layer = new ImgConcatLayer();
-    TensorList data = layer.eval(featureImage.toArray(new Tensor[] {})).getData();
+    TensorList data = layer.eval(featureImage.toArray(new Tensor[]{})).getData();
     return data.get(0);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgConcatLayer[] addRefs(ImgConcatLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgConcatLayer::addRef)
+        .toArray((x) -> new ImgConcatLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgConcatLayer[][] addRefs(ImgConcatLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgConcatLayer::addRefs)
+        .toArray((x) -> new ImgConcatLayer[x][]);
   }
 
   @Nullable
@@ -110,8 +119,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgConcatLayer extends LayerBas
     //assert Arrays.stream(inObj).flatMapToDouble(input->input.data.stream().flatMapToDouble(x-> Arrays.stream(x.getData()))).allMatch(v->Double.isFinite(v));
     int[] dimensions = inObj[0].getData().getDimensions();
     assert 3 == dimensions.length;
-    @Nonnull
-    final int[] outputDimensions = com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimensions, dimensions.length);
+    @Nonnull final int[] outputDimensions = com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimensions, dimensions.length);
     final int length = inObj[0].getData().length();
     assert com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).allMatch(x -> {
       @Nonnull
@@ -127,16 +135,14 @@ public @com.simiacryptus.ref.lang.RefAware class ImgConcatLayer extends LayerBas
     return new Result(CudaSystem.run(gpu -> {
       final long outputSize = ((long) length * outputDimensions[2] * outputDimensions[1] * outputDimensions[0]
           * precision.size);
-      @Nonnull
-      final CudaMemory cudaOutput = gpu.allocate(outputSize, MemoryType.Managed.ifEnabled(), true);
+      @Nonnull final CudaMemory cudaOutput = gpu.allocate(outputSize, MemoryType.Managed.ifEnabled(), true);
       com.simiacryptus.ref.wrappers.RefIntStream stream = com.simiacryptus.ref.wrappers.RefIntStream.range(0,
           inObj.length);
       //if (!CoreSettings.INSTANCE.isConservative() && parallel) stream = stream.parallel();
       stream.forEach(i -> {
         assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
         final TensorList input = inObj[i].getData();
-        @Nonnull
-        final int[] inputDimensions = input.getDimensions();
+        @Nonnull final int[] inputDimensions = input.getDimensions();
         assert inputDimensions[0] == outputDimensions[0];
         assert inputDimensions[1] == outputDimensions[1];
         int bandOffset = com.simiacryptus.ref.wrappers.RefIntStream.range(0, i)
@@ -147,21 +153,18 @@ public @com.simiacryptus.ref.lang.RefAware class ImgConcatLayer extends LayerBas
         if (maxBands > 0)
           inputBands = Math.min(inputBands, maxBands - bandOffset);
         if (inputBands > 0) {
-          @Nullable
-          final CudaTensor cudaInput = gpu.getTensor(input, precision, MemoryType.Device, false);
+          @Nullable final CudaTensor cudaInput = gpu.getTensor(input, precision, MemoryType.Device, false);
           assert inputBands > 0;
           assert maxBands <= 0 || inputBands <= maxBands;
           assert inputBands <= inputDimensions[2];
-          @Nonnull
-          final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+          @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
               inputBands, outputDimensions[1], outputDimensions[0], //
               outputDimensions[2] * outputDimensions[1] * outputDimensions[0], //
               outputDimensions[1] * outputDimensions[0], //
               outputDimensions[0], //
               1);
 
-          @Nonnull
-          final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length, inputBands,
+          @Nonnull final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length, inputBands,
               inputDimensions[1], inputDimensions[0], //
               cudaInput.descriptor.nStride, //
               cudaInput.descriptor.cStride, //
@@ -213,12 +216,10 @@ public @com.simiacryptus.ref.lang.RefAware class ImgConcatLayer extends LayerBas
                 synchronized (gpu) {
                   result = gpu.getTensor(delta, precision, MemoryType.Device, true);
                 }
-                @Nullable
-                final CudaTensor cudaDelta = result;
+                @Nullable final CudaTensor cudaDelta = result;
                 CudaMemory cudaDeltaMemory = cudaDelta.getMemory(gpu);
                 if (inputDimentions[2] == inputBands) {
-                  @Nonnull
-                  final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
+                  @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
                       inputDimentions[2], inputDimentions[1], inputDimentions[0], //
                       cudaDelta.descriptor.nStride, //
                       cudaDelta.descriptor.cStride, //
@@ -229,29 +230,25 @@ public @com.simiacryptus.ref.lang.RefAware class ImgConcatLayer extends LayerBas
                   CudaTensor cudaTensor = new CudaTensor(ptr, viewDescriptor, precision);
                   return new CudaTensorList(cudaTensor, length, inputDimentions, precision);
                 } else {
-                  @Nonnull
-                  final CudaDevice.CudaTensorDescriptor passbackTransferDescriptor = gpu.newTensorDescriptor(precision,
+                  @Nonnull final CudaDevice.CudaTensorDescriptor passbackTransferDescriptor = gpu.newTensorDescriptor(precision,
                       length, inputBands, inputDimentions[1], inputDimentions[0], //
                       inputDimentions[2] * inputDimentions[1] * inputDimentions[0], //
                       inputDimentions[1] * inputDimentions[0], //
                       inputDimentions[0], //
                       1);
-                  @Nonnull
-                  final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, length,
+                  @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, length,
                       inputDimentions[2], inputDimentions[1], inputDimentions[0], //
                       inputDimentions[2] * inputDimentions[1] * inputDimentions[0], //
                       inputDimentions[1] * inputDimentions[0], //
                       inputDimentions[0], //
                       1);
-                  @Nonnull
-                  final CudaDevice.CudaTensorDescriptor deltaViewDescriptor = gpu.newTensorDescriptor(precision, length,
+                  @Nonnull final CudaDevice.CudaTensorDescriptor deltaViewDescriptor = gpu.newTensorDescriptor(precision, length,
                       inputBands, inputDimentions[1], inputDimentions[0], //
                       cudaDelta.descriptor.nStride, //
                       cudaDelta.descriptor.cStride, //
                       cudaDelta.descriptor.hStride, //
                       cudaDelta.descriptor.wStride);
-                  @Nonnull
-                  final CudaMemory cudaBackprop = gpu.allocate(
+                  @Nonnull final CudaMemory cudaBackprop = gpu.allocate(
                       (long) passbackDescriptor.nStride * length * precision.size, MemoryType.Managed.ifEnabled(),
                       inputBands == inputDimentions[2]);
                   int byteOffset = cudaDelta.descriptor.cStride * bandOffset * precision.size;
@@ -277,7 +274,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgConcatLayer extends LayerBas
 
       public void _free() {
         for (@Nonnull
-        Result result : inObj) {
+            Result result : inObj) {
           result.getData();
         }
       }
@@ -287,9 +284,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImgConcatLayer extends LayerBas
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("maxBands", maxBands);
     json.addProperty("precision", precision.name());
     json.addProperty("parallel", isParallel());
@@ -302,25 +298,14 @@ public @com.simiacryptus.ref.lang.RefAware class ImgConcatLayer extends LayerBas
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgConcatLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  ImgConcatLayer addRef() {
     return (ImgConcatLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ImgConcatLayer[] addRefs(ImgConcatLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgConcatLayer::addRef)
-        .toArray((x) -> new ImgConcatLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ImgConcatLayer[][] addRefs(ImgConcatLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgConcatLayer::addRefs)
-        .toArray((x) -> new ImgConcatLayer[x][]);
   }
 
 }

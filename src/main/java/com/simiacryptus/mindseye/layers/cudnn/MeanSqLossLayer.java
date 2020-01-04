@@ -29,12 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 import java.util.UUID;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class MeanSqLossLayer extends PipelineNetwork {
+public @com.simiacryptus.ref.lang.RefAware
+class MeanSqLossLayer extends PipelineNetwork {
 
   @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(MeanSqLossLayer.class);
@@ -50,7 +49,7 @@ public @com.simiacryptus.ref.lang.RefAware class MeanSqLossLayer extends Pipelin
   }
 
   protected MeanSqLossLayer(@Nonnull final JsonObject id,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                            com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(id, rs);
     alpha = id.get("alpha").getAsDouble();
     binaryNode = (InnerNode) getNodeById(UUID.fromString(id.get("binaryNode").getAsString()));
@@ -70,13 +69,29 @@ public @com.simiacryptus.ref.lang.RefAware class MeanSqLossLayer extends Pipelin
 
   @SuppressWarnings("unused")
   public static MeanSqLossLayer fromJson(@NotNull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new MeanSqLossLayer(json, rs);
+  }
+
+  public static @SuppressWarnings("unused")
+  MeanSqLossLayer[] addRefs(MeanSqLossLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayer::addRef)
+        .toArray((x) -> new MeanSqLossLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  MeanSqLossLayer[][] addRefs(MeanSqLossLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayer::addRefs)
+        .toArray((x) -> new MeanSqLossLayer[x][]);
   }
 
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
+                            DataSerializer dataSerializer) {
     JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("alpha", alpha);
     json.addProperty("binaryNode", binaryNode.id.toString());
@@ -87,21 +102,9 @@ public @com.simiacryptus.ref.lang.RefAware class MeanSqLossLayer extends Pipelin
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") MeanSqLossLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  MeanSqLossLayer addRef() {
     return (MeanSqLossLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") MeanSqLossLayer[] addRefs(MeanSqLossLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayer::addRef)
-        .toArray((x) -> new MeanSqLossLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") MeanSqLossLayer[][] addRefs(MeanSqLossLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayer::addRefs)
-        .toArray((x) -> new MeanSqLossLayer[x][]);
   }
 }

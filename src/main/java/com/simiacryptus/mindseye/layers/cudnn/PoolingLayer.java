@@ -30,16 +30,11 @@ import jcuda.jcudnn.cudnnPoolingMode;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class PoolingLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class PoolingLayer extends LayerBase
     implements MultiPrecision<PoolingLayer> {
 
   private PoolingMode mode = PoolingMode.Max;
@@ -183,7 +178,7 @@ public @com.simiacryptus.ref.lang.RefAware class PoolingLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static PoolingLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new PoolingLayer(json);
   }
 
@@ -191,6 +186,22 @@ public @com.simiacryptus.ref.lang.RefAware class PoolingLayer extends LayerBase
     String name = String.format("%s.pool:%s;%s", qualifier, radius, mode);
     return new PoolingLayer(UUID.nameUUIDFromBytes(name.getBytes()), name).setMode(mode).setStrideXY(radius, radius)
         .setWindowXY(radius, radius);
+  }
+
+  public static @SuppressWarnings("unused")
+  PoolingLayer[] addRefs(PoolingLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PoolingLayer::addRef)
+        .toArray((x) -> new PoolingLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  PoolingLayer[][] addRefs(PoolingLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PoolingLayer::addRefs)
+        .toArray((x) -> new PoolingLayer[x][]);
   }
 
   private static int correct(int dim, int modulus, int offset) {
@@ -209,8 +220,7 @@ public @com.simiacryptus.ref.lang.RefAware class PoolingLayer extends LayerBase
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled())
       return getCompatibilityLayer().eval(inObj);
-    @Nonnull
-    final int[] rawInputDims = inObj[0].getData().getDimensions();
+    @Nonnull final int[] rawInputDims = inObj[0].getData().getDimensions();
 
     int correctionX = correct(rawInputDims[0], strideX, windowX);
     int correctionY = correct(rawInputDims[1], strideY, windowY);
@@ -232,36 +242,27 @@ public @com.simiacryptus.ref.lang.RefAware class PoolingLayer extends LayerBase
       input = inObj[0];
     }
     final TensorList inputData = input.getData();
-    @Nonnull
-    final int[] inputDims = inputData.getDimensions();
+    @Nonnull final int[] inputDims = inputData.getDimensions();
     final int inputLength = inputData.length();
 
     final int poolDims = 2;
-    @Nonnull
-    final int windowSize[] = { windowY, windowX };
-    @Nonnull
-    final int padding[] = { paddingY, paddingX };
-    @Nonnull
-    final int stride[] = { strideY, strideX };
-    @Nonnull
-    final int[] outputSize = new int[4];
+    @Nonnull final int windowSize[] = {windowY, windowX};
+    @Nonnull final int padding[] = {paddingY, paddingX};
+    @Nonnull final int stride[] = {strideY, strideX};
+    @Nonnull final int[] outputSize = new int[4];
     final CudaTensor outputData = CudaSystem.run(gpu -> {
       try {
         gpu.initThread();
-        @Nonnull
-        final CudaResource<cudnnPoolingDescriptor> poolingDesc = gpu.createPoolingDescriptor(mode.id, poolDims,
+        @Nonnull final CudaResource<cudnnPoolingDescriptor> poolingDesc = gpu.createPoolingDescriptor(mode.id, poolDims,
             windowSize, padding, stride);
-        @Nullable
-        final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
+        @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
         CudaSystem.handle(CudaSystem.cudnnGetPoolingNdForwardOutputDim(poolingDesc.getPtr(),
             inputTensor.descriptor.getPtr(), 4, outputSize));
         assert inputDims[2] == outputSize[1];
-        @Nonnull
-        final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, outputSize[0],
+        @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, outputSize[0],
             outputSize[1], outputSize[2], outputSize[3], outputSize[1] * outputSize[2] * outputSize[3],
             outputSize[2] * outputSize[3], outputSize[3], 1);
-        @Nonnull
-        final CudaMemory outputTensor = gpu.allocate((long) precision.size * Tensor.length(outputSize),
+        @Nonnull final CudaMemory outputTensor = gpu.allocate((long) precision.size * Tensor.length(outputSize),
             MemoryType.Managed.ifEnabled(), true);
         CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
         CudaSystem.handle(
@@ -278,30 +279,25 @@ public @com.simiacryptus.ref.lang.RefAware class PoolingLayer extends LayerBase
       }
     }, inputData);
     return new Result(new CudaTensorList(outputData, inputLength,
-        new int[] { outputSize[3], outputSize[2], outputSize[1] }, precision),
+        new int[]{outputSize[3], outputSize[2], outputSize[1]}, precision),
         (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList error) -> {
           assert error.length() == inputLength;
           if (input.isAlive()) {
             TensorList data = CudaSystem.run(gpu -> {
-              @Nonnull
-              final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, inputLength,
+              @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, inputLength,
                   inputDims[2], inputDims[1], inputDims[0], inputDims[2] * inputDims[1] * inputDims[0],
                   inputDims[1] * inputDims[0], inputDims[0], 1);
-              @Nonnull
-              final CudaResource<cudnnPoolingDescriptor> poolingDesc = gpu.createPoolingDescriptor(mode.id, poolDims,
+              @Nonnull final CudaResource<cudnnPoolingDescriptor> poolingDesc = gpu.createPoolingDescriptor(mode.id, poolDims,
                   windowSize, padding, stride);
-              @Nullable
-              final CudaTensor inputTensor;
+              @Nullable final CudaTensor inputTensor;
               synchronized (gpu) {
                 inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
               }
-              @Nullable
-              final CudaTensor errorPtr;
+              @Nullable final CudaTensor errorPtr;
               synchronized (gpu) {
                 errorPtr = gpu.getTensor(error, precision, MemoryType.Device, true);
               }
-              @Nonnull
-              final CudaMemory passbackBuffer = gpu.allocate(
+              @Nonnull final CudaMemory passbackBuffer = gpu.allocate(
                   (long) Tensor.length(inputDims) * precision.size * inputLength, MemoryType.Managed.ifEnabled(), true);
               CudaMemory outputDataMemory = outputData.getMemory(gpu);
               CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
@@ -334,9 +330,8 @@ public @com.simiacryptus.ref.lang.RefAware class PoolingLayer extends LayerBase
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("mode", mode.id);
     json.addProperty("windowX", windowX);
     json.addProperty("windowY", windowY);
@@ -376,6 +371,16 @@ public @com.simiacryptus.ref.lang.RefAware class PoolingLayer extends LayerBase
     return this;
   }
 
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  PoolingLayer addRef() {
+    return (PoolingLayer) super.addRef();
+  }
+
   public enum PoolingMode {
     Avg(cudnnPoolingMode.CUDNN_POOLING_AVERAGE_COUNT_EXCLUDE_PADDING), Max(cudnnPoolingMode.CUDNN_POOLING_MAX);
 
@@ -384,26 +389,5 @@ public @com.simiacryptus.ref.lang.RefAware class PoolingLayer extends LayerBase
     PoolingMode(final int id) {
       this.id = id;
     }
-  }
-
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") PoolingLayer addRef() {
-    return (PoolingLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") PoolingLayer[] addRefs(PoolingLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PoolingLayer::addRef)
-        .toArray((x) -> new PoolingLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") PoolingLayer[][] addRefs(PoolingLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PoolingLayer::addRefs)
-        .toArray((x) -> new PoolingLayer[x][]);
   }
 }

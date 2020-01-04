@@ -30,20 +30,18 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.StochasticComponent;
 import com.simiacryptus.mindseye.layers.ValueLayer;
 import com.simiacryptus.mindseye.layers.WrapperLayer;
-import com.simiacryptus.mindseye.network.*;
+import com.simiacryptus.mindseye.network.CountingResult;
+import com.simiacryptus.mindseye.network.DAGNetwork;
+import com.simiacryptus.mindseye.network.DAGNode;
+import com.simiacryptus.mindseye.network.PipelineNetwork;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.Random;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class StochasticSamplingSubnetLayer extends WrapperLayer
+public @com.simiacryptus.ref.lang.RefAware
+class StochasticSamplingSubnetLayer extends WrapperLayer
     implements StochasticComponent, MultiPrecision<StochasticSamplingSubnetLayer> {
 
   private final int samples;
@@ -57,7 +55,7 @@ public @com.simiacryptus.ref.lang.RefAware class StochasticSamplingSubnetLayer e
   }
 
   protected StochasticSamplingSubnetLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                          com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json, rs);
     samples = json.getAsJsonPrimitive("samples").getAsInt();
     seed = json.getAsJsonPrimitive("seed").getAsInt();
@@ -85,16 +83,34 @@ public @com.simiacryptus.ref.lang.RefAware class StochasticSamplingSubnetLayer e
 
   @SuppressWarnings("unused")
   public static StochasticSamplingSubnetLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                                       com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new StochasticSamplingSubnetLayer(json, rs);
   }
 
   public static Result average(final Result[] samples, final Precision precision) {
     PipelineNetwork gateNetwork = new PipelineNetwork(1);
     gateNetwork.add(new ProductLayer().setPrecision(precision), gateNetwork.getInput(0),
-        gateNetwork.add(new ValueLayer(new Tensor(1, 1, 1).map(v -> 1.0 / samples.length)), new DAGNode[] {}));
+        gateNetwork.add(new ValueLayer(new Tensor(1, 1, 1).map(v -> 1.0 / samples.length)), new DAGNode[]{}));
     SumInputsLayer sumInputsLayer = new SumInputsLayer().setPrecision(precision);
     return gateNetwork.eval(sumInputsLayer.eval(samples));
+  }
+
+  public static @SuppressWarnings("unused")
+  StochasticSamplingSubnetLayer[] addRefs(
+      StochasticSamplingSubnetLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StochasticSamplingSubnetLayer::addRef)
+        .toArray((x) -> new StochasticSamplingSubnetLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  StochasticSamplingSubnetLayer[][] addRefs(
+      StochasticSamplingSubnetLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StochasticSamplingSubnetLayer::addRefs)
+        .toArray((x) -> new StochasticSamplingSubnetLayer[x][]);
   }
 
   @Nullable
@@ -133,9 +149,8 @@ public @com.simiacryptus.ref.lang.RefAware class StochasticSamplingSubnetLayer e
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJson(resources, dataSerializer);
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("samples", samples);
     json.addProperty("seed", seed);
     json.addProperty("layerSeed", layerSeed);
@@ -153,26 +168,13 @@ public @com.simiacryptus.ref.lang.RefAware class StochasticSamplingSubnetLayer e
     seed = 0;
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") StochasticSamplingSubnetLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  StochasticSamplingSubnetLayer addRef() {
     return (StochasticSamplingSubnetLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") StochasticSamplingSubnetLayer[] addRefs(
-      StochasticSamplingSubnetLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StochasticSamplingSubnetLayer::addRef)
-        .toArray((x) -> new StochasticSamplingSubnetLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") StochasticSamplingSubnetLayer[][] addRefs(
-      StochasticSamplingSubnetLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StochasticSamplingSubnetLayer::addRefs)
-        .toArray((x) -> new StochasticSamplingSubnetLayer[x][]);
   }
 }

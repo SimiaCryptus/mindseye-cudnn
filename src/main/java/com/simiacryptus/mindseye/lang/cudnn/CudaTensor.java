@@ -30,17 +30,18 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.function.Function;
 
-public @com.simiacryptus.ref.lang.RefAware class CudaTensor extends ReferenceCountingBase
+public @com.simiacryptus.ref.lang.RefAware
+class CudaTensor extends ReferenceCountingBase
     implements CudaSystem.CudaDeviceResource {
   static final Logger log = LoggerFactory.getLogger(CudaTensor.class);
 
   public final CudaDevice.CudaTensorDescriptor descriptor;
   public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getStackTrace()
-      : new StackTraceElement[] {};
+      : new StackTraceElement[]{};
   final CudaMemory memory;
 
   public CudaTensor(final CudaMemory memory, final CudaDevice.CudaTensorDescriptor descriptor,
-      final Precision precision) {
+                    final Precision precision) {
     this.memory = memory;
     this.descriptor = descriptor;
     assert memory.size >= (long) precision.size * descriptor.nStride * (descriptor.batchCount - 1) : String
@@ -68,6 +69,22 @@ public @com.simiacryptus.ref.lang.RefAware class CudaTensor extends ReferenceCou
     if (descriptor.hStride != descriptor.width)
       return false;
     return descriptor.wStride == 1;
+  }
+
+  public static @SuppressWarnings("unused")
+  CudaTensor[] addRefs(CudaTensor[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaTensor::addRef)
+        .toArray((x) -> new CudaTensor[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  CudaTensor[][] addRefs(CudaTensor[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaTensor::addRefs)
+        .toArray((x) -> new CudaTensor[x][]);
   }
 
   public CudaMemory getMemory(final CudaDevice cudaDevice) {
@@ -217,21 +234,9 @@ public @com.simiacryptus.ref.lang.RefAware class CudaTensor extends ReferenceCou
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") CudaTensor addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  CudaTensor addRef() {
     return (CudaTensor) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") CudaTensor[] addRefs(CudaTensor[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaTensor::addRef)
-        .toArray((x) -> new CudaTensor[x]);
-  }
-
-  public static @SuppressWarnings("unused") CudaTensor[][] addRefs(CudaTensor[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaTensor::addRefs)
-        .toArray((x) -> new CudaTensor[x][]);
   }
 }

@@ -24,7 +24,8 @@ import com.simiacryptus.mindseye.network.DAGNetwork;
 
 import javax.annotation.Nonnull;
 
-public @com.simiacryptus.ref.lang.RefAware interface MultiPrecision<T> {
+public @com.simiacryptus.ref.lang.RefAware
+interface MultiPrecision<T> {
   Precision getPrecision();
 
   static <T extends LayerBase> T setPrecision(final T network, final Precision precision) {

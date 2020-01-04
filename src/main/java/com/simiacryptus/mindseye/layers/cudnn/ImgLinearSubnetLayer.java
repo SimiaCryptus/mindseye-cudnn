@@ -29,19 +29,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefArrayList;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class ImgLinearSubnetLayer extends LayerBase
     implements MultiPrecision<ImgLinearSubnetLayer> {
 
   private static final Logger logger = LoggerFactory.getLogger(ImgLinearSubnetLayer.class);
@@ -54,7 +47,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayer extends La
   }
 
   protected ImgLinearSubnetLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                 com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     setParallel(json.get("parallel").getAsBoolean());
@@ -90,8 +83,24 @@ public @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayer extends La
 
   @SuppressWarnings("unused")
   public static ImgLinearSubnetLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                              com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgLinearSubnetLayer(json, rs);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgLinearSubnetLayer[] addRefs(ImgLinearSubnetLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRef)
+        .toArray((x) -> new ImgLinearSubnetLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgLinearSubnetLayer[][] addRefs(ImgLinearSubnetLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRefs)
+        .toArray((x) -> new ImgLinearSubnetLayer[x][]);
   }
 
   public ImgLinearSubnetLayer add(final int from, final int to, final Layer layer) {
@@ -105,8 +114,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayer extends La
     assert 1 == inObj.length;
     Result input = inObj[0];
     TensorList inputData = input.getData();
-    @Nonnull
-    final int[] inputDims = inputData.getDimensions();
+    @Nonnull final int[] inputDims = inputData.getDimensions();
     assert 3 == inputDims.length;
     int length = inputData.length();
     int maxBand = legs.stream().mapToInt(x -> x.toBand).max().getAsInt();
@@ -131,8 +139,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayer extends La
         int[] outputDimensions = delta.getDimensions();
         synchronized (passback) {
           CudaSystem.run(gpu -> {
-            @Nonnull
-            final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
+            @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
                 outputDimensions[2], outputDimensions[1], outputDimensions[0], //
                 inputDims[2] * inputDims[1] * inputDims[0], //
                 inputDims[1] * inputDims[0], //
@@ -142,10 +149,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayer extends La
             assert delta.length() == length;
             assert passback.getDeviceId() == gpu.getDeviceId();
             //assert error.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(Double::isFinite);
-            @Nullable
-            final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
-            @Nonnull
-            final CudaMemory passbackBuffer = passback.getMemory(gpu);
+            @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
+            @Nonnull final CudaMemory passbackBuffer = passback.getMemory(gpu);
             CudaMemory errorPtrMemory = deltaTensor.getMemory(gpu);
             passbackBuffer.synchronize();
             gpu.cudnnTransformTensor(precision.getPointer(1.0), deltaTensor.descriptor.getPtr(),
@@ -172,9 +177,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayer extends La
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
     json.addProperty("parallel", isParallel());
     JsonArray jsonArray = new JsonArray();
@@ -200,7 +204,14 @@ public @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayer extends La
     super._free();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class SubnetLeg extends ReferenceCountingBase {
+  public @Override
+  @SuppressWarnings("unused")
+  ImgLinearSubnetLayer addRef() {
+    return (ImgLinearSubnetLayer) super.addRef();
+  }
+
+  public static @com.simiacryptus.ref.lang.RefAware
+  class SubnetLeg extends ReferenceCountingBase {
 
     private final Layer inner;
     private final int fromBand;
@@ -218,11 +229,18 @@ public @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayer extends La
       inner = Layer.fromJson(json.getAsJsonObject("network"), rs);
     }
 
+    public static @SuppressWarnings("unused")
+    SubnetLeg[] addRefs(SubnetLeg[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(SubnetLeg::addRef)
+          .toArray((x) -> new SubnetLeg[x]);
+    }
+
     @Nonnull
     public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-        DataSerializer dataSerializer) {
-      @Nonnull
-      final JsonObject json = new JsonObject();
+                              DataSerializer dataSerializer) {
+      @Nonnull final JsonObject json = new JsonObject();
       json.addProperty("fromBand", fromBand);
       json.addProperty("toBand", toBand);
       json.add("network", inner.getJson(resources, dataSerializer));
@@ -233,34 +251,11 @@ public @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayer extends La
       super._free();
     }
 
-    public @Override @SuppressWarnings("unused") SubnetLeg addRef() {
+    public @Override
+    @SuppressWarnings("unused")
+    SubnetLeg addRef() {
       return (SubnetLeg) super.addRef();
     }
 
-    public static @SuppressWarnings("unused") SubnetLeg[] addRefs(SubnetLeg[] array) {
-      if (array == null)
-        return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(SubnetLeg::addRef)
-          .toArray((x) -> new SubnetLeg[x]);
-    }
-
-  }
-
-  public @Override @SuppressWarnings("unused") ImgLinearSubnetLayer addRef() {
-    return (ImgLinearSubnetLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ImgLinearSubnetLayer[] addRefs(ImgLinearSubnetLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRef)
-        .toArray((x) -> new ImgLinearSubnetLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ImgLinearSubnetLayer[][] addRefs(ImgLinearSubnetLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRefs)
-        .toArray((x) -> new ImgLinearSubnetLayer[x][]);
   }
 }

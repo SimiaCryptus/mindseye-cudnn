@@ -27,16 +27,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ImgCropLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class ImgCropLayer extends LayerBase
     implements MultiPrecision<ImgCropLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgCropLayer.class);
   private Alignment verticalAlign = Alignment.Center;
@@ -58,7 +53,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgCropLayer extends LayerBase
   }
 
   protected ImgCropLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -125,13 +120,29 @@ public @com.simiacryptus.ref.lang.RefAware class ImgCropLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ImgCropLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgCropLayer(json, rs);
   }
 
+  public static @SuppressWarnings("unused")
+  ImgCropLayer[] addRefs(ImgCropLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayer::addRef)
+        .toArray((x) -> new ImgCropLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgCropLayer[][] addRefs(ImgCropLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayer::addRefs)
+        .toArray((x) -> new ImgCropLayer[x][]);
+  }
+
   public CudaTensor copy(final CudnnHandle gpu, final CudaTensor input, final int length, final int[] inputDimensions,
-      final int[] outputDimensions, final boolean dirty, Precision precision, Alignment horizontalAlign,
-      Alignment verticalAlign) {
+                         final int[] outputDimensions, final boolean dirty, Precision precision, Alignment horizontalAlign,
+                         Alignment verticalAlign) {
     if (3 != inputDimensions.length)
       throw new IllegalArgumentException("inputDimensions.length");
     if (3 != outputDimensions.length)
@@ -143,7 +154,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgCropLayer extends LayerBase
   }
 
   public CudaTensor copy(CudnnHandle gpu, CudaTensor input, int length, int[] inputDimensions, int[] outputDimensions,
-      boolean dirty, Precision precision, int offset_left, int offset_top) {
+                         boolean dirty, Precision precision, int offset_left, int offset_top) {
 
     int sourceOffset = 0;
     int destinationOffset = 0;
@@ -175,8 +186,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgCropLayer extends LayerBase
     assert sourceOffset >= 0;
     assert destinationOffset >= 0;
 
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(precision, //
+    @Nonnull final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         view_channels, //
         view_height, //
@@ -194,8 +204,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgCropLayer extends LayerBase
             precision);
       }
 
-      @Nonnull
-      final CudaDevice.CudaTensorDescriptor outputViewDescriptor = gpu.newTensorDescriptor(precision, //
+      @Nonnull final CudaDevice.CudaTensorDescriptor outputViewDescriptor = gpu.newTensorDescriptor(precision, //
           length, //
           view_channels, //
           view_height, //
@@ -204,8 +213,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgCropLayer extends LayerBase
           output_height * output_width, //
           output_width, //
           1);
-      @Nonnull
-      final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(precision, //
+      @Nonnull final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(precision, //
           length, //
           output_channels, //
           output_height, //
@@ -215,8 +223,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgCropLayer extends LayerBase
           output_width, //
           1);
 
-      @Nonnull
-      final CudaMemory outputBuffer;
+      @Nonnull final CudaMemory outputBuffer;
       if (baseValue == 0.0) {
         outputBuffer = gpu.allocate((long) length * output_channels * output_height * output_width * precision.size,
             MemoryType.Device, dirty);
@@ -276,13 +283,11 @@ public @com.simiacryptus.ref.lang.RefAware class ImgCropLayer extends LayerBase
     if (dimIn[0] == sizeX && dimIn[1] == sizeY) {
       return input;
     }
-    @Nonnull
-    final int[] dimOut = com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimIn, 3);
+    @Nonnull final int[] dimOut = com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimIn, 3);
     dimOut[0] = sizeX;
     dimOut[1] = sizeY;
     final TensorList outputData = CudaSystem.run(gpu -> {
-      @Nullable
-      final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
+      @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
       boolean dirty = dimOut[0] <= dimIn[0] && dimOut[1] <= dimIn[1];
       assert dimOut[0] > 0;
       assert dimOut[1] > 0;
@@ -305,8 +310,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgCropLayer extends LayerBase
 
       if (input.isAlive()) {
         final TensorList passbackTensorList = CudaSystem.run(gpu -> {
-          @Nullable
-          final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
+          @Nullable final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
           boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
           CudaTensor cudaTensor = copy(gpu, errorPtr, length, dimOut, dimIn, dirty, precision, getHorizontalAlign(),
               getVerticalAlign());
@@ -335,9 +339,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImgCropLayer extends LayerBase
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("baseValue", getBaseValue());
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
@@ -354,6 +357,16 @@ public @com.simiacryptus.ref.lang.RefAware class ImgCropLayer extends LayerBase
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  ImgCropLayer addRef() {
+    return (ImgCropLayer) super.addRef();
+  }
+
   public enum Alignment {
     Center("Center"), Left("Right"), Right("Left");
 
@@ -366,26 +379,5 @@ public @com.simiacryptus.ref.lang.RefAware class ImgCropLayer extends LayerBase
     public Alignment getInverse() {
       return Alignment.valueOf(inverse);
     }
-  }
-
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") ImgCropLayer addRef() {
-    return (ImgCropLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ImgCropLayer[] addRefs(ImgCropLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayer::addRef)
-        .toArray((x) -> new ImgCropLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ImgCropLayer[][] addRefs(ImgCropLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayer::addRefs)
-        .toArray((x) -> new ImgCropLayer[x][]);
   }
 }

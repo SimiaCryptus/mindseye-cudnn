@@ -21,10 +21,8 @@ package com.simiacryptus.mindseye.layers.cudnn.conv;
 
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 
-import java.util.Arrays;
-import com.simiacryptus.ref.wrappers.RefArrays;
-
-public @com.simiacryptus.ref.lang.RefAware class ConvolutionParams {
+public @com.simiacryptus.ref.lang.RefAware
+class ConvolutionParams {
   public final int inputBands;
   public final int outputBands;
   public final Precision precision;
@@ -35,7 +33,7 @@ public @com.simiacryptus.ref.lang.RefAware class ConvolutionParams {
   public final int[] masterFilterDimensions;
 
   public ConvolutionParams(int inputBands, int outputBands, Precision precision, int strideX, int strideY,
-      Integer paddingX, Integer paddingY, int[] masterFilterDimensions) {
+                           Integer paddingX, Integer paddingY, int[] masterFilterDimensions) {
     this.inputBands = inputBands;
     this.outputBands = outputBands;
     this.precision = precision;

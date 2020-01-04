@@ -28,18 +28,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class GramianLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class GramianLayer extends LayerBase
     implements MultiPrecision<GramianLayer> {
   private static final Logger log = LoggerFactory.getLogger(GramianLayer.class);
 
@@ -54,7 +47,7 @@ public @com.simiacryptus.ref.lang.RefAware class GramianLayer extends LayerBase
   }
 
   protected GramianLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     this.alpha = json.getAsJsonPrimitive("alpha").getAsDouble();
@@ -83,8 +76,24 @@ public @com.simiacryptus.ref.lang.RefAware class GramianLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static GramianLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new GramianLayer(json, rs);
+  }
+
+  public static @SuppressWarnings("unused")
+  GramianLayer[] addRefs(GramianLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GramianLayer::addRef)
+        .toArray((x) -> new GramianLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  GramianLayer[][] addRefs(GramianLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GramianLayer::addRefs)
+        .toArray((x) -> new GramianLayer[x][]);
   }
 
   @Nullable
@@ -102,16 +111,14 @@ public @com.simiacryptus.ref.lang.RefAware class GramianLayer extends LayerBase
       return getOutput(gpu, tensor);
     }, inputData);
     return new Result(tensorList, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      @Nonnull
-      final int[] outputDimensions = { 1, 1, inputDimensions[2] * inputDimensions[2] };
+      @Nonnull final int[] outputDimensions = {1, 1, inputDimensions[2] * inputDimensions[2]};
       if (!com.simiacryptus.ref.wrappers.RefArrays.equals(delta.getDimensions(), outputDimensions)) {
         throw new AssertionError(com.simiacryptus.ref.wrappers.RefArrays.toString(delta.getDimensions()) + " != "
             + com.simiacryptus.ref.wrappers.RefArrays.toString(outputDimensions));
       }
       if (inObj[0].isAlive()) {
         final TensorList passbackTensorList = CudaSystem.run(gpu -> {
-          @Nullable
-          final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
+          @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
           CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
           return getFeedback(gpu, inputTensor, deltaTensor);
         }, delta);
@@ -140,55 +147,44 @@ public @com.simiacryptus.ref.lang.RefAware class GramianLayer extends LayerBase
     int pixels = inputTensor.descriptor.height * inputTensor.descriptor.width;
     CudaMemory inputMemory = inputTensor.getMemory(gpu);
     CudaMemory deltaMemory = deltaTensor.getMemory(gpu);
-    @Nonnull
-    final int[] inputDimensions = { inputTensor.descriptor.width, inputTensor.descriptor.height,
-        inputTensor.descriptor.channels };
+    @Nonnull final int[] inputDimensions = {inputTensor.descriptor.width, inputTensor.descriptor.height,
+        inputTensor.descriptor.channels};
     final int length = inputTensor.descriptor.batchCount;
     final int bands = inputDimensions[2];
 
-    @Nullable
-    final CudaMemory bufferMemory = gpu.allocate((long) inputTensor.descriptor.nStride * length * precision.size,
+    @Nullable final CudaMemory bufferMemory = gpu.allocate((long) inputTensor.descriptor.nStride * length * precision.size,
         MemoryType.Device, true);
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor bufferDescriptor = gpu.newTensorDescriptor(precision, length, bands,
+    @Nonnull final CudaDevice.CudaTensorDescriptor bufferDescriptor = gpu.newTensorDescriptor(precision, length, bands,
         inputDimensions[1], inputDimensions[0], inputDimensions[0] * inputDimensions[1] * bands, //
         inputDimensions[0] * inputDimensions[1], //
         inputDimensions[0], //
         1);
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, bands,
+    @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, bands,
         inputDimensions[1], inputDimensions[0], inputDimensions[0] * inputDimensions[1] * bands, //
         inputDimensions[0] * inputDimensions[1], //
         inputDimensions[0], //
         1);
-    @Nullable
-    final CudaMemory outputMemory = gpu.allocate((long) outputDescriptor.nStride * precision.size * length,
+    @Nullable final CudaMemory outputMemory = gpu.allocate((long) outputDescriptor.nStride * precision.size * length,
         MemoryType.Managed.ifEnabled(), true);
-    @Nonnull
-    final CudaMemory workspacePtr = gpu.allocate(Math.max(outputMemory.size, inputMemory.size), MemoryType.Device,
+    @Nonnull final CudaMemory workspacePtr = gpu.allocate(Math.max(outputMemory.size, inputMemory.size), MemoryType.Device,
         true);
-    @Nonnull
-    final CudaMemory indexPtr = gpu.allocate(12 * length, MemoryType.Device, false);
+    @Nonnull final CudaMemory indexPtr = gpu.allocate(12 * length, MemoryType.Device, false);
 
-    @Nonnull
-    final CudaResource<cudnnOpTensorDescriptor> multiplyDescriptor = gpu
+    @Nonnull final CudaResource<cudnnOpTensorDescriptor> multiplyDescriptor = gpu
         .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
     CudaResource<cudnnReduceTensorDescriptor> reduceAddDescriptor = gpu.cudnnCreateReduceTensorDescriptor(
         cudnnReduceTensorOp.CUDNN_REDUCE_TENSOR_ADD, precision.code, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN,
         cudnnReduceTensorIndices.CUDNN_REDUCE_TENSOR_NO_INDICES, cudnnIndicesType.CUDNN_32BIT_INDICES);
 
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor bandDescriptor = gpu.newTensorDescriptor(precision, length, 1,
+    @Nonnull final CudaDevice.CudaTensorDescriptor bandDescriptor = gpu.newTensorDescriptor(precision, length, 1,
         inputDimensions[1], inputDimensions[0], inputDimensions[2] * inputDimensions[1] * inputDimensions[0],
         inputDimensions[1] * inputDimensions[0], inputDimensions[0], 1);
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor viewDescriptor1 = gpu.newTensorDescriptor(precision, length, bands, 1, 1, //
+    @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor1 = gpu.newTensorDescriptor(precision, length, bands, 1, 1, //
         deltaTensor.descriptor.nStride, //
         deltaTensor.descriptor.cStride, //
         deltaTensor.descriptor.hStride, //
         deltaTensor.descriptor.wStride);
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor viewDescriptor2 = gpu.newTensorDescriptor(precision, length, bands, 1, 1, //
+    @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor2 = gpu.newTensorDescriptor(precision, length, bands, 1, 1, //
         deltaTensor.descriptor.nStride, //
         deltaTensor.descriptor.cStride * bands, //
         deltaTensor.descriptor.hStride, //
@@ -225,38 +221,31 @@ public @com.simiacryptus.ref.lang.RefAware class GramianLayer extends LayerBase
   @Nonnull
   public CudaTensorList getOutput(final CudnnHandle gpu, final CudaTensor inputTensor) {
     int pixels = inputTensor.descriptor.height * inputTensor.descriptor.width;
-    @Nonnull
-    final int[] inputDimensions = { inputTensor.descriptor.width, inputTensor.descriptor.height,
-        inputTensor.descriptor.channels };
+    @Nonnull final int[] inputDimensions = {inputTensor.descriptor.width, inputTensor.descriptor.height,
+        inputTensor.descriptor.channels};
     final int length = inputTensor.descriptor.batchCount;
     final int bands = inputDimensions[2];
-    @Nonnull
-    final int[] outputDimensions = { 1, 1, bands * bands };
+    @Nonnull final int[] outputDimensions = {1, 1, bands * bands};
 
     CudaMemory inputMemory = inputTensor.getMemory(gpu);
 
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor ouputDescriptor = gpu.newTensorDescriptor(precision, length, bands * bands, 1,
+    @Nonnull final CudaDevice.CudaTensorDescriptor ouputDescriptor = gpu.newTensorDescriptor(precision, length, bands * bands, 1,
         1, bands * bands, //
         1, //
         1, //
         1);
-    @Nullable
-    final CudaMemory outputMemory = gpu.allocate((long) ouputDescriptor.nStride * precision.size * length,
+    @Nullable final CudaMemory outputMemory = gpu.allocate((long) ouputDescriptor.nStride * precision.size * length,
         MemoryType.Device, true);
 
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor bufferDescriptor = gpu.newTensorDescriptor(precision, length, bands,
+    @Nonnull final CudaDevice.CudaTensorDescriptor bufferDescriptor = gpu.newTensorDescriptor(precision, length, bands,
         inputDimensions[1], inputDimensions[0], inputDimensions[0] * inputDimensions[1] * bands, //
         inputDimensions[0] * inputDimensions[1], //
         inputDimensions[0], //
         1);
-    @Nullable
-    final CudaMemory bufferMemory = gpu.allocate((long) bufferDescriptor.nStride * length * precision.size,
+    @Nullable final CudaMemory bufferMemory = gpu.allocate((long) bufferDescriptor.nStride * length * precision.size,
         MemoryType.Device, true);
 
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor inputViewDescriptor = gpu.newTensorDescriptor(precision, length, 1,
+    @Nonnull final CudaDevice.CudaTensorDescriptor inputViewDescriptor = gpu.newTensorDescriptor(precision, length, 1,
         inputDimensions[1], inputDimensions[0], inputTensor.descriptor.nStride, //
         inputTensor.descriptor.cStride, //
         inputTensor.descriptor.hStride, //
@@ -266,18 +255,14 @@ public @com.simiacryptus.ref.lang.RefAware class GramianLayer extends LayerBase
         cudnnReduceTensorOp.CUDNN_REDUCE_TENSOR_ADD, precision.code, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN,
         cudnnReduceTensorIndices.CUDNN_REDUCE_TENSOR_NO_INDICES, cudnnIndicesType.CUDNN_32BIT_INDICES);
 
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor outputViewDescriptor = gpu.newTensorDescriptor(precision, length, bands, 1, 1,
+    @Nonnull final CudaDevice.CudaTensorDescriptor outputViewDescriptor = gpu.newTensorDescriptor(precision, length, bands, 1, 1,
         bands * bands, 1, 1, 1);
-    @Nonnull
-    final CudaResource<cudnnOpTensorDescriptor> multiplyDescriptor = gpu
+    @Nonnull final CudaResource<cudnnOpTensorDescriptor> multiplyDescriptor = gpu
         .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
 
-    @Nonnull
-    final CudaMemory workspacePtr = gpu.allocate(Math.max(outputMemory.size, inputMemory.size), MemoryType.Device,
+    @Nonnull final CudaMemory workspacePtr = gpu.allocate(Math.max(outputMemory.size, inputMemory.size), MemoryType.Device,
         true);
-    @Nonnull
-    final CudaMemory indexPtr = gpu.allocate((long) 12 * length, MemoryType.Device, true);
+    @Nonnull final CudaMemory indexPtr = gpu.allocate((long) 12 * length, MemoryType.Device, true);
     com.simiacryptus.ref.wrappers.RefIntStream.range(0, inputDimensions[2]).forEach(band -> {
       CudaMemory inputView = inputMemory.withByteOffset(band * precision.size * inputTensor.descriptor.cStride);
       CudaSystem.handle(
@@ -306,9 +291,8 @@ public @com.simiacryptus.ref.lang.RefAware class GramianLayer extends LayerBase
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      @Nonnull DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            @Nonnull DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
     json.addProperty("alpha", alpha);
     return json;
@@ -320,24 +304,13 @@ public @com.simiacryptus.ref.lang.RefAware class GramianLayer extends LayerBase
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") GramianLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  GramianLayer addRef() {
     return (GramianLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") GramianLayer[] addRefs(GramianLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GramianLayer::addRef)
-        .toArray((x) -> new GramianLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") GramianLayer[][] addRefs(GramianLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GramianLayer::addRefs)
-        .toArray((x) -> new GramianLayer[x][]);
   }
 }

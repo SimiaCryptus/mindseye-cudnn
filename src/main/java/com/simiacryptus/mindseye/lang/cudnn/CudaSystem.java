@@ -39,23 +39,19 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.PrintStream;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ConcurrentModificationException;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
-import com.simiacryptus.ref.wrappers.RefConsumer;
-import com.simiacryptus.ref.wrappers.RefCollectors;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
-public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
+public @com.simiacryptus.ref.lang.RefAware
+class CudaSystem {
 
   public static final com.simiacryptus.ref.wrappers.RefHashSet<com.simiacryptus.ref.wrappers.RefConsumer<String>> apiLog = new com.simiacryptus.ref.wrappers.RefHashSet<>();
+  @Nonnull
+  public static final AtomicInteger gpuGeneration = new AtomicInteger(0);
   protected static final Logger logger = LoggerFactory.getLogger(CudaSystem.class);
   protected static final com.simiacryptus.ref.wrappers.RefMap<Integer, cudaDeviceProp> propertyCache = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
   protected static final ThreadLocal<Integer> currentDeviceId = new ThreadLocal<Integer>();
@@ -105,7 +101,6 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
   protected static final DoubleStatistics cudnnDestroyLRNDescriptor_execution = new DoubleStatistics();
   protected static final DoubleStatistics cudnnLRNCrossChannelForward_execution = new DoubleStatistics();
   protected static final DoubleStatistics cudnnLRNCrossChannelBackward_execution = new DoubleStatistics();
-
   protected static final DoubleStatistics cudnnTransformTensor_execution = new DoubleStatistics();
   protected static final DoubleStatistics cudnnSetTensor_execution = new DoubleStatistics();
   protected static final DoubleStatistics deviceCount_execution = new DoubleStatistics();
@@ -130,9 +125,6 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
   protected static final com.simiacryptus.ref.wrappers.RefHashMap<Integer, ResourcePool<CudnnHandle>> handlePools = new com.simiacryptus.ref.wrappers.RefHashMap<>();
   private static final com.simiacryptus.ref.wrappers.RefMap<Integer, Long> syncTimes = new com.simiacryptus.ref.wrappers.RefHashMap<>();
   private static final long COPY_BLOCK_SIZE = Long.MAX_VALUE;
-
-  @Nonnull
-  public static final AtomicInteger gpuGeneration = new AtomicInteger(0);
   private static volatile Integer cachedDeviceCount = init();
   private static volatile StaticResourcePool<CudnnHandle> pool;
   protected final ExecutorService executionThread = CoreSettings.INSTANCE().isSingleThreaded()
@@ -242,9 +234,9 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
 
   public static void printHeader(@Nonnull PrintStream out) {
     @Nonnull
-    int[] runtimeVersion = { 0 };
+    int[] runtimeVersion = {0};
     @Nonnull
-    int[] driverVersion = { 0 };
+    int[] driverVersion = {0};
     JCuda.cudaRuntimeGetVersion(runtimeVersion);
     JCuda.cudaDriverGetVersion(driverVersion);
     @Nonnull
@@ -252,17 +244,15 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     out.printf("Time: %s; Driver %s; Runtime %s; Lib %s%n", new Date(), driverVersion[0], runtimeVersion[0],
         jCudaVersion);
     @Nonnull
-    long[] free = { 0 };
+    long[] free = {0};
     @Nonnull
-    long[] total = { 0 };
+    long[] total = {0};
     JCuda.cudaMemGetInfo(free, total);
     out.printf("Cuda Memory: %.1f free, %.1f total%n", free[0] * 1.0 / (1024 * 1024), total[0] * 1.0 / (1024 * 1024));
-    @Nonnull
-    final int[] deviceCount = new int[1];
+    @Nonnull final int[] deviceCount = new int[1];
     JCuda.cudaGetDeviceCount(deviceCount);
     com.simiacryptus.ref.wrappers.RefIntStream.range(0, deviceCount[0]).forEach(device -> {
-      @Nonnull
-      final cudaDeviceProp deviceProp = new cudaDeviceProp();
+      @Nonnull final cudaDeviceProp deviceProp = new cudaDeviceProp();
       JCuda.cudaGetDeviceProperties(deviceProp, device);
       out.printf("Device %d = %s%n", device, deviceProp, free[0], total[0]);
     });
@@ -282,7 +272,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
   public static int cudaDeviceReset() {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaDeviceReset();
-    log("cudaDeviceReset", result, new Object[] {});
+    log("cudaDeviceReset", result, new Object[]{});
     cudaDeviceReset_execution.accept((System.nanoTime() - startTime) / 1e9);
     handle(result);
     return result;
@@ -291,7 +281,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
   public static int cudaMalloc(final CudaPointer devPtr, final long size) {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaMalloc(devPtr, size);
-    log("cudaMalloc", result, new Object[] { devPtr, size });
+    log("cudaMalloc", result, new Object[]{devPtr, size});
     cudaMalloc_execution.accept((System.nanoTime() - startTime) / 1e9);
     handle(result);
     return result;
@@ -300,7 +290,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
   public static int cudaMallocManaged(final CudaPointer devPtr, final long size, int flags) {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaMallocManaged(devPtr, size, flags);
-    log("cudaMallocManaged", result, new Object[] { devPtr, size, flags });
+    log("cudaMallocManaged", result, new Object[]{devPtr, size, flags});
     cudaMallocManaged_execution.accept((System.nanoTime() - startTime) / 1e9);
     handle(result);
     return result;
@@ -309,7 +299,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
   public static int cudaSetDeviceFlags(int flags) {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaSetDeviceFlags(flags);
-    log("cudaSetDeviceFlags", result, new Object[] { flags });
+    log("cudaSetDeviceFlags", result, new Object[]{flags});
     cudaDeviceSynchronize_execution.accept((System.nanoTime() - startTime) / 1e9);
     handle(result);
     return result;
@@ -319,7 +309,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaHostAlloc(devPtr, size, flags);
     cudaHostAlloc_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudaHostAlloc", result, new Object[] { devPtr, size, flags });
+    log("cudaHostAlloc", result, new Object[]{devPtr, size, flags});
     handle(result);
     return result;
   }
@@ -328,7 +318,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaFreeHost(devPtr);
     cudaFreeHost_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudaFreeHost", result, new Object[] { devPtr });
+    log("cudaFreeHost", result, new Object[]{devPtr});
     handle(result);
   }
 
@@ -338,7 +328,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     long[] pValue = new long[1];
     final int result = JCuda.cudaDeviceGetLimit(pValue, limit);
     cudaDeviceGetLimit_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudaDeviceGetLimit(", result, new Object[] { pValue, limit });
+    log("cudaDeviceGetLimit(", result, new Object[]{pValue, limit});
     return pValue[0];
   }
 
@@ -346,12 +336,12 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaDeviceSetLimit(limit, value);
     cudaDeviceSetLimit_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudaDeviceSetLimit(", result, new Object[] { limit, value });
+    log("cudaDeviceSetLimit(", result, new Object[]{limit, value});
     handle(result);
   }
 
   public static void cudaMemcpy(final CudaPointer dst, final CudaPointer src, final long count,
-      final int cudaMemcpyKind_kind) {
+                                final int cudaMemcpyKind_kind) {
     if (count > COPY_BLOCK_SIZE) {
       cudaMemcpy(dst, src, COPY_BLOCK_SIZE, cudaMemcpyKind_kind);
       cudaMemcpy(dst.withByteOffset(COPY_BLOCK_SIZE), src.withByteOffset(COPY_BLOCK_SIZE), count - COPY_BLOCK_SIZE,
@@ -361,16 +351,16 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaMemcpy(dst, src, count, cudaMemcpyKind_kind);
     cudaMemcpy_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudaMemcpy", result, new Object[] { dst, src, count, cudaMemcpyKind_kind });
+    log("cudaMemcpy", result, new Object[]{dst, src, count, cudaMemcpyKind_kind});
     handle(result);
   }
 
   public static void cudaMemcpyAsync(final CudaPointer dst, final CudaPointer src, final long count,
-      final int cudaMemcpyKind_kind, cudaStream_t stream) {
+                                     final int cudaMemcpyKind_kind, cudaStream_t stream) {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaMemcpyAsync(dst, src, count, cudaMemcpyKind_kind, stream);
     cudaMemcpyAsync_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudaMemcpyAsync", result, new Object[] { dst, src, count, cudaMemcpyKind_kind, stream });
+    log("cudaMemcpyAsync", result, new Object[]{dst, src, count, cudaMemcpyKind_kind, stream});
     handle(result);
   }
 
@@ -380,7 +370,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     cudaStream_t stream = new cudaStream_t();
     int result = JCuda.cudaStreamCreate(stream);
     cudaStreamCreate_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudaStreamCreate", result, new Object[] { stream });
+    log("cudaStreamCreate", result, new Object[]{stream});
     handle(result);
     return new CudaStream(stream);
   }
@@ -389,7 +379,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     long startTime = System.nanoTime();
     int result = JCuda.cudaStreamDestroy(stream);
     cudaStreamDestroy_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudaStreamDestroy", result, new Object[] { stream });
+    log("cudaStreamDestroy", result, new Object[]{stream});
     handle(result);
     return result;
   }
@@ -398,7 +388,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     long startTime = System.nanoTime();
     int result = JCuda.cudaStreamSynchronize(stream);
     cudaStreamSynchronize_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudaStreamSynchronize", result, new Object[] { stream });
+    log("cudaStreamSynchronize", result, new Object[]{stream});
     handle(result);
   }
 
@@ -407,7 +397,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     final int result = JCuda.cudaMemset(mem, c, count);
     //cudaDeviceSynchronize();
     cudaMemset_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudaMemset", result, new Object[] { mem, c, count });
+    log("cudaMemset", result, new Object[]{mem, c, count});
     handle(result);
   }
 
@@ -415,7 +405,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     long startTime = System.nanoTime();
     final int result = JCudnn.cudnnDestroyActivationDescriptor(activationDesc);
     cudnnDestroyActivationDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudnnDestroyActivationDescriptor", result, new Object[] { activationDesc });
+    log("cudnnDestroyActivationDescriptor", result, new Object[]{activationDesc});
     return result;
   }
 
@@ -423,7 +413,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     long startTime = System.nanoTime();
     final int result = JCudnn.cudnnDestroyConvolutionDescriptor(convDesc);
     cudnnDestroyConvolutionDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudnnDestroyConvolutionDescriptor", result, new Object[] { convDesc });
+    log("cudnnDestroyConvolutionDescriptor", result, new Object[]{convDesc});
     return result;
   }
 
@@ -431,7 +421,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     long startTime = System.nanoTime();
     final int result = JCudnn.cudnnDestroyFilterDescriptor(filterDesc);
     cudnnDestroyFilterDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudnnDestroyFilterDescriptor", result, new Object[] { filterDesc });
+    log("cudnnDestroyFilterDescriptor", result, new Object[]{filterDesc});
     return result;
   }
 
@@ -439,7 +429,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     long startTime = System.nanoTime();
     final int result = JCudnn.cudnnDestroyOpTensorDescriptor(opTensorDesc);
     cudnnDestroyOpTensorDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudnnDestroyOpTensorDescriptor", result, new Object[] { opTensorDesc });
+    log("cudnnDestroyOpTensorDescriptor", result, new Object[]{opTensorDesc});
     return result;
   }
 
@@ -447,7 +437,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     long startTime = System.nanoTime();
     final int result = JCudnn.cudnnDestroyPoolingDescriptor(poolingDesc);
     cudnnDestroyPoolingDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudnnDestroyPoolingDescriptor", result, new Object[] { poolingDesc });
+    log("cudnnDestroyPoolingDescriptor", result, new Object[]{poolingDesc});
     return result;
   }
 
@@ -455,26 +445,25 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     long startTime = System.nanoTime();
     final int result = JCudnn.cudnnDestroyTensorDescriptor(tensorDesc);
     cudnnDestroyTensorDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
-    log("cudnnDestroyTensorDescriptor", result, new Object[] { tensorDesc });
+    log("cudnnDestroyTensorDescriptor", result, new Object[]{tensorDesc});
     return result;
   }
 
   public static int cudnnGetPoolingNdForwardOutputDim(final cudnnPoolingDescriptor poolingDesc,
-      final cudnnTensorDescriptor inputTensorDesc, final int nbDims, final int[] outputTensorDimA) {
+                                                      final cudnnTensorDescriptor inputTensorDesc, final int nbDims, final int[] outputTensorDimA) {
     long startTime = System.nanoTime();
     final int result = JCudnn.cudnnGetPoolingNdForwardOutputDim(poolingDesc, inputTensorDesc, nbDims, outputTensorDimA);
     cudnnGetPoolingNdForwardOutputDim_execution.accept((System.nanoTime() - startTime) / 1e9);
     log("cudnnGetPoolingNdForwardOutputDim", result,
-        new Object[] { poolingDesc, inputTensorDesc, nbDims, outputTensorDimA });
+        new Object[]{poolingDesc, inputTensorDesc, nbDims, outputTensorDimA});
     return result;
   }
 
   public static int deviceCount() {
     long startTime = System.nanoTime();
-    @Nonnull
-    final int[] deviceCount = new int[1];
+    @Nonnull final int[] deviceCount = new int[1];
     final int returnCode = JCuda.cudaGetDeviceCount(deviceCount);
-    log("cudaGetDeviceCount", returnCode, new Object[] { deviceCount });
+    log("cudaGetDeviceCount", returnCode, new Object[]{deviceCount});
     deviceCount_execution.accept((System.nanoTime() - startTime) / 1e9);
     CudaSystem.handle(returnCode);
     return deviceCount[0];
@@ -490,15 +479,14 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
 
   @Nonnull
   public static int[] getOutputDims(final cudnnTensorDescriptor srcTensorDesc, final cudnnFilterDescriptor filterDesc,
-      final cudnnConvolutionDescriptor convDesc) {
+                                    final cudnnConvolutionDescriptor convDesc) {
     long startTime = System.nanoTime();
-    @Nonnull
-    final int[] tensorOuputDims = new int[4];
+    @Nonnull final int[] tensorOuputDims = new int[4];
     final int result = JCudnn.cudnnGetConvolutionNdForwardOutputDim(convDesc, srcTensorDesc, filterDesc,
         tensorOuputDims.length, tensorOuputDims);
     getOutputDims_execution.accept((System.nanoTime() - startTime) / 1e9);
     log("cudnnGetConvolutionNdForwardOutputDim", result,
-        new Object[] { convDesc, srcTensorDesc, filterDesc, tensorOuputDims.length, tensorOuputDims });
+        new Object[]{convDesc, srcTensorDesc, filterDesc, tensorOuputDims.length, tensorOuputDims});
     CudaSystem.handle(result);
     return tensorOuputDims;
   }
@@ -515,16 +503,15 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
   public static void log(final CharSequence method, final Object result, @Nullable final Object[] args) {
     CharSequence callstack = !CudaSettings.INSTANCE().isLogStack() ? ""
         : Util.toString(com.simiacryptus.ref.wrappers.RefArrays.stream(Thread.currentThread().getStackTrace())
-            .filter(x -> true && x.getClassName().startsWith("com.simiacryptus.mindseye.")
+        .filter(x -> true && x.getClassName().startsWith("com.simiacryptus.mindseye.")
             //&& !x.getClassName().startsWith("com.simiacryptus.mindseye.lang.")
             //&& !x.getClassName().startsWith("com.simiacryptus.mindseye.test.")
-            )
-            //.limit(10)
-            .toArray(i -> new StackTraceElement[i]), ", ");
-    @Nonnull
-    final CharSequence paramString = null == args ? ""
+        )
+        //.limit(10)
+        .toArray(i -> new StackTraceElement[i]), ", ");
+    @Nonnull final CharSequence paramString = null == args ? ""
         : com.simiacryptus.ref.wrappers.RefArrays.stream(args).map(CudaSystem::renderToLog)
-            .reduce((a, b) -> a + ", " + b).orElse("");
+        .reduce((a, b) -> a + ", " + b).orElse("");
     final String message = String.format("%.6f @ %s(%d): %s(%s) = %s via [%s]",
         (System.nanoTime() - CudaSystem.start) / 1e9, Thread.currentThread().getName(), getThreadDeviceId(), method,
         paramString, result, callstack);
@@ -540,7 +527,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
   }
 
   public static void withDevice(int deviceId,
-      @Nonnull final com.simiacryptus.ref.wrappers.RefConsumer<CudnnHandle> fn) {
+                                @Nonnull final com.simiacryptus.ref.wrappers.RefConsumer<CudnnHandle> fn) {
     CudnnHandle threadlocal = CudnnHandle.threadContext.get();
     final Integer incumbantDevice = getThreadDeviceId();
     try {
@@ -702,7 +689,7 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
   public static long cudaDeviceSynchronize() {
     long startTime = System.nanoTime();
     final int result = JCuda.cudaDeviceSynchronize();
-    log("cudaDeviceSynchronize", result, new Object[] {});
+    log("cudaDeviceSynchronize", result, new Object[]{});
     cudaDeviceSynchronize_execution.accept((System.nanoTime() - startTime) / 1e9);
     handle(result);
     syncTimes.put(getThreadDeviceId(), startTime);
@@ -782,13 +769,13 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
       throw new RuntimeException(e);
     }
     for (@Nonnull
-    DeviceLimits limit : DeviceLimits.values()) {
+        DeviceLimits limit : DeviceLimits.values()) {
       CudaDevice.logger.info(String.format("Default Limit %s = %s", limit, limit.get()));
     }
     DeviceLimits.HeapSize.set(16 * 1024 * 1024 * 1024);
     DeviceLimits.FifoSize.set(8 * 1024 * 1024);
     for (@Nonnull
-    DeviceLimits limit : DeviceLimits.values()) {
+        DeviceLimits limit : DeviceLimits.values()) {
       CudaDevice.logger.info(String.format("Configured Limit %s = %s", limit, limit.get()));
     }
   }
@@ -797,7 +784,8 @@ public @com.simiacryptus.ref.lang.RefAware class CudaSystem {
     CudnnHandle.threadContext.remove();
   }
 
-  public @com.simiacryptus.ref.lang.RefAware interface CudaDeviceResource {
+  public @com.simiacryptus.ref.lang.RefAware
+  interface CudaDeviceResource {
     int getDeviceId();
   }
 }

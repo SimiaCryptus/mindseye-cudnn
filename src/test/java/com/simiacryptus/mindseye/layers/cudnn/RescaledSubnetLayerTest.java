@@ -29,7 +29,8 @@ import org.junit.Test;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware class RescaledSubnetLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware
+class RescaledSubnetLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   final ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1);
@@ -41,6 +42,22 @@ public abstract @com.simiacryptus.ref.lang.RefAware class RescaledSubnetLayerTes
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return com.simiacryptus.mindseye.layers.java.RescaledSubnetLayer.class;
+  }
+
+  public static @SuppressWarnings("unused")
+  RescaledSubnetLayerTest[] addRefs(RescaledSubnetLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayerTest::addRef)
+        .toArray((x) -> new RescaledSubnetLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  RescaledSubnetLayerTest[][] addRefs(RescaledSubnetLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayerTest::addRefs)
+        .toArray((x) -> new RescaledSubnetLayerTest[x][]);
   }
 
   @Override
@@ -57,12 +74,12 @@ public abstract @com.simiacryptus.ref.lang.RefAware class RescaledSubnetLayerTes
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 8, 8, 1 } };
+    return new int[][]{{8, 8, 1}};
   }
 
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][] { { 1200, 1200, 3 } };
+    return new int[][]{{1200, 1200, 3}};
   }
 
   @Nonnull
@@ -71,7 +88,25 @@ public abstract @com.simiacryptus.ref.lang.RefAware class RescaledSubnetLayerTes
     return new RescaledSubnetLayer(2, convolutionLayer.set(() -> this.random()));
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Basic extends RescaledSubnetLayerTest {
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  RescaledSubnetLayerTest addRef() {
+    return (RescaledSubnetLayerTest) super.addRef();
+  }
+
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Basic extends RescaledSubnetLayerTest {
+    public static @SuppressWarnings("unused")
+    Basic[] addRefs(Basic[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
+    }
+
     @Override
     @Test(timeout = 15 * 60 * 1000)
     @Ignore // Crashing SpanBug!?!?
@@ -79,39 +114,15 @@ public abstract @com.simiacryptus.ref.lang.RefAware class RescaledSubnetLayerTes
       super.test();
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Basic addRef() {
+    public @Override
+    @SuppressWarnings("unused")
+    Basic addRef() {
       return (Basic) super.addRef();
     }
-
-    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
-      if (array == null)
-        return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
-    }
-  }
-
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") RescaledSubnetLayerTest addRef() {
-    return (RescaledSubnetLayerTest) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") RescaledSubnetLayerTest[] addRefs(RescaledSubnetLayerTest[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayerTest::addRef)
-        .toArray((x) -> new RescaledSubnetLayerTest[x]);
-  }
-
-  public static @SuppressWarnings("unused") RescaledSubnetLayerTest[][] addRefs(RescaledSubnetLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayerTest::addRefs)
-        .toArray((x) -> new RescaledSubnetLayerTest[x][]);
   }
 
 }

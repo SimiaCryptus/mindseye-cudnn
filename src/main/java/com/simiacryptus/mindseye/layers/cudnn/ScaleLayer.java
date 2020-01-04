@@ -31,11 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ScaleLayer extends PipelineNetwork
+public @com.simiacryptus.ref.lang.RefAware
+class ScaleLayer extends PipelineNetwork
     implements MultiPrecision<ScaleLayer> {
 
   @SuppressWarnings("unused")
@@ -51,7 +50,7 @@ public @com.simiacryptus.ref.lang.RefAware class ScaleLayer extends PipelineNetw
 
   public ScaleLayer(final Tensor weights) {
     super(1);
-    add(new ProductLayer(), getInput(0), add(new ValueLayer(weights), new DAGNode[] {}));
+    add(new ProductLayer(), getInput(0), add(new ValueLayer(weights), new DAGNode[]{}));
   }
 
   protected ScaleLayer(@Nonnull final JsonObject json, com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
@@ -72,28 +71,33 @@ public @com.simiacryptus.ref.lang.RefAware class ScaleLayer extends PipelineNetw
 
   @SuppressWarnings("unused")
   public static ScaleLayer fromJson(@NotNull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                    com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ScaleLayer(json, rs);
   }
 
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") ScaleLayer addRef() {
-    return (ScaleLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ScaleLayer[] addRefs(ScaleLayer[] array) {
+  public static @SuppressWarnings("unused")
+  ScaleLayer[] addRefs(ScaleLayer[] array) {
     if (array == null)
       return null;
     return java.util.Arrays.stream(array).filter((x) -> x != null).map(ScaleLayer::addRef)
         .toArray((x) -> new ScaleLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") ScaleLayer[][] addRefs(ScaleLayer[][] array) {
+  public static @SuppressWarnings("unused")
+  ScaleLayer[][] addRefs(ScaleLayer[][] array) {
     if (array == null)
       return null;
     return java.util.Arrays.stream(array).filter((x) -> x != null).map(ScaleLayer::addRefs)
         .toArray((x) -> new ScaleLayer[x][]);
+  }
+
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  ScaleLayer addRef() {
+    return (ScaleLayer) super.addRef();
   }
 }

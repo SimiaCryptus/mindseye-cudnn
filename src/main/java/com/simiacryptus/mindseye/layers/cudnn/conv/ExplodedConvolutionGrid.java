@@ -34,14 +34,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefCollectors;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
 @com.simiacryptus.ref.lang.RefAware
 class ExplodedConvolutionGrid extends ReferenceCountingBase {
@@ -72,16 +66,32 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     return network;
   }
 
+  public static @SuppressWarnings("unused")
+  ExplodedConvolutionGrid[] addRefs(ExplodedConvolutionGrid[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionGrid::addRef)
+        .toArray((x) -> new ExplodedConvolutionGrid[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ExplodedConvolutionGrid[][] addRefs(ExplodedConvolutionGrid[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionGrid::addRefs)
+        .toArray((x) -> new ExplodedConvolutionGrid[x][]);
+  }
+
   @Nonnull
   public ExplodedConvolutionGrid write(@Nonnull Tensor filter) {
     if (1 == subLayers.size()) {
       subLayers.get(0).write(filter);
     } else {
       for (@Nonnull
-      ExplodedConvolutionLeg leg : subLayers) {
+          ExplodedConvolutionLeg leg : subLayers) {
         @Nonnull
-        int[] legDims = { convolutionParams.masterFilterDimensions[0], convolutionParams.masterFilterDimensions[1],
-            leg.getInputBands() * convolutionParams.outputBands };
+        int[] legDims = {convolutionParams.masterFilterDimensions[0], convolutionParams.masterFilterDimensions[1],
+            leg.getInputBands() * convolutionParams.outputBands};
         @Nonnull
         Tensor template = new Tensor(legDims);
         @Nullable
@@ -99,10 +109,9 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     if (1 == subLayers.size()) {
       return extractor.apply(subLayers.get(0));
     } else {
-      @Nonnull
-      final Tensor filterDelta = new Tensor(convolutionParams.masterFilterDimensions);
+      @Nonnull final Tensor filterDelta = new Tensor(convolutionParams.masterFilterDimensions);
       for (@Nonnull
-      ExplodedConvolutionLeg leg : subLayers) {
+          ExplodedConvolutionLeg leg : subLayers) {
         Tensor tensor = extractor.apply(leg);
         tensor.forEach((v, c) -> {
           int[] coords = c.getCoords();
@@ -185,28 +194,16 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     super._free();
   }
 
+  public @Override
+  @SuppressWarnings("unused")
+  ExplodedConvolutionGrid addRef() {
+    return (ExplodedConvolutionGrid) super.addRef();
+  }
+
   private int getFilterBand(@Nonnull ExplodedConvolutionLeg leg, int legFilterBand) {
     int filterBand = legFilterBand;
     filterBand = filterBand + convolutionParams.outputBands * leg.fromBand;
     return filterBand;
-  }
-
-  public @Override @SuppressWarnings("unused") ExplodedConvolutionGrid addRef() {
-    return (ExplodedConvolutionGrid) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ExplodedConvolutionGrid[] addRefs(ExplodedConvolutionGrid[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionGrid::addRef)
-        .toArray((x) -> new ExplodedConvolutionGrid[x]);
-  }
-
-  public static @SuppressWarnings("unused") ExplodedConvolutionGrid[][] addRefs(ExplodedConvolutionGrid[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionGrid::addRefs)
-        .toArray((x) -> new ExplodedConvolutionGrid[x][]);
   }
 
 }

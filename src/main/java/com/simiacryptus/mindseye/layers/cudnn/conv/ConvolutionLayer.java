@@ -31,18 +31,13 @@ import com.simiacryptus.mindseye.network.PipelineNetwork;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntToDoubleFunction;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ConvolutionLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class ConvolutionLayer extends LayerBase
     implements MultiPrecision<ConvolutionLayer>, Explodable {
 
   @Nullable
@@ -85,7 +80,7 @@ public @com.simiacryptus.ref.lang.RefAware class ConvolutionLayer extends LayerB
   }
 
   protected ConvolutionLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
+                             com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
     super(json);
     this.kernel = Tensor.fromJson(json.get("filter"), resources);
     assert getKernel().isValid();
@@ -212,8 +207,24 @@ public @com.simiacryptus.ref.lang.RefAware class ConvolutionLayer extends LayerB
 
   @SuppressWarnings("unused")
   public static ConvolutionLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                          com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ConvolutionLayer(json, rs);
+  }
+
+  public static @SuppressWarnings("unused")
+  ConvolutionLayer[] addRefs(ConvolutionLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayer::addRef)
+        .toArray((x) -> new ConvolutionLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ConvolutionLayer[][] addRefs(ConvolutionLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayer::addRefs)
+        .toArray((x) -> new ConvolutionLayer[x][]);
   }
 
   @Nonnull
@@ -281,9 +292,8 @@ public @com.simiacryptus.ref.lang.RefAware class ConvolutionLayer extends LayerB
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      @Nonnull DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            @Nonnull DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.add("filter", getKernel().getJson(resources, dataSerializer));
     json.addProperty("batchBands", getBatchBands());
     json.addProperty("strideX", getStrideX());
@@ -333,21 +343,9 @@ public @com.simiacryptus.ref.lang.RefAware class ConvolutionLayer extends LayerB
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") ConvolutionLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  ConvolutionLayer addRef() {
     return (ConvolutionLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ConvolutionLayer[] addRefs(ConvolutionLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayer::addRef)
-        .toArray((x) -> new ConvolutionLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ConvolutionLayer[][] addRefs(ConvolutionLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayer::addRefs)
-        .toArray((x) -> new ConvolutionLayer[x][]);
   }
 }

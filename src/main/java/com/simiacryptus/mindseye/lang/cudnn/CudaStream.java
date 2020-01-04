@@ -21,33 +21,39 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import jcuda.runtime.cudaStream_t;
 
-public @com.simiacryptus.ref.lang.RefAware class CudaStream extends CudaResource<cudaStream_t> {
+public @com.simiacryptus.ref.lang.RefAware
+class CudaStream extends CudaResource<cudaStream_t> {
   CudaStream(cudaStream_t stream) {
     super(stream, CudaSystem::cudaStreamDestroy, CudaSystem.getThreadDeviceId());
   }
 
-  public void sync() {
-    CudaSystem.cudaStreamSynchronize(getPtr());
-  }
-
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") CudaStream addRef() {
-    return (CudaStream) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") CudaStream[] addRefs(CudaStream[] array) {
+  public static @SuppressWarnings("unused")
+  CudaStream[] addRefs(CudaStream[] array) {
     if (array == null)
       return null;
     return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaStream::addRef)
         .toArray((x) -> new CudaStream[x]);
   }
 
-  public static @SuppressWarnings("unused") CudaStream[][] addRefs(CudaStream[][] array) {
+  public static @SuppressWarnings("unused")
+  CudaStream[][] addRefs(CudaStream[][] array) {
     if (array == null)
       return null;
     return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaStream::addRefs)
         .toArray((x) -> new CudaStream[x][]);
+  }
+
+  public void sync() {
+    CudaSystem.cudaStreamSynchronize(getPtr());
+  }
+
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  CudaStream addRef() {
+    return (CudaStream) super.addRef();
   }
 }

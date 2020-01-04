@@ -33,16 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefArrayList;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
 @com.simiacryptus.ref.lang.RefAware
 class ExplodedConvolutionLeg extends ReferenceCountingBase {
@@ -63,8 +55,7 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     this.subLayers = new com.simiacryptus.ref.wrappers.RefArrayList<>();
     int inputBands = getInputBands();
     final int inputBandsSq = inputBands * inputBands;
-    @Nonnull
-    final int[] filterDimensions = com.simiacryptus.ref.wrappers.RefArrays
+    @Nonnull final int[] filterDimensions = com.simiacryptus.ref.wrappers.RefArrays
         .copyOf(this.convolutionParams.masterFilterDimensions, this.convolutionParams.masterFilterDimensions.length);
     filterDimensions[2] = inputBands * this.convolutionParams.outputBands;
     for (int offset = 0; offset < filterDimensions[2]; offset += inputBandsSq) {
@@ -73,9 +64,9 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
 
       SimpleConvolutionLayer simpleConvolutionLayer = new SimpleConvolutionLayer(filterDimensions[0],
           filterDimensions[1], inputBandsSq) //
-              .setStrideX(this.convolutionParams.strideX) //
-              .setStrideY(this.convolutionParams.strideY) //
-              .setPrecision(this.convolutionParams.precision);
+          .setStrideX(this.convolutionParams.strideX) //
+          .setStrideY(this.convolutionParams.strideY) //
+          .setPrecision(this.convolutionParams.precision);
 
       PipelineNetwork stackableConv = new PipelineNetwork(1);
       if (paddingY != 0 || paddingX != 0)
@@ -95,11 +86,26 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     return this.toBand - this.fromBand;
   }
 
+  public static @SuppressWarnings("unused")
+  ExplodedConvolutionLeg[] addRefs(ExplodedConvolutionLeg[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionLeg::addRef)
+        .toArray((x) -> new ExplodedConvolutionLeg[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ExplodedConvolutionLeg[][] addRefs(ExplodedConvolutionLeg[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionLeg::addRefs)
+        .toArray((x) -> new ExplodedConvolutionLeg[x][]);
+  }
+
   @Nonnull
   public void write(@Nonnull Tensor filter) {
     int inputBands = getInputBands();
-    @Nonnull
-    final int[] filterDimensions = com.simiacryptus.ref.wrappers.RefArrays
+    @Nonnull final int[] filterDimensions = com.simiacryptus.ref.wrappers.RefArrays
         .copyOf(this.convolutionParams.masterFilterDimensions, this.convolutionParams.masterFilterDimensions.length);
     int outputBands = this.convolutionParams.outputBands;
     int squareOutputBands = (int) (Math.ceil(convolutionParams.outputBands * 1.0 / inputBands) * inputBands);
@@ -109,7 +115,7 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     filterDimensions[2] = inputBands * outputBands;
     assert com.simiacryptus.ref.wrappers.RefArrays.equals(filter.getDimensions(),
         filterDimensions) : com.simiacryptus.ref.wrappers.RefArrays.toString(filter.getDimensions()) + " != "
-            + com.simiacryptus.ref.wrappers.RefArrays.toString(filterDimensions);
+        + com.simiacryptus.ref.wrappers.RefArrays.toString(filterDimensions);
     final int inputBandsSq = inputBands * inputBands;
     com.simiacryptus.ref.wrappers.RefIntStream.range(0, subLayers.size()).parallel().forEach(layerNumber -> {
       final int filterBandOffset = layerNumber * inputBandsSq;
@@ -130,8 +136,7 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
   @Nonnull
   public Tensor read(@Nonnull Function<SimpleConvolutionLayer, Tensor> extractor) {
     int inputBands = getInputBands();
-    @Nonnull
-    final int[] filterDimensions = com.simiacryptus.ref.wrappers.RefArrays
+    @Nonnull final int[] filterDimensions = com.simiacryptus.ref.wrappers.RefArrays
         .copyOf(this.convolutionParams.masterFilterDimensions, this.convolutionParams.masterFilterDimensions.length);
     filterDimensions[2] = inputBands * this.convolutionParams.outputBands;
     int outputBands = convolutionParams.outputBands;
@@ -214,31 +219,19 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     super._free();
   }
 
+  public @Override
+  @SuppressWarnings("unused")
+  ExplodedConvolutionLeg addRef() {
+    return (ExplodedConvolutionLeg) super.addRef();
+  }
+
   @Nonnull
   private ImgTileSubnetLayer getTileSubnet(final Layer network, final int bands, final int[] kernelDimensions,
-      final Precision precision) {
+                                           final Precision precision) {
     int maxSize = (int) Math.sqrt(CudaSettings.INSTANCE().getMaxIoElements() / bands);
     int width = kernelDimensions[0];
     int height = kernelDimensions[1];
     return new ImgTileSubnetLayer(network, maxSize, maxSize, maxSize - ((width - 1) / 2), maxSize - ((height - 1) / 2))
         .setParallel(CudaSettings.INSTANCE().isConv_para_3()).setPrecision(precision);
-  }
-
-  public @Override @SuppressWarnings("unused") ExplodedConvolutionLeg addRef() {
-    return (ExplodedConvolutionLeg) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ExplodedConvolutionLeg[] addRefs(ExplodedConvolutionLeg[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionLeg::addRef)
-        .toArray((x) -> new ExplodedConvolutionLeg[x]);
-  }
-
-  public static @SuppressWarnings("unused") ExplodedConvolutionLeg[][] addRefs(ExplodedConvolutionLeg[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionLeg::addRefs)
-        .toArray((x) -> new ExplodedConvolutionLeg[x][]);
   }
 }

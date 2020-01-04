@@ -27,16 +27,11 @@ import jcuda.jcudnn.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class GateBiasLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class GateBiasLayer extends LayerBase
     implements MultiPrecision<GateBiasLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
@@ -68,8 +63,24 @@ public @com.simiacryptus.ref.lang.RefAware class GateBiasLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static GateBiasLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                       com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new GateBiasLayer(json);
+  }
+
+  public static @SuppressWarnings("unused")
+  GateBiasLayer[] addRefs(GateBiasLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayer::addRef)
+        .toArray((x) -> new GateBiasLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  GateBiasLayer[][] addRefs(GateBiasLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayer::addRefs)
+        .toArray((x) -> new GateBiasLayer[x][]);
   }
 
   @Nullable
@@ -84,31 +95,24 @@ public @com.simiacryptus.ref.lang.RefAware class GateBiasLayer extends LayerBase
     Result right = inObj[1];
     final TensorList leftData = left.getData();
     final TensorList rightData = right.getData();
-    @Nonnull
-    final int[] leftDimensions = leftData.getDimensions();
-    @Nonnull
-    final int[] rightDimensions = rightData.getDimensions();
+    @Nonnull final int[] leftDimensions = leftData.getDimensions();
+    @Nonnull final int[] rightDimensions = rightData.getDimensions();
     final int length = leftData.length();
     if (3 != leftDimensions.length) {
       throw new IllegalArgumentException(
           "dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(leftDimensions));
     }
     return new Result(CudaSystem.run(gpu -> {
-      @Nonnull
-      final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+      @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
           .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_ADD, precision);
-      @Nonnull
-      final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+      @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
           leftDimensions[2], leftDimensions[1], leftDimensions[0],
           leftDimensions[2] * leftDimensions[1] * leftDimensions[0], leftDimensions[1] * leftDimensions[0],
           leftDimensions[0], 1);
-      @Nullable
-      final CudaTensor lPtr = gpu.getTensor(leftData, precision, MemoryType.Device, false);
-      @Nullable
-      final CudaTensor rPtr = gpu.getTensor(rightData, precision, MemoryType.Device, false);
+      @Nullable final CudaTensor lPtr = gpu.getTensor(leftData, precision, MemoryType.Device, false);
+      @Nullable final CudaTensor rPtr = gpu.getTensor(rightData, precision, MemoryType.Device, false);
       //assert lPtr.size == rPtr.size;
-      @Nonnull
-      final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
+      @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
           MemoryType.Device, true);
       CudaMemory lPtrMemory = lPtr.getMemory(gpu);
       CudaMemory rPtrMemory = rPtr.getMemory(gpu);
@@ -134,26 +138,21 @@ public @com.simiacryptus.ref.lang.RefAware class GateBiasLayer extends LayerBase
             assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
             return delta;
           } else {
-            @Nonnull
-            final CudaDevice.CudaTensorDescriptor reducedOutputDescriptor = gpu.newTensorDescriptor(precision,
+            @Nonnull final CudaDevice.CudaTensorDescriptor reducedOutputDescriptor = gpu.newTensorDescriptor(precision,
                 rightData.length(), rightDimensions[2], rightDimensions[1], rightDimensions[0],
                 rightDimensions[2] * rightDimensions[1] * rightDimensions[0], rightDimensions[1] * rightDimensions[0],
                 rightDimensions[0], 1);
             long size = (long) precision.size * reducedOutputDescriptor.nStride * rightData.length();
-            @Nonnull
-            final CudaMemory reducedOutputPtr = gpu.allocate(size, MemoryType.Managed.ifEnabled(), true);
+            @Nonnull final CudaMemory reducedOutputPtr = gpu.allocate(size, MemoryType.Managed.ifEnabled(), true);
             CudaResource<cudnnReduceTensorDescriptor> reduceTensorDescriptor = gpu.cudnnCreateReduceTensorDescriptor(
                 cudnnReduceTensorOp.CUDNN_REDUCE_TENSOR_ADD, precision.code,
                 cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN, cudnnReduceTensorIndices.CUDNN_REDUCE_TENSOR_NO_INDICES,
                 cudnnIndicesType.CUDNN_32BIT_INDICES);
 
-            @Nullable
-            final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, false);
+            @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, false);
             CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
-            @Nonnull
-            final CudaMemory workspacePtr = gpu.allocate(deltaTensorMemory.size, MemoryType.Device, true);
-            @Nonnull
-            final CudaMemory indexPtr = gpu.allocate(12 * delta.length(), MemoryType.Device, false);
+            @Nonnull final CudaMemory workspacePtr = gpu.allocate(deltaTensorMemory.size, MemoryType.Device, true);
+            @Nonnull final CudaMemory indexPtr = gpu.allocate(12 * delta.length(), MemoryType.Device, false);
             //outputPtr.synchronize();
             gpu.cudnnReduceTensor(reduceTensorDescriptor.getPtr(), indexPtr.getPtr(), indexPtr.size,
                 workspacePtr.getPtr(), workspacePtr.size, precision.getPointer(1.0), deltaTensor.descriptor.getPtr(),
@@ -171,8 +170,7 @@ public @com.simiacryptus.ref.lang.RefAware class GateBiasLayer extends LayerBase
 
       @Override
       public boolean isAlive() {
-        for (@Nonnull
-        final Result element : inObj)
+        for (@Nonnull final Result element : inObj)
           if (element.isAlive()) {
             return true;
           }
@@ -193,7 +191,7 @@ public @com.simiacryptus.ref.lang.RefAware class GateBiasLayer extends LayerBase
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
+                            DataSerializer dataSerializer) {
     @Nonnull
     JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
@@ -206,24 +204,13 @@ public @com.simiacryptus.ref.lang.RefAware class GateBiasLayer extends LayerBase
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") GateBiasLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  GateBiasLayer addRef() {
     return (GateBiasLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") GateBiasLayer[] addRefs(GateBiasLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayer::addRef)
-        .toArray((x) -> new GateBiasLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") GateBiasLayer[][] addRefs(GateBiasLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayer::addRefs)
-        .toArray((x) -> new GateBiasLayer[x][]);
   }
 }

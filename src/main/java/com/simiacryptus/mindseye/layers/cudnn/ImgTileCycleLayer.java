@@ -27,16 +27,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class ImgTileCycleLayer extends LayerBase
     implements MultiPrecision<ImgTileCycleLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgTileCycleLayer.class);
   private double xPos = 0.5;
@@ -48,7 +43,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayer extends Layer
   }
 
   protected ImgTileCycleLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                              com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
@@ -90,16 +85,15 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayer extends Layer
 
   @SuppressWarnings("unused")
   public static ImgTileCycleLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                           com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgTileCycleLayer(json, rs);
   }
 
   public static CudaTensor copy(final CudnnHandle gpu, final CudaTensor input, final int length, Precision precision,
-      final int splitX, final int splitY) {
+                                final int splitX, final int splitY) {
     CudaMemory inputTensorMemory = input.getMemory(gpu);
     {
-      @Nonnull
-      final CudaDevice.CudaTensorDescriptor imageDescriptor = gpu.newTensorDescriptor(precision, //
+      @Nonnull final CudaDevice.CudaTensorDescriptor imageDescriptor = gpu.newTensorDescriptor(precision, //
           length, //
           input.descriptor.channels, //
           input.descriptor.height, //
@@ -108,16 +102,14 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayer extends Layer
           input.descriptor.cStride, //
           input.descriptor.hStride, //
           input.descriptor.wStride);
-      @Nonnull
-      final CudaMemory outputBuffer = gpu.allocate((long) length * imageDescriptor.nStride * precision.size,
+      @Nonnull final CudaMemory outputBuffer = gpu.allocate((long) length * imageDescriptor.nStride * precision.size,
           MemoryType.Managed.ifEnabled(), true);
 
       int splitY2 = input.descriptor.height - splitY;
       int splitX2 = input.descriptor.width - splitX;
 
       {
-        @Nonnull
-        final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
+        @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
             length, //
             input.descriptor.channels, //
             splitY, //
@@ -133,8 +125,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayer extends Layer
       }
 
       {
-        @Nonnull
-        final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
+        @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
             length, //
             input.descriptor.channels, //
             splitY2, //
@@ -150,8 +141,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayer extends Layer
       }
 
       {
-        @Nonnull
-        final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
+        @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
             length, //
             input.descriptor.channels, //
             splitY, //
@@ -166,8 +156,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayer extends Layer
             outputBuffer.getPtr().withByteOffset(splitY2 * input.descriptor.hStride * precision.size)));
       }
 
-      @Nonnull
-      final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
+      @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
           length, //
           input.descriptor.channels, //
           splitY2, //
@@ -190,11 +179,26 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayer extends Layer
 
   @Nonnull
   public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions) {
-    @Nonnull
-    final int[] viewDim = new int[3];
+    @Nonnull final int[] viewDim = new int[3];
     com.simiacryptus.ref.wrappers.RefArrays.parallelSetAll(viewDim,
         i -> Math.min(sourceDimensions[i], destinationDimensions[i]));
     return viewDim;
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgTileCycleLayer[] addRefs(ImgTileCycleLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRef)
+        .toArray((x) -> new ImgTileCycleLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgTileCycleLayer[][] addRefs(ImgTileCycleLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRefs)
+        .toArray((x) -> new ImgTileCycleLayer[x][]);
   }
 
   @Nullable
@@ -214,8 +218,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayer extends Layer
     int splitY1 = (int) (dimIn[1] * getyPos());
     int splitY2 = dimIn[1] - splitY1;
     final TensorList outputData = CudaSystem.run(gpu -> {
-      @Nullable
-      final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
+      @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
       CudaTensor cudaTensor = copy(gpu, inputTensor, length, precision, splitX1, splitY1);
       return new CudaTensorList(cudaTensor, length, dimIn, precision);
     }, inputData);
@@ -230,8 +233,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayer extends Layer
       assert delta.length() == length;
       if (input.isAlive()) {
         final TensorList passbackTensorList = CudaSystem.run(gpu -> {
-          @Nullable
-          final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
+          @Nullable final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
           CudaTensor cudaTensor = copy(gpu, errorPtr, length, precision, splitX2, splitY2);
           return new CudaTensorList(cudaTensor, length, dimIn, precision);
         }, delta);
@@ -258,9 +260,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayer extends Layer
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
     return json;
   }
@@ -271,24 +272,13 @@ public @com.simiacryptus.ref.lang.RefAware class ImgTileCycleLayer extends Layer
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgTileCycleLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  ImgTileCycleLayer addRef() {
     return (ImgTileCycleLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ImgTileCycleLayer[] addRefs(ImgTileCycleLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRef)
-        .toArray((x) -> new ImgTileCycleLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ImgTileCycleLayer[][] addRefs(ImgTileCycleLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRefs)
-        .toArray((x) -> new ImgTileCycleLayer[x][]);
   }
 }

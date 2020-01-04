@@ -32,15 +32,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ImgModulusPaddingSubnetLayer extends WrapperLayer
+public @com.simiacryptus.ref.lang.RefAware
+class ImgModulusPaddingSubnetLayer extends WrapperLayer
     implements MultiPrecision<ImgModulusPaddingSubnetLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusPaddingSubnetLayer.class);
 
@@ -66,7 +61,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgModulusPaddingSubnetLayer ex
   }
 
   protected ImgModulusPaddingSubnetLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json, rs);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -97,8 +92,26 @@ public @com.simiacryptus.ref.lang.RefAware class ImgModulusPaddingSubnetLayer ex
 
   @SuppressWarnings("unused")
   public static ImgModulusPaddingSubnetLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                                      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgModulusPaddingSubnetLayer(json, rs);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgModulusPaddingSubnetLayer[] addRefs(
+      ImgModulusPaddingSubnetLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingSubnetLayer::addRef)
+        .toArray((x) -> new ImgModulusPaddingSubnetLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgModulusPaddingSubnetLayer[][] addRefs(
+      ImgModulusPaddingSubnetLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingSubnetLayer::addRefs)
+        .toArray((x) -> new ImgModulusPaddingSubnetLayer[x][]);
   }
 
   @Nullable
@@ -148,9 +161,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImgModulusPaddingSubnetLayer ex
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJson(resources, dataSerializer);
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
     json.addProperty("offsetX", offsetX);
@@ -165,26 +177,13 @@ public @com.simiacryptus.ref.lang.RefAware class ImgModulusPaddingSubnetLayer ex
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgModulusPaddingSubnetLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  ImgModulusPaddingSubnetLayer addRef() {
     return (ImgModulusPaddingSubnetLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ImgModulusPaddingSubnetLayer[] addRefs(
-      ImgModulusPaddingSubnetLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingSubnetLayer::addRef)
-        .toArray((x) -> new ImgModulusPaddingSubnetLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ImgModulusPaddingSubnetLayer[][] addRefs(
-      ImgModulusPaddingSubnetLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingSubnetLayer::addRefs)
-        .toArray((x) -> new ImgModulusPaddingSubnetLayer[x][]);
   }
 }

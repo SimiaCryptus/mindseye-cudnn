@@ -25,18 +25,11 @@ import com.simiacryptus.mindseye.lang.cudnn.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ImgBandSelectLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class ImgBandSelectLayer extends LayerBase
     implements MultiPrecision<ImgBandSelectLayer> {
 
   private int from;
@@ -93,8 +86,24 @@ public @com.simiacryptus.ref.lang.RefAware class ImgBandSelectLayer extends Laye
 
   @SuppressWarnings("unused")
   public static ImgBandSelectLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                            com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgBandSelectLayer(json);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgBandSelectLayer[] addRefs(ImgBandSelectLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayer::addRef)
+        .toArray((x) -> new ImgBandSelectLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgBandSelectLayer[][] addRefs(ImgBandSelectLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayer::addRefs)
+        .toArray((x) -> new ImgBandSelectLayer[x][]);
   }
 
   @Nullable
@@ -111,19 +120,15 @@ public @com.simiacryptus.ref.lang.RefAware class ImgBandSelectLayer extends Laye
     if (!CudaSystem.isEnabled())
       return getCompatibilityLayer().eval(inObj);
     final TensorList inputData = in0.getData();
-    @Nonnull
-    final int[] inputDimensions = inputData.getDimensions();
+    @Nonnull final int[] inputDimensions = inputData.getDimensions();
     final int length = inputData.length();
-    @Nonnull
-    final int[] outputDimensions = com.simiacryptus.ref.wrappers.RefArrays.copyOf(inputDimensions, 3);
+    @Nonnull final int[] outputDimensions = com.simiacryptus.ref.wrappers.RefArrays.copyOf(inputDimensions, 3);
     outputDimensions[2] = getTo() - getFrom();
     long size = (length * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size);
     return new Result(CudaSystem.run(gpu -> {
-      @Nullable
-      final CudaTensor cudaInput = gpu.getTensor(inputData, precision, MemoryType.Device, false);
+      @Nullable final CudaTensor cudaInput = gpu.getTensor(inputData, precision, MemoryType.Device, false);
       final int byteOffset = cudaInput.descriptor.cStride * getFrom() * precision.size;
-      @Nonnull
-      final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length,
+      @Nonnull final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length,
           outputDimensions[2], outputDimensions[1], outputDimensions[0], //
           cudaInput.descriptor.nStride, //
           cudaInput.descriptor.cStride, //
@@ -140,15 +145,13 @@ public @com.simiacryptus.ref.lang.RefAware class ImgBandSelectLayer extends Laye
       }
       if (in0.isAlive()) {
         final TensorList passbackTensorList = CudaSystem.run(gpu -> {
-          @Nonnull
-          final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
+          @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
               outputDimensions[2], outputDimensions[1], outputDimensions[0], //
               inputDimensions[2] * inputDimensions[1] * inputDimensions[0], //
               inputDimensions[1] * inputDimensions[0], //
               inputDimensions[0], //
               1);
-          @Nonnull
-          final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length,
+          @Nonnull final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length,
               inputDimensions[2], inputDimensions[1], inputDimensions[0], //
               inputDimensions[2] * inputDimensions[1] * inputDimensions[0], //
               inputDimensions[1] * inputDimensions[0], //
@@ -157,11 +160,9 @@ public @com.simiacryptus.ref.lang.RefAware class ImgBandSelectLayer extends Laye
           final int byteOffset = viewDescriptor.cStride * getFrom() * precision.size;
           assert delta.length() == length;
           //assert error.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(Double::isFinite);
-          @Nullable
-          final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
+          @Nullable final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
           long size1 = (length * inputDimensions[2] * inputDimensions[1] * inputDimensions[0] * precision.size);
-          @Nonnull
-          final CudaMemory passbackBuffer = gpu.allocate(size1, MemoryType.Managed.ifEnabled(), false);
+          @Nonnull final CudaMemory passbackBuffer = gpu.allocate(size1, MemoryType.Managed.ifEnabled(), false);
           CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
           gpu.cudnnTransformTensor(precision.getPointer(1.0), errorPtr.descriptor.getPtr(), errorPtrMemory.getPtr(),
               precision.getPointer(0.0), viewDescriptor.getPtr(), passbackBuffer.getPtr().withByteOffset(byteOffset));
@@ -193,9 +194,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImgBandSelectLayer extends Laye
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("from", getFrom());
     json.addProperty("to", getTo());
     json.addProperty("precision", precision.name());
@@ -208,24 +208,13 @@ public @com.simiacryptus.ref.lang.RefAware class ImgBandSelectLayer extends Laye
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgBandSelectLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  ImgBandSelectLayer addRef() {
     return (ImgBandSelectLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ImgBandSelectLayer[] addRefs(ImgBandSelectLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayer::addRef)
-        .toArray((x) -> new ImgBandSelectLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ImgBandSelectLayer[][] addRefs(ImgBandSelectLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayer::addRefs)
-        .toArray((x) -> new ImgBandSelectLayer[x][]);
   }
 }

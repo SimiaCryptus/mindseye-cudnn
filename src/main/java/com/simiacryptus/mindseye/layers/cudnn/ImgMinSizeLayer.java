@@ -31,15 +31,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ImgMinSizeLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class ImgMinSizeLayer extends LayerBase
     implements MultiPrecision<ImgMinSizeLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgMinSizeLayer.class);
 
@@ -56,7 +51,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImgMinSizeLayer extends LayerBa
   }
 
   protected ImgMinSizeLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                            com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -77,8 +72,24 @@ public @com.simiacryptus.ref.lang.RefAware class ImgMinSizeLayer extends LayerBa
 
   @SuppressWarnings("unused")
   public static ImgMinSizeLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ImgMinSizeLayer(json, rs);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgMinSizeLayer[] addRefs(ImgMinSizeLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgMinSizeLayer::addRef)
+        .toArray((x) -> new ImgMinSizeLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgMinSizeLayer[][] addRefs(ImgMinSizeLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgMinSizeLayer::addRefs)
+        .toArray((x) -> new ImgMinSizeLayer[x][]);
   }
 
   @Nullable
@@ -109,9 +120,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImgMinSizeLayer extends LayerBa
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
     json.addProperty("precision", precision.name());
@@ -124,25 +134,14 @@ public @com.simiacryptus.ref.lang.RefAware class ImgMinSizeLayer extends LayerBa
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgMinSizeLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  ImgMinSizeLayer addRef() {
     return (ImgMinSizeLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ImgMinSizeLayer[] addRefs(ImgMinSizeLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgMinSizeLayer::addRef)
-        .toArray((x) -> new ImgMinSizeLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ImgMinSizeLayer[][] addRefs(ImgMinSizeLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgMinSizeLayer::addRefs)
-        .toArray((x) -> new ImgMinSizeLayer[x][]);
   }
 
 }

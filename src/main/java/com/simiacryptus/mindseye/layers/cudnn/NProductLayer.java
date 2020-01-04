@@ -29,18 +29,11 @@ import jcuda.jcudnn.cudnnOpTensorOp;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class NProductLayer extends LayerBase
+public @com.simiacryptus.ref.lang.RefAware
+class NProductLayer extends LayerBase
     implements MultiPrecision<NProductLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
@@ -72,8 +65,24 @@ public @com.simiacryptus.ref.lang.RefAware class NProductLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static NProductLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                       com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new NProductLayer(json);
+  }
+
+  public static @SuppressWarnings("unused")
+  NProductLayer[] addRefs(NProductLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(NProductLayer::addRef)
+        .toArray((x) -> new NProductLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  NProductLayer[][] addRefs(NProductLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(NProductLayer::addRefs)
+        .toArray((x) -> new NProductLayer[x][]);
   }
 
   @Nullable
@@ -84,8 +93,7 @@ public @com.simiacryptus.ref.lang.RefAware class NProductLayer extends LayerBase
     if (inObj.length <= 1) {
       throw new IllegalArgumentException("inObj.length=" + inObj.length);
     }
-    @Nonnull
-    final int[] dimensions = inObj[0].getData().getDimensions();
+    @Nonnull final int[] dimensions = inObj[0].getData().getDimensions();
     final int length = inObj[0].getData().length();
     if (3 != dimensions.length) {
       throw new IllegalArgumentException("dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions));
@@ -98,24 +106,18 @@ public @com.simiacryptus.ref.lang.RefAware class NProductLayer extends LayerBase
       }
     }
     return new Result(CudaSystem.run(gpu -> {
-      @Nonnull
-      final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+      @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
           .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-      @Nonnull
-      final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, dimensions[2],
+      @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, dimensions[2],
           dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0], dimensions[1] * dimensions[0],
           dimensions[0], 1);
-      @Nonnull
-      final TensorList result1 = com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).map(x -> {
+      @Nonnull final TensorList result1 = com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).map(x -> {
         return x.getData();
       }).reduce((l, r) -> {
-        @Nullable
-        final CudaTensor lPtr = gpu.getTensor(l, precision, MemoryType.Device, false);
-        @Nullable
-        final CudaTensor rPtr = gpu.getTensor(r, precision, MemoryType.Device, false);
+        @Nullable final CudaTensor lPtr = gpu.getTensor(l, precision, MemoryType.Device, false);
+        @Nullable final CudaTensor rPtr = gpu.getTensor(r, precision, MemoryType.Device, false);
         //assert lPtr.memory.size == rPtr.memory.size;
-        @Nonnull
-        final CudaMemory outputPtr = gpu.allocate((long) outputDescriptor.nStride * length * precision.size,
+        @Nonnull final CudaMemory outputPtr = gpu.allocate((long) outputDescriptor.nStride * length * precision.size,
             MemoryType.Device, true);
         CudaMemory lPtrMemory = lPtr.getMemory(gpu);
         CudaMemory rPtrMemory = rPtr.getMemory(gpu);
@@ -140,21 +142,16 @@ public @com.simiacryptus.ref.lang.RefAware class NProductLayer extends LayerBase
                 return i == _index ? delta : inObj[i].getData();
               }).reduce((l, r) -> {
                 return CudaSystem.run(gpu -> {
-                  @Nonnull
-                  final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+                  @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
                       .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-                  @Nonnull
-                  final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+                  @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
                       dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
                       dimensions[1] * dimensions[0], dimensions[0], 1);
 
-                  @Nullable
-                  final CudaTensor lPtr = gpu.getTensor(l, precision, MemoryType.Device, false);
-                  @Nullable
-                  final CudaTensor rPtr = gpu.getTensor(r, precision, MemoryType.Device, false);
+                  @Nullable final CudaTensor lPtr = gpu.getTensor(l, precision, MemoryType.Device, false);
+                  @Nullable final CudaTensor rPtr = gpu.getTensor(r, precision, MemoryType.Device, false);
                   //assert lPtr.memory.size == rPtr.memory.size;
-                  @Nonnull
-                  final CudaMemory outputPtr = gpu.allocate((long) outputDescriptor.nStride * length * precision.size,
+                  @Nonnull final CudaMemory outputPtr = gpu.allocate((long) outputDescriptor.nStride * length * precision.size,
                       MemoryType.Device, true);
                   CudaMemory lPtrMemory = lPtr.getMemory(gpu);
                   CudaMemory rPtrMemory = rPtr.getMemory(gpu);
@@ -176,8 +173,7 @@ public @com.simiacryptus.ref.lang.RefAware class NProductLayer extends LayerBase
 
       @Override
       public boolean isAlive() {
-        for (@Nonnull
-        final Result element : inObj)
+        for (@Nonnull final Result element : inObj)
           if (element.isAlive()) {
             return true;
           }
@@ -201,7 +197,7 @@ public @com.simiacryptus.ref.lang.RefAware class NProductLayer extends LayerBase
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
+                            DataSerializer dataSerializer) {
     @Nonnull
     JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
@@ -214,24 +210,13 @@ public @com.simiacryptus.ref.lang.RefAware class NProductLayer extends LayerBase
     return com.simiacryptus.ref.wrappers.RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") NProductLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  NProductLayer addRef() {
     return (NProductLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") NProductLayer[] addRefs(NProductLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(NProductLayer::addRef)
-        .toArray((x) -> new NProductLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") NProductLayer[][] addRefs(NProductLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(NProductLayer::addRefs)
-        .toArray((x) -> new NProductLayer[x][]);
   }
 }

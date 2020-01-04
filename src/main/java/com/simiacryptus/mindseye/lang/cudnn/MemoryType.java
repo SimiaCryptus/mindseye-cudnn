@@ -21,18 +21,15 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.ref.lang.RecycleBin;
 import com.simiacryptus.ref.lang.ReferenceWrapper;
+import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
 import com.simiacryptus.util.Util;
 import jcuda.runtime.cudaDeviceProp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static jcuda.runtime.JCuda.*;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
 
 public enum MemoryType {
 
@@ -123,7 +120,7 @@ public enum MemoryType {
   };
 
   protected static final Logger logger = LoggerFactory.getLogger(MemoryType.class);
-  private final com.simiacryptus.ref.wrappers.RefMap<Integer, RecycleBin<ReferenceWrapper<CudaPointer>>> cache = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
+  private static final com.simiacryptus.ref.wrappers.RefMap<MemoryType, com.simiacryptus.ref.wrappers.RefMap<Integer, RecycleBin<ReferenceWrapper<CudaPointer>>>> cache = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
 
   public void recycle(CudaPointer ptr, int deviceId, final long length) {
     logger.debug(String.format("Recycle %s %s (%s bytes) in device %s via %s", name(),
@@ -159,7 +156,7 @@ public enum MemoryType {
   abstract void free(CudaPointer ptr, int deviceId);
 
   protected RecycleBin<ReferenceWrapper<CudaPointer>> get(int device) {
-    return cache.computeIfAbsent(device, d -> {
+    return cache.computeIfAbsent(this, x->new RefConcurrentHashMap<>()).computeIfAbsent(device, d -> {
       logger.info(String.format("Initialize recycle bin %s (device %s)", this, device));
       return new RecycleBin<ReferenceWrapper<CudaPointer>>() {
         @Override
@@ -178,7 +175,7 @@ public enum MemoryType {
           assert -1 == device || CudaSystem.getThreadDeviceId() == device;
           CharSequence caller = !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller();
           return CudaDevice.run(gpu -> {
-            CudaPointer alloc = MemoryType.this.alloc(length, gpu);
+            CudaPointer alloc = alloc(length, gpu);
             MemoryType.logger.debug(String.format("Created %s %s (%s bytes) in device %s via %s", name(),
                 Integer.toHexString(System.identityHashCode(alloc)), length, device, caller));
             CudaMemory.getGpuStats(device).usedMemory.addAndGet(length);

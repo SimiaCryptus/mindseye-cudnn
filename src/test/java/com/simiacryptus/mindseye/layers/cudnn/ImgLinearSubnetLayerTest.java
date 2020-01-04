@@ -25,7 +25,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
+public abstract @com.simiacryptus.ref.lang.RefAware
+class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
 
   private final Layer layer1 = new ActivationLayer(ActivationLayer.Mode.RELU);
   private final Layer layer2 = new ActivationLayer(ActivationLayer.Mode.RELU);
@@ -45,15 +46,31 @@ public abstract @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayerTe
     return null;
   }
 
+  public static @SuppressWarnings("unused")
+  ImgLinearSubnetLayerTest[] addRefs(ImgLinearSubnetLayerTest[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRef)
+        .toArray((x) -> new ImgLinearSubnetLayerTest[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ImgLinearSubnetLayerTest[][] addRefs(ImgLinearSubnetLayerTest[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRefs)
+        .toArray((x) -> new ImgLinearSubnetLayerTest[x][]);
+  }
+
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { smallSize, smallSize, 3 } };
+    return new int[][]{{smallSize, smallSize, 3}};
   }
 
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][] { { largeSize, largeSize, 3 } };
+    return new int[][]{{largeSize, largeSize, 3}};
   }
 
   @Nonnull
@@ -62,42 +79,36 @@ public abstract @com.simiacryptus.ref.lang.RefAware class ImgLinearSubnetLayerTe
     return new ImgLinearSubnetLayer().add(0, 1, layer1).add(1, 2, layer2).add(2, 3, layer3);
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Basic extends ImgLinearSubnetLayerTest {
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
+  public @Override
+  @SuppressWarnings("unused")
+  ImgLinearSubnetLayerTest addRef() {
+    return (ImgLinearSubnetLayerTest) super.addRef();
+  }
 
-    public @Override @SuppressWarnings("unused") Basic addRef() {
-      return (Basic) super.addRef();
-    }
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Basic extends ImgLinearSubnetLayerTest {
 
-    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
+    public static @SuppressWarnings("unused")
+    Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
-  }
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
 
-  public @SuppressWarnings("unused") void _free() {
-  }
+    public @Override
+    @SuppressWarnings("unused")
+    Basic addRef() {
+      return (Basic) super.addRef();
+    }
 
-  public @Override @SuppressWarnings("unused") ImgLinearSubnetLayerTest addRef() {
-    return (ImgLinearSubnetLayerTest) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ImgLinearSubnetLayerTest[] addRefs(ImgLinearSubnetLayerTest[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRef)
-        .toArray((x) -> new ImgLinearSubnetLayerTest[x]);
-  }
-
-  public static @SuppressWarnings("unused") ImgLinearSubnetLayerTest[][] addRefs(ImgLinearSubnetLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRefs)
-        .toArray((x) -> new ImgLinearSubnetLayerTest[x][]);
   }
 
 }
