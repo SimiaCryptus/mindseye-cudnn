@@ -156,7 +156,7 @@ public enum MemoryType {
   abstract void free(CudaPointer ptr, int deviceId);
 
   protected RecycleBin<ReferenceWrapper<CudaPointer>> get(int device) {
-    return cache.computeIfAbsent(this, x->new RefConcurrentHashMap<>()).computeIfAbsent(device, d -> {
+    return cache.computeIfAbsent(this, x -> new RefConcurrentHashMap<>()).computeIfAbsent(device, d -> {
       logger.info(String.format("Initialize recycle bin %s (device %s)", this, device));
       return new RecycleBin<ReferenceWrapper<CudaPointer>>() {
         @Override
