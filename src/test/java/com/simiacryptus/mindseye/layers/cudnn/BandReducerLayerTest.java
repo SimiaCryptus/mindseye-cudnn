@@ -22,11 +22,13 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class BandReducerLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
@@ -41,7 +43,7 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
   BandReducerLayerTest[] addRefs(BandReducerLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayerTest::addRef)
         .toArray((x) -> new BandReducerLayerTest[x]);
   }
 
@@ -49,7 +51,7 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
   BandReducerLayerTest[][] addRefs(BandReducerLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayerTest::addRefs)
         .toArray((x) -> new BandReducerLayerTest[x][]);
   }
 
@@ -81,7 +83,7 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
     return (BandReducerLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Double extends BandReducerLayerTest {
     public Double() {
       super(Precision.Double, 1.0);
@@ -91,7 +93,7 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
     Double[] addRefs(Double[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -105,7 +107,7 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Negative extends BandReducerLayerTest {
     public Negative() {
       super(Precision.Double, -5.0);
@@ -115,7 +117,7 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
     Negative[] addRefs(Negative[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Negative::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Negative::addRef)
           .toArray((x) -> new Negative[x]);
     }
 
@@ -130,7 +132,7 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Asymmetric extends BandReducerLayerTest {
     public Asymmetric() {
       super(Precision.Double, 1.0);
@@ -140,7 +142,7 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
     Asymmetric[] addRefs(Asymmetric[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Asymmetric::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Asymmetric::addRef)
           .toArray((x) -> new Asymmetric[x]);
     }
 
@@ -168,7 +170,7 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Float extends BandReducerLayerTest {
     public Float() {
       super(Precision.Float, 1.0);
@@ -183,7 +185,7 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
     Float[] addRefs(Float[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
     public @SuppressWarnings("unused")

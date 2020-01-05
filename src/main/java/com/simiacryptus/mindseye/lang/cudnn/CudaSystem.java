@@ -27,6 +27,8 @@ import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.mindseye.lang.CoreSettings;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.TensorList;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.Util;
 import com.simiacryptus.util.data.DoubleStatistics;
 import jcuda.jcudnn.*;
@@ -46,14 +48,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class CudaSystem {
 
-  public static final com.simiacryptus.ref.wrappers.RefHashSet<com.simiacryptus.ref.wrappers.RefConsumer<String>> apiLog = new com.simiacryptus.ref.wrappers.RefHashSet<>();
+  public static final RefHashSet<RefConsumer<String>> apiLog = new RefHashSet<>();
   @Nonnull
   public static final AtomicInteger gpuGeneration = new AtomicInteger(0);
   protected static final Logger logger = LoggerFactory.getLogger(CudaSystem.class);
-  protected static final com.simiacryptus.ref.wrappers.RefMap<Integer, cudaDeviceProp> propertyCache = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
+  protected static final RefMap<Integer, cudaDeviceProp> propertyCache = new RefConcurrentHashMap<>();
   protected static final ThreadLocal<Integer> currentDeviceId = new ThreadLocal<Integer>();
   protected static final ExecutorService logThread = Executors
       .newSingleThreadExecutor(new ThreadFactoryBuilder().setDaemon(true).build());
@@ -122,8 +124,8 @@ class CudaSystem {
   protected static final DoubleStatistics cudaStreamDestroy_execution = new DoubleStatistics();
   protected static final DoubleStatistics cudaStreamSynchronize_execution = new DoubleStatistics();
   protected static final DoubleStatistics getForwardAlgorithm_execution = new DoubleStatistics();
-  protected static final com.simiacryptus.ref.wrappers.RefHashMap<Integer, ResourcePool<CudnnHandle>> handlePools = new com.simiacryptus.ref.wrappers.RefHashMap<>();
-  private static final com.simiacryptus.ref.wrappers.RefMap<Integer, Long> syncTimes = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+  protected static final RefHashMap<Integer, ResourcePool<CudnnHandle>> handlePools = new RefHashMap<>();
+  private static final RefMap<Integer, Long> syncTimes = new RefHashMap<>();
   private static final long COPY_BLOCK_SIZE = Long.MAX_VALUE;
   private static volatile Integer cachedDeviceCount = init();
   private static volatile StaticResourcePool<CudnnHandle> pool;
@@ -158,9 +160,9 @@ class CudaSystem {
   }
 
   @Nonnull
-  public static com.simiacryptus.ref.wrappers.RefMap<CharSequence, com.simiacryptus.ref.wrappers.RefMap<CharSequence, CharSequence>> getExecutionStatistics() {
+  public static RefMap<CharSequence, RefMap<CharSequence, CharSequence>> getExecutionStatistics() {
     @Nonnull
-    com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, com.simiacryptus.ref.wrappers.RefMap<CharSequence, CharSequence>> map = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+    RefHashMap<CharSequence, RefMap<CharSequence, CharSequence>> map = new RefHashMap<>();
     map.put("createPoolingDescriptor", toMap(createPoolingDescriptor_execution));
     map.put("cudaDeviceReset", toMap(cudaDeviceReset_execution));
     map.put("cudaFree", toMap(cudaFree_execution));
@@ -214,7 +216,7 @@ class CudaSystem {
     map.put("cudaSetDeviceFlags", toMap(cudaSetDeviceFlags_execution));
 
     for (CharSequence entry : map.entrySet().stream().filter(x -> x.getValue().isEmpty()).map(x -> x.getKey())
-        .collect(com.simiacryptus.ref.wrappers.RefCollectors.toList())) {
+        .collect(RefCollectors.toList())) {
       map.remove(entry);
     }
     return map;
@@ -251,7 +253,7 @@ class CudaSystem {
     out.printf("Cuda Memory: %.1f free, %.1f total%n", free[0] * 1.0 / (1024 * 1024), total[0] * 1.0 / (1024 * 1024));
     @Nonnull final int[] deviceCount = new int[1];
     JCuda.cudaGetDeviceCount(deviceCount);
-    com.simiacryptus.ref.wrappers.RefIntStream.range(0, deviceCount[0]).forEach(device -> {
+    RefIntStream.range(0, deviceCount[0]).forEach(device -> {
       @Nonnull final cudaDeviceProp deviceProp = new cudaDeviceProp();
       JCuda.cudaGetDeviceProperties(deviceProp, device);
       out.printf("Device %d = %s%n", device, deviceProp, free[0], total[0]);
@@ -496,13 +498,13 @@ class CudaSystem {
     apiLog.add(s -> log.println(s));
   }
 
-  public static void addLog(@Nonnull com.simiacryptus.ref.wrappers.RefConsumer<String> log) {
+  public static void addLog(@Nonnull RefConsumer<String> log) {
     apiLog.add(log);
   }
 
   public static void log(final CharSequence method, final Object result, @Nullable final Object[] args) {
     CharSequence callstack = !CudaSettings.INSTANCE().isLogStack() ? ""
-        : Util.toString(com.simiacryptus.ref.wrappers.RefArrays.stream(Thread.currentThread().getStackTrace())
+        : Util.toString(RefArrays.stream(Thread.currentThread().getStackTrace())
         .filter(x -> true && x.getClassName().startsWith("com.simiacryptus.mindseye.")
             //&& !x.getClassName().startsWith("com.simiacryptus.mindseye.lang.")
             //&& !x.getClassName().startsWith("com.simiacryptus.mindseye.test.")
@@ -510,7 +512,7 @@ class CudaSystem {
         //.limit(10)
         .toArray(i -> new StackTraceElement[i]), ", ");
     @Nonnull final CharSequence paramString = null == args ? ""
-        : com.simiacryptus.ref.wrappers.RefArrays.stream(args).map(CudaSystem::renderToLog)
+        : RefArrays.stream(args).map(CudaSystem::renderToLog)
         .reduce((a, b) -> a + ", " + b).orElse("");
     final String message = String.format("%.6f @ %s(%d): %s(%s) = %s via [%s]",
         (System.nanoTime() - CudaSystem.start) / 1e9, Thread.currentThread().getName(), getThreadDeviceId(), method,
@@ -527,7 +529,7 @@ class CudaSystem {
   }
 
   public static void withDevice(int deviceId,
-                                @Nonnull final com.simiacryptus.ref.wrappers.RefConsumer<CudnnHandle> fn) {
+                                @Nonnull final RefConsumer<CudnnHandle> fn) {
     CudnnHandle threadlocal = CudnnHandle.threadContext.get();
     final Integer incumbantDevice = getThreadDeviceId();
     try {
@@ -573,7 +575,7 @@ class CudaSystem {
     }
   }
 
-  public static void run(@Nonnull final com.simiacryptus.ref.wrappers.RefConsumer<CudnnHandle> fn, Object... hints) {
+  public static void run(@Nonnull final RefConsumer<CudnnHandle> fn, Object... hints) {
     CudnnHandle threadlocal = CudnnHandle.threadContext.get();
     final Integer incumbantDevice = getThreadDeviceId();
     try {
@@ -624,7 +626,7 @@ class CudaSystem {
   }
 
   public static int chooseDevice(final Object[] hints) {
-    com.simiacryptus.ref.wrappers.RefSet<Integer> devices = com.simiacryptus.ref.wrappers.RefArrays.stream(hints)
+    RefSet<Integer> devices = RefArrays.stream(hints)
         .map(hint -> {
           if (hint instanceof Result) {
             TensorList data = ((Result) hint).getData();
@@ -644,11 +646,11 @@ class CudaSystem {
             return deviceId;
           }
           return null;
-        }).filter(x -> x != null).collect(com.simiacryptus.ref.wrappers.RefCollectors.toSet());
+        }).filter(x -> x != null).collect(RefCollectors.toSet());
     if (devices.isEmpty()) {
-      com.simiacryptus.ref.wrappers.RefList<String> candidates = com.simiacryptus.ref.wrappers.RefArrays
+      RefList<String> candidates = RefArrays
           .stream(CudaSettings.INSTANCE().defaultDevices.split(",")).map(x -> x.trim()).filter(x -> !x.isEmpty())
-          .collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+          .collect(RefCollectors.toList());
       if (candidates.isEmpty()) {
         int deviceId = (int) Math.floor(Math.random() * getCachedDeviceCount());
         assert deviceId >= 0;
@@ -721,10 +723,10 @@ class CudaSystem {
   }
 
   @Nonnull
-  protected static com.simiacryptus.ref.wrappers.RefMap<CharSequence, CharSequence> toMap(
+  protected static RefMap<CharSequence, CharSequence> toMap(
       @Nonnull DoubleStatistics obj) {
     @Nonnull
-    com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, CharSequence> map = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+    RefHashMap<CharSequence, CharSequence> map = new RefHashMap<>();
     if (0 < obj.getCount()) {
       map.put("stddev", Double.toString(obj.getStandardDeviation()));
       map.put("mean", Double.toString(obj.getAverage()));
@@ -738,22 +740,22 @@ class CudaSystem {
   protected static CharSequence renderToLog(final Object obj) {
     if (obj instanceof int[]) {
       if (((int[]) obj).length < 10) {
-        return com.simiacryptus.ref.wrappers.RefArrays.toString((int[]) obj);
+        return RefArrays.toString((int[]) obj);
       }
     }
     if (obj instanceof double[]) {
       if (((double[]) obj).length < 10) {
-        return com.simiacryptus.ref.wrappers.RefArrays.toString((double[]) obj);
+        return RefArrays.toString((double[]) obj);
       }
     }
     if (obj instanceof float[]) {
       if (((float[]) obj).length < 10) {
-        return com.simiacryptus.ref.wrappers.RefArrays.toString((float[]) obj);
+        return RefArrays.toString((float[]) obj);
       }
     }
     if (obj instanceof long[]) {
       if (((long[]) obj).length < 10) {
-        return com.simiacryptus.ref.wrappers.RefArrays.toString((long[]) obj);
+        return RefArrays.toString((long[]) obj);
       }
     }
     return obj.toString();
@@ -784,7 +786,7 @@ class CudaSystem {
     CudnnHandle.threadContext.remove();
   }
 
-  public @com.simiacryptus.ref.lang.RefAware
+  public @RefAware
   interface CudaDeviceResource {
     int getDeviceId();
   }

@@ -23,21 +23,23 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSystem;
 import com.simiacryptus.mindseye.layers.LayerTestBase;
 import com.simiacryptus.notebook.NotebookOutput;
+import com.simiacryptus.ref.lang.RefAware;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class CudnnLayerTestBase extends LayerTestBase {
 
   public static @SuppressWarnings("unused")
   CudnnLayerTestBase[] addRefs(CudnnLayerTestBase[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudnnLayerTestBase::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(CudnnLayerTestBase::addRef)
         .toArray((x) -> new CudnnLayerTestBase[x]);
   }
 
@@ -45,7 +47,7 @@ class CudnnLayerTestBase extends LayerTestBase {
   CudnnLayerTestBase[][] addRefs(CudnnLayerTestBase[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudnnLayerTestBase::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(CudnnLayerTestBase::addRefs)
         .toArray((x) -> new CudnnLayerTestBase[x][]);
   }
 

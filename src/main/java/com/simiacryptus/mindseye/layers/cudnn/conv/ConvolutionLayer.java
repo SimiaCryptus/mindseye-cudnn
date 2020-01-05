@@ -28,15 +28,20 @@ import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.Explodable;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntToDoubleFunction;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ConvolutionLayer extends LayerBase
     implements MultiPrecision<ConvolutionLayer>, Explodable {
 
@@ -80,7 +85,7 @@ class ConvolutionLayer extends LayerBase
   }
 
   protected ConvolutionLayer(@Nonnull final JsonObject json,
-                             com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
+                             Map<CharSequence, byte[]> resources) {
     super(json);
     this.kernel = Tensor.fromJson(json.get("filter"), resources);
     assert getKernel().isValid();
@@ -207,7 +212,7 @@ class ConvolutionLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ConvolutionLayer fromJson(@Nonnull final JsonObject json,
-                                          com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                          Map<CharSequence, byte[]> rs) {
     return new ConvolutionLayer(json, rs);
   }
 
@@ -215,7 +220,7 @@ class ConvolutionLayer extends LayerBase
   ConvolutionLayer[] addRefs(ConvolutionLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayer::addRef)
         .toArray((x) -> new ConvolutionLayer[x]);
   }
 
@@ -223,7 +228,7 @@ class ConvolutionLayer extends LayerBase
   ConvolutionLayer[][] addRefs(ConvolutionLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayer::addRefs)
         .toArray((x) -> new ConvolutionLayer[x][]);
   }
 
@@ -247,7 +252,7 @@ class ConvolutionLayer extends LayerBase
     assert kernel.isValid();
     assert 1 == inObj.length;
     assert 3 == inObj[0].getData().getDimensions().length;
-    assert inputBands == inObj[0].getData().getDimensions()[2] : com.simiacryptus.ref.wrappers.RefArrays
+    assert inputBands == inObj[0].getData().getDimensions()[2] : RefArrays
         .toString(inObj[0].getData().getDimensions()) + "[2] != " + inputBands;
     if (!CudaSystem.isEnabled())
       return getCompatibilityLayer().eval(inObj);
@@ -291,7 +296,7 @@ class ConvolutionLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             @Nonnull DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.add("filter", getKernel().getJson(resources, dataSerializer));
@@ -325,8 +330,8 @@ class ConvolutionLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList(getKernel().getData());
+  public RefList<double[]> state() {
+    return RefArrays.asList(getKernel().getData());
   }
 
   @Nonnull

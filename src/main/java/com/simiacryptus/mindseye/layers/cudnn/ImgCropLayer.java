@@ -22,15 +22,20 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ImgCropLayer extends LayerBase
     implements MultiPrecision<ImgCropLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgCropLayer.class);
@@ -53,7 +58,7 @@ class ImgCropLayer extends LayerBase
   }
 
   protected ImgCropLayer(@Nonnull final JsonObject json,
-                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                         Map<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -120,7 +125,7 @@ class ImgCropLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ImgCropLayer fromJson(@Nonnull final JsonObject json,
-                                      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                      Map<CharSequence, byte[]> rs) {
     return new ImgCropLayer(json, rs);
   }
 
@@ -128,7 +133,7 @@ class ImgCropLayer extends LayerBase
   ImgCropLayer[] addRefs(ImgCropLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayer::addRef)
         .toArray((x) -> new ImgCropLayer[x]);
   }
 
@@ -136,7 +141,7 @@ class ImgCropLayer extends LayerBase
   ImgCropLayer[][] addRefs(ImgCropLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayer::addRefs)
         .toArray((x) -> new ImgCropLayer[x][]);
   }
 
@@ -283,7 +288,7 @@ class ImgCropLayer extends LayerBase
     if (dimIn[0] == sizeX && dimIn[1] == sizeY) {
       return input;
     }
-    @Nonnull final int[] dimOut = com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimIn, 3);
+    @Nonnull final int[] dimOut = RefArrays.copyOf(dimIn, 3);
     dimOut[0] = sizeX;
     dimOut[1] = sizeY;
     final TensorList outputData = CudaSystem.run(gpu -> {
@@ -299,9 +304,9 @@ class ImgCropLayer extends LayerBase
     int[] output_dimensions = outputData.getDimensions();
     int output_length = outputData.length();
     return new Result(outputData, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      if (!com.simiacryptus.ref.wrappers.RefArrays.equals(delta.getDimensions(), output_dimensions)) {
-        throw new AssertionError(com.simiacryptus.ref.wrappers.RefArrays.toString(delta.getDimensions()) + " != "
-            + com.simiacryptus.ref.wrappers.RefArrays.toString(output_dimensions));
+      if (!RefArrays.equals(delta.getDimensions(), output_dimensions)) {
+        throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
+            + RefArrays.toString(output_dimensions));
       }
       if (delta.length() != output_length) {
         throw new AssertionError(delta.length() + " != " + output_length);
@@ -323,7 +328,7 @@ class ImgCropLayer extends LayerBase
 
       @Override
       public boolean isAlive() {
-        return com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
+        return RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
       }
 
       @Override
@@ -338,7 +343,7 @@ class ImgCropLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("baseValue", getBaseValue());
@@ -353,8 +358,8 @@ class ImgCropLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

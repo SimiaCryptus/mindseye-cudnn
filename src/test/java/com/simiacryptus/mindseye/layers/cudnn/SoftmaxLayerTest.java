@@ -20,11 +20,13 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class SoftmaxLayerTest extends CudnnLayerTestBase {
 
   private final SoftmaxActivationLayer.SoftmaxAlgorithm algorithm;
@@ -46,7 +48,7 @@ class SoftmaxLayerTest extends CudnnLayerTestBase {
   SoftmaxLayerTest[] addRefs(SoftmaxLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SoftmaxLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SoftmaxLayerTest::addRef)
         .toArray((x) -> new SoftmaxLayerTest[x]);
   }
 
@@ -54,7 +56,7 @@ class SoftmaxLayerTest extends CudnnLayerTestBase {
   SoftmaxLayerTest[][] addRefs(SoftmaxLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SoftmaxLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SoftmaxLayerTest::addRefs)
         .toArray((x) -> new SoftmaxLayerTest[x][]);
   }
 
@@ -85,7 +87,7 @@ class SoftmaxLayerTest extends CudnnLayerTestBase {
     return (SoftmaxLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Basic extends SoftmaxLayerTest {
     public Basic() {
       super(SoftmaxActivationLayer.SoftmaxAlgorithm.ACCURATE, SoftmaxActivationLayer.SoftmaxMode.INSTANCE);
@@ -95,7 +97,7 @@ class SoftmaxLayerTest extends CudnnLayerTestBase {
     Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -109,7 +111,7 @@ class SoftmaxLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Pixel extends SoftmaxLayerTest {
     public Pixel() {
       super(SoftmaxActivationLayer.SoftmaxAlgorithm.ACCURATE, SoftmaxActivationLayer.SoftmaxMode.CHANNEL);
@@ -119,7 +121,7 @@ class SoftmaxLayerTest extends CudnnLayerTestBase {
     Pixel[] addRefs(Pixel[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Pixel::addRef).toArray((x) -> new Pixel[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Pixel::addRef).toArray((x) -> new Pixel[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -133,7 +135,7 @@ class SoftmaxLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class PixelLog extends SoftmaxLayerTest {
     public PixelLog() {
       super(SoftmaxActivationLayer.SoftmaxAlgorithm.LOG, SoftmaxActivationLayer.SoftmaxMode.CHANNEL);
@@ -143,7 +145,7 @@ class SoftmaxLayerTest extends CudnnLayerTestBase {
     PixelLog[] addRefs(PixelLog[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(PixelLog::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(PixelLog::addRef)
           .toArray((x) -> new PixelLog[x]);
     }
 

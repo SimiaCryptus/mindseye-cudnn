@@ -22,11 +22,13 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class PoolingLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
@@ -39,7 +41,7 @@ class PoolingLayerTest extends CudnnLayerTestBase {
   PoolingLayerTest[] addRefs(PoolingLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PoolingLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(PoolingLayerTest::addRef)
         .toArray((x) -> new PoolingLayerTest[x]);
   }
 
@@ -47,7 +49,7 @@ class PoolingLayerTest extends CudnnLayerTestBase {
   PoolingLayerTest[][] addRefs(PoolingLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PoolingLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(PoolingLayerTest::addRefs)
         .toArray((x) -> new PoolingLayerTest[x][]);
   }
 
@@ -79,7 +81,7 @@ class PoolingLayerTest extends CudnnLayerTestBase {
     return (PoolingLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Repro extends PoolingLayerTest {
     public Repro() {
       super(Precision.Double);
@@ -89,7 +91,7 @@ class PoolingLayerTest extends CudnnLayerTestBase {
     Repro[] addRefs(Repro[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Repro::addRef).toArray((x) -> new Repro[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Repro::addRef).toArray((x) -> new Repro[x]);
     }
 
     @Nonnull
@@ -122,7 +124,7 @@ class PoolingLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Double extends PoolingLayerTest {
     public Double() {
       super(Precision.Double);
@@ -132,7 +134,7 @@ class PoolingLayerTest extends CudnnLayerTestBase {
     Double[] addRefs(Double[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -146,7 +148,7 @@ class PoolingLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Asymmetric extends PoolingLayerTest {
     public Asymmetric() {
       super(Precision.Double);
@@ -156,7 +158,7 @@ class PoolingLayerTest extends CudnnLayerTestBase {
     Asymmetric[] addRefs(Asymmetric[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Asymmetric::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Asymmetric::addRef)
           .toArray((x) -> new Asymmetric[x]);
     }
 
@@ -178,7 +180,7 @@ class PoolingLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Float extends PoolingLayerTest {
     public Float() {
       super(Precision.Float);
@@ -193,7 +195,7 @@ class PoolingLayerTest extends CudnnLayerTestBase {
     Float[] addRefs(Float[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
     public @SuppressWarnings("unused")

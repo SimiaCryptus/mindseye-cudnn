@@ -22,13 +22,18 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.notebook.NotebookOutput;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class GramianLayerTest extends CudnnLayerTestBase {
 
   public GramianLayerTest() {
@@ -52,8 +57,8 @@ class GramianLayerTest extends CudnnLayerTestBase {
           int outBand = coords[2];
           int bandA = outBand / inBands;
           int bandB = outBand % inBands;
-          return com.simiacryptus.ref.wrappers.RefIntStream.range(0, inputDimensions[0]).mapToDouble(x -> {
-            return com.simiacryptus.ref.wrappers.RefIntStream.range(0, inputDimensions[1]).mapToDouble(y -> {
+          return RefIntStream.range(0, inputDimensions[0]).mapToDouble(x -> {
+            return RefIntStream.range(0, inputDimensions[1]).mapToDouble(y -> {
               return input.get(x, y, bandA) * input.get(x, y, bandB);
             }).average().getAsDouble();
           }).average().getAsDouble();
@@ -63,14 +68,14 @@ class GramianLayerTest extends CudnnLayerTestBase {
       }
 
       @Override
-      public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      public JsonObject getJson(Map<CharSequence, byte[]> resources,
                                 DataSerializer dataSerializer) {
         return null;
       }
 
       @Nullable
       @Override
-      public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+      public RefList<double[]> state() {
         return null;
       }
 
@@ -90,7 +95,7 @@ class GramianLayerTest extends CudnnLayerTestBase {
   GramianLayerTest[] addRefs(GramianLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GramianLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(GramianLayerTest::addRef)
         .toArray((x) -> new GramianLayerTest[x]);
   }
 
@@ -98,7 +103,7 @@ class GramianLayerTest extends CudnnLayerTestBase {
   GramianLayerTest[][] addRefs(GramianLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GramianLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(GramianLayerTest::addRefs)
         .toArray((x) -> new GramianLayerTest[x][]);
   }
 
@@ -135,7 +140,7 @@ class GramianLayerTest extends CudnnLayerTestBase {
     return (GramianLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Image extends GramianLayerTest {
     public Image() {
       super();
@@ -145,7 +150,7 @@ class GramianLayerTest extends CudnnLayerTestBase {
     Image[] addRefs(Image[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Image::addRef).toArray((x) -> new Image[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Image::addRef).toArray((x) -> new Image[x]);
     }
 
     @Override
@@ -165,7 +170,7 @@ class GramianLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Deep extends GramianLayerTest {
     public Deep() {
       super();
@@ -175,7 +180,7 @@ class GramianLayerTest extends CudnnLayerTestBase {
     Deep[] addRefs(Deep[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Deep::addRef).toArray((x) -> new Deep[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Deep::addRef).toArray((x) -> new Deep[x]);
     }
 
     @Override

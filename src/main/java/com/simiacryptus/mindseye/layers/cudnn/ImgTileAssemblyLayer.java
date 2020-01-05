@@ -22,16 +22,23 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefArrayList;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ImgTileAssemblyLayer extends LayerBase
     implements MultiPrecision<ImgTileAssemblyLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgTileAssemblyLayer.class);
@@ -50,7 +57,7 @@ class ImgTileAssemblyLayer extends LayerBase
   }
 
   protected ImgTileAssemblyLayer(@Nonnull final JsonObject json,
-                                 com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                 Map<CharSequence, byte[]> rs) {
     super(json);
     columns = json.get("columns").getAsInt();
     rows = json.get("rows").getAsInt();
@@ -86,7 +93,7 @@ class ImgTileAssemblyLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ImgTileAssemblyLayer fromJson(@Nonnull final JsonObject json,
-                                              com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                              Map<CharSequence, byte[]> rs) {
     return new ImgTileAssemblyLayer(json, rs);
   }
 
@@ -94,7 +101,7 @@ class ImgTileAssemblyLayer extends LayerBase
   ImgTileAssemblyLayer[] addRefs(ImgTileAssemblyLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileAssemblyLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileAssemblyLayer::addRef)
         .toArray((x) -> new ImgTileAssemblyLayer[x]);
   }
 
@@ -102,7 +109,7 @@ class ImgTileAssemblyLayer extends LayerBase
   ImgTileAssemblyLayer[][] addRefs(ImgTileAssemblyLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileAssemblyLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileAssemblyLayer::addRefs)
         .toArray((x) -> new ImgTileAssemblyLayer[x][]);
   }
 
@@ -129,7 +136,7 @@ class ImgTileAssemblyLayer extends LayerBase
       int totalWidth = 0;
       int totalHeight = 0;
       int inputIndex = 0;
-      com.simiacryptus.ref.wrappers.RefList<CopyParams> copies = new com.simiacryptus.ref.wrappers.RefArrayList<>();
+      RefList<CopyParams> copies = new RefArrayList<>();
       for (int row = 0; row < rows; row++) {
         int positionX = 0;
         int rowHeight = 0;
@@ -146,21 +153,21 @@ class ImgTileAssemblyLayer extends LayerBase
         totalWidth = Math.max(totalWidth, positionX);
       }
       assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-      com.simiacryptus.ref.wrappers.RefStream<CopyParams> stream = copies.stream();
+      RefStream<CopyParams> stream = copies.stream();
       if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
         stream = stream.parallel();
       stream.forEach(this::copy);
-      com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).forEach(r -> r.getData());
+      RefArrays.stream(inObj).forEach(r -> r.getData());
       CudaDevice.CudaTensorDescriptor descriptor = gpu.newTensorDescriptor(precision, length, outputDims[2],
           outputDims[1], outputDims[0]);
       CudaTensor ptr = new CudaTensor(outputBuffer, descriptor, precision);
       return new CudaTensorList(ptr, length, outputDims, precision);
-    }, com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).map(Result::getData).toArray());
+    }, RefArrays.stream(inObj).map(Result::getData).toArray());
 
     return new Result(outputData, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList error) -> {
-      if (!com.simiacryptus.ref.wrappers.RefArrays.equals(error.getDimensions(), outputData.getDimensions())) {
-        throw new AssertionError(com.simiacryptus.ref.wrappers.RefArrays.toString(error.getDimensions()) + " != "
-            + com.simiacryptus.ref.wrappers.RefArrays.toString(outputData.getDimensions()));
+      if (!RefArrays.equals(error.getDimensions(), outputData.getDimensions())) {
+        throw new AssertionError(RefArrays.toString(error.getDimensions()) + " != "
+            + RefArrays.toString(outputData.getDimensions()));
       }
       if (error.length() != outputData.length()) {
         throw new AssertionError(error.length() + " != " + outputData.length());
@@ -168,7 +175,7 @@ class ImgTileAssemblyLayer extends LayerBase
       assert error.length() == length;
       int totalHeight = 0;
       int inputIndex = 0;
-      com.simiacryptus.ref.wrappers.RefList<BackpropParams> tasks = new com.simiacryptus.ref.wrappers.RefArrayList<>();
+      RefList<BackpropParams> tasks = new RefArrayList<>();
       for (int row = 0; row < rows; row++) {
         int positionX = 0;
         int rowHeight = 0;
@@ -185,7 +192,7 @@ class ImgTileAssemblyLayer extends LayerBase
         }
         totalHeight += rowHeight;
       }
-      com.simiacryptus.ref.wrappers.RefStream<BackpropParams> stream = tasks.stream();
+      RefStream<BackpropParams> stream = tasks.stream();
       if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
         stream = stream.parallel();
       stream.forEach(this::backprop);
@@ -193,7 +200,7 @@ class ImgTileAssemblyLayer extends LayerBase
 
       @Override
       public boolean isAlive() {
-        return com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
+        return RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
       }
 
       public void _free() {
@@ -293,14 +300,14 @@ class ImgTileAssemblyLayer extends LayerBase
   @Nonnull
   public int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions, int[] offset) {
     @Nonnull final int[] viewDim = new int[3];
-    com.simiacryptus.ref.wrappers.RefArrays.parallelSetAll(viewDim,
+    RefArrays.parallelSetAll(viewDim,
         i -> Math.min(sourceDimensions[i] + offset[i], destinationDimensions[i]) - Math.max(offset[i], 0));
     return viewDim;
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("rows", rows);
@@ -312,8 +319,8 @@ class ImgTileAssemblyLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")
@@ -346,7 +353,7 @@ class ImgTileAssemblyLayer extends LayerBase
     return new int[]{totalWidth, totalHeight, bands};
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware
+  private static @RefAware
   class CopyParams extends ReferenceCountingBase {
     public final int length;
     public final int[] outputDims;
@@ -377,7 +384,7 @@ class ImgTileAssemblyLayer extends LayerBase
     CopyParams[] addRefs(CopyParams[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(CopyParams::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(CopyParams::addRef)
           .toArray((x) -> new CopyParams[x]);
     }
 
@@ -393,7 +400,7 @@ class ImgTileAssemblyLayer extends LayerBase
 
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware
+  private static @RefAware
   class BackpropParams extends ReferenceCountingBase {
     @Nonnull
     public final Result[] inObj;
@@ -426,7 +433,7 @@ class ImgTileAssemblyLayer extends LayerBase
     BackpropParams[] addRefs(BackpropParams[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(BackpropParams::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(BackpropParams::addRef)
           .toArray((x) -> new BackpropParams[x]);
     }
 

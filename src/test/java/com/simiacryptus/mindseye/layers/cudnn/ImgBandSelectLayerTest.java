@@ -22,12 +22,14 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.notebook.NotebookOutput;
+import com.simiacryptus.ref.lang.RefAware;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
@@ -54,7 +56,7 @@ class ImgBandSelectLayerTest extends CudnnLayerTestBase {
   ImgBandSelectLayerTest[] addRefs(ImgBandSelectLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayerTest::addRef)
         .toArray((x) -> new ImgBandSelectLayerTest[x]);
   }
 
@@ -62,7 +64,7 @@ class ImgBandSelectLayerTest extends CudnnLayerTestBase {
   ImgBandSelectLayerTest[][] addRefs(ImgBandSelectLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayerTest::addRefs)
         .toArray((x) -> new ImgBandSelectLayerTest[x][]);
   }
 
@@ -116,7 +118,7 @@ class ImgBandSelectLayerTest extends CudnnLayerTestBase {
     return (ImgBandSelectLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Double extends ImgBandSelectLayerTest {
     public Double() {
       super(Precision.Double, 5, 2, 4);
@@ -126,7 +128,7 @@ class ImgBandSelectLayerTest extends CudnnLayerTestBase {
     Double[] addRefs(Double[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -140,7 +142,7 @@ class ImgBandSelectLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Float extends ImgBandSelectLayerTest {
     public Float() {
       super(Precision.Float, 2, 0, 1);
@@ -150,7 +152,7 @@ class ImgBandSelectLayerTest extends CudnnLayerTestBase {
     Float[] addRefs(Float[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
     public @SuppressWarnings("unused")

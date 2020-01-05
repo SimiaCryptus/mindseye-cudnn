@@ -24,6 +24,10 @@ import com.simiacryptus.mindseye.lang.ReshapedTensorList;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.lang.TensorArray;
 import com.simiacryptus.mindseye.lang.TensorList;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrayList;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefConsumer;
 import com.simiacryptus.util.Util;
 import jcuda.Pointer;
 import jcuda.jcudnn.*;
@@ -36,7 +40,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Supplier;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class CudnnHandle extends CudaDevice {
   static final ThreadLocal<CudnnHandle> threadContext = new ThreadLocal<>();
   private static final ExecutorService cleanupPool = Executors.newFixedThreadPool(1,
@@ -57,7 +61,7 @@ class CudnnHandle extends CudaDevice {
     //cudaSetDevice();
   }
 
-  public static void forEach(@Nonnull final com.simiacryptus.ref.wrappers.RefConsumer<? super CudnnHandle> fn) {
+  public static void forEach(@Nonnull final RefConsumer<? super CudnnHandle> fn) {
     handlePools.keySet().forEach(device -> {
       getPool(device).apply(x -> {
         x.initThread();
@@ -200,9 +204,9 @@ class CudnnHandle extends CudaDevice {
       Tensor tensor = data.get(i);
       assert null != data;
       assert null != tensor;
-      assert com.simiacryptus.ref.wrappers.RefArrays.equals(tensor.getDimensions(),
-          data.getDimensions()) : com.simiacryptus.ref.wrappers.RefArrays.toString(tensor.getDimensions()) + " != "
-          + com.simiacryptus.ref.wrappers.RefArrays.toString(data.getDimensions());
+      assert RefArrays.equals(tensor.getDimensions(),
+          data.getDimensions()) : RefArrays.toString(tensor.getDimensions()) + " != "
+          + RefArrays.toString(data.getDimensions());
       double[] tensorData = tensor.getData();
       ptr.write(precision, tensorData, (long) i * elementLength);
     }
@@ -683,7 +687,7 @@ class CudnnHandle extends CudaDevice {
 
   @Override
   protected void cleanup() {
-    com.simiacryptus.ref.wrappers.RefArrayList<CudaResourceBase> objsToFree = new com.simiacryptus.ref.wrappers.RefArrayList<>();
+    RefArrayList<CudaResourceBase> objsToFree = new RefArrayList<>();
     cleanupNative.drainTo(objsToFree);
     if (objsToFree.isEmpty())
       return;

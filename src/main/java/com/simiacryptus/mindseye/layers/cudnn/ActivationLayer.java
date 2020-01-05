@@ -24,6 +24,10 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ReLuActivationLayer;
 import com.simiacryptus.mindseye.layers.java.SigmoidActivationLayer;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefStream;
 import jcuda.jcudnn.cudnnActivationDescriptor;
 import jcuda.jcudnn.cudnnActivationMode;
 import jcuda.jcudnn.cudnnNanPropagation;
@@ -32,10 +36,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ActivationLayer extends LayerBase
     implements MultiPrecision<ActivationLayer> {
   @SuppressWarnings("unused")
@@ -98,7 +104,7 @@ class ActivationLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ActivationLayer fromJson(@Nonnull final JsonObject json,
-                                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                         Map<CharSequence, byte[]> rs) {
     return new ActivationLayer(json);
   }
 
@@ -106,7 +112,7 @@ class ActivationLayer extends LayerBase
   ActivationLayer[] addRefs(ActivationLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ActivationLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ActivationLayer::addRef)
         .toArray((x) -> new ActivationLayer[x]);
   }
 
@@ -114,7 +120,7 @@ class ActivationLayer extends LayerBase
   ActivationLayer[][] addRefs(ActivationLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ActivationLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ActivationLayer::addRefs)
         .toArray((x) -> new ActivationLayer[x][]);
   }
 
@@ -163,7 +169,7 @@ class ActivationLayer extends LayerBase
             }
           }
         } catch (@Nonnull final Throwable e) {
-          throw new ComponentException("Error apply " + com.simiacryptus.ref.wrappers.RefArrays.toString(inputSize), e);
+          throw new ComponentException("Error apply " + RefArrays.toString(inputSize), e);
         } finally {
         }
       }, inputData);
@@ -197,13 +203,13 @@ class ActivationLayer extends LayerBase
                       inputTensorMemory.getPtr(), precision.getPointer(0.0), passbackTensor.descriptor.getPtr(),
                       passbackTensorMemory.getPtr()));
                   assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-                  com.simiacryptus.ref.wrappers.RefStream
+                  RefStream
                       .of(localOutMemory, deltaTensorMemory, inputTensorMemory, passbackTensorMemory)
                       .forEach(CudaMemory::dirty);
                   return new CudaTensorList(passbackTensor, length, inputSize, precision);
                 } catch (@Nonnull final Throwable e) {
                   throw new ComponentException(
-                      "Error apply " + com.simiacryptus.ref.wrappers.RefArrays.toString(inputSize), e);
+                      "Error apply " + RefArrays.toString(inputSize), e);
                 }
               }, delta);
               inputResult.accumulate(buffer, data);
@@ -224,14 +230,14 @@ class ActivationLayer extends LayerBase
         }
       };
     } catch (@Nonnull final Throwable e) {
-      throw new ComponentException("Error apply png res " + com.simiacryptus.ref.wrappers.RefArrays.toString(inputSize),
+      throw new ComponentException("Error apply png res " + RefArrays.toString(inputSize),
           e);
     }
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("alpha", getAlpha());
@@ -242,8 +248,8 @@ class ActivationLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

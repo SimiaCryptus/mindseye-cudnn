@@ -26,14 +26,17 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.ValueLayer;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import com.simiacryptus.ref.lang.RefAware;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.Map;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ScaleLayer extends PipelineNetwork
     implements MultiPrecision<ScaleLayer> {
 
@@ -53,7 +56,7 @@ class ScaleLayer extends PipelineNetwork
     add(new ProductLayer(), getInput(0), add(new ValueLayer(weights), new DAGNode[]{}));
   }
 
-  protected ScaleLayer(@Nonnull final JsonObject json, com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+  protected ScaleLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     //weights = new Tensor(1);
   }
@@ -71,7 +74,7 @@ class ScaleLayer extends PipelineNetwork
 
   @SuppressWarnings("unused")
   public static ScaleLayer fromJson(@NotNull final JsonObject json,
-                                    com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                    Map<CharSequence, byte[]> rs) {
     return new ScaleLayer(json, rs);
   }
 
@@ -79,7 +82,7 @@ class ScaleLayer extends PipelineNetwork
   ScaleLayer[] addRefs(ScaleLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ScaleLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ScaleLayer::addRef)
         .toArray((x) -> new ScaleLayer[x]);
   }
 
@@ -87,7 +90,7 @@ class ScaleLayer extends PipelineNetwork
   ScaleLayer[][] addRefs(ScaleLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ScaleLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ScaleLayer::addRefs)
         .toArray((x) -> new ScaleLayer[x][]);
   }
 

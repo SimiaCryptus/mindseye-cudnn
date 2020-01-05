@@ -22,13 +22,19 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ImgBandSelectLayer extends LayerBase
     implements MultiPrecision<ImgBandSelectLayer> {
 
@@ -51,7 +57,7 @@ class ImgBandSelectLayer extends LayerBase
   @Nonnull
   public Layer getCompatibilityLayer() {
     return new com.simiacryptus.mindseye.layers.java.ImgBandSelectLayer(
-        com.simiacryptus.ref.wrappers.RefIntStream.range(getFrom(), getTo()).toArray());
+        RefIntStream.range(getFrom(), getTo()).toArray());
   }
 
   public int getFrom() {
@@ -86,7 +92,7 @@ class ImgBandSelectLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ImgBandSelectLayer fromJson(@Nonnull final JsonObject json,
-                                            com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                            Map<CharSequence, byte[]> rs) {
     return new ImgBandSelectLayer(json);
   }
 
@@ -94,7 +100,7 @@ class ImgBandSelectLayer extends LayerBase
   ImgBandSelectLayer[] addRefs(ImgBandSelectLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayer::addRef)
         .toArray((x) -> new ImgBandSelectLayer[x]);
   }
 
@@ -102,7 +108,7 @@ class ImgBandSelectLayer extends LayerBase
   ImgBandSelectLayer[][] addRefs(ImgBandSelectLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayer::addRefs)
         .toArray((x) -> new ImgBandSelectLayer[x][]);
   }
 
@@ -122,7 +128,7 @@ class ImgBandSelectLayer extends LayerBase
     final TensorList inputData = in0.getData();
     @Nonnull final int[] inputDimensions = inputData.getDimensions();
     final int length = inputData.length();
-    @Nonnull final int[] outputDimensions = com.simiacryptus.ref.wrappers.RefArrays.copyOf(inputDimensions, 3);
+    @Nonnull final int[] outputDimensions = RefArrays.copyOf(inputDimensions, 3);
     outputDimensions[2] = getTo() - getFrom();
     long size = (length * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size);
     return new Result(CudaSystem.run(gpu -> {
@@ -139,9 +145,9 @@ class ImgBandSelectLayer extends LayerBase
       CudaTensor cudaTensor = new CudaTensor(cudaInputMemory.withByteOffset(byteOffset), inputDescriptor, precision);
       return new CudaTensorList(cudaTensor, length, outputDimensions, precision);
     }, inputData), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      if (!com.simiacryptus.ref.wrappers.RefArrays.equals(delta.getDimensions(), outputDimensions)) {
-        throw new AssertionError(com.simiacryptus.ref.wrappers.RefArrays.toString(delta.getDimensions()) + " != "
-            + com.simiacryptus.ref.wrappers.RefArrays.toString(outputDimensions));
+      if (!RefArrays.equals(delta.getDimensions(), outputDimensions)) {
+        throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
+            + RefArrays.toString(outputDimensions));
       }
       if (in0.isAlive()) {
         final TensorList passbackTensorList = CudaSystem.run(gpu -> {
@@ -178,7 +184,7 @@ class ImgBandSelectLayer extends LayerBase
 
       @Override
       public boolean isAlive() {
-        return com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
+        return RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
       }
 
       @Override
@@ -193,7 +199,7 @@ class ImgBandSelectLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("from", getFrom());
@@ -204,8 +210,8 @@ class ImgBandSelectLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

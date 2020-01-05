@@ -22,16 +22,22 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class GramianLayer extends LayerBase
     implements MultiPrecision<GramianLayer> {
   private static final Logger log = LoggerFactory.getLogger(GramianLayer.class);
@@ -47,7 +53,7 @@ class GramianLayer extends LayerBase
   }
 
   protected GramianLayer(@Nonnull final JsonObject json,
-                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                         Map<CharSequence, byte[]> rs) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     this.alpha = json.getAsJsonPrimitive("alpha").getAsDouble();
@@ -76,7 +82,7 @@ class GramianLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static GramianLayer fromJson(@Nonnull final JsonObject json,
-                                      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                      Map<CharSequence, byte[]> rs) {
     return new GramianLayer(json, rs);
   }
 
@@ -84,7 +90,7 @@ class GramianLayer extends LayerBase
   GramianLayer[] addRefs(GramianLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GramianLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(GramianLayer::addRef)
         .toArray((x) -> new GramianLayer[x]);
   }
 
@@ -92,7 +98,7 @@ class GramianLayer extends LayerBase
   GramianLayer[][] addRefs(GramianLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GramianLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(GramianLayer::addRefs)
         .toArray((x) -> new GramianLayer[x][]);
   }
 
@@ -104,7 +110,7 @@ class GramianLayer extends LayerBase
     int[] inputDimensions = inputData.getDimensions();
     assert 3 == inputDimensions.length;
     if (inputDimensions[0] == 1 && inputDimensions[1] == 1) {
-      log.info("Suspicious Input: " + com.simiacryptus.ref.wrappers.RefArrays.toString(inputDimensions));
+      log.info("Suspicious Input: " + RefArrays.toString(inputDimensions));
     }
     final CudaTensorList tensorList = CudaSystem.run(gpu -> {
       CudaTensor tensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
@@ -112,9 +118,9 @@ class GramianLayer extends LayerBase
     }, inputData);
     return new Result(tensorList, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
       @Nonnull final int[] outputDimensions = {1, 1, inputDimensions[2] * inputDimensions[2]};
-      if (!com.simiacryptus.ref.wrappers.RefArrays.equals(delta.getDimensions(), outputDimensions)) {
-        throw new AssertionError(com.simiacryptus.ref.wrappers.RefArrays.toString(delta.getDimensions()) + " != "
-            + com.simiacryptus.ref.wrappers.RefArrays.toString(outputDimensions));
+      if (!RefArrays.equals(delta.getDimensions(), outputDimensions)) {
+        throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
+            + RefArrays.toString(outputDimensions));
       }
       if (inObj[0].isAlive()) {
         final TensorList passbackTensorList = CudaSystem.run(gpu -> {
@@ -128,7 +134,7 @@ class GramianLayer extends LayerBase
 
       @Override
       public boolean isAlive() {
-        return com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
+        return RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
       }
 
       @Override
@@ -191,7 +197,7 @@ class GramianLayer extends LayerBase
         deltaTensor.descriptor.wStride //
     );
 
-    com.simiacryptus.ref.wrappers.RefIntStream.range(0, bands).forEach(band -> {
+    RefIntStream.range(0, bands).forEach(band -> {
       CudaMemory deltaView1 = deltaMemory.withByteOffset(band * precision.size * bands);
       CudaSystem.handle(gpu.cudnnOpTensor(multiplyDescriptor.getPtr(), precision.getPointer(1.0),
           inputTensor.descriptor.getPtr(), inputMemory.getPtr(), precision.getPointer(1.0), viewDescriptor1.getPtr(),
@@ -263,7 +269,7 @@ class GramianLayer extends LayerBase
     @Nonnull final CudaMemory workspacePtr = gpu.allocate(Math.max(outputMemory.size, inputMemory.size), MemoryType.Device,
         true);
     @Nonnull final CudaMemory indexPtr = gpu.allocate((long) 12 * length, MemoryType.Device, true);
-    com.simiacryptus.ref.wrappers.RefIntStream.range(0, inputDimensions[2]).forEach(band -> {
+    RefIntStream.range(0, inputDimensions[2]).forEach(band -> {
       CudaMemory inputView = inputMemory.withByteOffset(band * precision.size * inputTensor.descriptor.cStride);
       CudaSystem.handle(
           gpu.cudnnOpTensor(multiplyDescriptor.getPtr(), precision.getPointer(1.0), inputTensor.descriptor.getPtr(),
@@ -290,7 +296,7 @@ class GramianLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             @Nonnull DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
@@ -300,8 +306,8 @@ class GramianLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

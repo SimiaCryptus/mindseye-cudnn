@@ -23,22 +23,28 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefArrayList;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ImgLinearSubnetLayer extends LayerBase
     implements MultiPrecision<ImgLinearSubnetLayer> {
 
   private static final Logger logger = LoggerFactory.getLogger(ImgLinearSubnetLayer.class);
-  private final com.simiacryptus.ref.wrappers.RefList<SubnetLeg> legs = new com.simiacryptus.ref.wrappers.RefArrayList<>();
+  private final RefList<SubnetLeg> legs = new RefArrayList<>();
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private boolean parallel = true;
 
@@ -47,7 +53,7 @@ class ImgLinearSubnetLayer extends LayerBase
   }
 
   protected ImgLinearSubnetLayer(@Nonnull final JsonObject json,
-                                 com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                 Map<CharSequence, byte[]> rs) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     setParallel(json.get("parallel").getAsBoolean());
@@ -57,7 +63,7 @@ class ImgLinearSubnetLayer extends LayerBase
     }
   }
 
-  public com.simiacryptus.ref.wrappers.RefList<SubnetLeg> getLegs() {
+  public RefList<SubnetLeg> getLegs() {
     return legs;
   }
 
@@ -83,7 +89,7 @@ class ImgLinearSubnetLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ImgLinearSubnetLayer fromJson(@Nonnull final JsonObject json,
-                                              com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                              Map<CharSequence, byte[]> rs) {
     return new ImgLinearSubnetLayer(json, rs);
   }
 
@@ -91,7 +97,7 @@ class ImgLinearSubnetLayer extends LayerBase
   ImgLinearSubnetLayer[] addRefs(ImgLinearSubnetLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRef)
         .toArray((x) -> new ImgLinearSubnetLayer[x]);
   }
 
@@ -99,7 +105,7 @@ class ImgLinearSubnetLayer extends LayerBase
   ImgLinearSubnetLayer[][] addRefs(ImgLinearSubnetLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRefs)
         .toArray((x) -> new ImgLinearSubnetLayer[x][]);
   }
 
@@ -119,7 +125,7 @@ class ImgLinearSubnetLayer extends LayerBase
     int length = inputData.length();
     int maxBand = legs.stream().mapToInt(x -> x.toBand).max().getAsInt();
     assert maxBand == inputDims[2] : maxBand + " != " + inputDims[2];
-    assert com.simiacryptus.ref.wrappers.RefIntStream.range(0, maxBand)
+    assert RefIntStream.range(0, maxBand)
         .allMatch(i -> 1 == legs.stream().filter(x -> x.fromBand <= i && x.toBand > i).count());
     CudaTensor passback = CudaSystem.run(gpu -> {
       return new CudaTensor(gpu.allocate(inputData.getElements() * precision.size, MemoryType.Device, true),
@@ -176,7 +182,7 @@ class ImgLinearSubnetLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
@@ -189,8 +195,8 @@ class ImgLinearSubnetLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return new com.simiacryptus.ref.wrappers.RefArrayList<>();
+  public RefList<double[]> state() {
+    return new RefArrayList<>();
   }
 
   @Nonnull
@@ -210,7 +216,7 @@ class ImgLinearSubnetLayer extends LayerBase
     return (ImgLinearSubnetLayer) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class SubnetLeg extends ReferenceCountingBase {
 
     private final Layer inner;
@@ -223,7 +229,7 @@ class ImgLinearSubnetLayer extends LayerBase
       this.toBand = toBand;
     }
 
-    protected SubnetLeg(@Nonnull final JsonObject json, com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+    protected SubnetLeg(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
       fromBand = json.getAsJsonPrimitive("fromBand").getAsInt();
       toBand = json.getAsJsonPrimitive("toBand").getAsInt();
       inner = Layer.fromJson(json.getAsJsonObject("network"), rs);
@@ -233,12 +239,12 @@ class ImgLinearSubnetLayer extends LayerBase
     SubnetLeg[] addRefs(SubnetLeg[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(SubnetLeg::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(SubnetLeg::addRef)
           .toArray((x) -> new SubnetLeg[x]);
     }
 
     @Nonnull
-    public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+    public JsonObject getJson(Map<CharSequence, byte[]> resources,
                               DataSerializer dataSerializer) {
       @Nonnull final JsonObject json = new JsonObject();
       json.addProperty("fromBand", fromBand);

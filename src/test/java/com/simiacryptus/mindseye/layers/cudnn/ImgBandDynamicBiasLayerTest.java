@@ -24,12 +24,14 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.mindseye.test.unit.TrainingTester;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
@@ -60,7 +62,7 @@ class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
   ImgBandDynamicBiasLayerTest[] addRefs(ImgBandDynamicBiasLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandDynamicBiasLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgBandDynamicBiasLayerTest::addRef)
         .toArray((x) -> new ImgBandDynamicBiasLayerTest[x]);
   }
 
@@ -69,7 +71,7 @@ class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
       ImgBandDynamicBiasLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandDynamicBiasLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgBandDynamicBiasLayerTest::addRefs)
         .toArray((x) -> new ImgBandDynamicBiasLayerTest[x][]);
   }
 
@@ -101,7 +103,7 @@ class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
     return (ImgBandDynamicBiasLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Double extends ImgBandDynamicBiasLayerTest {
     public Double() {
       super(Precision.Double);
@@ -111,7 +113,7 @@ class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
     Double[] addRefs(Double[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -125,7 +127,7 @@ class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Float extends ImgBandDynamicBiasLayerTest {
     public Float() {
       super(Precision.Float);
@@ -140,7 +142,7 @@ class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
     Float[] addRefs(Float[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
     public @SuppressWarnings("unused")

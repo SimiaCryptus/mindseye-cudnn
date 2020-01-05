@@ -23,15 +23,20 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ProductInputsLayer;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.cudnnOpTensorDescriptor;
 import jcuda.jcudnn.cudnnOpTensorOp;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class SquareActivationLayer extends LayerBase
     implements MultiPrecision<SquareActivationLayer> {
 
@@ -75,7 +80,7 @@ class SquareActivationLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static SquareActivationLayer fromJson(@Nonnull final JsonObject json,
-                                               com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                               Map<CharSequence, byte[]> rs) {
     return new SquareActivationLayer(json);
   }
 
@@ -83,7 +88,7 @@ class SquareActivationLayer extends LayerBase
   SquareActivationLayer[] addRefs(SquareActivationLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayer::addRef)
         .toArray((x) -> new SquareActivationLayer[x]);
   }
 
@@ -91,7 +96,7 @@ class SquareActivationLayer extends LayerBase
   SquareActivationLayer[][] addRefs(SquareActivationLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayer::addRefs)
         .toArray((x) -> new SquareActivationLayer[x][]);
   }
 
@@ -108,7 +113,7 @@ class SquareActivationLayer extends LayerBase
     @Nonnull final int[] dimensions = inputData.getDimensions();
     final int length = inputData.length();
     if (3 != dimensions.length) {
-      throw new IllegalArgumentException("dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions));
+      throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
     }
     return new Result(CudaSystem.run(gpu -> {
       @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
@@ -183,7 +188,7 @@ class SquareActivationLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull
     JsonObject json = super.getJsonStub();
@@ -194,8 +199,8 @@ class SquareActivationLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

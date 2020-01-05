@@ -26,14 +26,19 @@ import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ImgModulusCropLayer extends LayerBase
     implements MultiPrecision<ImgModulusCropLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusCropLayer.class);
@@ -60,7 +65,7 @@ class ImgModulusCropLayer extends LayerBase
   }
 
   protected ImgModulusCropLayer(@Nonnull final JsonObject json,
-                                com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                Map<CharSequence, byte[]> rs) {
     super(json);
     setRoundUp(json.get("roundUp").getAsBoolean());
     sizeX = json.get("sizeX").getAsInt();
@@ -100,7 +105,7 @@ class ImgModulusCropLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ImgModulusCropLayer fromJson(@Nonnull final JsonObject json,
-                                             com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                             Map<CharSequence, byte[]> rs) {
     return new ImgModulusCropLayer(json, rs);
   }
 
@@ -108,7 +113,7 @@ class ImgModulusCropLayer extends LayerBase
   ImgModulusCropLayer[] addRefs(ImgModulusCropLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayer::addRef)
         .toArray((x) -> new ImgModulusCropLayer[x]);
   }
 
@@ -116,7 +121,7 @@ class ImgModulusCropLayer extends LayerBase
   ImgModulusCropLayer[][] addRefs(ImgModulusCropLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayer::addRefs)
         .toArray((x) -> new ImgModulusCropLayer[x][]);
   }
 
@@ -169,7 +174,7 @@ class ImgModulusCropLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("roundUp", roundUp);
@@ -183,8 +188,8 @@ class ImgModulusCropLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

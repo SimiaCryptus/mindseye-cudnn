@@ -22,14 +22,20 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class AvgReducerLayer extends LayerBase
     implements MultiPrecision<AvgReducerLayer> {
 
@@ -63,7 +69,7 @@ class AvgReducerLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static AvgReducerLayer fromJson(@Nonnull final JsonObject json,
-                                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                         Map<CharSequence, byte[]> rs) {
     return new AvgReducerLayer(json);
   }
 
@@ -71,7 +77,7 @@ class AvgReducerLayer extends LayerBase
   AvgReducerLayer[] addRefs(AvgReducerLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(AvgReducerLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(AvgReducerLayer::addRef)
         .toArray((x) -> new AvgReducerLayer[x]);
   }
 
@@ -79,7 +85,7 @@ class AvgReducerLayer extends LayerBase
   AvgReducerLayer[][] addRefs(AvgReducerLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(AvgReducerLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(AvgReducerLayer::addRefs)
         .toArray((x) -> new AvgReducerLayer[x][]);
   }
 
@@ -119,7 +125,7 @@ class AvgReducerLayer extends LayerBase
     });
 
     return new Result(result, (DeltaSet<UUID> ctx, TensorList delta) -> {
-      input.accumulate(ctx, new TensorArray(com.simiacryptus.ref.wrappers.RefIntStream.range(0, length).mapToObj(i -> {
+      input.accumulate(ctx, new TensorArray(RefIntStream.range(0, length).mapToObj(i -> {
         Tensor tensor = delta.get(i);
         double v = (double) tensor.get(0) / Tensor.length(inputSize);
         return new Tensor(inputSize).setAll(v);
@@ -133,7 +139,7 @@ class AvgReducerLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
@@ -142,8 +148,8 @@ class AvgReducerLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

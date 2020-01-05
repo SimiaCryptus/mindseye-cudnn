@@ -20,11 +20,13 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class MeanSqLossLayerTest extends CudnnLayerTestBase {
 
   @Override
@@ -36,7 +38,7 @@ class MeanSqLossLayerTest extends CudnnLayerTestBase {
   MeanSqLossLayerTest[] addRefs(MeanSqLossLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayerTest::addRef)
         .toArray((x) -> new MeanSqLossLayerTest[x]);
   }
 
@@ -44,7 +46,7 @@ class MeanSqLossLayerTest extends CudnnLayerTestBase {
   MeanSqLossLayerTest[][] addRefs(MeanSqLossLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayerTest::addRefs)
         .toArray((x) -> new MeanSqLossLayerTest[x][]);
   }
 
@@ -76,14 +78,14 @@ class MeanSqLossLayerTest extends CudnnLayerTestBase {
     return (MeanSqLossLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Basic extends MeanSqLossLayerTest {
 
     public static @SuppressWarnings("unused")
     Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -98,14 +100,14 @@ class MeanSqLossLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Asymetric extends MeanSqLossLayerTest {
 
     public static @SuppressWarnings("unused")
     Asymetric[] addRefs(Asymetric[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Asymetric::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Asymetric::addRef)
           .toArray((x) -> new Asymetric[x]);
     }
 

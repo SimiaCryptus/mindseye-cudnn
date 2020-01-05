@@ -28,14 +28,19 @@ import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class SpatialReflectionPadding extends LayerBase
     implements MultiPrecision<SpatialReflectionPadding> {
   private static final Logger log = LoggerFactory.getLogger(SpatialReflectionPadding.class);
@@ -57,7 +62,7 @@ class SpatialReflectionPadding extends LayerBase
   }
 
   protected SpatialReflectionPadding(@Nonnull final JsonObject json,
-                                     com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                     Map<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -113,7 +118,7 @@ class SpatialReflectionPadding extends LayerBase
 
   @SuppressWarnings("unused")
   public static SpatialReflectionPadding fromJson(@Nonnull final JsonObject json,
-                                                  com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                                  Map<CharSequence, byte[]> rs) {
     return new SpatialReflectionPadding(json, rs);
   }
 
@@ -121,7 +126,7 @@ class SpatialReflectionPadding extends LayerBase
   SpatialReflectionPadding[] addRefs(SpatialReflectionPadding[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRef)
         .toArray((x) -> new SpatialReflectionPadding[x]);
   }
 
@@ -129,7 +134,7 @@ class SpatialReflectionPadding extends LayerBase
   SpatialReflectionPadding[][] addRefs(SpatialReflectionPadding[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRefs)
         .toArray((x) -> new SpatialReflectionPadding[x][]);
   }
 
@@ -159,7 +164,7 @@ class SpatialReflectionPadding extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
@@ -173,8 +178,8 @@ class SpatialReflectionPadding extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

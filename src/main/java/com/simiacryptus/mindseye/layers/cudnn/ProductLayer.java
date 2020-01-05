@@ -23,14 +23,19 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ProductInputsLayer;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ProductLayer extends LayerBase
     implements MultiPrecision<ProductLayer> {
 
@@ -78,7 +83,7 @@ class ProductLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ProductLayer fromJson(@Nonnull final JsonObject json,
-                                      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                      Map<CharSequence, byte[]> rs) {
     return new ProductLayer(json);
   }
 
@@ -86,7 +91,7 @@ class ProductLayer extends LayerBase
   ProductLayer[] addRefs(ProductLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ProductLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ProductLayer::addRef)
         .toArray((x) -> new ProductLayer[x]);
   }
 
@@ -94,7 +99,7 @@ class ProductLayer extends LayerBase
   ProductLayer[][] addRefs(ProductLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ProductLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ProductLayer::addRefs)
         .toArray((x) -> new ProductLayer[x][]);
   }
 
@@ -115,7 +120,7 @@ class ProductLayer extends LayerBase
     final int length = leftData.length();
     if (3 != leftDimensions.length) {
       throw new IllegalArgumentException(
-          "dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(leftDimensions));
+          "dimensions=" + RefArrays.toString(leftDimensions));
     }
     if ((leftDimensions[0] != rightDimensions[0]) && (leftDimensions[0] != 1 && 1 != rightDimensions[0])
         || (leftDimensions.length > 1 && rightDimensions.length > 1) && (leftDimensions[1] != rightDimensions[1])
@@ -127,8 +132,8 @@ class ProductLayer extends LayerBase
         return inObj[0];
       } else {
         throw new IllegalArgumentException(String.format("leftDimensions=%s;rightDimensions=%s",
-            com.simiacryptus.ref.wrappers.RefArrays.toString(leftDimensions),
-            com.simiacryptus.ref.wrappers.RefArrays.toString(rightDimensions)));
+            RefArrays.toString(leftDimensions),
+            RefArrays.toString(rightDimensions)));
       }
     }
     return new Result(CudaSystem.run(gpu -> {
@@ -206,7 +211,7 @@ class ProductLayer extends LayerBase
           deltaTensorMemory.dirty();
           leftTensorMemory.dirty();
           outputPtr.dirty();
-          if (com.simiacryptus.ref.wrappers.RefArrays.equals(rightDimensions, leftDimensions)
+          if (RefArrays.equals(rightDimensions, leftDimensions)
               && length == rightData.length()) {
             assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
             outputPtr.dirty();
@@ -266,7 +271,7 @@ class ProductLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull
     JsonObject json = super.getJsonStub();
@@ -277,8 +282,8 @@ class ProductLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

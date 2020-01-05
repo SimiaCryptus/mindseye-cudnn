@@ -24,25 +24,29 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.*;
 import jcuda.jcudnn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.DoubleSupplier;
 import java.util.function.ToDoubleFunction;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class SimpleConvolutionLayer extends LayerBase
     implements MultiPrecision<SimpleConvolutionLayer> {
 
   static final Logger log = LoggerFactory.getLogger(SimpleConvolutionLayer.class);
   public final Tensor kernel;
   @Nullable
-  private final com.simiacryptus.ref.wrappers.RefMap<Integer, CudaMemory> gpuFilters = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
+  private final RefMap<Integer, CudaMemory> gpuFilters = new RefConcurrentHashMap<>();
   private int paddingX;
   private int paddingY;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
@@ -58,7 +62,7 @@ class SimpleConvolutionLayer extends LayerBase
   }
 
   protected SimpleConvolutionLayer(@Nonnull final JsonObject json,
-                                   com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
+                                   Map<CharSequence, byte[]> resources) {
     super(json);
     kernel = Tensor.fromJson(json.get("filter"), resources);
     strideX = json.get("strideX").getAsInt();
@@ -161,7 +165,7 @@ class SimpleConvolutionLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static SimpleConvolutionLayer fromJson(@Nonnull final JsonObject json,
-                                                com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                                Map<CharSequence, byte[]> rs) {
     return new SimpleConvolutionLayer(json, rs);
   }
 
@@ -179,7 +183,7 @@ class SimpleConvolutionLayer extends LayerBase
   SimpleConvolutionLayer[] addRefs(SimpleConvolutionLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleConvolutionLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SimpleConvolutionLayer::addRef)
         .toArray((x) -> new SimpleConvolutionLayer[x]);
   }
 
@@ -187,7 +191,7 @@ class SimpleConvolutionLayer extends LayerBase
   SimpleConvolutionLayer[][] addRefs(SimpleConvolutionLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleConvolutionLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SimpleConvolutionLayer::addRefs)
         .toArray((x) -> new SimpleConvolutionLayer[x][]);
   }
 
@@ -272,9 +276,9 @@ class SimpleConvolutionLayer extends LayerBase
               return filterPtr.read(precision, kernelDimensions);
             } catch (@Nonnull final Throwable e) {
               throw new ComponentException(String.format("Error in convolution %s x %s => %s",
-                  com.simiacryptus.ref.wrappers.RefArrays.toString(inputDims),
-                  com.simiacryptus.ref.wrappers.RefArrays.toString(kernelDimensions),
-                  com.simiacryptus.ref.wrappers.RefArrays.toString(outputSize)), e);
+                  RefArrays.toString(inputDims),
+                  RefArrays.toString(kernelDimensions),
+                  RefArrays.toString(outputSize)), e);
             }
           }, delta);
           buffer.get(SimpleConvolutionLayer.this.getId(), kernelData).addInPlace(weightGradient.getData());
@@ -291,7 +295,7 @@ class SimpleConvolutionLayer extends LayerBase
           }
         }
       };
-      com.simiacryptus.ref.wrappers.RefStream.of(learnFn, backpropFn).forEach(Runnable::run);
+      RefStream.of(learnFn, backpropFn).forEach(Runnable::run);
     }) {
 
       @Override
@@ -355,9 +359,9 @@ class SimpleConvolutionLayer extends LayerBase
           precision);
     } catch (@Nonnull final Throwable e) {
       throw new ComponentException(String.format("Error in convolution %s x %s => %s",
-          com.simiacryptus.ref.wrappers.RefArrays.toString(inputDims),
-          com.simiacryptus.ref.wrappers.RefArrays.toString(kernelDimensions),
-          com.simiacryptus.ref.wrappers.RefArrays.toString(outputSize)), e);
+          RefArrays.toString(inputDims),
+          RefArrays.toString(kernelDimensions),
+          RefArrays.toString(outputSize)), e);
     }
   }
 
@@ -369,12 +373,12 @@ class SimpleConvolutionLayer extends LayerBase
     CudaResource<cudnnFilterDescriptor> filterDescriptor = gpu.newFilterDescriptor(precision,
         cudnnTensorFormat.CUDNN_TENSOR_NCHW, outputSize[2], inputDims[2], kernelDimensions[1], kernelDimensions[0]);
     String msg = String.format("Error in convolution %s x %s",
-        com.simiacryptus.ref.wrappers.RefArrays.toString(inputDims),
-        com.simiacryptus.ref.wrappers.RefArrays.toString(kernelDimensions));
+        RefArrays.toString(inputDims),
+        RefArrays.toString(kernelDimensions));
     final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, inputLength,
         inputDims[2], inputDims[1], inputDims[0], inputDims[2] * inputDims[1] * inputDims[0],
         inputDims[1] * inputDims[0], inputDims[0], 1);
-    final int[] outputDims = com.simiacryptus.ref.wrappers.RefIntStream.of(reverse(
+    final int[] outputDims = RefIntStream.of(reverse(
         CudaSystem.getOutputDims(inputDescriptor.getPtr(), filterDescriptor.getPtr(), convolutionDescriptor.getPtr())))
         .limit(3).toArray();
     final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, inputLength,
@@ -453,7 +457,7 @@ class SimpleConvolutionLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             @Nonnull DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     JsonElement value;
@@ -461,7 +465,7 @@ class SimpleConvolutionLayer extends LayerBase
       value = kernel.getJson(resources, dataSerializer);
     } catch (Throwable e) {
       throw new RuntimeException("Error serializing convolution"
-          + com.simiacryptus.ref.wrappers.RefArrays.toString(this.kernel.getDimensions()), e);
+          + RefArrays.toString(this.kernel.getDimensions()), e);
     }
     json.add("filter", value);
     json.addProperty("strideX", strideX);
@@ -475,7 +479,7 @@ class SimpleConvolutionLayer extends LayerBase
   public int[] getOutputSize(final int... inputSize) {
     @Nonnull final int[] kernelSize = kernel.getDimensions();
     try {
-      return com.simiacryptus.ref.wrappers.RefIntStream.range(0, kernelSize.length).map(i -> {
+      return RefIntStream.range(0, kernelSize.length).map(i -> {
         int x;
         if (i == kernelSize.length - 1) {
           //assert kernelSize[i] == inputSize[i];
@@ -496,8 +500,8 @@ class SimpleConvolutionLayer extends LayerBase
       }).toArray();
     } catch (Throwable e) {
       throw new RuntimeException(String.format("Error apply convolution %s x %s (%s)",
-          com.simiacryptus.ref.wrappers.RefArrays.toString(inputSize),
-          com.simiacryptus.ref.wrappers.RefArrays.toString(kernelSize), getName()), e);
+          RefArrays.toString(inputSize),
+          RefArrays.toString(kernelSize), getName()), e);
     }
   }
 
@@ -519,8 +523,8 @@ class SimpleConvolutionLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList(kernel.getData());
+  public RefList<double[]> state() {
+    return RefArrays.asList(kernel.getData());
   }
 
   @Nonnull
@@ -599,7 +603,7 @@ class SimpleConvolutionLayer extends LayerBase
   }
 
   private void clearCudaFilters() {
-    gpuFilters.keySet().stream().collect(com.simiacryptus.ref.wrappers.RefCollectors.toList()).stream()
+    gpuFilters.keySet().stream().collect(RefCollectors.toList()).stream()
         .forEach(gpuFilters::remove);
   }
 }

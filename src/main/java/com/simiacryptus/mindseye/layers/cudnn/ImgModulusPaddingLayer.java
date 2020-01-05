@@ -26,14 +26,19 @@ import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ImgModulusPaddingLayer extends LayerBase
     implements MultiPrecision<ImgModulusPaddingLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusPaddingLayer.class);
@@ -60,7 +65,7 @@ class ImgModulusPaddingLayer extends LayerBase
   }
 
   protected ImgModulusPaddingLayer(@Nonnull final JsonObject json,
-                                   com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                   Map<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -101,7 +106,7 @@ class ImgModulusPaddingLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ImgModulusPaddingLayer fromJson(@Nonnull final JsonObject json,
-                                                com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                                Map<CharSequence, byte[]> rs) {
     return new ImgModulusPaddingLayer(json, rs);
   }
 
@@ -109,7 +114,7 @@ class ImgModulusPaddingLayer extends LayerBase
   ImgModulusPaddingLayer[] addRefs(ImgModulusPaddingLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayer::addRef)
         .toArray((x) -> new ImgModulusPaddingLayer[x]);
   }
 
@@ -117,7 +122,7 @@ class ImgModulusPaddingLayer extends LayerBase
   ImgModulusPaddingLayer[][] addRefs(ImgModulusPaddingLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayer::addRefs)
         .toArray((x) -> new ImgModulusPaddingLayer[x][]);
   }
 
@@ -165,7 +170,7 @@ class ImgModulusPaddingLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
@@ -179,8 +184,8 @@ class ImgModulusPaddingLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

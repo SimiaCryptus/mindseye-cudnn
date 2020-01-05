@@ -25,16 +25,21 @@ import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.LinearActivationLayer;
 import com.simiacryptus.mindseye.layers.java.SumInputsLayer;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.util.Util;
 import jcuda.jcudnn.cudnnOpTensorDescriptor;
 import jcuda.jcudnn.cudnnOpTensorOp;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class BinarySumLayer extends LayerBase
     implements MultiPrecision<BinarySumLayer> {
 
@@ -101,7 +106,7 @@ class BinarySumLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static BinarySumLayer fromJson(@Nonnull final JsonObject json,
-                                        com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                        Map<CharSequence, byte[]> rs) {
     return new BinarySumLayer(json);
   }
 
@@ -109,7 +114,7 @@ class BinarySumLayer extends LayerBase
   BinarySumLayer[] addRefs(BinarySumLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayer::addRef)
         .toArray((x) -> new BinarySumLayer[x]);
   }
 
@@ -117,7 +122,7 @@ class BinarySumLayer extends LayerBase
   BinarySumLayer[][] addRefs(BinarySumLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayer::addRefs)
         .toArray((x) -> new BinarySumLayer[x][]);
   }
 
@@ -136,7 +141,7 @@ class BinarySumLayer extends LayerBase
         throw new IllegalStateException();
       if (leftFactor != 1)
         throw new IllegalStateException();
-      return com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).reduce((a, b) -> eval(a, b)).get();
+      return RefArrays.stream(inObj).reduce((a, b) -> eval(a, b)).get();
     }
     assert (inObj.length == 2);
     final TensorList leftData = inObj[0].getData();
@@ -144,7 +149,7 @@ class BinarySumLayer extends LayerBase
     int[] leftDimensions = leftData.getDimensions();
     if (3 < leftDimensions.length) {
       throw new IllegalArgumentException(
-          "dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(leftDimensions));
+          "dimensions=" + RefArrays.toString(leftDimensions));
     }
     @Nonnull final int[] dimensions = {leftDimensions.length < 1 ? 0 : leftDimensions[0],
         leftDimensions.length < 2 ? 1 : leftDimensions[1], leftDimensions.length < 3 ? 1 : leftDimensions[2]};
@@ -152,12 +157,12 @@ class BinarySumLayer extends LayerBase
     if (length != rightData.length())
       throw new IllegalArgumentException();
     if (3 != dimensions.length) {
-      throw new IllegalArgumentException("dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions));
+      throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
     }
     for (int i = 1; i < inObj.length; i++) {
       if (Tensor.length(dimensions) != Tensor.length(inObj[i].getData().getDimensions())) {
-        throw new IllegalArgumentException(com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions) + " != "
-            + com.simiacryptus.ref.wrappers.RefArrays.toString(inObj[i].getData().getDimensions()));
+        throw new IllegalArgumentException(RefArrays.toString(dimensions) + " != "
+            + RefArrays.toString(inObj[i].getData().getDimensions()));
       }
     }
     if (!CudaSystem.isEnabled())
@@ -249,7 +254,7 @@ class BinarySumLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("rightFactor", rightFactor);
@@ -260,8 +265,8 @@ class BinarySumLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

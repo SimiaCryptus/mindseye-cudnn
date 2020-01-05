@@ -22,15 +22,17 @@ package com.simiacryptus.mindseye.lang.cudnn;
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.ref.lang.RecycleBin;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.function.Function;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class CudaTensor extends ReferenceCountingBase
     implements CudaSystem.CudaDeviceResource {
   static final Logger log = LoggerFactory.getLogger(CudaTensor.class);
@@ -75,7 +77,7 @@ class CudaTensor extends ReferenceCountingBase
   CudaTensor[] addRefs(CudaTensor[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaTensor::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(CudaTensor::addRef)
         .toArray((x) -> new CudaTensor[x]);
   }
 
@@ -83,7 +85,7 @@ class CudaTensor extends ReferenceCountingBase
   CudaTensor[][] addRefs(CudaTensor[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaTensor::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(CudaTensor::addRefs)
         .toArray((x) -> new CudaTensor[x][]);
   }
 

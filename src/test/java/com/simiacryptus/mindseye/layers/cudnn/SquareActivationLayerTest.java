@@ -25,12 +25,14 @@ import com.simiacryptus.mindseye.layers.java.LinearActivationLayer;
 import com.simiacryptus.mindseye.layers.java.NthPowerActivationLayer;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class SquareActivationLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
@@ -55,7 +57,7 @@ class SquareActivationLayerTest extends CudnnLayerTestBase {
   SquareActivationLayerTest[] addRefs(SquareActivationLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayerTest::addRef)
         .toArray((x) -> new SquareActivationLayerTest[x]);
   }
 
@@ -63,7 +65,7 @@ class SquareActivationLayerTest extends CudnnLayerTestBase {
   SquareActivationLayerTest[][] addRefs(SquareActivationLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayerTest::addRefs)
         .toArray((x) -> new SquareActivationLayerTest[x][]);
   }
 
@@ -94,7 +96,7 @@ class SquareActivationLayerTest extends CudnnLayerTestBase {
     return (SquareActivationLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Double extends SquareActivationLayerTest {
     public Double() {
       super(Precision.Double, 1.0);
@@ -104,7 +106,7 @@ class SquareActivationLayerTest extends CudnnLayerTestBase {
     Double[] addRefs(Double[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -118,7 +120,7 @@ class SquareActivationLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Negative extends SquareActivationLayerTest {
     public Negative() {
       super(Precision.Double, -1.0);
@@ -128,7 +130,7 @@ class SquareActivationLayerTest extends CudnnLayerTestBase {
     Negative[] addRefs(Negative[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Negative::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Negative::addRef)
           .toArray((x) -> new Negative[x]);
     }
 
@@ -143,7 +145,7 @@ class SquareActivationLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Float extends SquareActivationLayerTest {
     public Float() {
       super(Precision.Float, 1.0);
@@ -158,7 +160,7 @@ class SquareActivationLayerTest extends CudnnLayerTestBase {
     Float[] addRefs(Float[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
     public @SuppressWarnings("unused")

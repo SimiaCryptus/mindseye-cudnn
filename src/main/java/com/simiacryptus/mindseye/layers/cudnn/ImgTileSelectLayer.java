@@ -22,16 +22,21 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ImgTileSelectLayer extends LayerBase
     implements MultiPrecision<ImgTileSelectLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgTileSelectLayer.class);
@@ -60,7 +65,7 @@ class ImgTileSelectLayer extends LayerBase
   }
 
   protected ImgTileSelectLayer(@Nonnull final JsonObject json,
-                               com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                               Map<CharSequence, byte[]> rs) {
     super(json);
     sizeY = json.get("sizeY").getAsInt();
     sizeX = json.get("sizeX").getAsInt();
@@ -88,7 +93,7 @@ class ImgTileSelectLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ImgTileSelectLayer fromJson(@Nonnull final JsonObject json,
-                                            com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                            Map<CharSequence, byte[]> rs) {
     return new ImgTileSelectLayer(json, rs);
   }
 
@@ -149,7 +154,7 @@ class ImgTileSelectLayer extends LayerBase
         inputTensor.descriptor.hStride, //
         inputTensor.descriptor.wStride);
     CudaMemory inputTensorMemory = inputTensor.getMemory(gpu);
-    if (com.simiacryptus.ref.wrappers.RefArrays.equals(viewDim, outputDimensions)) {
+    if (RefArrays.equals(viewDim, outputDimensions)) {
       assert sourceOffset >= 0;
       assert destinationOffset == 0;
       return new CudaTensor(inputTensorMemory.withByteOffset(sourceOffset * precision.size), sourceViewDescriptor,
@@ -186,7 +191,7 @@ class ImgTileSelectLayer extends LayerBase
   @Nonnull
   public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions, int[] offset) {
     @Nonnull final int[] viewDim = new int[3];
-    com.simiacryptus.ref.wrappers.RefArrays.setAll(viewDim, i -> {
+    RefArrays.setAll(viewDim, i -> {
       int value = Math.min(sourceDimensions[i],
           Math.max(0, destinationDimensions[i] - offset[i] - Math.max(-offset[i], 0)));
       if (0 >= value) {
@@ -202,7 +207,7 @@ class ImgTileSelectLayer extends LayerBase
   ImgTileSelectLayer[] addRefs(ImgTileSelectLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayer::addRef)
         .toArray((x) -> new ImgTileSelectLayer[x]);
   }
 
@@ -210,7 +215,7 @@ class ImgTileSelectLayer extends LayerBase
   ImgTileSelectLayer[][] addRefs(ImgTileSelectLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayer::addRefs)
         .toArray((x) -> new ImgTileSelectLayer[x][]);
   }
 
@@ -243,9 +248,9 @@ class ImgTileSelectLayer extends LayerBase
     int[] outputDimensions = outputData.getDimensions();
     assert length == outputData.length();
     return new Result(outputData, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList error) -> {
-      if (!com.simiacryptus.ref.wrappers.RefArrays.equals(error.getDimensions(), outputDimensions)) {
-        throw new AssertionError(com.simiacryptus.ref.wrappers.RefArrays.toString(error.getDimensions()) + " != "
-            + com.simiacryptus.ref.wrappers.RefArrays.toString(outputDimensions));
+      if (!RefArrays.equals(error.getDimensions(), outputDimensions)) {
+        throw new AssertionError(RefArrays.toString(error.getDimensions()) + " != "
+            + RefArrays.toString(outputDimensions));
       }
       if (error.length() != length) {
         throw new AssertionError(error.length() + " != " + length);
@@ -262,7 +267,7 @@ class ImgTileSelectLayer extends LayerBase
 
       @Override
       public boolean isAlive() {
-        return com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
+        return RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
       }
 
       public void _free() {
@@ -272,7 +277,7 @@ class ImgTileSelectLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("sizeX", sizeX);
@@ -285,8 +290,8 @@ class ImgTileSelectLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   @Override

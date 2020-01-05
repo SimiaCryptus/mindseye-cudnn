@@ -20,12 +20,14 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
 
   private final Layer layer1 = new ActivationLayer(ActivationLayer.Mode.RELU);
@@ -50,7 +52,7 @@ class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
   ImgLinearSubnetLayerTest[] addRefs(ImgLinearSubnetLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRef)
         .toArray((x) -> new ImgLinearSubnetLayerTest[x]);
   }
 
@@ -58,7 +60,7 @@ class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
   ImgLinearSubnetLayerTest[][] addRefs(ImgLinearSubnetLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRefs)
         .toArray((x) -> new ImgLinearSubnetLayerTest[x][]);
   }
 
@@ -89,14 +91,14 @@ class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
     return (ImgLinearSubnetLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Basic extends ImgLinearSubnetLayerTest {
 
     public static @SuppressWarnings("unused")
     Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
     public @SuppressWarnings("unused")

@@ -24,6 +24,9 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ImgPixelSoftmaxLayer;
 import com.simiacryptus.mindseye.layers.java.SoftmaxLayer;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.cudnnSoftmaxAlgorithm;
 import jcuda.jcudnn.cudnnSoftmaxMode;
 import org.slf4j.Logger;
@@ -31,10 +34,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class SoftmaxActivationLayer extends LayerBase
     implements MultiPrecision<SoftmaxActivationLayer> {
   private static final Logger log = LoggerFactory.getLogger(SoftmaxActivationLayer.class);
@@ -93,7 +98,7 @@ class SoftmaxActivationLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static SoftmaxActivationLayer fromJson(@Nonnull final JsonObject json,
-                                                com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                                Map<CharSequence, byte[]> rs) {
     return new SoftmaxActivationLayer(json);
   }
 
@@ -101,7 +106,7 @@ class SoftmaxActivationLayer extends LayerBase
   SoftmaxActivationLayer[] addRefs(SoftmaxActivationLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SoftmaxActivationLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SoftmaxActivationLayer::addRef)
         .toArray((x) -> new SoftmaxActivationLayer[x]);
   }
 
@@ -109,7 +114,7 @@ class SoftmaxActivationLayer extends LayerBase
   SoftmaxActivationLayer[][] addRefs(SoftmaxActivationLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SoftmaxActivationLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SoftmaxActivationLayer::addRefs)
         .toArray((x) -> new SoftmaxActivationLayer[x][]);
   }
 
@@ -150,7 +155,7 @@ class SoftmaxActivationLayer extends LayerBase
           outputMemory.dirty();
           return outputTensor;
         } catch (@Nonnull final Throwable e) {
-          throw new ComponentException("Error apply " + com.simiacryptus.ref.wrappers.RefArrays.toString(inputSize), e);
+          throw new ComponentException("Error apply " + RefArrays.toString(inputSize), e);
         } finally {
         }
       }, inputData);
@@ -192,7 +197,7 @@ class SoftmaxActivationLayer extends LayerBase
                   passbackMemory.dirty();
                 } catch (@Nonnull final Throwable e) {
                   throw new ComponentException(
-                      "Error apply " + com.simiacryptus.ref.wrappers.RefArrays.toString(inputSize), e);
+                      "Error apply " + RefArrays.toString(inputSize), e);
                 } finally {
                 }
                 return new CudaTensorList(passbackTensor, length, inputSize, precision);
@@ -215,14 +220,14 @@ class SoftmaxActivationLayer extends LayerBase
         }
       };
     } catch (@Nonnull final Throwable e) {
-      throw new ComponentException("Error apply png res " + com.simiacryptus.ref.wrappers.RefArrays.toString(inputSize),
+      throw new ComponentException("Error apply png res " + RefArrays.toString(inputSize),
           e);
     }
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
@@ -233,8 +238,8 @@ class SoftmaxActivationLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

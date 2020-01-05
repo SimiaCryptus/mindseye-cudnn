@@ -19,13 +19,15 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
+import com.simiacryptus.ref.lang.RefAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.function.ToIntFunction;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class CudaResource<T> extends CudaResourceBase<T> {
   protected static final Logger logger = LoggerFactory.getLogger(CudaResource.class);
 
@@ -47,7 +49,7 @@ class CudaResource<T> extends CudaResourceBase<T> {
   CudaResource[] addRefs(CudaResource[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaResource::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(CudaResource::addRef)
         .toArray((x) -> new CudaResource[x]);
   }
 
@@ -55,7 +57,7 @@ class CudaResource<T> extends CudaResourceBase<T> {
   CudaResource[][] addRefs(CudaResource[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaResource::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(CudaResource::addRefs)
         .toArray((x) -> new CudaResource[x][]);
   }
 

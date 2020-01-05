@@ -23,6 +23,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.cudnnLRNDescriptor;
 import jcuda.jcudnn.cudnnLRNMode;
 import org.slf4j.Logger;
@@ -30,10 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
   private static final Logger log = LoggerFactory.getLogger(LRNLayer.class);
 
@@ -57,7 +62,7 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
     this.setK(k);
   }
 
-  protected LRNLayer(@Nonnull final JsonObject json, com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+  protected LRNLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     setWidth(json.get("width").getAsInt());
     setAlpha(json.get("alpha").getAsDouble());
@@ -127,7 +132,7 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
 
   @SuppressWarnings("unused")
   public static LRNLayer fromJson(@Nonnull final JsonObject json,
-                                  com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                  Map<CharSequence, byte[]> rs) {
     return new LRNLayer(json, rs);
   }
 
@@ -135,7 +140,7 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
   LRNLayer[] addRefs(LRNLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LRNLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(LRNLayer::addRef)
         .toArray((x) -> new LRNLayer[x]);
   }
 
@@ -143,7 +148,7 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
   LRNLayer[][] addRefs(LRNLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LRNLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(LRNLayer::addRefs)
         .toArray((x) -> new LRNLayer[x][]);
   }
 
@@ -233,7 +238,7 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("alpha", getAlpha());
@@ -246,8 +251,8 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

@@ -25,15 +25,20 @@ import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
 import com.simiacryptus.mindseye.layers.java.AvgPoolingLayer;
 import com.simiacryptus.mindseye.layers.java.MaxPoolingLayer;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.cudnnPoolingDescriptor;
 import jcuda.jcudnn.cudnnPoolingMode;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class PoolingLayer extends LayerBase
     implements MultiPrecision<PoolingLayer> {
 
@@ -57,7 +62,7 @@ class PoolingLayer extends LayerBase
 
   protected PoolingLayer(@Nonnull final JsonObject json) {
     super(json);
-    mode = com.simiacryptus.ref.wrappers.RefArrays.stream(PoolingMode.values())
+    mode = RefArrays.stream(PoolingMode.values())
         .filter(i -> i.id == json.get("mode").getAsInt()).findFirst().get();
     alpha = json.get("alpha").getAsDouble();
     windowX = json.get("windowX").getAsInt();
@@ -178,7 +183,7 @@ class PoolingLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static PoolingLayer fromJson(@Nonnull final JsonObject json,
-                                      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                      Map<CharSequence, byte[]> rs) {
     return new PoolingLayer(json);
   }
 
@@ -192,7 +197,7 @@ class PoolingLayer extends LayerBase
   PoolingLayer[] addRefs(PoolingLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PoolingLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(PoolingLayer::addRef)
         .toArray((x) -> new PoolingLayer[x]);
   }
 
@@ -200,7 +205,7 @@ class PoolingLayer extends LayerBase
   PoolingLayer[][] addRefs(PoolingLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PoolingLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(PoolingLayer::addRefs)
         .toArray((x) -> new PoolingLayer[x][]);
   }
 
@@ -273,8 +278,8 @@ class PoolingLayer extends LayerBase
         outputTensor.dirty();
         return new CudaTensor(outputTensor, outputDescriptor, precision);
       } catch (@Nonnull final Throwable e) {
-        throw new ComponentException("Error processing " + com.simiacryptus.ref.wrappers.RefArrays.stream(inObj)
-            .map(x -> com.simiacryptus.ref.wrappers.RefArrays.toString(x.getData().getDimensions()))
+        throw new ComponentException("Error processing " + RefArrays.stream(inObj)
+            .map(x -> RefArrays.toString(x.getData().getDimensions()))
             .reduce((a, b) -> a + ";" + b) + " with " + this.toString(), e);
       }
     }, inputData);
@@ -329,7 +334,7 @@ class PoolingLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("mode", mode.id);
@@ -346,8 +351,8 @@ class PoolingLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   @Nonnull

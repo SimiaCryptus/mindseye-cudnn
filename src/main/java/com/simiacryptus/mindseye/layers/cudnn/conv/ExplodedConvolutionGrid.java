@@ -28,20 +28,25 @@ import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.InnerNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Function;
 
-@com.simiacryptus.ref.lang.RefAware
+@RefAware
 class ExplodedConvolutionGrid extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(ExplodedConvolutionGrid.class);
 
-  public final com.simiacryptus.ref.wrappers.RefList<ExplodedConvolutionLeg> subLayers;
+  public final RefList<ExplodedConvolutionLeg> subLayers;
   @Nonnull
   public final ConvolutionParams convolutionParams;
 
@@ -49,12 +54,12 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     this.convolutionParams = convolutionParams;
     int bandWidth = (maxBandBatch == 0) ? convolutionParams.inputBands : maxBandBatch;
     int rows = (int) Math.ceil((double) convolutionParams.inputBands / bandWidth);
-    subLayers = com.simiacryptus.ref.wrappers.RefIntStream.range(0, rows).map(x -> x * bandWidth).mapToObj(fromBand -> {
+    subLayers = RefIntStream.range(0, rows).map(x -> x * bandWidth).mapToObj(fromBand -> {
       int toBand = Math.min(convolutionParams.inputBands, fromBand + bandWidth);
       if (fromBand >= toBand)
         throw new RuntimeException(fromBand + " >= " + toBand);
       return new ExplodedConvolutionLeg(convolutionParams, fromBand, toBand);
-    }).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+    }).collect(RefCollectors.toList());
   }
 
   @Nonnull
@@ -70,7 +75,7 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
   ExplodedConvolutionGrid[] addRefs(ExplodedConvolutionGrid[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionGrid::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionGrid::addRef)
         .toArray((x) -> new ExplodedConvolutionGrid[x]);
   }
 
@@ -78,7 +83,7 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
   ExplodedConvolutionGrid[][] addRefs(ExplodedConvolutionGrid[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionGrid::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionGrid::addRefs)
         .toArray((x) -> new ExplodedConvolutionGrid[x][]);
   }
 

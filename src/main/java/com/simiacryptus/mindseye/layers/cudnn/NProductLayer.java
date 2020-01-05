@@ -23,16 +23,22 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ProductInputsLayer;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.JCudnn;
 import jcuda.jcudnn.cudnnOpTensorDescriptor;
 import jcuda.jcudnn.cudnnOpTensorOp;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class NProductLayer extends LayerBase
     implements MultiPrecision<NProductLayer> {
 
@@ -65,7 +71,7 @@ class NProductLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static NProductLayer fromJson(@Nonnull final JsonObject json,
-                                       com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                       Map<CharSequence, byte[]> rs) {
     return new NProductLayer(json);
   }
 
@@ -73,7 +79,7 @@ class NProductLayer extends LayerBase
   NProductLayer[] addRefs(NProductLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(NProductLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(NProductLayer::addRef)
         .toArray((x) -> new NProductLayer[x]);
   }
 
@@ -81,7 +87,7 @@ class NProductLayer extends LayerBase
   NProductLayer[][] addRefs(NProductLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(NProductLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(NProductLayer::addRefs)
         .toArray((x) -> new NProductLayer[x][]);
   }
 
@@ -96,13 +102,13 @@ class NProductLayer extends LayerBase
     @Nonnull final int[] dimensions = inObj[0].getData().getDimensions();
     final int length = inObj[0].getData().length();
     if (3 != dimensions.length) {
-      throw new IllegalArgumentException("dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions));
+      throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
     }
     for (int i = 1; i < inObj.length; i++) {
       TensorList data = inObj[i].getData();
       if (Tensor.length(dimensions) != Tensor.length(data.getDimensions())) {
-        throw new IllegalArgumentException(com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions) + " != "
-            + com.simiacryptus.ref.wrappers.RefArrays.toString(data.getDimensions()));
+        throw new IllegalArgumentException(RefArrays.toString(dimensions) + " != "
+            + RefArrays.toString(data.getDimensions()));
       }
     }
     return new Result(CudaSystem.run(gpu -> {
@@ -111,7 +117,7 @@ class NProductLayer extends LayerBase
       @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, dimensions[2],
           dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0], dimensions[1] * dimensions[0],
           dimensions[0], 1);
-      @Nonnull final TensorList result1 = com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).map(x -> {
+      @Nonnull final TensorList result1 = RefArrays.stream(inObj).map(x -> {
         return x.getData();
       }).reduce((l, r) -> {
         @Nullable final CudaTensor lPtr = gpu.getTensor(l, precision, MemoryType.Device, false);
@@ -131,14 +137,14 @@ class NProductLayer extends LayerBase
             precision);
       }).get();
       return result1;
-    }, com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).map(Result::getData).toArray()),
+    }, RefArrays.stream(inObj).map(Result::getData).toArray()),
         (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
           for (int index = 0; index < inObj.length; index++) {
             final Result input = inObj[index];
             if (input.isAlive()) {
               final int _index = index;
               @Nonnull
-              TensorList data = com.simiacryptus.ref.wrappers.RefIntStream.range(0, inObj.length).mapToObj(i -> {
+              TensorList data = RefIntStream.range(0, inObj.length).mapToObj(i -> {
                 return i == _index ? delta : inObj[i].getData();
               }).reduce((l, r) -> {
                 return CudaSystem.run(gpu -> {
@@ -196,7 +202,7 @@ class NProductLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull
     JsonObject json = super.getJsonStub();
@@ -206,8 +212,8 @@ class NProductLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

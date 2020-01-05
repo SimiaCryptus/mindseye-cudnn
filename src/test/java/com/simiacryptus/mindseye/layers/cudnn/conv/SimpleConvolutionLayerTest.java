@@ -25,14 +25,16 @@ import com.simiacryptus.mindseye.layers.cudnn.CudnnLayerTestBase;
 import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.*;
 import com.simiacryptus.notebook.NotebookOutput;
+import com.simiacryptus.ref.lang.RefAware;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   public final int radius;
@@ -62,7 +64,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
   SimpleConvolutionLayerTest[] addRefs(SimpleConvolutionLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleConvolutionLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SimpleConvolutionLayerTest::addRef)
         .toArray((x) -> new SimpleConvolutionLayerTest[x]);
   }
 
@@ -71,7 +73,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
       SimpleConvolutionLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleConvolutionLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SimpleConvolutionLayerTest::addRefs)
         .toArray((x) -> new SimpleConvolutionLayerTest[x][]);
   }
 
@@ -102,7 +104,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     return (SimpleConvolutionLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Basic extends SimpleConvolutionLayerTest {
     public Basic() {
       super(1, 1, Precision.Double, 1);
@@ -112,7 +114,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -127,7 +129,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Image extends SimpleConvolutionLayerTest {
     public Image() {
       super(3, 3, Precision.Double, 1);
@@ -139,7 +141,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     Image[] addRefs(Image[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Image::addRef).toArray((x) -> new Image[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Image::addRef).toArray((x) -> new Image[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -153,7 +155,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Image_Float extends SimpleConvolutionLayerTest {
     public Image_Float() {
       super(3, 3, Precision.Float, 1);
@@ -169,7 +171,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     Image_Float[] addRefs(Image_Float[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Image_Float::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Image_Float::addRef)
           .toArray((x) -> new Image_Float[x]);
     }
 
@@ -185,7 +187,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Matrix extends SimpleConvolutionLayerTest {
     public Matrix() {
       super(3, 1, Precision.Double, 1);
@@ -195,7 +197,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     Matrix[] addRefs(Matrix[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Matrix::addRef).toArray((x) -> new Matrix[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Matrix::addRef).toArray((x) -> new Matrix[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -209,7 +211,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class MultiBand extends SimpleConvolutionLayerTest {
     public MultiBand() {
       super(1, 3, Precision.Double, 1);
@@ -220,7 +222,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     MultiBand[] addRefs(MultiBand[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(MultiBand::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(MultiBand::addRef)
           .toArray((x) -> new MultiBand[x]);
     }
 
@@ -235,7 +237,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public abstract static @com.simiacryptus.ref.lang.RefAware
+  public abstract static @RefAware
   class Bug_Control extends SimpleConvolutionLayerTest {
     protected Bug_Control() {
       super(3, 8, Precision.Double, 1);
@@ -261,7 +263,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     Bug_Control[] addRefs(Bug_Control[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Bug_Control::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Bug_Control::addRef)
           .toArray((x) -> new Bug_Control[x]);
     }
 
@@ -294,7 +296,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class PaddingBug extends Image {
     public PaddingBug() {
       super();
@@ -305,7 +307,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     PaddingBug[] addRefs(PaddingBug[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(PaddingBug::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(PaddingBug::addRef)
           .toArray((x) -> new PaddingBug[x]);
     }
 
@@ -321,7 +323,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class SpanBug extends Image {
     public SpanBug() {
       layer.setStrideX(2);
@@ -334,7 +336,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     SpanBug[] addRefs(SpanBug[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(SpanBug::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(SpanBug::addRef)
           .toArray((x) -> new SpanBug[x]);
     }
 
@@ -349,7 +351,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Big0 extends Big {
     public Big0() {
       super(1, 2048, Precision.Double);
@@ -359,7 +361,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     Big0[] addRefs(Big0[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Big0::addRef).toArray((x) -> new Big0[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Big0::addRef).toArray((x) -> new Big0[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -373,7 +375,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public abstract static @com.simiacryptus.ref.lang.RefAware
+  public abstract static @RefAware
   class Big extends SimpleConvolutionLayerTest {
     public Big(int radius, int bands, Precision aDouble) {
       super(radius, bands, aDouble, 1);
@@ -420,7 +422,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     Big[] addRefs(Big[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Big::addRef).toArray((x) -> new Big[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Big::addRef).toArray((x) -> new Big[x]);
     }
 
     @Nonnull

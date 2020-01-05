@@ -22,13 +22,19 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ImgConcatLayer extends LayerBase
     implements MultiPrecision<ImgConcatLayer> {
 
@@ -84,11 +90,11 @@ class ImgConcatLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ImgConcatLayer fromJson(@Nonnull final JsonObject json,
-                                        com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                        Map<CharSequence, byte[]> rs) {
     return new ImgConcatLayer(json);
   }
 
-  public static Tensor eval(final com.simiacryptus.ref.wrappers.RefList<Tensor> featureImage) {
+  public static Tensor eval(final RefList<Tensor> featureImage) {
     ImgConcatLayer layer = new ImgConcatLayer();
     TensorList data = layer.eval(featureImage.toArray(new Tensor[]{})).getData();
     return data.get(0);
@@ -98,7 +104,7 @@ class ImgConcatLayer extends LayerBase
   ImgConcatLayer[] addRefs(ImgConcatLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgConcatLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgConcatLayer::addRef)
         .toArray((x) -> new ImgConcatLayer[x]);
   }
 
@@ -106,7 +112,7 @@ class ImgConcatLayer extends LayerBase
   ImgConcatLayer[][] addRefs(ImgConcatLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgConcatLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgConcatLayer::addRefs)
         .toArray((x) -> new ImgConcatLayer[x][]);
   }
 
@@ -119,15 +125,15 @@ class ImgConcatLayer extends LayerBase
     //assert Arrays.stream(inObj).flatMapToDouble(input->input.data.stream().flatMapToDouble(x-> Arrays.stream(x.getData()))).allMatch(v->Double.isFinite(v));
     int[] dimensions = inObj[0].getData().getDimensions();
     assert 3 == dimensions.length;
-    @Nonnull final int[] outputDimensions = com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimensions, dimensions.length);
+    @Nonnull final int[] outputDimensions = RefArrays.copyOf(dimensions, dimensions.length);
     final int length = inObj[0].getData().length();
-    assert com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).allMatch(x -> {
+    assert RefArrays.stream(inObj).allMatch(x -> {
       @Nonnull
       int[] d = x.getData().getDimensions();
       return 3 == d.length && d[0] == outputDimensions[0] && d[1] == outputDimensions[1]
           && x.getData().length() == length;
     });
-    outputDimensions[2] = com.simiacryptus.ref.wrappers.RefArrays.stream(inObj)
+    outputDimensions[2] = RefArrays.stream(inObj)
         .mapToInt(x -> x.getData().getDimensions()[2]).sum();
     if (0 < maxBands && outputDimensions[2] > maxBands) {
       outputDimensions[2] = maxBands;
@@ -136,7 +142,7 @@ class ImgConcatLayer extends LayerBase
       final long outputSize = ((long) length * outputDimensions[2] * outputDimensions[1] * outputDimensions[0]
           * precision.size);
       @Nonnull final CudaMemory cudaOutput = gpu.allocate(outputSize, MemoryType.Managed.ifEnabled(), true);
-      com.simiacryptus.ref.wrappers.RefIntStream stream = com.simiacryptus.ref.wrappers.RefIntStream.range(0,
+      RefIntStream stream = RefIntStream.range(0,
           inObj.length);
       //if (!CoreSettings.INSTANCE.isConservative() && parallel) stream = stream.parallel();
       stream.forEach(i -> {
@@ -145,7 +151,7 @@ class ImgConcatLayer extends LayerBase
         @Nonnull final int[] inputDimensions = input.getDimensions();
         assert inputDimensions[0] == outputDimensions[0];
         assert inputDimensions[1] == outputDimensions[1];
-        int bandOffset = com.simiacryptus.ref.wrappers.RefIntStream.range(0, i)
+        int bandOffset = RefIntStream.range(0, i)
             .map(j -> inObj[j].getData().getDimensions()[2]).sum();
         if (maxBands > 0)
           bandOffset = Math.min(bandOffset, maxBands);
@@ -183,18 +189,18 @@ class ImgConcatLayer extends LayerBase
       CudaDevice.CudaTensorDescriptor outDesc = gpu.newTensorDescriptor(precision, length, outputDimensions[2],
           outputDimensions[1], outputDimensions[0]);
       return new CudaTensorList(new CudaTensor(cudaOutput, outDesc, precision), length, outputDimensions, precision);
-    }, com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).map(Result::getData).toArray()),
+    }, RefArrays.stream(inObj).map(Result::getData).toArray()),
         (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
           assert delta.getDimensions()[0] == outputDimensions[0];
           assert delta.getDimensions()[1] == outputDimensions[1];
           assert delta.getDimensions()[2] == outputDimensions[2];
-          if (!com.simiacryptus.ref.wrappers.RefArrays.equals(delta.getDimensions(), outputDimensions)) {
-            throw new AssertionError(com.simiacryptus.ref.wrappers.RefArrays.toString(delta.getDimensions()) + " != "
-                + com.simiacryptus.ref.wrappers.RefArrays.toString(outputDimensions));
+          if (!RefArrays.equals(delta.getDimensions(), outputDimensions)) {
+            throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
+                + RefArrays.toString(outputDimensions));
           }
           //assert error.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(Double::isFinite);
           @Nonnull
-          com.simiacryptus.ref.wrappers.RefIntStream stream = com.simiacryptus.ref.wrappers.RefIntStream.range(0,
+          RefIntStream stream = RefIntStream.range(0,
               inObj.length);
           if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
             stream = stream.parallel();
@@ -205,7 +211,7 @@ class ImgConcatLayer extends LayerBase
             assert delta.length() == input.getData().length();
             assert inputDimentions[0] == outputDimensions[0];
             assert inputDimentions[1] == outputDimensions[1];
-            int bandOffset = com.simiacryptus.ref.wrappers.RefIntStream.range(0, i)
+            int bandOffset = RefIntStream.range(0, i)
                 .map(j -> inObj[j].getData().getDimensions()[2]).sum();
             int inputBands = maxBands <= 0 ? inputDimentions[2] : Math.min(inputDimentions[2], maxBands - bandOffset);
             if (inputBands > 0 && input.isAlive()) {
@@ -269,7 +275,7 @@ class ImgConcatLayer extends LayerBase
 
       @Override
       public boolean isAlive() {
-        return com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
+        return RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
       }
 
       public void _free() {
@@ -283,7 +289,7 @@ class ImgConcatLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("maxBands", maxBands);
@@ -294,8 +300,8 @@ class ImgConcatLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

@@ -19,8 +19,10 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
+import com.simiacryptus.ref.lang.RefAware;
+
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class CudaError extends RuntimeException {
   public CudaError() {
   }

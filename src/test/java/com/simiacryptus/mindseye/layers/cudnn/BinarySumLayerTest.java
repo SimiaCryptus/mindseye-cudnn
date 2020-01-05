@@ -25,11 +25,14 @@ import com.simiacryptus.mindseye.layers.java.SumInputsLayer;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class BinarySumLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
@@ -46,7 +49,7 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
   BinarySumLayerTest[] addRefs(BinarySumLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayerTest::addRef)
         .toArray((x) -> new BinarySumLayerTest[x]);
   }
 
@@ -54,7 +57,7 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
   BinarySumLayerTest[][] addRefs(BinarySumLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayerTest::addRefs)
         .toArray((x) -> new BinarySumLayerTest[x][]);
   }
 
@@ -84,7 +87,7 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
     return (BinarySumLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Double_List extends BinarySumLayerTest {
     public Double_List() {
       super(Precision.Double);
@@ -94,19 +97,19 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
     Double_List[] addRefs(Double_List[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double_List::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Double_List::addRef)
           .toArray((x) -> new Double_List[x]);
     }
 
     @Override
     public int[][] getSmallDims(Random random) {
-      return com.simiacryptus.ref.wrappers.RefIntStream.range(0, 5).mapToObj(i -> new int[]{smallSize, smallSize, 2})
+      return RefIntStream.range(0, 5).mapToObj(i -> new int[]{smallSize, smallSize, 2})
           .toArray(i -> new int[i][]);
     }
 
     @Override
     public int[][] getLargeDims(Random random) {
-      return com.simiacryptus.ref.wrappers.RefIntStream.range(0, 5).mapToObj(i -> new int[]{largeSize, largeSize, 3})
+      return RefIntStream.range(0, 5).mapToObj(i -> new int[]{largeSize, largeSize, 3})
           .toArray(i -> new int[i][]);
     }
 
@@ -122,7 +125,7 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class OnePlusOne extends CudnnLayerTestBase {
 
     public OnePlusOne() {
@@ -147,7 +150,7 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
     OnePlusOne[] addRefs(OnePlusOne[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(OnePlusOne::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(OnePlusOne::addRef)
           .toArray((x) -> new OnePlusOne[x]);
     }
 
@@ -185,7 +188,7 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Double_Add extends BinarySumLayerTest {
     public Double_Add() {
       super(Precision.Double);
@@ -195,7 +198,7 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
     Double_Add[] addRefs(Double_Add[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double_Add::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Double_Add::addRef)
           .toArray((x) -> new Double_Add[x]);
     }
 
@@ -210,7 +213,7 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Double_Subtract extends BinarySumLayerTest {
     public Double_Subtract() {
       super(Precision.Double);
@@ -220,7 +223,7 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
     Double_Subtract[] addRefs(Double_Subtract[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double_Subtract::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Double_Subtract::addRef)
           .toArray((x) -> new Double_Subtract[x]);
     }
 
@@ -242,7 +245,7 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Float_Add extends BinarySumLayerTest {
     public Float_Add() {
       super(Precision.Float);
@@ -257,7 +260,7 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
     Float_Add[] addRefs(Float_Add[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float_Add::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Float_Add::addRef)
           .toArray((x) -> new Float_Add[x]);
     }
 
@@ -273,7 +276,7 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Float_Avg extends BinarySumLayerTest {
     public Float_Avg() {
       super(Precision.Float);
@@ -288,7 +291,7 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
     Float_Avg[] addRefs(Float_Avg[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float_Avg::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Float_Avg::addRef)
           .toArray((x) -> new Float_Avg[x]);
     }
 

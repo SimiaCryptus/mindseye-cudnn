@@ -27,14 +27,20 @@ import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class SumInputsLayer extends LayerBase
     implements MultiPrecision<SumInputsLayer> {
 
@@ -80,16 +86,16 @@ class SumInputsLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static SumInputsLayer fromJson(@Nonnull final JsonObject json,
-                                        com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                        Map<CharSequence, byte[]> rs) {
     return new SumInputsLayer(json);
   }
 
   public static PipelineNetwork combine(PipelineNetwork... networks) {
     if (1 == networks.length)
       return networks[0];
-    com.simiacryptus.ref.wrappers.RefArrays.stream(networks).forEach(ReferenceCountingBase::assertAlive);
+    RefArrays.stream(networks).forEach(ReferenceCountingBase::assertAlive);
     PipelineNetwork pipelineNetwork = new PipelineNetwork(1);
-    pipelineNetwork.add(new SumInputsLayer(), com.simiacryptus.ref.wrappers.RefArrays.stream(networks).map(network -> {
+    pipelineNetwork.add(new SumInputsLayer(), RefArrays.stream(networks).map(network -> {
       return PipelineNetwork.transferNode(pipelineNetwork, network.getHead());
     }).toArray(i -> new DAGNode[i]));
     return pipelineNetwork;
@@ -99,7 +105,7 @@ class SumInputsLayer extends LayerBase
   SumInputsLayer[] addRefs(SumInputsLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayer::addRef)
         .toArray((x) -> new SumInputsLayer[x]);
   }
 
@@ -107,7 +113,7 @@ class SumInputsLayer extends LayerBase
   SumInputsLayer[][] addRefs(SumInputsLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayer::addRefs)
         .toArray((x) -> new SumInputsLayer[x][]);
   }
 
@@ -116,17 +122,17 @@ class SumInputsLayer extends LayerBase
   public Result eval(@Nonnull final Result... inObj) {
     @Nonnull final int[] dimensions = inObj[0].getData().getDimensions();
     if (3 != dimensions.length) {
-      throw new IllegalArgumentException("dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions));
+      throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
     }
     for (int i = 1; i < inObj.length; i++) {
       if (Tensor.length(dimensions) != Tensor.length(inObj[i].getData().getDimensions())) {
-        throw new IllegalArgumentException(com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions) + " != "
-            + com.simiacryptus.ref.wrappers.RefArrays.toString(inObj[i].getData().getDimensions()));
+        throw new IllegalArgumentException(RefArrays.toString(dimensions) + " != "
+            + RefArrays.toString(inObj[i].getData().getDimensions()));
       }
     }
     if (!CudaSystem.isEnabled())
       return getCompatibilityLayer().eval(inObj);
-    com.simiacryptus.ref.wrappers.RefStream<TensorList> tensorListStream = com.simiacryptus.ref.wrappers.RefArrays
+    RefStream<TensorList> tensorListStream = RefArrays
         .stream(inObj).map(x -> x.getData());
     if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
       tensorListStream = tensorListStream.parallel();
@@ -134,7 +140,7 @@ class SumInputsLayer extends LayerBase
       return gpu.addAndFree(precision, leftData, rightData);
     }, leftData, rightData)).get(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
       @Nonnull
-      com.simiacryptus.ref.wrappers.RefStream<Result> deltaStream = com.simiacryptus.ref.wrappers.RefArrays
+      RefStream<Result> deltaStream = RefArrays
           .stream(inObj);
       if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
         deltaStream = deltaStream.parallel();
@@ -160,7 +166,7 @@ class SumInputsLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
@@ -170,8 +176,8 @@ class SumInputsLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

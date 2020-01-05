@@ -21,10 +21,11 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.network.DAGNetwork;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 interface MultiPrecision<T> {
   Precision getPrecision();
 

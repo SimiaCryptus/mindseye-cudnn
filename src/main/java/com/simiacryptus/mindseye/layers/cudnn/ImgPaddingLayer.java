@@ -23,16 +23,21 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ImgPaddingLayer extends LayerBase
     implements MultiPrecision<ImgPaddingLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgPaddingLayer.class);
@@ -54,7 +59,7 @@ class ImgPaddingLayer extends LayerBase
   }
 
   protected ImgPaddingLayer(@Nonnull final JsonObject json,
-                            com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                            Map<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -112,7 +117,7 @@ class ImgPaddingLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ImgPaddingLayer fromJson(@Nonnull final JsonObject json,
-                                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                         Map<CharSequence, byte[]> rs) {
     return new ImgPaddingLayer(json, rs);
   }
 
@@ -229,7 +234,7 @@ class ImgPaddingLayer extends LayerBase
   ImgPaddingLayer[] addRefs(ImgPaddingLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayer::addRef)
         .toArray((x) -> new ImgPaddingLayer[x]);
   }
 
@@ -237,7 +242,7 @@ class ImgPaddingLayer extends LayerBase
   ImgPaddingLayer[][] addRefs(ImgPaddingLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayer::addRefs)
         .toArray((x) -> new ImgPaddingLayer[x][]);
   }
 
@@ -269,7 +274,7 @@ class ImgPaddingLayer extends LayerBase
     if (dimIn[0] == sizeX && dimIn[1] == sizeY) {
       return input;
     }
-    @Nonnull final int[] dimOut = com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimIn, 3);
+    @Nonnull final int[] dimOut = RefArrays.copyOf(dimIn, 3);
     dimOut[0] = sizeX;
     dimOut[1] = sizeY;
     final TensorList outputData = CudaSystem.run(gpu -> {
@@ -290,9 +295,9 @@ class ImgPaddingLayer extends LayerBase
     int[] output_dimensions = outputData.getDimensions();
     int output_length = outputData.length();
     return new Result(outputData, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      if (!com.simiacryptus.ref.wrappers.RefArrays.equals(delta.getDimensions(), output_dimensions)) {
-        throw new AssertionError(com.simiacryptus.ref.wrappers.RefArrays.toString(delta.getDimensions()) + " != "
-            + com.simiacryptus.ref.wrappers.RefArrays.toString(output_dimensions));
+      if (!RefArrays.equals(delta.getDimensions(), output_dimensions)) {
+        throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
+            + RefArrays.toString(output_dimensions));
       }
       if (delta.length() != output_length) {
         throw new AssertionError(delta.length() + " != " + output_length);
@@ -313,7 +318,7 @@ class ImgPaddingLayer extends LayerBase
 
       @Override
       public boolean isAlive() {
-        return com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
+        return RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
       }
 
       @Override
@@ -334,7 +339,7 @@ class ImgPaddingLayer extends LayerBase
       throw new IllegalArgumentException("dimIn.length");
     int offset_left = half(dimOut[0] - dimIn[0], getHorizontalAlign());
     int offset_top = half(dimOut[1] - dimIn[1], getVerticalAlign());
-    if (com.simiacryptus.ref.wrappers.RefArrays.equals(dimIn, dimOut) && offset_left == 0 && offset_top == 0) {
+    if (RefArrays.equals(dimIn, dimOut) && offset_left == 0 && offset_top == 0) {
       return inputTensor;
     } else {
       CudaMemory output_memory = gpu.allocate((long) length * Tensor.length(dimOut) * precision.size, MemoryType.Device,
@@ -369,7 +374,7 @@ class ImgPaddingLayer extends LayerBase
       throw new IllegalArgumentException("dimIn.length");
     int offset_left = half(dimOut[0] - dimIn[0], getHorizontalAlign());
     int offset_top = half(dimOut[1] - dimIn[1], getVerticalAlign());
-    if (com.simiacryptus.ref.wrappers.RefArrays.equals(dimIn, dimOut) && offset_left == 0 && offset_top == 0) {
+    if (RefArrays.equals(dimIn, dimOut) && offset_left == 0 && offset_top == 0) {
       return inputTensor;
     } else {
       CudaMemory output_memory = gpu.allocate((long) length * Tensor.length(dimOut) * precision.size, MemoryType.Device,
@@ -410,7 +415,7 @@ class ImgPaddingLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
@@ -424,8 +429,8 @@ class ImgPaddingLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")
@@ -438,7 +443,7 @@ class ImgPaddingLayer extends LayerBase
     return (ImgPaddingLayer) super.addRef();
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware
+  private static @RefAware
   class CopyParams extends ReferenceCountingBase {
     public final CudnnHandle gpu;
     public int length;
@@ -498,7 +503,7 @@ class ImgPaddingLayer extends LayerBase
     CopyParams[] addRefs(CopyParams[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(CopyParams::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(CopyParams::addRef)
           .toArray((x) -> new CopyParams[x]);
     }
 

@@ -20,11 +20,13 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class ImgCropLayerTest extends CudnnLayerTestBase {
 
   public ImgCropLayerTest() {
@@ -39,7 +41,7 @@ class ImgCropLayerTest extends CudnnLayerTestBase {
   ImgCropLayerTest[] addRefs(ImgCropLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayerTest::addRef)
         .toArray((x) -> new ImgCropLayerTest[x]);
   }
 
@@ -47,7 +49,7 @@ class ImgCropLayerTest extends CudnnLayerTestBase {
   ImgCropLayerTest[][] addRefs(ImgCropLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayerTest::addRefs)
         .toArray((x) -> new ImgCropLayerTest[x][]);
   }
 
@@ -69,7 +71,7 @@ class ImgCropLayerTest extends CudnnLayerTestBase {
     return (ImgCropLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Center extends ImgCropLayerTest {
     @Override
     public Class<? extends Layer> getReferenceLayerClass() {
@@ -80,7 +82,7 @@ class ImgCropLayerTest extends CudnnLayerTestBase {
     Center[] addRefs(Center[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Center::addRef).toArray((x) -> new Center[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Center::addRef).toArray((x) -> new Center[x]);
     }
 
     @Nonnull
@@ -107,13 +109,13 @@ class ImgCropLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Left extends ImgCropLayerTest {
     public static @SuppressWarnings("unused")
     Left[] addRefs(Left[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Left::addRef).toArray((x) -> new Left[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Left::addRef).toArray((x) -> new Left[x]);
     }
 
     @Nonnull
@@ -140,13 +142,13 @@ class ImgCropLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Right extends ImgCropLayerTest {
     public static @SuppressWarnings("unused")
     Right[] addRefs(Right[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Right::addRef).toArray((x) -> new Right[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Right::addRef).toArray((x) -> new Right[x]);
     }
 
     @Nonnull
@@ -173,13 +175,13 @@ class ImgCropLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Top extends ImgCropLayerTest {
     public static @SuppressWarnings("unused")
     Top[] addRefs(Top[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Top::addRef).toArray((x) -> new Top[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Top::addRef).toArray((x) -> new Top[x]);
     }
 
     @Nonnull
@@ -206,13 +208,13 @@ class ImgCropLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Bottom extends ImgCropLayerTest {
     public static @SuppressWarnings("unused")
     Bottom[] addRefs(Bottom[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Bottom::addRef).toArray((x) -> new Bottom[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Bottom::addRef).toArray((x) -> new Bottom[x]);
     }
 
     @Nonnull

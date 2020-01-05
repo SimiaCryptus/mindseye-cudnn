@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.lang.TimedResult;
+import com.simiacryptus.ref.lang.RefAware;
 import jcuda.jcudnn.*;
 import jcuda.runtime.JCuda;
 import jcuda.runtime.cudaDeviceProp;
@@ -29,9 +30,10 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.function.Function;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class CudaDevice extends CudaSystem {
   protected static final Logger logger = LoggerFactory.getLogger(CudnnHandle.class);
   @Nullable
@@ -341,7 +343,7 @@ class CudaDevice extends CudaSystem {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class CudaTensorDescriptor
       extends CudaResource<cudnnTensorDescriptor> {
 
@@ -374,7 +376,7 @@ class CudaDevice extends CudaSystem {
     CudaTensorDescriptor[] addRefs(CudaTensorDescriptor[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaTensorDescriptor::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(CudaTensorDescriptor::addRef)
           .toArray((x) -> new CudaTensorDescriptor[x]);
     }
 

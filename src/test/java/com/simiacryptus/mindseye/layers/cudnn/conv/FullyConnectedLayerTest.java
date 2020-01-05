@@ -26,13 +26,15 @@ import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.BatchingTester;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
 import com.simiacryptus.notebook.NotebookOutput;
+import com.simiacryptus.ref.lang.RefAware;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
@@ -71,7 +73,7 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
   FullyConnectedLayerTest[] addRefs(FullyConnectedLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayerTest::addRef)
         .toArray((x) -> new FullyConnectedLayerTest[x]);
   }
 
@@ -79,7 +81,7 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
   FullyConnectedLayerTest[][] addRefs(FullyConnectedLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayerTest::addRefs)
         .toArray((x) -> new FullyConnectedLayerTest[x][]);
   }
 
@@ -113,7 +115,7 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
     return (FullyConnectedLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Basic extends FullyConnectedLayerTest {
     public Basic() {
       super(new int[]{2}, new int[]{2}, 512);
@@ -123,7 +125,7 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
     Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -137,7 +139,7 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public abstract static @com.simiacryptus.ref.lang.RefAware
+  public abstract static @RefAware
   class BigTests extends FullyConnectedLayerTest {
 
     public BigTests(@Nonnull int[] inputDims, @Nonnull int[] outputDims, int batchBands) {
@@ -187,7 +189,7 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
     BigTests[] addRefs(BigTests[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(BigTests::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(BigTests::addRef)
           .toArray((x) -> new BigTests[x]);
     }
 
@@ -202,7 +204,7 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Big_VGG extends BigTests {
     public Big_VGG() {
       super(new int[]{25088}, new int[]{4096}, 25088 / 2);
@@ -212,7 +214,7 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
     Big_VGG[] addRefs(Big_VGG[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Big_VGG::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Big_VGG::addRef)
           .toArray((x) -> new Big_VGG[x]);
     }
 
@@ -228,7 +230,7 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Big1 extends BigTests {
     public Big1() {
       super(new int[]{2 * 1024}, new int[]{2 * 1024}, 512);
@@ -238,7 +240,7 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
     Big1[] addRefs(Big1[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Big1::addRef).toArray((x) -> new Big1[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Big1::addRef).toArray((x) -> new Big1[x]);
     }
 
     public @SuppressWarnings("unused")

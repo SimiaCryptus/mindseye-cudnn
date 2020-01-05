@@ -22,14 +22,19 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class BandAvgReducerLayer extends LayerBase
     implements MultiPrecision<BandAvgReducerLayer> {
 
@@ -74,7 +79,7 @@ class BandAvgReducerLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static BandAvgReducerLayer fromJson(@Nonnull final JsonObject json,
-                                             com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                             Map<CharSequence, byte[]> rs) {
     return new BandAvgReducerLayer(json);
   }
 
@@ -82,7 +87,7 @@ class BandAvgReducerLayer extends LayerBase
   BandAvgReducerLayer[] addRefs(BandAvgReducerLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BandAvgReducerLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(BandAvgReducerLayer::addRef)
         .toArray((x) -> new BandAvgReducerLayer[x]);
   }
 
@@ -90,7 +95,7 @@ class BandAvgReducerLayer extends LayerBase
   BandAvgReducerLayer[][] addRefs(BandAvgReducerLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BandAvgReducerLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(BandAvgReducerLayer::addRefs)
         .toArray((x) -> new BandAvgReducerLayer[x][]);
   }
 
@@ -134,7 +139,7 @@ class BandAvgReducerLayer extends LayerBase
     return new Result(result, (DeltaSet<UUID> ctx, TensorList delta) -> {
       TensorList passback;
       passback = new TensorArray(delta.stream().map(x -> {
-        final double[] xData = com.simiacryptus.ref.wrappers.RefArrays.stream(x.getData()).map(v -> v * alpha / pixels)
+        final double[] xData = RefArrays.stream(x.getData()).map(v -> v * alpha / pixels)
             .toArray();
         final Tensor tensor = new Tensor(inputSize[0], inputSize[1], inputSize[2]);
         final double[] tensor1Data = tensor.getData();
@@ -155,7 +160,7 @@ class BandAvgReducerLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("alpha", alpha);
@@ -165,8 +170,8 @@ class BandAvgReducerLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

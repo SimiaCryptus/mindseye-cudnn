@@ -21,11 +21,13 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   private static final int SIZE_OUT = 4;
@@ -43,7 +45,7 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
   ImgPaddingLayerTest[] addRefs(ImgPaddingLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayerTest::addRef)
         .toArray((x) -> new ImgPaddingLayerTest[x]);
   }
 
@@ -51,7 +53,7 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
   ImgPaddingLayerTest[][] addRefs(ImgPaddingLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayerTest::addRefs)
         .toArray((x) -> new ImgPaddingLayerTest[x][]);
   }
 
@@ -73,13 +75,13 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
     return (ImgPaddingLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Center extends ImgPaddingLayerTest {
     public static @SuppressWarnings("unused")
     Center[] addRefs(Center[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Center::addRef).toArray((x) -> new Center[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Center::addRef).toArray((x) -> new Center[x]);
     }
 
     @Nonnull
@@ -106,13 +108,13 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Left extends ImgPaddingLayerTest {
     public static @SuppressWarnings("unused")
     Left[] addRefs(Left[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Left::addRef).toArray((x) -> new Left[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Left::addRef).toArray((x) -> new Left[x]);
     }
 
     @Nonnull
@@ -139,13 +141,13 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Right extends ImgPaddingLayerTest {
     public static @SuppressWarnings("unused")
     Right[] addRefs(Right[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Right::addRef).toArray((x) -> new Right[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Right::addRef).toArray((x) -> new Right[x]);
     }
 
     @Nonnull
@@ -172,13 +174,13 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Top extends ImgPaddingLayerTest {
     public static @SuppressWarnings("unused")
     Top[] addRefs(Top[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Top::addRef).toArray((x) -> new Top[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Top::addRef).toArray((x) -> new Top[x]);
     }
 
     @Nonnull
@@ -205,13 +207,13 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Bottom extends ImgPaddingLayerTest {
     public static @SuppressWarnings("unused")
     Bottom[] addRefs(Bottom[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Bottom::addRef).toArray((x) -> new Bottom[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Bottom::addRef).toArray((x) -> new Bottom[x]);
     }
 
     @Nonnull

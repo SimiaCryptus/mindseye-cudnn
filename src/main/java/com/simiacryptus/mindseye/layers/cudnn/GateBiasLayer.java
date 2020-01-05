@@ -23,14 +23,19 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ProductInputsLayer;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class GateBiasLayer extends LayerBase
     implements MultiPrecision<GateBiasLayer> {
 
@@ -63,7 +68,7 @@ class GateBiasLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static GateBiasLayer fromJson(@Nonnull final JsonObject json,
-                                       com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                       Map<CharSequence, byte[]> rs) {
     return new GateBiasLayer(json);
   }
 
@@ -71,7 +76,7 @@ class GateBiasLayer extends LayerBase
   GateBiasLayer[] addRefs(GateBiasLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayer::addRef)
         .toArray((x) -> new GateBiasLayer[x]);
   }
 
@@ -79,7 +84,7 @@ class GateBiasLayer extends LayerBase
   GateBiasLayer[][] addRefs(GateBiasLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayer::addRefs)
         .toArray((x) -> new GateBiasLayer[x][]);
   }
 
@@ -100,7 +105,7 @@ class GateBiasLayer extends LayerBase
     final int length = leftData.length();
     if (3 != leftDimensions.length) {
       throw new IllegalArgumentException(
-          "dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(leftDimensions));
+          "dimensions=" + RefArrays.toString(leftDimensions));
     }
     return new Result(CudaSystem.run(gpu -> {
       @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
@@ -133,7 +138,7 @@ class GateBiasLayer extends LayerBase
         @Nonnull
         TensorList data = CudaSystem.run(gpu -> {
           //assert deltaTensor.size == rightTensor.size;
-          if (com.simiacryptus.ref.wrappers.RefArrays.equals(rightDimensions, leftDimensions)
+          if (RefArrays.equals(rightDimensions, leftDimensions)
               && length == rightData.length()) {
             assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
             return delta;
@@ -190,7 +195,7 @@ class GateBiasLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull
     JsonObject json = super.getJsonStub();
@@ -200,8 +205,8 @@ class GateBiasLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

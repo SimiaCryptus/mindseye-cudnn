@@ -28,23 +28,29 @@ import com.simiacryptus.mindseye.layers.cudnn.ImgZeroPaddingLayer;
 import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefArrayList;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Function;
 
-@com.simiacryptus.ref.lang.RefAware
+@RefAware
 class ExplodedConvolutionLeg extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(ExplodedConvolutionLeg.class);
 
   public final ConvolutionParams convolutionParams;
   @Nonnull
-  public final com.simiacryptus.ref.wrappers.RefList<Layer> subLayers;
+  public final RefList<Layer> subLayers;
   @Nonnull
-  public final com.simiacryptus.ref.wrappers.RefList<SimpleConvolutionLayer> subKernels = new com.simiacryptus.ref.wrappers.RefArrayList<>();
+  public final RefList<SimpleConvolutionLayer> subKernels = new RefArrayList<>();
   public final int fromBand;
   public final int toBand;
 
@@ -52,10 +58,10 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     this.fromBand = fromBand;
     this.toBand = toBand;
     this.convolutionParams = convolutionParams;
-    this.subLayers = new com.simiacryptus.ref.wrappers.RefArrayList<>();
+    this.subLayers = new RefArrayList<>();
     int inputBands = getInputBands();
     final int inputBandsSq = inputBands * inputBands;
-    @Nonnull final int[] filterDimensions = com.simiacryptus.ref.wrappers.RefArrays
+    @Nonnull final int[] filterDimensions = RefArrays
         .copyOf(this.convolutionParams.masterFilterDimensions, this.convolutionParams.masterFilterDimensions.length);
     filterDimensions[2] = inputBands * this.convolutionParams.outputBands;
     for (int offset = 0; offset < filterDimensions[2]; offset += inputBandsSq) {
@@ -90,7 +96,7 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
   ExplodedConvolutionLeg[] addRefs(ExplodedConvolutionLeg[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionLeg::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionLeg::addRef)
         .toArray((x) -> new ExplodedConvolutionLeg[x]);
   }
 
@@ -98,14 +104,14 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
   ExplodedConvolutionLeg[][] addRefs(ExplodedConvolutionLeg[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionLeg::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionLeg::addRefs)
         .toArray((x) -> new ExplodedConvolutionLeg[x][]);
   }
 
   @Nonnull
   public void write(@Nonnull Tensor filter) {
     int inputBands = getInputBands();
-    @Nonnull final int[] filterDimensions = com.simiacryptus.ref.wrappers.RefArrays
+    @Nonnull final int[] filterDimensions = RefArrays
         .copyOf(this.convolutionParams.masterFilterDimensions, this.convolutionParams.masterFilterDimensions.length);
     int outputBands = this.convolutionParams.outputBands;
     int squareOutputBands = (int) (Math.ceil(convolutionParams.outputBands * 1.0 / inputBands) * inputBands);
@@ -113,11 +119,11 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
         convolutionParams.outputBands);
     assert squareOutputBands % inputBands == 0 : String.format("%d %% %d", squareOutputBands, inputBands);
     filterDimensions[2] = inputBands * outputBands;
-    assert com.simiacryptus.ref.wrappers.RefArrays.equals(filter.getDimensions(),
-        filterDimensions) : com.simiacryptus.ref.wrappers.RefArrays.toString(filter.getDimensions()) + " != "
-        + com.simiacryptus.ref.wrappers.RefArrays.toString(filterDimensions);
+    assert RefArrays.equals(filter.getDimensions(),
+        filterDimensions) : RefArrays.toString(filter.getDimensions()) + " != "
+        + RefArrays.toString(filterDimensions);
     final int inputBandsSq = inputBands * inputBands;
-    com.simiacryptus.ref.wrappers.RefIntStream.range(0, subLayers.size()).parallel().forEach(layerNumber -> {
+    RefIntStream.range(0, subLayers.size()).parallel().forEach(layerNumber -> {
       final int filterBandOffset = layerNumber * inputBandsSq;
       @Nonnull
       Tensor kernel = new Tensor(filterDimensions[0], filterDimensions[1], inputBandsSq).setByCoord(c -> {
@@ -136,7 +142,7 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
   @Nonnull
   public Tensor read(@Nonnull Function<SimpleConvolutionLayer, Tensor> extractor) {
     int inputBands = getInputBands();
-    @Nonnull final int[] filterDimensions = com.simiacryptus.ref.wrappers.RefArrays
+    @Nonnull final int[] filterDimensions = RefArrays
         .copyOf(this.convolutionParams.masterFilterDimensions, this.convolutionParams.masterFilterDimensions.length);
     filterDimensions[2] = inputBands * this.convolutionParams.outputBands;
     int outputBands = convolutionParams.outputBands;

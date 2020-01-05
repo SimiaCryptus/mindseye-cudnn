@@ -22,19 +22,24 @@ package com.simiacryptus.mindseye.lang.cudnn;
 import com.simiacryptus.mindseye.lang.RegisteredObjectBase;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayer;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
+import com.simiacryptus.ref.wrappers.RefMap;
 import jcuda.runtime.cudaMemcpyKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 
 import static jcuda.runtime.cudaMemcpyKind.cudaMemcpyDeviceToHost;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class CudaMemory extends CudaResourceBase<CudaPointer> {
 
-  public static final com.simiacryptus.ref.wrappers.RefMap<Integer, DeviceMetrics> METRICS = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
+  public static final RefMap<Integer, DeviceMetrics> METRICS = new RefConcurrentHashMap<>();
   public static final int K = 1024;
   public static final long MiB = K * 1024;
   public static final long GiB = 1024 * MiB;
@@ -105,7 +110,7 @@ class CudaMemory extends CudaResourceBase<CudaPointer> {
   CudaMemory[] addRefs(CudaMemory[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRef)
         .toArray((x) -> new CudaMemory[x]);
   }
 
@@ -113,13 +118,13 @@ class CudaMemory extends CudaResourceBase<CudaPointer> {
   CudaMemory[][] addRefs(CudaMemory[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRefs)
         .toArray((x) -> new CudaMemory[x][]);
   }
 
   private static void logLoad() {
     logger.debug(String.format("Current Load: %s",
-        METRICS.entrySet().stream().collect(com.simiacryptus.ref.wrappers.RefCollectors.toMap(e -> e.getKey(), e -> {
+        METRICS.entrySet().stream().collect(RefCollectors.toMap(e -> e.getKey(), e -> {
           return String.format("%e / %e", (double) e.getValue().activeMemory.get(),
               (double) e.getValue().usedMemory.get());
         }))));

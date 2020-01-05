@@ -23,16 +23,22 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.WrapperLayer;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrayList;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ImgTileSubnetLayer extends WrapperLayer
     implements MultiPrecision<ImgTileSubnetLayer> {
 
@@ -58,7 +64,7 @@ class ImgTileSubnetLayer extends WrapperLayer
   }
 
   protected ImgTileSubnetLayer(@Nonnull final JsonObject json,
-                               com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                               Map<CharSequence, byte[]> rs) {
     super(json, rs);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     height = json.getAsJsonPrimitive("height").getAsInt();
@@ -91,7 +97,7 @@ class ImgTileSubnetLayer extends WrapperLayer
 
   @SuppressWarnings("unused")
   public static ImgTileSubnetLayer fromJson(@Nonnull final JsonObject json,
-                                            com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                            Map<CharSequence, byte[]> rs) {
     return new ImgTileSubnetLayer(json, rs);
   }
 
@@ -99,7 +105,7 @@ class ImgTileSubnetLayer extends WrapperLayer
   ImgTileSubnetLayer[] addRefs(ImgTileSubnetLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayer::addRef)
         .toArray((x) -> new ImgTileSubnetLayer[x]);
   }
 
@@ -107,7 +113,7 @@ class ImgTileSubnetLayer extends WrapperLayer
   ImgTileSubnetLayer[][] addRefs(ImgTileSubnetLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayer::addRefs)
         .toArray((x) -> new ImgTileSubnetLayer[x][]);
   }
 
@@ -166,10 +172,10 @@ class ImgTileSubnetLayer extends WrapperLayer
         }
       }
       logger.debug(String.format("Broke input %s into %s rows, %s cols",
-          com.simiacryptus.ref.wrappers.RefArrays.toString(inputDims), rows, cols));
+          RefArrays.toString(inputDims), rows, cols));
       Result result = new ImgTileAssemblyLayer(cols, rows).setParallel(parallel).setPrecision(precision)
-          .eval(com.simiacryptus.ref.wrappers.RefArrays.stream(tileResults)
-              .flatMap(com.simiacryptus.ref.wrappers.RefArrays::stream).<Result>toArray(i -> new Result[i]));
+          .eval(RefArrays.stream(tileResults)
+              .flatMap(RefArrays::stream).<Result>toArray(i -> new Result[i]));
       return new Result(result.getData(), (ctx, delta) -> {
         result.accumulate(ctx, delta);
       }) {
@@ -188,7 +194,7 @@ class ImgTileSubnetLayer extends WrapperLayer
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("height", height);
@@ -202,8 +208,8 @@ class ImgTileSubnetLayer extends WrapperLayer
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return new com.simiacryptus.ref.wrappers.RefArrayList<>();
+  public RefList<double[]> state() {
+    return new RefArrayList<>();
   }
 
   @Nonnull

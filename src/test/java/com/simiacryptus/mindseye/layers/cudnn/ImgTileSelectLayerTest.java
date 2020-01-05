@@ -21,12 +21,14 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
   public ImgTileSelectLayerTest() {
@@ -50,7 +52,7 @@ class ImgTileSelectLayerTest extends CudnnLayerTestBase {
   ImgTileSelectLayerTest[] addRefs(ImgTileSelectLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayerTest::addRef)
         .toArray((x) -> new ImgTileSelectLayerTest[x]);
   }
 
@@ -58,7 +60,7 @@ class ImgTileSelectLayerTest extends CudnnLayerTestBase {
   ImgTileSelectLayerTest[][] addRefs(ImgTileSelectLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayerTest::addRefs)
         .toArray((x) -> new ImgTileSelectLayerTest[x][]);
   }
 
@@ -82,14 +84,14 @@ class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     return (ImgTileSelectLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class UL extends ImgTileSelectLayerTest {
 
     public static @SuppressWarnings("unused")
     UL[] addRefs(UL[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(UL::addRef).toArray((x) -> new UL[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(UL::addRef).toArray((x) -> new UL[x]);
     }
 
     @Nonnull
@@ -110,14 +112,14 @@ class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class LL extends ImgTileSelectLayerTest {
 
     public static @SuppressWarnings("unused")
     LL[] addRefs(LL[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(LL::addRef).toArray((x) -> new LL[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(LL::addRef).toArray((x) -> new LL[x]);
     }
 
     @Nonnull
@@ -138,14 +140,14 @@ class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class UR extends ImgTileSelectLayerTest {
 
     public static @SuppressWarnings("unused")
     UR[] addRefs(UR[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(UR::addRef).toArray((x) -> new UR[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(UR::addRef).toArray((x) -> new UR[x]);
     }
 
     @Nonnull
@@ -166,14 +168,14 @@ class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class LR extends ImgTileSelectLayerTest {
 
     public static @SuppressWarnings("unused")
     LR[] addRefs(LR[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(LR::addRef).toArray((x) -> new LR[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(LR::addRef).toArray((x) -> new LR[x]);
     }
 
     @Nonnull

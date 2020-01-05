@@ -21,12 +21,14 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayer;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
 
   private final ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1).set(() -> this.random());
@@ -47,7 +49,7 @@ class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
   ImgTileSubnetLayerTest[] addRefs(ImgTileSubnetLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayerTest::addRef)
         .toArray((x) -> new ImgTileSubnetLayerTest[x]);
   }
 
@@ -55,7 +57,7 @@ class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
   ImgTileSubnetLayerTest[][] addRefs(ImgTileSubnetLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayerTest::addRefs)
         .toArray((x) -> new ImgTileSubnetLayerTest[x][]);
   }
 
@@ -86,7 +88,7 @@ class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
     return (ImgTileSubnetLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Basic extends ImgTileSubnetLayerTest {
 
     @Nullable
@@ -99,7 +101,7 @@ class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
     Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
     public @SuppressWarnings("unused")

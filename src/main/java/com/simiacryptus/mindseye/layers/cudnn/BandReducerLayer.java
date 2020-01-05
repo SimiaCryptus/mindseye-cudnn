@@ -26,12 +26,17 @@ import com.simiacryptus.mindseye.lang.cudnn.CudaSystem;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.cudnn.PoolingLayer.PoolingMode;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class BandReducerLayer extends LayerBase
     implements MultiPrecision<BandReducerLayer> {
 
@@ -45,7 +50,7 @@ class BandReducerLayer extends LayerBase
 
   protected BandReducerLayer(@Nonnull final JsonObject json) {
     super(json);
-    mode = com.simiacryptus.ref.wrappers.RefArrays.stream(PoolingLayer.PoolingMode.values())
+    mode = RefArrays.stream(PoolingLayer.PoolingMode.values())
         .filter(i -> i.id == json.get("mode").getAsInt()).findFirst().get();
     precision = Precision.valueOf(json.get("precision").getAsString());
     alpha = json.get("alpha").getAsDouble();
@@ -89,7 +94,7 @@ class BandReducerLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static BandReducerLayer fromJson(@Nonnull final JsonObject json,
-                                          com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                          Map<CharSequence, byte[]> rs) {
     return new BandReducerLayer(json);
   }
 
@@ -97,7 +102,7 @@ class BandReducerLayer extends LayerBase
   BandReducerLayer[] addRefs(BandReducerLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayer::addRef)
         .toArray((x) -> new BandReducerLayer[x]);
   }
 
@@ -105,7 +110,7 @@ class BandReducerLayer extends LayerBase
   BandReducerLayer[][] addRefs(BandReducerLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayer::addRefs)
         .toArray((x) -> new BandReducerLayer[x][]);
   }
 
@@ -126,7 +131,7 @@ class BandReducerLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("alpha", alpha);
@@ -137,8 +142,8 @@ class BandReducerLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

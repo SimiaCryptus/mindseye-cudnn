@@ -27,12 +27,15 @@ import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Random;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class SumInputsLayerTest extends CudnnLayerTestBase {
 
   private static int largeSize;
@@ -56,7 +59,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
   SumInputsLayerTest[] addRefs(SumInputsLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayerTest::addRef)
         .toArray((x) -> new SumInputsLayerTest[x]);
   }
 
@@ -64,13 +67,13 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
   SumInputsLayerTest[][] addRefs(SumInputsLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayerTest::addRefs)
         .toArray((x) -> new SumInputsLayerTest[x][]);
   }
 
   @Override
   public int[][] getSmallDims(Random random) {
-    return com.simiacryptus.ref.wrappers.RefIntStream.range(0, inputs).mapToObj(i -> new int[]{2, 2, inputBands})
+    return RefIntStream.range(0, inputs).mapToObj(i -> new int[]{2, 2, inputBands})
         .toArray(i -> new int[i][]);
   }
 
@@ -82,7 +85,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
 
   @Override
   public int[][] getLargeDims(Random random) {
-    return com.simiacryptus.ref.wrappers.RefIntStream.range(0, inputs)
+    return RefIntStream.range(0, inputs)
         .mapToObj(i -> new int[]{largeSize, largeSize, inputBands}).toArray(i -> new int[i][]);
   }
 
@@ -96,7 +99,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
     return (SumInputsLayerTest) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Double_List extends SumInputsLayerTest {
     public Double_List() {
       super(Precision.Double, 1, 5, 1200);
@@ -106,7 +109,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
     Double_List[] addRefs(Double_List[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double_List::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Double_List::addRef)
           .toArray((x) -> new Double_List[x]);
     }
 
@@ -122,7 +125,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class OnePlusOne extends CudnnLayerTestBase {
 
     public OnePlusOne() {
@@ -152,7 +155,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
     OnePlusOne[] addRefs(OnePlusOne[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(OnePlusOne::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(OnePlusOne::addRef)
           .toArray((x) -> new OnePlusOne[x]);
     }
 
@@ -190,7 +193,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Big_Double_Add extends Big {
     public Big_Double_Add() {
       super(Precision.Double, 256, 8, 100);
@@ -201,7 +204,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
     Big_Double_Add[] addRefs(Big_Double_Add[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Big_Double_Add::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Big_Double_Add::addRef)
           .toArray((x) -> new Big_Double_Add[x]);
     }
 
@@ -216,7 +219,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Double_Add extends SumInputsLayerTest {
     public Double_Add() {
       super(Precision.Double, 1, 2, 1200);
@@ -226,7 +229,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
     Double_Add[] addRefs(Double_Add[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Double_Add::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Double_Add::addRef)
           .toArray((x) -> new Double_Add[x]);
     }
 
@@ -241,7 +244,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Float_Add extends SumInputsLayerTest {
     public Float_Add() {
       super(Precision.Float, 1, 2, 1200);
@@ -256,7 +259,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
     Float_Add[] addRefs(Float_Add[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Float_Add::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(Float_Add::addRef)
           .toArray((x) -> new Float_Add[x]);
     }
 
@@ -272,7 +275,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
 
   }
 
-  public abstract static @com.simiacryptus.ref.lang.RefAware
+  public abstract static @RefAware
   class Big extends SumInputsLayerTest {
 
     public Big(final Precision precision, int inputBands, int inputs, final int largeSize) {
@@ -305,7 +308,7 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
     Big[] addRefs(Big[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Big::addRef).toArray((x) -> new Big[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Big::addRef).toArray((x) -> new Big[x]);
     }
 
     public @SuppressWarnings("unused")

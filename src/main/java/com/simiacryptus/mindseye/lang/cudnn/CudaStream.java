@@ -19,9 +19,12 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
+import com.simiacryptus.ref.lang.RefAware;
 import jcuda.runtime.cudaStream_t;
 
-public @com.simiacryptus.ref.lang.RefAware
+import java.util.Arrays;
+
+public @RefAware
 class CudaStream extends CudaResource<cudaStream_t> {
   CudaStream(cudaStream_t stream) {
     super(stream, CudaSystem::cudaStreamDestroy, CudaSystem.getThreadDeviceId());
@@ -31,7 +34,7 @@ class CudaStream extends CudaResource<cudaStream_t> {
   CudaStream[] addRefs(CudaStream[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaStream::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(CudaStream::addRef)
         .toArray((x) -> new CudaStream[x]);
   }
 
@@ -39,7 +42,7 @@ class CudaStream extends CudaResource<cudaStream_t> {
   CudaStream[][] addRefs(CudaStream[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CudaStream::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(CudaStream::addRefs)
         .toArray((x) -> new CudaStream[x][]);
   }
 

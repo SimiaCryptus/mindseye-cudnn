@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.lang.cudnn;
 import com.simiacryptus.ref.lang.RecycleBin;
 import com.simiacryptus.ref.lang.ReferenceWrapper;
 import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
+import com.simiacryptus.ref.wrappers.RefMap;
 import com.simiacryptus.util.Util;
 import jcuda.runtime.cudaDeviceProp;
 import org.slf4j.Logger;
@@ -120,7 +121,7 @@ public enum MemoryType {
   };
 
   protected static final Logger logger = LoggerFactory.getLogger(MemoryType.class);
-  private static final com.simiacryptus.ref.wrappers.RefMap<MemoryType, com.simiacryptus.ref.wrappers.RefMap<Integer, RecycleBin<ReferenceWrapper<CudaPointer>>>> cache = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
+  private static final RefMap<MemoryType, RefMap<Integer, RecycleBin<ReferenceWrapper<CudaPointer>>>> cache = new RefConcurrentHashMap<>();
 
   public void recycle(CudaPointer ptr, int deviceId, final long length) {
     logger.debug(String.format("Recycle %s %s (%s bytes) in device %s via %s", name(),

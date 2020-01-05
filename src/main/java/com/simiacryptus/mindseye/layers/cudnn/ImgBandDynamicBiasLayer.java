@@ -22,15 +22,20 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.cudnnOpTensorDescriptor;
 import jcuda.jcudnn.cudnnOpTensorOp;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ImgBandDynamicBiasLayer extends LayerBase
     implements MultiPrecision<ImgBandDynamicBiasLayer> {
 
@@ -40,7 +45,7 @@ class ImgBandDynamicBiasLayer extends LayerBase
   }
 
   protected ImgBandDynamicBiasLayer(@Nonnull final JsonObject id,
-                                    final com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                    final Map<CharSequence, byte[]> rs) {
     super(id);
     this.precision = Precision.valueOf(id.getAsJsonPrimitive("precision").getAsString());
   }
@@ -64,7 +69,7 @@ class ImgBandDynamicBiasLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ImgBandDynamicBiasLayer fromJson(@Nonnull final JsonObject json,
-                                                 com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                                 Map<CharSequence, byte[]> rs) {
     return new ImgBandDynamicBiasLayer(json, rs);
   }
 
@@ -72,7 +77,7 @@ class ImgBandDynamicBiasLayer extends LayerBase
   ImgBandDynamicBiasLayer[] addRefs(ImgBandDynamicBiasLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandDynamicBiasLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgBandDynamicBiasLayer::addRef)
         .toArray((x) -> new ImgBandDynamicBiasLayer[x]);
   }
 
@@ -80,7 +85,7 @@ class ImgBandDynamicBiasLayer extends LayerBase
   ImgBandDynamicBiasLayer[][] addRefs(ImgBandDynamicBiasLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgBandDynamicBiasLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgBandDynamicBiasLayer::addRefs)
         .toArray((x) -> new ImgBandDynamicBiasLayer[x][]);
   }
 
@@ -104,7 +109,7 @@ class ImgBandDynamicBiasLayer extends LayerBase
     final int length = inputData.length();
     if (3 != inputDimensions.length) {
       throw new IllegalArgumentException(
-          "dimensions=" + com.simiacryptus.ref.wrappers.RefArrays.toString(inputDimensions));
+          "dimensions=" + RefArrays.toString(inputDimensions));
     }
     if (0 == Tensor.length(inputData.getDimensions())) {
       return input;
@@ -188,7 +193,7 @@ class ImgBandDynamicBiasLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull
     JsonObject json = super.getJsonStub();
@@ -198,8 +203,8 @@ class ImgBandDynamicBiasLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public void _free() {

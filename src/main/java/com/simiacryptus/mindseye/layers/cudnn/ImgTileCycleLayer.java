@@ -22,15 +22,20 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ImgTileCycleLayer extends LayerBase
     implements MultiPrecision<ImgTileCycleLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgTileCycleLayer.class);
@@ -43,7 +48,7 @@ class ImgTileCycleLayer extends LayerBase
   }
 
   protected ImgTileCycleLayer(@Nonnull final JsonObject json,
-                              com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                              Map<CharSequence, byte[]> rs) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
@@ -85,7 +90,7 @@ class ImgTileCycleLayer extends LayerBase
 
   @SuppressWarnings("unused")
   public static ImgTileCycleLayer fromJson(@Nonnull final JsonObject json,
-                                           com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                           Map<CharSequence, byte[]> rs) {
     return new ImgTileCycleLayer(json, rs);
   }
 
@@ -180,7 +185,7 @@ class ImgTileCycleLayer extends LayerBase
   @Nonnull
   public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions) {
     @Nonnull final int[] viewDim = new int[3];
-    com.simiacryptus.ref.wrappers.RefArrays.parallelSetAll(viewDim,
+    RefArrays.parallelSetAll(viewDim,
         i -> Math.min(sourceDimensions[i], destinationDimensions[i]));
     return viewDim;
   }
@@ -189,7 +194,7 @@ class ImgTileCycleLayer extends LayerBase
   ImgTileCycleLayer[] addRefs(ImgTileCycleLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRef)
         .toArray((x) -> new ImgTileCycleLayer[x]);
   }
 
@@ -197,7 +202,7 @@ class ImgTileCycleLayer extends LayerBase
   ImgTileCycleLayer[][] addRefs(ImgTileCycleLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRefs)
         .toArray((x) -> new ImgTileCycleLayer[x][]);
   }
 
@@ -223,9 +228,9 @@ class ImgTileCycleLayer extends LayerBase
       return new CudaTensorList(cudaTensor, length, dimIn, precision);
     }, inputData);
     return new Result(outputData, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      if (!com.simiacryptus.ref.wrappers.RefArrays.equals(delta.getDimensions(), outputData.getDimensions())) {
-        throw new AssertionError(com.simiacryptus.ref.wrappers.RefArrays.toString(delta.getDimensions()) + " != "
-            + com.simiacryptus.ref.wrappers.RefArrays.toString(outputData.getDimensions()));
+      if (!RefArrays.equals(delta.getDimensions(), outputData.getDimensions())) {
+        throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
+            + RefArrays.toString(outputData.getDimensions()));
       }
       if (delta.length() != outputData.length()) {
         throw new AssertionError(delta.length() + " != " + outputData.length());
@@ -244,7 +249,7 @@ class ImgTileCycleLayer extends LayerBase
 
       @Override
       public boolean isAlive() {
-        return com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
+        return RefArrays.stream(inObj).anyMatch(x -> x.isAlive());
       }
 
       @Override
@@ -259,7 +264,7 @@ class ImgTileCycleLayer extends LayerBase
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
@@ -268,8 +273,8 @@ class ImgTileCycleLayer extends LayerBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList();
+  public RefList<double[]> state() {
+    return RefArrays.asList();
   }
 
   public @SuppressWarnings("unused")

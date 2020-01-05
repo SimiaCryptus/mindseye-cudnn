@@ -21,11 +21,13 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Random;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class LRNLayerTest extends CudnnLayerTestBase {
 
   private final int smallSize;
@@ -45,7 +47,7 @@ class LRNLayerTest extends CudnnLayerTestBase {
   LRNLayerTest[] addRefs(LRNLayerTest[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LRNLayerTest::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(LRNLayerTest::addRef)
         .toArray((x) -> new LRNLayerTest[x]);
   }
 
@@ -53,7 +55,7 @@ class LRNLayerTest extends CudnnLayerTestBase {
   LRNLayerTest[][] addRefs(LRNLayerTest[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LRNLayerTest::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(LRNLayerTest::addRefs)
         .toArray((x) -> new LRNLayerTest[x][]);
   }
 

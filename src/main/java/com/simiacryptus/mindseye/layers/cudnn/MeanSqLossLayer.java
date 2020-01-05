@@ -24,15 +24,18 @@ import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.network.InnerNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import com.simiacryptus.ref.lang.RefAware;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class MeanSqLossLayer extends PipelineNetwork {
 
   @SuppressWarnings("unused")
@@ -49,7 +52,7 @@ class MeanSqLossLayer extends PipelineNetwork {
   }
 
   protected MeanSqLossLayer(@Nonnull final JsonObject id,
-                            com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                            Map<CharSequence, byte[]> rs) {
     super(id, rs);
     alpha = id.get("alpha").getAsDouble();
     binaryNode = (InnerNode) getNodeById(UUID.fromString(id.get("binaryNode").getAsString()));
@@ -69,7 +72,7 @@ class MeanSqLossLayer extends PipelineNetwork {
 
   @SuppressWarnings("unused")
   public static MeanSqLossLayer fromJson(@NotNull final JsonObject json,
-                                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                         Map<CharSequence, byte[]> rs) {
     return new MeanSqLossLayer(json, rs);
   }
 
@@ -77,7 +80,7 @@ class MeanSqLossLayer extends PipelineNetwork {
   MeanSqLossLayer[] addRefs(MeanSqLossLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayer::addRef)
         .toArray((x) -> new MeanSqLossLayer[x]);
   }
 
@@ -85,12 +88,12 @@ class MeanSqLossLayer extends PipelineNetwork {
   MeanSqLossLayer[][] addRefs(MeanSqLossLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayer::addRefs)
         .toArray((x) -> new MeanSqLossLayer[x][]);
   }
 
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("alpha", alpha);

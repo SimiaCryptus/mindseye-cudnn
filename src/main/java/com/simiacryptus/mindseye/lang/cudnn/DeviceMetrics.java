@@ -19,9 +19,11 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
+import com.simiacryptus.ref.lang.RefAware;
+
 import java.util.concurrent.atomic.AtomicLong;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class DeviceMetrics {
   public final AtomicLong memoryReads = new AtomicLong(0);
   public final AtomicLong memoryWrites = new AtomicLong(0);
