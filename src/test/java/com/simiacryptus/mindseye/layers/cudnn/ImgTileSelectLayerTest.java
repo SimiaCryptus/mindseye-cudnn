@@ -97,7 +97,12 @@ class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
-      return new ImgTileSelectLayer(4, 3, 0, 0).setPrecision(Precision.Double);
+      ImgTileSelectLayer temp_58_0002 = new ImgTileSelectLayer(4, 3, 0, 0);
+      ImgTileSelectLayer temp_58_0001 = temp_58_0002
+          .setPrecision(Precision.Double);
+      if (null != temp_58_0002)
+        temp_58_0002.freeRef();
+      return temp_58_0001;
     }
 
     public @SuppressWarnings("unused")
@@ -125,7 +130,12 @@ class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
-      return new ImgTileSelectLayer(4, 3, 4, 0).setPrecision(Precision.Double);
+      ImgTileSelectLayer temp_58_0004 = new ImgTileSelectLayer(4, 3, 4, 0);
+      ImgTileSelectLayer temp_58_0003 = temp_58_0004
+          .setPrecision(Precision.Double);
+      if (null != temp_58_0004)
+        temp_58_0004.freeRef();
+      return temp_58_0003;
     }
 
     public @SuppressWarnings("unused")
@@ -153,7 +163,12 @@ class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
-      return new ImgTileSelectLayer(4, 3, 0, 3).setPrecision(Precision.Double);
+      ImgTileSelectLayer temp_58_0006 = new ImgTileSelectLayer(4, 3, 0, 3);
+      ImgTileSelectLayer temp_58_0005 = temp_58_0006
+          .setPrecision(Precision.Double);
+      if (null != temp_58_0006)
+        temp_58_0006.freeRef();
+      return temp_58_0005;
     }
 
     public @SuppressWarnings("unused")
@@ -181,7 +196,12 @@ class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
-      return new ImgTileSelectLayer(4, 3, 4, 3).setPrecision(Precision.Double);
+      ImgTileSelectLayer temp_58_0008 = new ImgTileSelectLayer(4, 3, 4, 3);
+      ImgTileSelectLayer temp_58_0007 = temp_58_0008
+          .setPrecision(Precision.Double);
+      if (null != temp_58_0008)
+        temp_58_0008.freeRef();
+      return temp_58_0007;
     }
 
     public @SuppressWarnings("unused")

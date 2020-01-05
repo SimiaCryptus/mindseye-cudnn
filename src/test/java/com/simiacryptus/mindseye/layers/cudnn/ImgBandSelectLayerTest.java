@@ -40,7 +40,15 @@ class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 
   public ImgBandSelectLayerTest(final Precision precision, int inputBands, final int fromBand, int toBand) {
     this.precision = precision;
-    layer = new ImgBandSelectLayer(fromBand, toBand).setPrecision(precision);
+    {
+      ImgBandSelectLayer temp_20_0002 = new ImgBandSelectLayer(fromBand, toBand);
+      ImgBandSelectLayer temp_20_0001 = temp_20_0002.setPrecision(precision);
+      if (null != temp_20_0002)
+        temp_20_0002.freeRef();
+      layer = temp_20_0001 == null ? null : temp_20_0001.addRef();
+      if (null != temp_20_0001)
+        temp_20_0001.freeRef();
+    }
     this.inputBands = inputBands;
     smallSize = 2;
     largeSize = 1000;
@@ -79,17 +87,6 @@ class ImgBandSelectLayerTest extends CudnnLayerTestBase {
     //    CudaSystem.apiLog.remove(apiLog);
   }
 
-  @Nonnull
-  @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{smallSize, smallSize, inputBands}};
-  }
-
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    return layer;
-  }
-
   //  /**
   //   * Basic 64-bit apply
   //   */
@@ -104,12 +101,25 @@ class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
+  public int[][] getSmallDims(Random random) {
+    return new int[][]{{smallSize, smallSize, inputBands}};
+  }
+
+  @Override
+  public Layer getLayer(final int[][] inputSize, Random random) {
+    return layer == null ? null : layer.addRef();
+  }
+
+  @Nonnull
+  @Override
   public int[][] getLargeDims(Random random) {
     return new int[][]{{largeSize, largeSize, inputBands}};
   }
 
   public @SuppressWarnings("unused")
   void _free() {
+    if (null != layer)
+      layer.freeRef();
   }
 
   public @Override

@@ -23,6 +23,8 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -33,11 +35,12 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 
 @SuppressWarnings("serial")
 public @RefAware
-class SumReducerLayer extends LayerBase
-    implements MultiPrecision<SumReducerLayer> {
+class SumReducerLayer extends LayerBase implements MultiPrecision<SumReducerLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
@@ -64,12 +67,11 @@ class SumReducerLayer extends LayerBase
   @Override
   public SumReducerLayer setPrecision(final Precision precision) {
     this.precision = precision;
-    return this;
+    return this.addRef();
   }
 
   @SuppressWarnings("unused")
-  public static SumReducerLayer fromJson(@Nonnull final JsonObject json,
-                                         Map<CharSequence, byte[]> rs) {
+  public static SumReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new SumReducerLayer(json);
   }
 
@@ -92,58 +94,113 @@ class SumReducerLayer extends LayerBase
   @Nullable
   @Override
   public Result eval(final Result... inObj) {
-    if (!CudaSystem.isEnabled())
-      return getCompatibilityLayer().eval(inObj);
-    final Result input = inObj[0];
+    if (!CudaSystem.isEnabled()) {
+      Layer temp_39_0007 = getCompatibilityLayer();
+      Result temp_39_0005 = temp_39_0007
+          .eval(Result.addRefs(inObj));
+      if (null != temp_39_0007)
+        temp_39_0007.freeRef();
+      if (null != inObj)
+        ReferenceCounting.freeRefs(inObj);
+      return temp_39_0005;
+    }
+    final Result input = inObj[0].addRef();
+    if (null != inObj)
+      ReferenceCounting.freeRefs(inObj);
     final TensorList inputData = input.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     int length = inputData.length();
 
-    CudaTensorList result = CudaSystem.run(gpu -> {
-      CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
-      CudaMemory inputMemory = inputTensor.getMemory(gpu);
+    CudaTensorList result = CudaSystem.run(RefUtil.wrapInterface(
+        (Function<CudnnHandle, CudaTensorList>) gpu -> {
+          CudaTensor inputTensor = gpu.getTensor(inputData == null ? null : inputData.addRef(), precision,
+              MemoryType.Device, false);
+          CudaMemory inputMemory = inputTensor.getMemory(gpu);
 
-      @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, 1, 1, 1);
-      long size = (long) precision.size * outputDescriptor.nStride * length;
-      @Nonnull final CudaMemory outputMemory = gpu.allocate(size, MemoryType.Managed.ifEnabled(), true);
-      CudaResource<cudnnReduceTensorDescriptor> reduceTensorDescriptor = gpu.cudnnCreateReduceTensorDescriptor(
-          cudnnReduceTensorOp.CUDNN_REDUCE_TENSOR_ADD, precision.code, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN,
-          cudnnReduceTensorIndices.CUDNN_REDUCE_TENSOR_NO_INDICES, cudnnIndicesType.CUDNN_32BIT_INDICES);
+          @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, 1, 1, 1);
+          long size = (long) precision.size * outputDescriptor.nStride * length;
+          @Nonnull final CudaMemory outputMemory = gpu.allocate(size, MemoryType.Managed.ifEnabled(), true);
+          CudaResource<cudnnReduceTensorDescriptor> reduceTensorDescriptor = gpu.cudnnCreateReduceTensorDescriptor(
+              cudnnReduceTensorOp.CUDNN_REDUCE_TENSOR_ADD, precision.code, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN,
+              cudnnReduceTensorIndices.CUDNN_REDUCE_TENSOR_NO_INDICES, cudnnIndicesType.CUDNN_32BIT_INDICES);
 
-      @Nonnull final CudaMemory workspacePtr = gpu.allocate(inputMemory.size, MemoryType.Device, true);
-      @Nonnull final CudaMemory indexPtr = gpu.allocate(12 * length, MemoryType.Device, false);
+          @Nonnull final CudaMemory workspacePtr = gpu.allocate(inputMemory.size, MemoryType.Device, true);
+          @Nonnull final CudaMemory indexPtr = gpu.allocate(12 * length, MemoryType.Device, false);
 
-      //outputPtr.synchronize();
-      gpu.cudnnReduceTensor(reduceTensorDescriptor.getPtr(), indexPtr.getPtr(), indexPtr.size, workspacePtr.getPtr(),
-          workspacePtr.size, precision.getPointer(1.0), inputTensor.descriptor.getPtr(), inputMemory.getPtr(),
-          precision.getPointer(0.0), outputDescriptor.getPtr(), outputMemory.getPtr());
-      inputMemory.dirty();
-      outputMemory.dirty();
-      workspacePtr.dirty();
-      return new CudaTensorList(new CudaTensor(outputMemory, outputDescriptor, precision), length,
-          new int[]{1, 1, 1}, precision);
-    });
+          //outputPtr.synchronize();
+          gpu.cudnnReduceTensor(reduceTensorDescriptor.getPtr(), indexPtr.getPtr(), indexPtr.size,
+              workspacePtr.getPtr(), workspacePtr.size, precision.getPointer(1.0), inputTensor.descriptor.getPtr(),
+              inputMemory.getPtr(), precision.getPointer(0.0), outputDescriptor.getPtr(), outputMemory.getPtr());
+          indexPtr.freeRef();
+          if (null != reduceTensorDescriptor)
+            reduceTensorDescriptor.freeRef();
+          if (null != inputTensor)
+            inputTensor.freeRef();
+          RefUtil.freeRef(inputMemory.dirty());
+          if (null != inputMemory)
+            inputMemory.freeRef();
+          RefUtil.freeRef(outputMemory.dirty());
+          RefUtil.freeRef(workspacePtr.dirty());
+          workspacePtr.freeRef();
+          CudaTensorList temp_39_0002 = new CudaTensorList(
+              new CudaTensor(outputMemory == null ? null : outputMemory,
+                  outputDescriptor == null ? null : outputDescriptor, precision),
+              length, new int[]{1, 1, 1}, precision);
+          return temp_39_0002;
+        }, inputData == null ? null : inputData.addRef()));
 
-    return new Result(result, new Result.Accumulator() {
-      @Override
-      public void accept(DeltaSet<UUID> ctx, TensorList delta) {
-        TensorList passback = new TensorArray(RefIntStream.range(0, length).mapToObj(i -> {
-          Tensor tensor = delta.get(i);
-          return new Tensor(inputSize).setAll(tensor.get(0));
-        }).toArray(i -> new Tensor[i]));
-        input.accumulate(ctx, passback);
+    if (null != inputData)
+      inputData.freeRef();
+    try {
+      try {
+        return new Result(result, new Result.Accumulator() {
+          {
+          }
+
+          @Override
+          public void accept(DeltaSet<UUID> ctx, TensorList delta) {
+            TensorList passback = new TensorArray(
+                RefIntStream.range(0, length).mapToObj(RefUtil.wrapInterface(
+                    (IntFunction<? extends Tensor>) i -> {
+                      Tensor tensor = delta.get(i);
+                      Tensor temp_39_0006 = new Tensor(inputSize);
+                      Tensor temp_39_0004 = temp_39_0006.setAll(tensor.get(0));
+                      if (null != temp_39_0006)
+                        temp_39_0006.freeRef();
+                      if (null != tensor)
+                        tensor.freeRef();
+                      return temp_39_0004;
+                    }, delta == null ? null : delta.addRef())).toArray(i -> new Tensor[i]));
+            if (null != delta)
+              delta.freeRef();
+            input.accumulate(ctx == null ? null : ctx.addRef(), passback == null ? null : passback.addRef());
+            if (null != ctx)
+              ctx.freeRef();
+            if (null != passback)
+              passback.freeRef();
+          }
+
+          public @SuppressWarnings("unused")
+          void _free() {
+          }
+        }) {
+          public void _free() {
+            super._free();
+          }
+        };
+      } finally {
+        if (null != result)
+          result.freeRef();
       }
-    }) {
-      public void _free() {
-        super._free();
-      }
-    };
+    } finally {
+      if (null != input)
+        input.freeRef();
+    }
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                            DataSerializer dataSerializer) {
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
     return json;

@@ -35,6 +35,8 @@ interface MultiPrecision<T> {
         if (layer instanceof MultiPrecision) {
           ((MultiPrecision) layer).setPrecision(precision);
         }
+        if (null != layer)
+          layer.freeRef();
       });
     } else if (network instanceof MultiPrecision) {
       ((MultiPrecision) network).setPrecision(precision);

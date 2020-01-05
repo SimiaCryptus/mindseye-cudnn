@@ -66,7 +66,11 @@ class AvgReducerLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new AvgReducerLayer().setPrecision(precision);
+    AvgReducerLayer temp_61_0002 = new AvgReducerLayer();
+    AvgReducerLayer temp_61_0001 = temp_61_0002.setPrecision(precision);
+    if (null != temp_61_0002)
+      temp_61_0002.freeRef();
+    return temp_61_0001;
   }
 
   @Nonnull

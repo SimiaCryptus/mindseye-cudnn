@@ -46,7 +46,7 @@ class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
   @Nullable
   @Override
   public ComponentTest<TrainingTester.ComponentResult> getTrainingTester() {
-    return isTestTraining() ? new TrainingTester() {
+    TrainingTester temp_68_0002 = new TrainingTester() {
       public @SuppressWarnings("unused")
       void _free() {
       }
@@ -55,7 +55,13 @@ class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
       protected Layer lossLayer() {
         return new MeanSqLossLayer();
       }
-    }.setBatches(1) : null;
+    };
+    ComponentTest<TrainingTester.ComponentResult> temp_68_0001 = isTestTraining()
+        ? temp_68_0002.setBatches(1)
+        : null;
+    if (null != temp_68_0002)
+      temp_68_0002.freeRef();
+    return temp_68_0001;
   }
 
   public static @SuppressWarnings("unused")
@@ -84,7 +90,11 @@ class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new ImgBandDynamicBiasLayer().setPrecision(precision);
+    ImgBandDynamicBiasLayer temp_68_0004 = new ImgBandDynamicBiasLayer();
+    ImgBandDynamicBiasLayer temp_68_0003 = temp_68_0004.setPrecision(precision);
+    if (null != temp_68_0004)
+      temp_68_0004.freeRef();
+    return temp_68_0003;
   }
 
   @Nonnull

@@ -30,6 +30,8 @@ import com.simiacryptus.mindseye.layers.java.FullyConnectedReferenceLayer;
 import com.simiacryptus.mindseye.layers.java.ReshapeLayer;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.util.FastRandom;
@@ -61,7 +63,12 @@ class FullyConnectedLayer extends LayerBase
 
   private FullyConnectedLayer() {
     outputDims = null;
-    weights = null;
+    {
+      Tensor temp_15_0001 = null;
+      weights = temp_15_0001 == null ? null : temp_15_0001.addRef();
+      if (null != temp_15_0001)
+        temp_15_0001.freeRef();
+    }
     inputDims = null;
   }
 
@@ -70,7 +77,12 @@ class FullyConnectedLayer extends LayerBase
     this.inputDims = RefArrays.copyOf(inputDims, inputDims.length);
     this.outputDims = RefArrays.copyOf(outputDims, outputDims.length);
     final int outs = Tensor.length(outputDims);
-    weights = new Tensor(inputs, outs);
+    {
+      Tensor temp_15_0002 = new Tensor(inputs, outs);
+      weights = temp_15_0002 == null ? null : temp_15_0002.addRef();
+      if (null != temp_15_0002)
+        temp_15_0002.freeRef();
+    }
     setWeights(() -> {
       final double ratio = Math.sqrt(6. / (inputs + outs + 1));
       final double fate = Util.R.get().nextDouble();
@@ -78,13 +90,19 @@ class FullyConnectedLayer extends LayerBase
     });
   }
 
-  protected FullyConnectedLayer(@Nonnull final JsonObject json,
-                                Map<CharSequence, byte[]> rs) {
+  protected FullyConnectedLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     outputDims = JsonUtil.getIntArray(json.getAsJsonArray("outputDims"));
     inputDims = JsonUtil.getIntArray(json.getAsJsonArray("inputDims"));
     @Nullable final Tensor data = Tensor.fromJson(json.get("weights"), rs);
-    weights = data;
+    {
+      Tensor temp_15_0003 = data == null ? null : data.addRef();
+      weights = temp_15_0003 == null ? null : temp_15_0003.addRef();
+      if (null != temp_15_0003)
+        temp_15_0003.freeRef();
+    }
+    if (null != data)
+      data.freeRef();
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
@@ -95,12 +113,17 @@ class FullyConnectedLayer extends LayerBase
   @Nonnull
   public FullyConnectedLayer setBatchBands(int batchBands) {
     this.batchBands = batchBands;
-    return this;
+    return this.addRef();
   }
 
   @Nonnull
   public Layer getCompatibilityLayer() {
-    return new FullyConnectedReferenceLayer(inputDims, outputDims).set(getWeights());
+    FullyConnectedReferenceLayer temp_15_0007 = new FullyConnectedReferenceLayer(
+        inputDims, outputDims);
+    FullyConnectedReferenceLayer temp_15_0006 = temp_15_0007.set(getWeights());
+    if (null != temp_15_0007)
+      temp_15_0007.freeRef();
+    return temp_15_0006;
   }
 
   @Override
@@ -112,28 +135,34 @@ class FullyConnectedLayer extends LayerBase
   @Override
   public FullyConnectedLayer setPrecision(final Precision precision) {
     this.precision = precision;
-    return this;
+    return this.addRef();
   }
 
   @Nullable
   public Tensor getWeights() {
-    return weights;
+    return weights == null ? null : weights.addRef();
   }
 
   @Nonnull
   public void setWeights(@Nonnull final DoubleSupplier f) {
-    RefArrays.parallelSetAll(getWeights().getData(), i -> f.getAsDouble());
+    Tensor temp_15_0009 = getWeights();
+    RefArrays.parallelSetAll(temp_15_0009.getData(), i -> f.getAsDouble());
+    if (null != temp_15_0009)
+      temp_15_0009.freeRef();
   }
 
   @Nonnull
   public FullyConnectedLayer setWeightsLog(final double value) {
-    getWeights().setByCoord(c -> (FastRandom.INSTANCE.random() - 0.5) * Math.pow(10, value));
-    return this;
+    Tensor temp_15_0010 = getWeights();
+    RefUtil
+        .freeRef(temp_15_0010.setByCoord(c -> (FastRandom.INSTANCE.random() - 0.5) * Math.pow(10, value)));
+    if (null != temp_15_0010)
+      temp_15_0010.freeRef();
+    return this.addRef();
   }
 
   @SuppressWarnings("unused")
-  public static FullyConnectedLayer fromJson(@Nonnull final JsonObject json,
-                                             Map<CharSequence, byte[]> rs) {
+  public static FullyConnectedLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new FullyConnectedLayer(json, rs);
   }
 
@@ -155,23 +184,37 @@ class FullyConnectedLayer extends LayerBase
 
   @Nonnull
   public FullyConnectedLayer set(final double[] data) {
-    weights.set(data);
-    return this;
+    RefUtil.freeRef(weights.set(data));
+    return this.addRef();
   }
 
   @Nonnull
   public FullyConnectedLayer set(@Nonnull final Tensor data) {
-    weights.set(data);
-    return this;
+    weights.set(data == null ? null : data);
+    return this.addRef();
   }
 
   @Nullable
   @Override
   public Result eval(final Result... inObj) {
-    if (!CudaSystem.isEnabled())
-      return getCompatibilityLayer().eval(inObj);
+    if (!CudaSystem.isEnabled()) {
+      Layer temp_15_0011 = getCompatibilityLayer();
+      Result temp_15_0005 = temp_15_0011
+          .eval(Result.addRefs(inObj));
+      if (null != temp_15_0011)
+        temp_15_0011.freeRef();
+      if (null != inObj)
+        ReferenceCounting.freeRefs(inObj);
+      return temp_15_0005;
+    }
     Layer explode = explode();
-    return explode.eval(inObj);
+    Result temp_15_0004 = explode
+        .eval(Result.addRefs(inObj));
+    if (null != inObj)
+      ReferenceCounting.freeRefs(inObj);
+    if (null != explode)
+      explode.freeRef();
+    return temp_15_0004;
   }
 
   @Nonnull
@@ -180,30 +223,42 @@ class FullyConnectedLayer extends LayerBase
     int outVol = Tensor.length(outputDims);
     @Nonnull
     PipelineNetwork network = new PipelineNetwork(1);
-    network.add(new ReshapeLayer(1, 1, inputVol));
+    RefUtil.freeRef(network.add(new ReshapeLayer(1, 1, inputVol)));
     @Nullable
     Tensor tensor = this.weights.reshapeCast(1, 1, inputVol * outVol);
+    ConvolutionLayer temp_15_0008 = new ConvolutionLayer(1, 1, inputVol,
+        outVol);
+    ConvolutionLayer temp_15_0012 = temp_15_0008
+        .set(tensor == null ? null : tensor.addRef());
     @Nonnull
-    ConvolutionLayer convolutionLayer = new ConvolutionLayer(1, 1, inputVol, outVol).set(tensor)
-        .setBatchBands(getBatchBands());
+    ConvolutionLayer convolutionLayer = temp_15_0012.setBatchBands(getBatchBands());
+    if (null != temp_15_0012)
+      temp_15_0012.freeRef();
+    if (null != temp_15_0008)
+      temp_15_0008.freeRef();
+    if (null != tensor)
+      tensor.freeRef();
     @Nonnull
     ExplodedConvolutionGrid grid = convolutionLayer.getExplodedNetwork();
+    convolutionLayer.freeRef();
     grid.add(network.getHead());
-    network.add(new ReshapeLayer(outputDims));
-    network.setName(getName());
+    grid.freeRef();
+    RefUtil.freeRef(network.add(new ReshapeLayer(outputDims)));
+    RefUtil.freeRef(network.setName(getName()));
     return network;
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                            @Nonnull DataSerializer dataSerializer) {
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.add("outputDims", JsonUtil.getJson(outputDims));
     json.add("inputDims", JsonUtil.getJson(inputDims));
     @Nullable
     Tensor tensor = getWeights();
     json.add("weights", tensor.getJson(resources, dataSerializer));
+    if (null != tensor)
+      tensor.freeRef();
     json.addProperty("precision", precision.name());
     return json;
   }
@@ -211,15 +266,21 @@ class FullyConnectedLayer extends LayerBase
   @Nonnull
   @Override
   public RefList<double[]> state() {
-    return RefArrays.asList(getWeights().getData());
+    Tensor temp_15_0014 = getWeights();
+    RefList<double[]> temp_15_0013 = RefArrays.asList(temp_15_0014.getData());
+    if (null != temp_15_0014)
+      temp_15_0014.freeRef();
+    return temp_15_0013;
   }
 
   public FullyConnectedLayer set(DoubleSupplier fn) {
-    weights.set(fn);
-    return this;
+    RefUtil.freeRef(weights.set(fn));
+    return this.addRef();
   }
 
   public void _free() {
+    if (null != weights)
+      weights.freeRef();
     super._free();
   }
 

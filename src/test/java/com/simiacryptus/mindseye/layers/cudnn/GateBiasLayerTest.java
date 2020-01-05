@@ -67,7 +67,11 @@ class GateBiasLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new GateBiasLayer().setPrecision(precision);
+    GateBiasLayer temp_74_0002 = new GateBiasLayer();
+    GateBiasLayer temp_74_0001 = temp_74_0002.setPrecision(precision);
+    if (null != temp_74_0002)
+      temp_74_0002.freeRef();
+    return temp_74_0001;
   }
 
   public @SuppressWarnings("unused")

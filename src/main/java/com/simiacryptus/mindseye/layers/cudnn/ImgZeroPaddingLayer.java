@@ -23,10 +23,12 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
@@ -39,8 +41,7 @@ import java.util.Map;
 
 @SuppressWarnings("serial")
 public @RefAware
-class ImgZeroPaddingLayer extends LayerBase
-    implements MultiPrecision<ImgZeroPaddingLayer> {
+class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<ImgZeroPaddingLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgZeroPaddingLayer.class);
   public StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private int sizeX;
@@ -56,8 +57,7 @@ class ImgZeroPaddingLayer extends LayerBase
     assert sizeY != 0 || sizeX != 0;
   }
 
-  protected ImgZeroPaddingLayer(@Nonnull final JsonObject json,
-                                Map<CharSequence, byte[]> rs) {
+  protected ImgZeroPaddingLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -74,12 +74,11 @@ class ImgZeroPaddingLayer extends LayerBase
   @Override
   public ImgZeroPaddingLayer setPrecision(final Precision precision) {
     this.precision = precision;
-    return this;
+    return this.addRef();
   }
 
   @SuppressWarnings("unused")
-  public static ImgZeroPaddingLayer fromJson(@Nonnull final JsonObject json,
-                                             Map<CharSequence, byte[]> rs) {
+  public static ImgZeroPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgZeroPaddingLayer(json, rs);
   }
 
@@ -103,21 +102,32 @@ class ImgZeroPaddingLayer extends LayerBase
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     if (sizeX == 0 && sizeY == 0) {
-      return inObj[0];
+      Result temp_22_0002 = inObj[0];
+      ReferenceCounting.freeRefs(inObj);
+      return temp_22_0002;
     }
     assert inObj.length == 1;
+    TensorList temp_22_0004 = inObj[0].getData();
     @Nonnull
-    int[] dimensions = inObj[0].getData().getDimensions();
+    int[] dimensions = temp_22_0004.getDimensions();
+    if (null != temp_22_0004)
+      temp_22_0004.freeRef();
+    ImgCropLayer temp_22_0003 = new ImgCropLayer(dimensions[0] + 2 * this.sizeX,
+        dimensions[1] + 2 * this.sizeY);
     @Nonnull
-    ImgCropLayer imgCropLayer = new ImgCropLayer(dimensions[0] + 2 * this.sizeX, dimensions[1] + 2 * this.sizeY)
-        .setPrecision(precision);
-    return imgCropLayer.eval(inObj);
+    ImgCropLayer imgCropLayer = temp_22_0003.setPrecision(precision);
+    if (null != temp_22_0003)
+      temp_22_0003.freeRef();
+    Result temp_22_0001 = imgCropLayer
+        .eval(Result.addRefs(inObj));
+    ReferenceCounting.freeRefs(inObj);
+    imgCropLayer.freeRef();
+    return temp_22_0001;
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                            DataSerializer dataSerializer) {
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);

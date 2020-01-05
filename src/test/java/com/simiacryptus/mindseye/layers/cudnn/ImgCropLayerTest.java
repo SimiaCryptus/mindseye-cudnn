@@ -127,7 +127,12 @@ class ImgCropLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgCropLayer(2, 2).setHorizontalAlign(ImgCropLayer.Alignment.Left);
+      ImgCropLayer temp_57_0002 = new ImgCropLayer(2, 2);
+      ImgCropLayer temp_57_0001 = temp_57_0002
+          .setHorizontalAlign(ImgCropLayer.Alignment.Left);
+      if (null != temp_57_0002)
+        temp_57_0002.freeRef();
+      return temp_57_0001;
     }
 
     public @SuppressWarnings("unused")
@@ -160,7 +165,12 @@ class ImgCropLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgCropLayer(2, 2).setHorizontalAlign(ImgCropLayer.Alignment.Right);
+      ImgCropLayer temp_57_0004 = new ImgCropLayer(2, 2);
+      ImgCropLayer temp_57_0003 = temp_57_0004
+          .setHorizontalAlign(ImgCropLayer.Alignment.Right);
+      if (null != temp_57_0004)
+        temp_57_0004.freeRef();
+      return temp_57_0003;
     }
 
     public @SuppressWarnings("unused")
@@ -193,7 +203,12 @@ class ImgCropLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgCropLayer(2, 2).setVerticalAlign(ImgCropLayer.Alignment.Left);
+      ImgCropLayer temp_57_0006 = new ImgCropLayer(2, 2);
+      ImgCropLayer temp_57_0005 = temp_57_0006
+          .setVerticalAlign(ImgCropLayer.Alignment.Left);
+      if (null != temp_57_0006)
+        temp_57_0006.freeRef();
+      return temp_57_0005;
     }
 
     public @SuppressWarnings("unused")
@@ -226,7 +241,12 @@ class ImgCropLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgCropLayer(2, 2).setVerticalAlign(ImgCropLayer.Alignment.Left);
+      ImgCropLayer temp_57_0008 = new ImgCropLayer(2, 2);
+      ImgCropLayer temp_57_0007 = temp_57_0008
+          .setVerticalAlign(ImgCropLayer.Alignment.Left);
+      if (null != temp_57_0008)
+        temp_57_0008.freeRef();
+      return temp_57_0007;
     }
 
     public @SuppressWarnings("unused")

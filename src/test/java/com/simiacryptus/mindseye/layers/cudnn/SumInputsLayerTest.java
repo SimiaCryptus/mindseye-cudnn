@@ -28,6 +28,7 @@ import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 
 import javax.annotation.Nonnull;
@@ -73,20 +74,23 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
 
   @Override
   public int[][] getSmallDims(Random random) {
-    return RefIntStream.range(0, inputs).mapToObj(i -> new int[]{2, 2, inputBands})
-        .toArray(i -> new int[i][]);
+    return RefIntStream.range(0, inputs).mapToObj(i -> new int[]{2, 2, inputBands}).toArray(i -> new int[i][]);
   }
 
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer().setPrecision(precision);
+    com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer temp_73_0002 = new com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer();
+    com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer temp_73_0001 = temp_73_0002.setPrecision(precision);
+    if (null != temp_73_0002)
+      temp_73_0002.freeRef();
+    return temp_73_0001;
   }
 
   @Override
   public int[][] getLargeDims(Random random) {
-    return RefIntStream.range(0, inputs)
-        .mapToObj(i -> new int[]{largeSize, largeSize, inputBands}).toArray(i -> new int[i][]);
+    return RefIntStream.range(0, inputs).mapToObj(i -> new int[]{largeSize, largeSize, inputBands})
+        .toArray(i -> new int[i][]);
   }
 
   public @SuppressWarnings("unused")
@@ -137,7 +141,10 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
       @Nonnull
       PipelineNetwork network = new PipelineNetwork();
       DAGNode input = network.getInput(0);
-      network.add(new SumInputsLayer(), input, input);
+      RefUtil.freeRef(network.add(new SumInputsLayer(), input == null ? null : input.addRef(),
+          input == null ? null : input.addRef()));
+      if (null != input)
+        input.freeRef();
       return network;
     }
 
@@ -165,7 +172,10 @@ class SumInputsLayerTest extends CudnnLayerTestBase {
       @Nonnull
       PipelineNetwork network = new PipelineNetwork();
       DAGNode input = network.getInput(0);
-      network.add(new com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer(), input, input);
+      RefUtil.freeRef(network.add(new com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer(),
+          input == null ? null : input.addRef(), input == null ? null : input.addRef()));
+      if (null != input)
+        input.freeRef();
       return network;
     }
 

@@ -67,7 +67,11 @@ class ProductLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new ProductLayer().setPrecision(precision);
+    ProductLayer temp_56_0002 = new ProductLayer();
+    ProductLayer temp_56_0001 = temp_56_0002.setPrecision(precision);
+    if (null != temp_56_0002)
+      temp_56_0002.freeRef();
+    return temp_56_0001;
   }
 
   public @SuppressWarnings("unused")

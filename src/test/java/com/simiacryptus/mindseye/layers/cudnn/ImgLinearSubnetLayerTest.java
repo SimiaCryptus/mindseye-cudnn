@@ -78,11 +78,30 @@ class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new ImgLinearSubnetLayer().add(0, 1, layer1).add(1, 2, layer2).add(2, 3, layer3);
+    ImgLinearSubnetLayer temp_67_0002 = new ImgLinearSubnetLayer();
+    ImgLinearSubnetLayer temp_67_0003 = temp_67_0002.add(0, 1,
+        layer1 == null ? null : layer1.addRef());
+    ImgLinearSubnetLayer temp_67_0004 = temp_67_0003.add(1, 2,
+        layer2 == null ? null : layer2.addRef());
+    ImgLinearSubnetLayer temp_67_0001 = temp_67_0004.add(2, 3,
+        layer3 == null ? null : layer3.addRef());
+    if (null != temp_67_0004)
+      temp_67_0004.freeRef();
+    if (null != temp_67_0003)
+      temp_67_0003.freeRef();
+    if (null != temp_67_0002)
+      temp_67_0002.freeRef();
+    return temp_67_0001;
   }
 
   public @SuppressWarnings("unused")
   void _free() {
+    if (null != layer3)
+      layer3.freeRef();
+    if (null != layer2)
+      layer2.freeRef();
+    if (null != layer1)
+      layer1.freeRef();
   }
 
   public @Override

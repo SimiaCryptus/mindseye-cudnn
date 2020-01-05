@@ -62,7 +62,14 @@ class ImgBandBiasLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new ImgBandBiasLayer(3).setPrecision(precision).addWeights(this::random);
+    ImgBandBiasLayer temp_55_0002 = new ImgBandBiasLayer(3);
+    ImgBandBiasLayer temp_55_0003 = temp_55_0002.setPrecision(precision);
+    ImgBandBiasLayer temp_55_0001 = temp_55_0003.addWeights(this::random);
+    if (null != temp_55_0003)
+      temp_55_0003.freeRef();
+    if (null != temp_55_0002)
+      temp_55_0002.freeRef();
+    return temp_55_0001;
   }
 
   @Nonnull

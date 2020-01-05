@@ -46,8 +46,26 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
   public FullyConnectedLayerTest(@Nonnull int[] inputDims, @Nonnull int[] outputDims, int batchBands) {
     this.inputDim = inputDims;
-    this.fullyConnectedLayer = new FullyConnectedLayer(inputDims, outputDims).setWeightsLog(-2);
-    this.layer = this.fullyConnectedLayer.setBatchBands(batchBands).explode();
+    {
+      FullyConnectedLayer temp_11_0003 = new FullyConnectedLayer(inputDims,
+          outputDims);
+      FullyConnectedLayer temp_11_0001 = temp_11_0003.setWeightsLog(-2);
+      if (null != temp_11_0003)
+        temp_11_0003.freeRef();
+      this.fullyConnectedLayer = temp_11_0001 == null ? null : temp_11_0001.addRef();
+      if (null != temp_11_0001)
+        temp_11_0001.freeRef();
+    }
+    {
+      FullyConnectedLayer temp_11_0004 = this.fullyConnectedLayer
+          .setBatchBands(batchBands);
+      Layer temp_11_0002 = temp_11_0004.explode();
+      if (null != temp_11_0004)
+        temp_11_0004.freeRef();
+      this.layer = temp_11_0002 == null ? null : temp_11_0002.addRef();
+      if (null != temp_11_0002)
+        temp_11_0002.freeRef();
+    }
   }
 
   @Override
@@ -94,7 +112,7 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return layer;
+    return layer == null ? null : layer.addRef();
   }
 
   @Override
@@ -107,6 +125,8 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    layer.freeRef();
+    fullyConnectedLayer.freeRef();
   }
 
   public @Override

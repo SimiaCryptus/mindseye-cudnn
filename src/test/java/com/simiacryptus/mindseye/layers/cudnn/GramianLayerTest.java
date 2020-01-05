@@ -23,6 +23,8 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.jetbrains.annotations.NotNull;
@@ -49,31 +51,52 @@ class GramianLayerTest extends CudnnLayerTestBase {
       @Nullable
       @Override
       public Result eval(Result... array) {
-        Tensor input = array[0].getData().get(0);
+        TensorList temp_41_0002 = array[0].getData();
+        Tensor input = temp_41_0002.get(0);
+        if (null != temp_41_0002)
+          temp_41_0002.freeRef();
+        if (null != array)
+          ReferenceCounting.freeRefs(array);
         int[] inputDimensions = input.getDimensions();
         int inBands = inputDimensions[2];
         Tensor output = new Tensor(1, 1, inBands * inBands);
-        output.setByCoord(c -> {
-          int[] coords = c.getCoords();
-          int outBand = coords[2];
-          int bandA = outBand / inBands;
-          int bandB = outBand % inBands;
-          return RefIntStream.range(0, inputDimensions[0]).mapToDouble(x -> {
-            return RefIntStream.range(0, inputDimensions[1]).mapToDouble(y -> {
-              return input.get(x, y, bandA) * input.get(x, y, bandB);
-            }).average().getAsDouble();
-          }).average().getAsDouble();
-        });
-        return new Result(new TensorArray(output), new Result.Accumulator() {
+        RefUtil.freeRef(output.setByCoord(RefUtil
+            .wrapInterface(c -> {
+              int[] coords = c.getCoords();
+              int outBand = coords[2];
+              int bandA = outBand / inBands;
+              int bandB = outBand % inBands;
+              return RefIntStream.range(0, inputDimensions[0]).mapToDouble(
+                  RefUtil.wrapInterface(x -> {
+                    return RefIntStream.range(0, inputDimensions[1]).mapToDouble(
+                        RefUtil.wrapInterface(y -> {
+                          return input.get(x, y, bandA) * input.get(x, y, bandB);
+                        }, input == null ? null : input.addRef())).average().getAsDouble();
+                  }, input == null ? null : input.addRef())).average().getAsDouble();
+            }, input == null ? null : input.addRef())));
+        if (null != input)
+          input.freeRef();
+        Result temp_41_0001 = new Result(
+            new TensorArray(output == null ? null : output.addRef()), new Result.Accumulator() {
           @Override
           public void accept(DeltaSet<UUID> a, TensorList b) {
+            if (null != b)
+              b.freeRef();
+            if (null != a)
+              a.freeRef();
+          }
+
+          public @SuppressWarnings("unused")
+          void _free() {
           }
         });
+        if (null != output)
+          output.freeRef();
+        return temp_41_0001;
       }
 
       @Override
-      public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                                DataSerializer dataSerializer) {
+      public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
         return null;
       }
 

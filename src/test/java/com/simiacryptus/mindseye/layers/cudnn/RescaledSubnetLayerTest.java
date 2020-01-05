@@ -92,6 +92,7 @@ class RescaledSubnetLayerTest extends CudnnLayerTestBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    convolutionLayer.freeRef();
   }
 
   public @Override

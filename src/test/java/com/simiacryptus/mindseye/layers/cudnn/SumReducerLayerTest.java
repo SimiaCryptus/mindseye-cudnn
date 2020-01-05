@@ -62,7 +62,11 @@ class SumReducerLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new SumReducerLayer().setPrecision(precision);
+    SumReducerLayer temp_59_0002 = new SumReducerLayer();
+    SumReducerLayer temp_59_0001 = temp_59_0002.setPrecision(precision);
+    if (null != temp_59_0002)
+      temp_59_0002.freeRef();
+    return temp_59_0001;
   }
 
   @Nonnull

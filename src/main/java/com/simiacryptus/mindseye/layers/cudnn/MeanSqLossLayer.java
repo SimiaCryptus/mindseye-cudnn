@@ -25,6 +25,7 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.network.InnerNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,16 +47,29 @@ class MeanSqLossLayer extends PipelineNetwork {
   public MeanSqLossLayer() {
     super(2);
     final Layer nextHead = new BinarySumLayer(alpha, -alpha);
-    this.binaryNode = add(nextHead, getInput(0), getInput(1));
-    add(new SquareActivationLayer());
-    add(new AvgReducerLayer());
+    {
+      InnerNode temp_14_0001 = add(nextHead == null ? null : nextHead.addRef(),
+          getInput(0), getInput(1));
+      this.binaryNode = temp_14_0001 == null ? null : temp_14_0001.addRef();
+      if (null != temp_14_0001)
+        temp_14_0001.freeRef();
+    }
+    if (null != nextHead)
+      nextHead.freeRef();
+    RefUtil.freeRef(add(new SquareActivationLayer()));
+    RefUtil.freeRef(add(new AvgReducerLayer()));
   }
 
-  protected MeanSqLossLayer(@Nonnull final JsonObject id,
-                            Map<CharSequence, byte[]> rs) {
+  protected MeanSqLossLayer(@Nonnull final JsonObject id, Map<CharSequence, byte[]> rs) {
     super(id, rs);
     alpha = id.get("alpha").getAsDouble();
-    binaryNode = (InnerNode) getNodeById(UUID.fromString(id.get("binaryNode").getAsString()));
+    {
+      InnerNode temp_14_0002 = (InnerNode) getNodeById(
+          UUID.fromString(id.get("binaryNode").getAsString()));
+      binaryNode = temp_14_0002 == null ? null : temp_14_0002.addRef();
+      if (null != temp_14_0002)
+        temp_14_0002.freeRef();
+    }
   }
 
   public double getAlpha() {
@@ -67,12 +81,13 @@ class MeanSqLossLayer extends PipelineNetwork {
     BinarySumLayer binarySumLayer = binaryNode.getLayer();
     binarySumLayer.setLeftFactor(alpha);
     binarySumLayer.setRightFactor(-alpha);
-    return this;
+    if (null != binarySumLayer)
+      binarySumLayer.freeRef();
+    return this.addRef();
   }
 
   @SuppressWarnings("unused")
-  public static MeanSqLossLayer fromJson(@NotNull final JsonObject json,
-                                         Map<CharSequence, byte[]> rs) {
+  public static MeanSqLossLayer fromJson(@NotNull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new MeanSqLossLayer(json, rs);
   }
 
@@ -93,8 +108,7 @@ class MeanSqLossLayer extends PipelineNetwork {
   }
 
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                            DataSerializer dataSerializer) {
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("alpha", alpha);
     json.addProperty("binaryNode", binaryNode.id.toString());
@@ -102,6 +116,8 @@ class MeanSqLossLayer extends PipelineNetwork {
   }
 
   public void _free() {
+    if (null != binaryNode)
+      binaryNode.freeRef();
     super._free();
   }
 

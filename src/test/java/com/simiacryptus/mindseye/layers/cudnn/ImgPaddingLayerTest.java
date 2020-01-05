@@ -126,7 +126,12 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setHorizontalAlign(Alignment.Left);
+      ImgPaddingLayer temp_63_0002 = new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
+      ImgPaddingLayer temp_63_0001 = temp_63_0002
+          .setHorizontalAlign(Alignment.Left);
+      if (null != temp_63_0002)
+        temp_63_0002.freeRef();
+      return temp_63_0001;
     }
 
     public @SuppressWarnings("unused")
@@ -159,7 +164,12 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setHorizontalAlign(Alignment.Right);
+      ImgPaddingLayer temp_63_0004 = new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
+      ImgPaddingLayer temp_63_0003 = temp_63_0004
+          .setHorizontalAlign(Alignment.Right);
+      if (null != temp_63_0004)
+        temp_63_0004.freeRef();
+      return temp_63_0003;
     }
 
     public @SuppressWarnings("unused")
@@ -192,7 +202,12 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setVerticalAlign(Alignment.Left);
+      ImgPaddingLayer temp_63_0006 = new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
+      ImgPaddingLayer temp_63_0005 = temp_63_0006
+          .setVerticalAlign(Alignment.Left);
+      if (null != temp_63_0006)
+        temp_63_0006.freeRef();
+      return temp_63_0005;
     }
 
     public @SuppressWarnings("unused")
@@ -225,7 +240,12 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT).setVerticalAlign(Alignment.Right);
+      ImgPaddingLayer temp_63_0008 = new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
+      ImgPaddingLayer temp_63_0007 = temp_63_0008
+          .setVerticalAlign(Alignment.Right);
+      if (null != temp_63_0008)
+        temp_63_0008.freeRef();
+      return temp_63_0007;
     }
 
     public @SuppressWarnings("unused")

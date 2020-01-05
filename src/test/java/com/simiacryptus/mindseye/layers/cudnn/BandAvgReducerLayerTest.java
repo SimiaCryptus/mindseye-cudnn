@@ -48,7 +48,18 @@ class BandAvgReducerLayerTest extends CudnnLayerTestBase {
   @Nullable
   @Override
   public Layer getReferenceLayer() {
-    return new BandReducerLayer().setMode(PoolingLayer.PoolingMode.Avg).setAlpha(alpha).setPrecision(precision);
+    BandReducerLayer temp_72_0002 = new BandReducerLayer();
+    BandReducerLayer temp_72_0005 = temp_72_0002
+        .setMode(PoolingLayer.PoolingMode.Avg);
+    BandReducerLayer temp_72_0006 = temp_72_0005.setAlpha(alpha);
+    BandReducerLayer temp_72_0001 = temp_72_0006.setPrecision(precision);
+    if (null != temp_72_0006)
+      temp_72_0006.freeRef();
+    if (null != temp_72_0005)
+      temp_72_0005.freeRef();
+    if (null != temp_72_0002)
+      temp_72_0002.freeRef();
+    return temp_72_0001;
   }
 
   public static @SuppressWarnings("unused")
@@ -76,7 +87,14 @@ class BandAvgReducerLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new BandAvgReducerLayer().setAlpha(alpha).setPrecision(precision);
+    BandAvgReducerLayer temp_72_0004 = new BandAvgReducerLayer();
+    BandAvgReducerLayer temp_72_0007 = temp_72_0004.setAlpha(alpha);
+    BandAvgReducerLayer temp_72_0003 = temp_72_0007.setPrecision(precision);
+    if (null != temp_72_0007)
+      temp_72_0007.freeRef();
+    if (null != temp_72_0004)
+      temp_72_0004.freeRef();
+    return temp_72_0003;
   }
 
   @Nonnull

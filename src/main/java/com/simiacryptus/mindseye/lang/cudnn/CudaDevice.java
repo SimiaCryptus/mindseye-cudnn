@@ -21,6 +21,8 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefCollection;
+import com.simiacryptus.ref.wrappers.RefSet;
 import jcuda.jcudnn.*;
 import jcuda.runtime.JCuda;
 import jcuda.runtime.cudaDeviceProp;
@@ -116,14 +118,21 @@ class CudaDevice extends CudaSystem {
     final DeviceMetrics metrics;
     synchronized (memoryManagementLock) {
       metrics = CudaMemory.getGpuStats(deviceId);
-      double resultingTotalMemory = CudaMemory.METRICS.values().stream().mapToLong(m -> m.usedMemory.get()).sum()
-          + size;
+      RefCollection<DeviceMetrics> temp_75_0001 = CudaMemory.METRICS
+          .values();
+      double resultingTotalMemory = temp_75_0001.stream().mapToLong(m -> m.usedMemory.get()).sum() + size;
+      if (null != temp_75_0001)
+        temp_75_0001.freeRef();
       if (resultingTotalMemory > CudaSettings.INSTANCE().getMaxTotalMemory()) {
         CudaMemory.logger.info(String.format("Clearing weak global memory while allocating %e bytes (%e > %e)",
             (double) size, resultingTotalMemory, CudaSettings.INSTANCE().getMaxTotalMemory()));
         CudaMemory.clearWeakMemory(deviceId);
       }
-      resultingTotalMemory = CudaMemory.METRICS.values().stream().mapToLong(x1 -> x1.usedMemory.get()).sum() + size;
+      RefCollection<DeviceMetrics> temp_75_0002 = CudaMemory.METRICS
+          .values();
+      resultingTotalMemory = temp_75_0002.stream().mapToLong(x1 -> x1.usedMemory.get()).sum() + size;
+      if (null != temp_75_0002)
+        temp_75_0002.freeRef();
       if (resultingTotalMemory > CudaSettings.INSTANCE().getMaxTotalMemory()) {
         CudaMemory.logger.info(String.format("Clearing all global memory while allocating %e bytes (%e > %e)",
             (double) size, resultingTotalMemory, CudaSettings.INSTANCE().getMaxTotalMemory()));
@@ -133,13 +142,19 @@ class CudaDevice extends CudaSystem {
       if (resultingDeviceMemory > CudaSettings.INSTANCE().getMaxDeviceMemory()) {
         CudaMemory.logger.info(String.format("Clearing weak memory for device %s while allocating %e bytes (%e > %e)",
             this, (double) size, resultingDeviceMemory, CudaSettings.INSTANCE().getMaxDeviceMemory()));
-        CudaMemory.METRICS.keySet().stream().mapToInt(x -> x).distinct().forEach(CudaMemory::clearWeakMemory);
+        RefSet<Integer> temp_75_0003 = CudaMemory.METRICS.keySet();
+        temp_75_0003.stream().mapToInt(x -> x).distinct().forEach(CudaMemory::clearWeakMemory);
+        if (null != temp_75_0003)
+          temp_75_0003.freeRef();
       }
       resultingDeviceMemory = metrics.usedMemory.get() + size;
       if (resultingDeviceMemory > CudaSettings.INSTANCE().getMaxDeviceMemory()) {
         CudaMemory.logger.info(String.format("Clearing all memory for device %s while allocating %e bytes (%s > %e)",
             this, (double) size, resultingDeviceMemory, CudaSettings.INSTANCE().getMaxDeviceMemory()));
-        CudaMemory.METRICS.keySet().stream().mapToInt(x -> x).distinct().forEach(CudaMemory::clearMemory);
+        RefSet<Integer> temp_75_0004 = CudaMemory.METRICS.keySet();
+        temp_75_0004.stream().mapToInt(x -> x).distinct().forEach(CudaMemory::clearMemory);
+        if (null != temp_75_0004)
+          temp_75_0004.freeRef();
       }
     }
     return metrics;
@@ -216,6 +231,9 @@ class CudaDevice extends CudaSystem {
     handle(result);
     return new CudaResource<cudnnFilterDescriptor>(filterDesc, CudaSystem::cudnnDestroyFilterDescriptor,
         getDeviceId()) {
+      {
+      }
+
       @Nonnull
       @Override
       public String toString() {
@@ -344,8 +362,7 @@ class CudaDevice extends CudaSystem {
   }
 
   public static @RefAware
-  class CudaTensorDescriptor
-      extends CudaResource<cudnnTensorDescriptor> {
+  class CudaTensorDescriptor extends CudaResource<cudnnTensorDescriptor> {
 
     public final int wStride;
     public final int hStride;

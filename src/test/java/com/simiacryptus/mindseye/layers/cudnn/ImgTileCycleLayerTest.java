@@ -96,7 +96,14 @@ class ImgTileCycleLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgTileCycleLayer().setXPos(0.3).setYPos(0.3);
+      ImgTileCycleLayer temp_71_0002 = new ImgTileCycleLayer();
+      ImgTileCycleLayer temp_71_0003 = temp_71_0002.setXPos(0.3);
+      ImgTileCycleLayer temp_71_0001 = temp_71_0003.setYPos(0.3);
+      if (null != temp_71_0003)
+        temp_71_0003.freeRef();
+      if (null != temp_71_0002)
+        temp_71_0002.freeRef();
+      return temp_71_0001;
     }
 
     public @SuppressWarnings("unused")

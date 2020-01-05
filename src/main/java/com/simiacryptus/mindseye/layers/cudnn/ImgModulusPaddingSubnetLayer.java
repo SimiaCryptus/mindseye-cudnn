@@ -23,11 +23,13 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.WrapperLayer;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
@@ -55,6 +57,8 @@ class ImgModulusPaddingSubnetLayer extends WrapperLayer
 
   public ImgModulusPaddingSubnetLayer(int sizeX, int sizeY, int offsetX, int offsetY, Layer inner) {
     super(inner);
+    if (null != inner)
+      inner.freeRef();
     this.sizeX = sizeX;
     this.sizeY = sizeY;
     this.offsetX = offsetX;
@@ -63,10 +67,11 @@ class ImgModulusPaddingSubnetLayer extends WrapperLayer
 
   public ImgModulusPaddingSubnetLayer(int sizeX, int sizeY, Layer inner) {
     this(sizeX, sizeY, 0, 0, inner);
+    if (null != inner)
+      inner.freeRef();
   }
 
-  protected ImgModulusPaddingSubnetLayer(@Nonnull final JsonObject json,
-                                         Map<CharSequence, byte[]> rs) {
+  protected ImgModulusPaddingSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -92,12 +97,11 @@ class ImgModulusPaddingSubnetLayer extends WrapperLayer
   @Override
   public ImgModulusPaddingSubnetLayer setPrecision(final Precision precision) {
     this.precision = precision;
-    return this;
+    return this.addRef();
   }
 
   @SuppressWarnings("unused")
-  public static ImgModulusPaddingSubnetLayer fromJson(@Nonnull final JsonObject json,
-                                                      Map<CharSequence, byte[]> rs) {
+  public static ImgModulusPaddingSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgModulusPaddingSubnetLayer(json, rs);
   }
 
@@ -123,8 +127,11 @@ class ImgModulusPaddingSubnetLayer extends WrapperLayer
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     assert inObj.length == 1;
+    TensorList temp_34_0005 = inObj[0].getData();
     @Nonnull
-    int[] dimensions = inObj[0].getData().getDimensions();
+    int[] dimensions = temp_34_0005.getDimensions();
+    if (null != temp_34_0005)
+      temp_34_0005.freeRef();
     int inputWidth = dimensions[0];
     int inputHeight = dimensions[1];
 
@@ -152,21 +159,33 @@ class ImgModulusPaddingSubnetLayer extends WrapperLayer
     assert outputHeight > 0;
     if (ouputWidth == inputWidth) {
       if (outputHeight == inputHeight) {
-        return inObj[0];
+        Result temp_34_0002 = inObj[0];
+        ReferenceCounting.freeRefs(inObj);
+        return temp_34_0002;
       }
     }
 
+    ImgCropLayer temp_34_0003 = new ImgCropLayer(ouputWidth, outputHeight);
     @Nonnull
-    ImgCropLayer imgCropLayer1 = new ImgCropLayer(ouputWidth, outputHeight).setPrecision(precision);
+    ImgCropLayer imgCropLayer1 = temp_34_0003.setPrecision(precision);
+    if (null != temp_34_0003)
+      temp_34_0003.freeRef();
+    ImgCropLayer temp_34_0004 = new ImgCropLayer(inputWidth, inputHeight);
     @Nonnull
-    ImgCropLayer imgCropLayer2 = new ImgCropLayer(inputWidth, inputHeight).setPrecision(precision);
-    return imgCropLayer2.eval(super.eval(imgCropLayer1.eval(inObj)));
+    ImgCropLayer imgCropLayer2 = temp_34_0004.setPrecision(precision);
+    if (null != temp_34_0004)
+      temp_34_0004.freeRef();
+    Result temp_34_0001 = imgCropLayer2
+        .eval(super.eval(imgCropLayer1.eval(Result.addRefs(inObj))).addRef());
+    ReferenceCounting.freeRefs(inObj);
+    imgCropLayer2.freeRef();
+    imgCropLayer1.freeRef();
+    return temp_34_0001;
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                            DataSerializer dataSerializer) {
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);

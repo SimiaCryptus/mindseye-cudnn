@@ -80,6 +80,8 @@ class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    if (null != convolutionLayer)
+      convolutionLayer.freeRef();
   }
 
   public @Override

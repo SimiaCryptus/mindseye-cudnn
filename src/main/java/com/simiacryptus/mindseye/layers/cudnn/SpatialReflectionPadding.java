@@ -20,15 +20,13 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.mindseye.lang.DataSerializer;
-import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.mindseye.lang.LayerBase;
-import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
@@ -41,8 +39,7 @@ import java.util.Map;
 
 @SuppressWarnings("serial")
 public @RefAware
-class SpatialReflectionPadding extends LayerBase
-    implements MultiPrecision<SpatialReflectionPadding> {
+class SpatialReflectionPadding extends LayerBase implements MultiPrecision<SpatialReflectionPadding> {
   private static final Logger log = LoggerFactory.getLogger(SpatialReflectionPadding.class);
   private Alignment verticalAlign = Alignment.Center;
   private Alignment horizontalAlign = Alignment.Center;
@@ -61,8 +58,7 @@ class SpatialReflectionPadding extends LayerBase
     assert 0 < sizeY;
   }
 
-  protected SpatialReflectionPadding(@Nonnull final JsonObject json,
-                                     Map<CharSequence, byte[]> rs) {
+  protected SpatialReflectionPadding(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -96,7 +92,7 @@ class SpatialReflectionPadding extends LayerBase
   @Override
   public SpatialReflectionPadding setPrecision(final Precision precision) {
     this.precision = precision;
-    return this;
+    return this.addRef();
   }
 
   public Alignment getVerticalAlign() {
@@ -113,12 +109,11 @@ class SpatialReflectionPadding extends LayerBase
 
   public SpatialReflectionPadding setRoundUp(boolean roundUp) {
     this.roundUp = roundUp;
-    return this;
+    return this.addRef();
   }
 
   @SuppressWarnings("unused")
-  public static SpatialReflectionPadding fromJson(@Nonnull final JsonObject json,
-                                                  Map<CharSequence, byte[]> rs) {
+  public static SpatialReflectionPadding fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new SpatialReflectionPadding(json, rs);
   }
 
@@ -154,18 +149,34 @@ class SpatialReflectionPadding extends LayerBase
   @Nullable
   @Override
   public Result eval(@Nonnull final Result... inObj) {
-    if (inObj.length != 1)
+    if (inObj.length != 1) {
+      ReferenceCounting.freeRefs(inObj);
       throw new IllegalArgumentException();
-    final int[] dimensions = inObj[0].getData().getDimensions();
-    final ImgPaddingLayer paddingLayer = new ImgPaddingLayer(dimensions[0] + sizeX, dimensions[1] + sizeY)
-        .setHorizontalAlign(horizontalAlign).setVerticalAlign(verticalAlign);
-    return paddingLayer.eval(inObj);
+    }
+    TensorList temp_42_0003 = inObj[0].getData();
+    final int[] dimensions = temp_42_0003.getDimensions();
+    if (null != temp_42_0003)
+      temp_42_0003.freeRef();
+    ImgPaddingLayer temp_42_0002 = new ImgPaddingLayer(dimensions[0] + sizeX,
+        dimensions[1] + sizeY);
+    ImgPaddingLayer temp_42_0004 = temp_42_0002
+        .setHorizontalAlign(horizontalAlign);
+    final ImgPaddingLayer paddingLayer = temp_42_0004.setVerticalAlign(verticalAlign);
+    if (null != temp_42_0004)
+      temp_42_0004.freeRef();
+    if (null != temp_42_0002)
+      temp_42_0002.freeRef();
+    Result temp_42_0001 = paddingLayer
+        .eval(Result.addRefs(inObj));
+    ReferenceCounting.freeRefs(inObj);
+    if (null != paddingLayer)
+      paddingLayer.freeRef();
+    return temp_42_0001;
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                            DataSerializer dataSerializer) {
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);

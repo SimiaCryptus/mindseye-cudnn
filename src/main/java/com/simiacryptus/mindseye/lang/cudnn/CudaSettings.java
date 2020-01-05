@@ -69,6 +69,8 @@ class CudaSettings implements Settings {
       appSettings.putAll(LocalAppSettings.read(sparkHomeFile));
     if (appSettings.containsKey("worker.index"))
       System.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
+    if (null != appSettings)
+      appSettings.freeRef();
     maxTotalMemory = Settings.get("MAX_TOTAL_MEMORY", 12 * CudaMemory.GiB);
     maxDeviceMemory = Settings.get("MAX_DEVICE_MEMORY", 6 * CudaMemory.GiB);
     maxAllocSize = (long) Settings.get("MAX_ALLOC_SIZE", (double) Precision.Double.size * (Integer.MAX_VALUE / 2 - 1L));

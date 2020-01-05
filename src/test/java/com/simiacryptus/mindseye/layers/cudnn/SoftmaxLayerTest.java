@@ -74,7 +74,14 @@ class SoftmaxLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new SoftmaxActivationLayer().setMode(mode).setAlgorithm(algorithm);
+    SoftmaxActivationLayer temp_70_0002 = new SoftmaxActivationLayer();
+    SoftmaxActivationLayer temp_70_0003 = temp_70_0002.setMode(mode);
+    SoftmaxActivationLayer temp_70_0001 = temp_70_0003.setAlgorithm(algorithm);
+    if (null != temp_70_0003)
+      temp_70_0003.freeRef();
+    if (null != temp_70_0002)
+      temp_70_0002.freeRef();
+    return temp_70_0001;
   }
 
   public @SuppressWarnings("unused")

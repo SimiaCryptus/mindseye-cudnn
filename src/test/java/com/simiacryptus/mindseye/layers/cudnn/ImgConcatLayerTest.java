@@ -43,8 +43,7 @@ class ImgConcatLayerTest extends CudnnLayerTestBase {
 
   public ImgConcatLayerTest(final Precision precision, int inputs, int bandsPerInput, final int smallSize,
                             final int largeSize) {
-    this(precision, RefIntStream.range(0, inputs).map(i -> bandsPerInput).toArray(),
-        smallSize, largeSize);
+    this(precision, RefIntStream.range(0, inputs).map(i -> bandsPerInput).toArray(), smallSize, largeSize);
   }
 
   public ImgConcatLayerTest(final Precision precision, final int[] bandSeq, final int smallSize, final int largeSize) {
@@ -78,25 +77,17 @@ class ImgConcatLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return RefArrays.stream(bandSeq).mapToObj(x -> new int[]{smallSize, smallSize, x})
-        .toArray(i -> new int[i][]);
+    return RefArrays.stream(bandSeq).mapToObj(x -> new int[]{smallSize, smallSize, x}).toArray(i -> new int[i][]);
   }
 
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new ImgConcatLayer().setPrecision(precision);
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(Random random) {
-    return RefArrays.stream(bandSeq).mapToObj(x -> new int[]{largeSize, largeSize, x})
-        .toArray(i -> new int[i][]);
-  }
-
-  public @SuppressWarnings("unused")
-  void _free() {
+    ImgConcatLayer temp_62_0002 = new ImgConcatLayer();
+    ImgConcatLayer temp_62_0001 = temp_62_0002.setPrecision(precision);
+    if (null != temp_62_0002)
+      temp_62_0002.freeRef();
+    return temp_62_0001;
   }
   //
   //  /**
@@ -110,6 +101,16 @@ class ImgConcatLayerTest extends CudnnLayerTestBase {
   //      super(Precision.Double, 8, 512);
   //    }
   //  }
+
+  @Nonnull
+  @Override
+  public int[][] getLargeDims(Random random) {
+    return RefArrays.stream(bandSeq).mapToObj(x -> new int[]{largeSize, largeSize, x}).toArray(i -> new int[i][]);
+  }
+
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
 
   public @Override
   @SuppressWarnings("unused")
@@ -147,7 +148,11 @@ class ImgConcatLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgConcatLayer().setMaxBands(2);
+      ImgConcatLayer temp_62_0004 = new ImgConcatLayer();
+      ImgConcatLayer temp_62_0003 = temp_62_0004.setMaxBands(2);
+      if (null != temp_62_0004)
+        temp_62_0004.freeRef();
+      return temp_62_0003;
     }
 
     public @SuppressWarnings("unused")
@@ -185,7 +190,11 @@ class ImgConcatLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgConcatLayer().setMaxBands(8);
+      ImgConcatLayer temp_62_0006 = new ImgConcatLayer();
+      ImgConcatLayer temp_62_0005 = temp_62_0006.setMaxBands(8);
+      if (null != temp_62_0006)
+        temp_62_0006.freeRef();
+      return temp_62_0005;
     }
 
     public @SuppressWarnings("unused")

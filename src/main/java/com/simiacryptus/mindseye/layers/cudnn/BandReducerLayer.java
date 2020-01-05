@@ -27,6 +27,7 @@ import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.cudnn.PoolingLayer.PoolingMode;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 
@@ -37,8 +38,7 @@ import java.util.Map;
 
 @SuppressWarnings("serial")
 public @RefAware
-class BandReducerLayer extends LayerBase
-    implements MultiPrecision<BandReducerLayer> {
+class BandReducerLayer extends LayerBase implements MultiPrecision<BandReducerLayer> {
 
   private PoolingLayer.PoolingMode mode = PoolingLayer.PoolingMode.Max;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
@@ -50,8 +50,8 @@ class BandReducerLayer extends LayerBase
 
   protected BandReducerLayer(@Nonnull final JsonObject json) {
     super(json);
-    mode = RefArrays.stream(PoolingLayer.PoolingMode.values())
-        .filter(i -> i.id == json.get("mode").getAsInt()).findFirst().get();
+    mode = RefArrays.stream(PoolingLayer.PoolingMode.values()).filter(i -> i.id == json.get("mode").getAsInt())
+        .findFirst().get();
     precision = Precision.valueOf(json.get("precision").getAsString());
     alpha = json.get("alpha").getAsDouble();
   }
@@ -62,7 +62,7 @@ class BandReducerLayer extends LayerBase
 
   public BandReducerLayer setAlpha(double alpha) {
     this.alpha = alpha;
-    return this;
+    return this.addRef();
   }
 
   @Nonnull
@@ -77,7 +77,7 @@ class BandReducerLayer extends LayerBase
   @Nonnull
   public BandReducerLayer setMode(final PoolingMode mode) {
     this.mode = mode;
-    return this;
+    return this.addRef();
   }
 
   @Override
@@ -89,12 +89,11 @@ class BandReducerLayer extends LayerBase
   @Override
   public BandReducerLayer setPrecision(final Precision precision) {
     this.precision = precision;
-    return this;
+    return this.addRef();
   }
 
   @SuppressWarnings("unused")
-  public static BandReducerLayer fromJson(@Nonnull final JsonObject json,
-                                          Map<CharSequence, byte[]> rs) {
+  public static BandReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new BandReducerLayer(json);
   }
 
@@ -117,22 +116,63 @@ class BandReducerLayer extends LayerBase
   @Nullable
   @Override
   public Result eval(final Result... inObj) {
-    if (!CudaSystem.isEnabled())
-      return getCompatibilityLayer().eval(inObj);
-    final Result input = inObj[0];
+    if (!CudaSystem.isEnabled()) {
+      Layer temp_27_0004 = getCompatibilityLayer();
+      Result temp_27_0002 = temp_27_0004
+          .eval(Result.addRefs(inObj));
+      if (null != temp_27_0004)
+        temp_27_0004.freeRef();
+      if (null != inObj)
+        ReferenceCounting.freeRefs(inObj);
+      return temp_27_0002;
+    }
+    final Result input = inObj[0].addRef();
     final TensorList batch = input.getData();
+    if (null != input)
+      input.freeRef();
     @Nonnull final int[] inputSize = batch.getDimensions();
+    if (null != batch)
+      batch.freeRef();
+    PoolingLayer temp_27_0003 = new PoolingLayer();
+    PoolingLayer temp_27_0005 = temp_27_0003.setMode(mode);
+    PoolingLayer temp_27_0006 = temp_27_0005.setPrecision(precision);
+    PoolingLayer temp_27_0007 = temp_27_0006.setWindowX(inputSize[0]);
+    PoolingLayer temp_27_0008 = temp_27_0007.setWindowY(inputSize[1]);
+    PoolingLayer temp_27_0009 = temp_27_0008.setStrideX(inputSize[0]);
+    PoolingLayer temp_27_0010 = temp_27_0009.setStrideY(inputSize[1]);
+    PoolingLayer temp_27_0011 = temp_27_0010.setPaddingX(0);
+    PoolingLayer temp_27_0012 = temp_27_0011.setPaddingY(0);
     @Nonnull
-    PoolingLayer impl = new PoolingLayer().setMode(mode).setPrecision(precision).setWindowX(inputSize[0])
-        .setWindowY(inputSize[1]).setStrideX(inputSize[0]).setStrideY(inputSize[1]).setPaddingX(0).setPaddingY(0)
-        .setAlpha(alpha);
-    return impl.eval(inObj);
+    PoolingLayer impl = temp_27_0012.setAlpha(alpha);
+    if (null != temp_27_0012)
+      temp_27_0012.freeRef();
+    if (null != temp_27_0011)
+      temp_27_0011.freeRef();
+    if (null != temp_27_0010)
+      temp_27_0010.freeRef();
+    if (null != temp_27_0009)
+      temp_27_0009.freeRef();
+    if (null != temp_27_0008)
+      temp_27_0008.freeRef();
+    if (null != temp_27_0007)
+      temp_27_0007.freeRef();
+    if (null != temp_27_0006)
+      temp_27_0006.freeRef();
+    if (null != temp_27_0005)
+      temp_27_0005.freeRef();
+    if (null != temp_27_0003)
+      temp_27_0003.freeRef();
+    Result temp_27_0001 = impl
+        .eval(Result.addRefs(inObj));
+    if (null != inObj)
+      ReferenceCounting.freeRefs(inObj);
+    impl.freeRef();
+    return temp_27_0001;
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                            DataSerializer dataSerializer) {
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("alpha", alpha);
     json.addProperty("mode", mode.id);

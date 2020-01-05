@@ -23,10 +23,12 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
@@ -39,8 +41,7 @@ import java.util.Map;
 
 @SuppressWarnings("serial")
 public @RefAware
-class ImgMinSizeLayer extends LayerBase
-    implements MultiPrecision<ImgMinSizeLayer> {
+class ImgMinSizeLayer extends LayerBase implements MultiPrecision<ImgMinSizeLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgMinSizeLayer.class);
 
   private int sizeX;
@@ -55,8 +56,7 @@ class ImgMinSizeLayer extends LayerBase
     this.sizeY = sizeY;
   }
 
-  protected ImgMinSizeLayer(@Nonnull final JsonObject json,
-                            Map<CharSequence, byte[]> rs) {
+  protected ImgMinSizeLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -72,12 +72,11 @@ class ImgMinSizeLayer extends LayerBase
   @Override
   public ImgMinSizeLayer setPrecision(final Precision precision) {
     this.precision = precision;
-    return this;
+    return this.addRef();
   }
 
   @SuppressWarnings("unused")
-  public static ImgMinSizeLayer fromJson(@Nonnull final JsonObject json,
-                                         Map<CharSequence, byte[]> rs) {
+  public static ImgMinSizeLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgMinSizeLayer(json, rs);
   }
 
@@ -101,9 +100,12 @@ class ImgMinSizeLayer extends LayerBase
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     assert inObj.length == 1;
-    Result in0 = inObj[0];
+    Result in0 = inObj[0].addRef();
+    TensorList temp_45_0003 = in0.getData();
     @Nonnull
-    int[] dimensions = in0.getData().getDimensions();
+    int[] dimensions = temp_45_0003.getDimensions();
+    if (null != temp_45_0003)
+      temp_45_0003.freeRef();
     int inputWidth = dimensions[0];
     int inputHeight = dimensions[1];
 
@@ -113,19 +115,28 @@ class ImgMinSizeLayer extends LayerBase
     assert outputHeight > 0;
     if (ouputWidth == inputWidth) {
       if (outputHeight == inputHeight) {
+        ReferenceCounting.freeRefs(inObj);
         return in0;
       }
     }
 
+    if (null != in0)
+      in0.freeRef();
+    ImgCropLayer temp_45_0002 = new ImgCropLayer(ouputWidth, outputHeight);
     @Nonnull
-    ImgCropLayer imgCropLayer = new ImgCropLayer(ouputWidth, outputHeight).setPrecision(precision);
-    return imgCropLayer.eval(inObj);
+    ImgCropLayer imgCropLayer = temp_45_0002.setPrecision(precision);
+    if (null != temp_45_0002)
+      temp_45_0002.freeRef();
+    Result temp_45_0001 = imgCropLayer
+        .eval(Result.addRefs(inObj));
+    ReferenceCounting.freeRefs(inObj);
+    imgCropLayer.freeRef();
+    return temp_45_0001;
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                            DataSerializer dataSerializer) {
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);

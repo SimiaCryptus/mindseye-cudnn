@@ -23,10 +23,12 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
@@ -39,8 +41,7 @@ import java.util.Map;
 
 @SuppressWarnings("serial")
 public @RefAware
-class ImgModulusCropLayer extends LayerBase
-    implements MultiPrecision<ImgModulusCropLayer> {
+class ImgModulusCropLayer extends LayerBase implements MultiPrecision<ImgModulusCropLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusCropLayer.class);
   private boolean roundUp = false;
 
@@ -64,8 +65,7 @@ class ImgModulusCropLayer extends LayerBase
     this(sizeX, sizeY, 0, 0);
   }
 
-  protected ImgModulusCropLayer(@Nonnull final JsonObject json,
-                                Map<CharSequence, byte[]> rs) {
+  protected ImgModulusCropLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     setRoundUp(json.get("roundUp").getAsBoolean());
     sizeX = json.get("sizeX").getAsInt();
@@ -92,7 +92,7 @@ class ImgModulusCropLayer extends LayerBase
   @Override
   public ImgModulusCropLayer setPrecision(final Precision precision) {
     this.precision = precision;
-    return this;
+    return this.addRef();
   }
 
   public boolean isRoundUp() {
@@ -104,8 +104,7 @@ class ImgModulusCropLayer extends LayerBase
   }
 
   @SuppressWarnings("unused")
-  public static ImgModulusCropLayer fromJson(@Nonnull final JsonObject json,
-                                             Map<CharSequence, byte[]> rs) {
+  public static ImgModulusCropLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgModulusCropLayer(json, rs);
   }
 
@@ -129,8 +128,11 @@ class ImgModulusCropLayer extends LayerBase
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     assert inObj.length == 1;
+    TensorList temp_40_0004 = inObj[0].getData();
     @Nonnull
-    int[] dimensions = inObj[0].getData().getDimensions();
+    int[] dimensions = temp_40_0004.getDimensions();
+    if (null != temp_40_0004)
+      temp_40_0004.freeRef();
     int inputWidth = dimensions[0];
     int inputHeight = dimensions[1];
 
@@ -162,20 +164,30 @@ class ImgModulusCropLayer extends LayerBase
     assert outputHeight > 0;
     if (ouputWidth == inputWidth) {
       if (outputHeight == inputHeight) {
-        return inObj[0];
+        Result temp_40_0002 = inObj[0];
+        ReferenceCounting.freeRefs(inObj);
+        return temp_40_0002;
       }
     }
 
+    ImgCropLayer temp_40_0003 = new ImgCropLayer(ouputWidth, outputHeight);
+    ImgCropLayer temp_40_0005 = temp_40_0003.setPrecision(precision);
     @Nonnull
-    ImgCropLayer imgCropLayer = new ImgCropLayer(ouputWidth, outputHeight).setPrecision(precision)
-        .setRoundUp(isRoundUp());
-    return imgCropLayer.eval(inObj);
+    ImgCropLayer imgCropLayer = temp_40_0005.setRoundUp(isRoundUp());
+    if (null != temp_40_0005)
+      temp_40_0005.freeRef();
+    if (null != temp_40_0003)
+      temp_40_0003.freeRef();
+    Result temp_40_0001 = imgCropLayer
+        .eval(Result.addRefs(inObj));
+    ReferenceCounting.freeRefs(inObj);
+    imgCropLayer.freeRef();
+    return temp_40_0001;
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                            DataSerializer dataSerializer) {
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("roundUp", roundUp);
     json.addProperty("sizeY", sizeY);

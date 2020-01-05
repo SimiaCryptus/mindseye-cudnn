@@ -26,6 +26,7 @@ import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 
 import javax.annotation.Nonnull;
@@ -69,7 +70,11 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new BinarySumLayer().setPrecision(precision);
+    BinarySumLayer temp_69_0002 = new BinarySumLayer();
+    BinarySumLayer temp_69_0001 = temp_69_0002.setPrecision(precision);
+    if (null != temp_69_0002)
+      temp_69_0002.freeRef();
+    return temp_69_0001;
   }
 
   @Override
@@ -103,14 +108,12 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
 
     @Override
     public int[][] getSmallDims(Random random) {
-      return RefIntStream.range(0, 5).mapToObj(i -> new int[]{smallSize, smallSize, 2})
-          .toArray(i -> new int[i][]);
+      return RefIntStream.range(0, 5).mapToObj(i -> new int[]{smallSize, smallSize, 2}).toArray(i -> new int[i][]);
     }
 
     @Override
     public int[][] getLargeDims(Random random) {
-      return RefIntStream.range(0, 5).mapToObj(i -> new int[]{largeSize, largeSize, 3})
-          .toArray(i -> new int[i][]);
+      return RefIntStream.range(0, 5).mapToObj(i -> new int[]{largeSize, largeSize, 3}).toArray(i -> new int[i][]);
     }
 
     public @SuppressWarnings("unused")
@@ -137,7 +140,10 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
       @Nonnull
       PipelineNetwork network = new PipelineNetwork();
       DAGNode input = network.getInput(0);
-      network.add(new SumInputsLayer(), input, input);
+      RefUtil.freeRef(network.add(new SumInputsLayer(), input == null ? null : input.addRef(),
+          input == null ? null : input.addRef()));
+      if (null != input)
+        input.freeRef();
       return network;
     }
 
@@ -160,7 +166,10 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
       @Nonnull
       PipelineNetwork network = new PipelineNetwork();
       DAGNode input = network.getInput(0);
-      network.add(new BinarySumLayer(), input, input);
+      RefUtil.freeRef(network.add(new BinarySumLayer(), input == null ? null : input.addRef(),
+          input == null ? null : input.addRef()));
+      if (null != input)
+        input.freeRef();
       return network;
     }
 
@@ -230,7 +239,11 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new BinarySumLayer(1.0, -1.0).setPrecision(precision);
+      BinarySumLayer temp_69_0004 = new BinarySumLayer(1.0, -1.0);
+      BinarySumLayer temp_69_0003 = temp_69_0004.setPrecision(precision);
+      if (null != temp_69_0004)
+        temp_69_0004.freeRef();
+      return temp_69_0003;
     }
 
     public @SuppressWarnings("unused")
@@ -298,7 +311,11 @@ class BinarySumLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new BinarySumLayer(0.5, 0.5).setPrecision(precision);
+      BinarySumLayer temp_69_0006 = new BinarySumLayer(0.5, 0.5);
+      BinarySumLayer temp_69_0005 = temp_69_0006.setPrecision(precision);
+      if (null != temp_69_0006)
+        temp_69_0006.freeRef();
+      return temp_69_0005;
     }
 
     public @SuppressWarnings("unused")

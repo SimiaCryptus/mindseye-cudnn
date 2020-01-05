@@ -19,6 +19,7 @@
 
 package com.simiacryptus.mindseye.layers.cudnn.conv;
 
+import com.simiacryptus.mindseye.lang.Coordinate;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
@@ -29,6 +30,7 @@ import com.simiacryptus.mindseye.test.unit.ComponentTest;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefAssert;
 import com.simiacryptus.ref.wrappers.RefStream;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +40,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public abstract @RefAware
 class ConvolutionLayerTest extends CudnnLayerTestBase {
@@ -54,13 +58,32 @@ class ConvolutionLayerTest extends CudnnLayerTestBase {
     this.radius = radius;
     this.inputBands = inputBands;
     this.outputBands = outputBands;
-    convolutionLayer = new ConvolutionLayer(radius, radius, inputBands, outputBands).setPrecision(precision)
-        .setBatchBands(batchBands).setStrideXY(stride, stride);
+    {
+      ConvolutionLayer temp_12_0002 = new ConvolutionLayer(radius, radius,
+          inputBands, outputBands);
+      ConvolutionLayer temp_12_0004 = temp_12_0002.setPrecision(precision);
+      ConvolutionLayer temp_12_0005 = temp_12_0004
+          .setBatchBands(batchBands);
+      ConvolutionLayer temp_12_0001 = temp_12_0005.setStrideXY(stride,
+          stride);
+      if (null != temp_12_0005)
+        temp_12_0005.freeRef();
+      if (null != temp_12_0004)
+        temp_12_0004.freeRef();
+      if (null != temp_12_0002)
+        temp_12_0002.freeRef();
+      convolutionLayer = temp_12_0001 == null ? null : temp_12_0001.addRef();
+      if (null != temp_12_0001)
+        temp_12_0001.freeRef();
+    }
     @Nonnull
     Random random = getRandom();
-    convolutionLayer.getKernel().set(() -> {
+    Tensor temp_12_0006 = convolutionLayer.getKernel();
+    RefUtil.freeRef(temp_12_0006.set(() -> {
       return random(random);
-    });
+    }));
+    if (null != temp_12_0006)
+      temp_12_0006.freeRef();
     this.smallSize = smallSize;
     this.largeSize = largeSize;
     this.testingBatchSize = 2;
@@ -109,17 +132,37 @@ class ConvolutionLayerTest extends CudnnLayerTestBase {
   public void verifyWeights() {
     @Nonnull
     ExplodedConvolutionGrid explodedNetwork = this.convolutionLayer.getExplodedNetwork();
+    Tensor temp_12_0007 = this.convolutionLayer.getKernel();
     @Nonnull
-    int[] kernelDims = this.convolutionLayer.getKernel().getDimensions();
+    int[] kernelDims = temp_12_0007.getDimensions();
+    if (null != temp_12_0007)
+      temp_12_0007.freeRef();
+    Tensor temp_12_0003 = new Tensor(kernelDims);
     @Nullable
-    Tensor testData = new Tensor(kernelDims).map(x -> random());
-    explodedNetwork.write(testData);
+    Tensor testData = temp_12_0003.map(x -> random());
+    if (null != temp_12_0003)
+      temp_12_0003.freeRef();
+    RefUtil.freeRef(explodedNetwork.write(testData == null ? null : testData.addRef()));
     Tensor echo = explodedNetwork.read();
-    if (!testData.equals(echo)) {
-      Tensor minus = testData.minus(echo);
-      print(minus.coordStream(false).filter(x -> minus.get(x) != 0).map(x -> String.format("%s=%s", x, minus.get(x))));
-      RefAssert.assertEquals(testData, echo);
+    explodedNetwork.freeRef();
+    if (!testData.equals(echo == null ? null : echo.addRef())) {
+      Tensor minus = testData.minus(echo == null ? null : echo.addRef());
+      print(minus.coordStream(false)
+          .filter(RefUtil.wrapInterface(
+              (Predicate<? super Coordinate>) x -> minus.get(x) != 0,
+              minus == null ? null : minus.addRef()))
+          .map(RefUtil.wrapInterface(
+              (Function<? super Coordinate, ? extends CharSequence>) x -> String
+                  .format("%s=%s", x, minus.get(x)),
+              minus == null ? null : minus.addRef())));
+      if (null != minus)
+        minus.freeRef();
+      RefAssert.assertEquals(testData == null ? null : testData.addRef(), echo == null ? null : echo.addRef());
     }
+    if (null != echo)
+      echo.freeRef();
+    if (null != testData)
+      testData.freeRef();
   }
 
   @Nonnull
@@ -142,6 +185,8 @@ class ConvolutionLayerTest extends CudnnLayerTestBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    if (null != convolutionLayer)
+      convolutionLayer.freeRef();
   }
 
   public @Override
@@ -247,6 +292,26 @@ class ConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
+  //  /**
+  //   * The type BigTests temp 0.
+  //   */
+  //  public static class Big0 extends VeryBigTest {
+  //    /**
+  //     * Instantiates a new BigTests.
+  //     */
+  //    public Big0() {this(512);}
+  //
+  //    /**
+  //     * Instantiates a new BigTests.
+  //     *
+  //     * @param size
+  //     */
+  //    private Big0(int size) {
+  //      super(1, 16 * size, 16 * size, Precision.Double, size);
+  //    }
+  //
+  //  }
+
   public static @RefAware
   class IrregularGrid extends ConvolutionLayerTest {
 
@@ -327,31 +392,11 @@ class ConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
-  //  /**
-  //   * The type BigTests temp 0.
-  //   */
-  //  public static class Big0 extends VeryBigTest {
-  //    /**
-  //     * Instantiates a new BigTests.
-  //     */
-  //    public Big0() {this(512);}
-  //
-  //    /**
-  //     * Instantiates a new BigTests.
-  //     *
-  //     * @param size
-  //     */
-  //    private Big0(int size) {
-  //      super(1, 16 * size, 16 * size, Precision.Double, size);
-  //    }
-  //
-  //  }
-
   public static @RefAware
   class NoPadding extends ConvolutionLayerTest {
     public NoPadding() {
       super(3, 3, 3, Precision.Double, 16, 1, 3, 600);
-      convolutionLayer.setPaddingXY(0, 0);
+      RefUtil.freeRef(convolutionLayer.setPaddingXY(0, 0));
     }
 
     public static @SuppressWarnings("unused")

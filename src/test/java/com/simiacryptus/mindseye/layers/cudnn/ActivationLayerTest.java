@@ -19,6 +19,7 @@
 
 package com.simiacryptus.mindseye.layers.cudnn;
 
+import com.simiacryptus.lang.UncheckedSupplier;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
@@ -29,14 +30,17 @@ import com.simiacryptus.mindseye.test.SimpleEval;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefCollectors;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.jetbrains.annotations.NotNull;
+import smile.plot.PlotCanvas;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.function.DoubleFunction;
 
 public abstract @RefAware
 class ActivationLayerTest extends CudnnLayerTestBase {
@@ -84,7 +88,11 @@ class ActivationLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new ActivationLayer(mode).setPrecision(precision);
+    ActivationLayer temp_21_0003 = new ActivationLayer(mode);
+    ActivationLayer temp_21_0002 = temp_21_0003.setPrecision(precision);
+    if (null != temp_21_0003)
+      temp_21_0003.freeRef();
+    return temp_21_0002;
   }
 
   @Nonnull
@@ -103,20 +111,31 @@ class ActivationLayerTest extends CudnnLayerTestBase {
 
     log.h3("Function Plots");
     @Nonnull final Layer layer = getLayer(new int[][]{{1, 1, 1}}, new Random());
-    final RefList<double[]> plotData = RefIntStream
-        .range(-1000, 1000).mapToDouble(x -> x / 300.0).mapToObj(x -> {
+    final RefList<double[]> plotData = RefIntStream.range(-1000, 1000).mapToDouble(x -> x / 300.0).mapToObj(
+        RefUtil.wrapInterface((DoubleFunction<? extends double[]>) x -> {
           @Nonnull
           Tensor input = new Tensor(new double[]{x}, 1, 1, 1);
-          @Nonnull final SimpleEval eval = SimpleEval.run(layer, input);
-          return new double[]{x, eval.getOutput().get(0), eval.getDerivative()[0].get(0)};
-        }).collect(RefCollectors.toList());
-    log.eval(() -> {
-      return ActivationLayerTestBase.plot("Value Plot", plotData, x -> new double[]{x[0], x[1]});
-    });
+          @Nonnull final SimpleEval eval = SimpleEval.run(layer == null ? null : layer.addRef(), input == null ? null : input);
+          Tensor temp_21_0008 = eval.getOutput();
+          double[] temp_21_0001 = new double[]{x, temp_21_0008.get(0), eval.getDerivative()[0].get(0)};
+          if (null != temp_21_0008)
+            temp_21_0008.freeRef();
+          eval.freeRef();
+          return temp_21_0001;
+        }, layer == null ? null : layer)).collect(RefCollectors.toList());
+    log.eval(RefUtil
+        .wrapInterface((UncheckedSupplier<PlotCanvas>) () -> {
+          return ActivationLayerTestBase.plot("Value Plot", plotData == null ? null : plotData.addRef(),
+              x -> new double[]{x[0], x[1]});
+        }, plotData == null ? null : plotData.addRef()));
 
-    log.eval(() -> {
-      return ActivationLayerTestBase.plot("Derivative Plot", plotData, x -> new double[]{x[0], x[2]});
-    });
+    log.eval(RefUtil
+        .wrapInterface((UncheckedSupplier<PlotCanvas>) () -> {
+          return ActivationLayerTestBase.plot("Derivative Plot", plotData == null ? null : plotData.addRef(),
+              x -> new double[]{x[0], x[2]});
+        }, plotData == null ? null : plotData.addRef()));
+    if (null != plotData)
+      plotData.freeRef();
 
   }
 
@@ -198,7 +217,11 @@ class ActivationLayerTest extends CudnnLayerTestBase {
 
     @Override
     public Layer getReferenceLayer() {
-      return new SigmoidActivationLayer().setBalanced(false);
+      SigmoidActivationLayer temp_21_0005 = new SigmoidActivationLayer();
+      SigmoidActivationLayer temp_21_0004 = temp_21_0005.setBalanced(false);
+      if (null != temp_21_0005)
+        temp_21_0005.freeRef();
+      return temp_21_0004;
     }
 
     public static @SuppressWarnings("unused")
@@ -228,7 +251,11 @@ class ActivationLayerTest extends CudnnLayerTestBase {
 
     @Override
     public Layer getReferenceLayer() {
-      return new SigmoidActivationLayer().setBalanced(false);
+      SigmoidActivationLayer temp_21_0007 = new SigmoidActivationLayer();
+      SigmoidActivationLayer temp_21_0006 = temp_21_0007.setBalanced(false);
+      if (null != temp_21_0007)
+        temp_21_0007.freeRef();
+      return temp_21_0006;
     }
 
     public static @SuppressWarnings("unused")

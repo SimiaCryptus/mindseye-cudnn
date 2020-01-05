@@ -29,6 +29,7 @@ import com.simiacryptus.mindseye.lang.cudnn.CudaSystem;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
@@ -41,8 +42,7 @@ import java.util.Map;
 
 @SuppressWarnings("serial")
 public @RefAware
-class RescaledSubnetLayer extends LayerBase
-    implements MultiPrecision<RescaledSubnetLayer> {
+class RescaledSubnetLayer extends LayerBase implements MultiPrecision<RescaledSubnetLayer> {
   private static final Logger log = LoggerFactory.getLogger(RescaledSubnetLayer.class);
 
   private int scale;
@@ -54,20 +54,35 @@ class RescaledSubnetLayer extends LayerBase
 
   public RescaledSubnetLayer(int scale, Layer layer) {
     this.scale = scale;
-    this.layer = layer;
+    {
+      Layer temp_13_0001 = layer == null ? null : layer.addRef();
+      if (null != this.layer)
+        this.layer.freeRef();
+      this.layer = temp_13_0001 == null ? null : temp_13_0001.addRef();
+      if (null != temp_13_0001)
+        temp_13_0001.freeRef();
+    }
+    if (null != layer)
+      layer.freeRef();
   }
 
-  protected RescaledSubnetLayer(@Nonnull final JsonObject json,
-                                Map<CharSequence, byte[]> rs) {
+  protected RescaledSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     scale = json.get("scale").getAsInt();
-    layer = Layer.fromJson(json, rs);
+    {
+      Layer temp_13_0002 = Layer.fromJson(json, rs);
+      if (null != layer)
+        layer.freeRef();
+      layer = temp_13_0002 == null ? null : temp_13_0002.addRef();
+      if (null != temp_13_0002)
+        temp_13_0002.freeRef();
+    }
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
   @Nonnull
   public Layer getCompatibilityLayer() {
-    return new com.simiacryptus.mindseye.layers.java.RescaledSubnetLayer(scale, layer);
+    return new com.simiacryptus.mindseye.layers.java.RescaledSubnetLayer(scale, layer == null ? null : layer.addRef());
   }
 
   @Override
@@ -79,12 +94,11 @@ class RescaledSubnetLayer extends LayerBase
   @Override
   public RescaledSubnetLayer setPrecision(final Precision precision) {
     this.precision = precision;
-    return this;
+    return this.addRef();
   }
 
   @SuppressWarnings("unused")
-  public static RescaledSubnetLayer fromJson(@Nonnull final JsonObject json,
-                                             Map<CharSequence, byte[]> rs) {
+  public static RescaledSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new RescaledSubnetLayer(json, rs);
   }
 
@@ -107,16 +121,30 @@ class RescaledSubnetLayer extends LayerBase
   @Nullable
   @Override
   public Result eval(final Result... inObj) {
-    if (!CudaSystem.isEnabled())
-      return getCompatibilityLayer().eval(inObj);
+    if (!CudaSystem.isEnabled()) {
+      Layer temp_13_0005 = getCompatibilityLayer();
+      Result temp_13_0004 = temp_13_0005
+          .eval(Result.addRefs(inObj));
+      if (null != temp_13_0005)
+        temp_13_0005.freeRef();
+      if (null != inObj)
+        ReferenceCounting.freeRefs(inObj);
+      return temp_13_0004;
+    }
     log.warn("Not Implemented: " + getClass().getCanonicalName());
-    return getCompatibilityLayer().eval(inObj);
+    Layer temp_13_0006 = getCompatibilityLayer();
+    Result temp_13_0003 = temp_13_0006
+        .eval(Result.addRefs(inObj));
+    if (null != temp_13_0006)
+      temp_13_0006.freeRef();
+    if (null != inObj)
+      ReferenceCounting.freeRefs(inObj);
+    return temp_13_0003;
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                            DataSerializer dataSerializer) {
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("scale", scale);
     json.add("key", layer.getJson(resources, dataSerializer));
@@ -132,6 +160,9 @@ class RescaledSubnetLayer extends LayerBase
 
   public @SuppressWarnings("unused")
   void _free() {
+    if (null != layer)
+      layer.freeRef();
+    layer = null;
   }
 
   public @Override

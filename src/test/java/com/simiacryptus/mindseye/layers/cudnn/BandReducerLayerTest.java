@@ -64,7 +64,14 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new BandReducerLayer().setAlpha(alpha).setPrecision(precision);
+    BandReducerLayer temp_66_0002 = new BandReducerLayer();
+    BandReducerLayer temp_66_0003 = temp_66_0002.setAlpha(alpha);
+    BandReducerLayer temp_66_0001 = temp_66_0003.setPrecision(precision);
+    if (null != temp_66_0003)
+      temp_66_0003.freeRef();
+    if (null != temp_66_0002)
+      temp_66_0002.freeRef();
+    return temp_66_0001;
   }
 
   @Nonnull

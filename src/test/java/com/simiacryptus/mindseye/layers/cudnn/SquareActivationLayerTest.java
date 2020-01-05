@@ -26,6 +26,7 @@ import com.simiacryptus.mindseye.layers.java.NthPowerActivationLayer;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,8 +48,14 @@ class SquareActivationLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getReferenceLayer() {
     PipelineNetwork network = new PipelineNetwork();
-    network.add(new LinearActivationLayer().setScale(alpha),
-        network.add(new NthPowerActivationLayer().setPower(2), network.getInput(0)));
+    LinearActivationLayer temp_65_0001 = new LinearActivationLayer();
+    NthPowerActivationLayer temp_65_0002 = new NthPowerActivationLayer();
+    RefUtil
+        .freeRef(network.add(temp_65_0001.setScale(alpha), network.add(temp_65_0002.setPower(2), network.getInput(0))));
+    if (null != temp_65_0002)
+      temp_65_0002.freeRef();
+    if (null != temp_65_0001)
+      temp_65_0001.freeRef();
     return network;
     //return new NthPowerActivationLayer().setPower(2);
   }
@@ -83,7 +90,14 @@ class SquareActivationLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new SquareActivationLayer().setPrecision(precision).setAlpha(alpha);
+    SquareActivationLayer temp_65_0004 = new SquareActivationLayer();
+    SquareActivationLayer temp_65_0005 = temp_65_0004.setPrecision(precision);
+    SquareActivationLayer temp_65_0003 = temp_65_0005.setAlpha(alpha);
+    if (null != temp_65_0005)
+      temp_65_0005.freeRef();
+    if (null != temp_65_0004)
+      temp_65_0004.freeRef();
+    return temp_65_0003;
   }
 
   public @SuppressWarnings("unused")

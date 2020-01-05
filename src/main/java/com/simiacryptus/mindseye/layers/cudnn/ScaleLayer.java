@@ -27,6 +27,7 @@ import com.simiacryptus.mindseye.layers.ValueLayer;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +38,7 @@ import java.util.Map;
 
 @SuppressWarnings("serial")
 public @RefAware
-class ScaleLayer extends PipelineNetwork
-    implements MultiPrecision<ScaleLayer> {
+class ScaleLayer extends PipelineNetwork implements MultiPrecision<ScaleLayer> {
 
   @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(ScaleLayer.class);
@@ -48,12 +48,15 @@ class ScaleLayer extends PipelineNetwork
   }
 
   public ScaleLayer(double value) {
-    this(new Tensor(1).setAll(value));
+    this(new Tensor(new double[]{value}, 1));
   }
 
   public ScaleLayer(final Tensor weights) {
     super(1);
-    add(new ProductLayer(), getInput(0), add(new ValueLayer(weights), new DAGNode[]{}));
+    RefUtil.freeRef(add(new ProductLayer(), getInput(0),
+        add(new ValueLayer(weights == null ? null : weights.addRef()), new DAGNode[]{})));
+    if (null != weights)
+      weights.freeRef();
   }
 
   protected ScaleLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -69,12 +72,11 @@ class ScaleLayer extends PipelineNetwork
   @Nonnull
   @Override
   public ScaleLayer setPrecision(Precision precision) {
-    return MultiPrecision.setPrecision(this, precision);
+    return MultiPrecision.setPrecision(this.addRef(), precision);
   }
 
   @SuppressWarnings("unused")
-  public static ScaleLayer fromJson(@NotNull final JsonObject json,
-                                    Map<CharSequence, byte[]> rs) {
+  public static ScaleLayer fromJson(@NotNull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ScaleLayer(json, rs);
   }
 

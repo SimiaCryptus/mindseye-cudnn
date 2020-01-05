@@ -26,6 +26,7 @@ import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.*;
 import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
@@ -46,9 +47,27 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
   protected SimpleConvolutionLayerTest(final int radius, final int bands, final Precision precision, int stride) {
     this.radius = radius;
     this.bands = bands;
-    layer = new SimpleConvolutionLayer(radius, radius, bands * bands).setPrecision(precision).setStrideX(stride)
-        .setStrideY(stride).setWeightsLog(-2);
-    layer.kernel.set(() -> random());
+    {
+      SimpleConvolutionLayer temp_10_0002 = new SimpleConvolutionLayer(
+          radius, radius, bands * bands);
+      SimpleConvolutionLayer temp_10_0005 = temp_10_0002
+          .setPrecision(precision);
+      SimpleConvolutionLayer temp_10_0006 = temp_10_0005.setStrideX(stride);
+      SimpleConvolutionLayer temp_10_0007 = temp_10_0006.setStrideY(stride);
+      SimpleConvolutionLayer temp_10_0001 = temp_10_0007.setWeightsLog(-2);
+      if (null != temp_10_0007)
+        temp_10_0007.freeRef();
+      if (null != temp_10_0006)
+        temp_10_0006.freeRef();
+      if (null != temp_10_0005)
+        temp_10_0005.freeRef();
+      if (null != temp_10_0002)
+        temp_10_0002.freeRef();
+      layer = temp_10_0001 == null ? null : temp_10_0001.addRef();
+      if (null != temp_10_0001)
+        temp_10_0001.freeRef();
+    }
+    RefUtil.freeRef(layer.kernel.set(() -> random()));
     smallSize = this.radius;
     testTraining = false;
     largeSize = 800;
@@ -85,7 +104,7 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return layer;
+    return layer == null ? null : layer.addRef();
   }
 
   @Nonnull
@@ -96,6 +115,8 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    if (null != layer)
+      layer.freeRef();
   }
 
   public @Override
@@ -246,7 +267,14 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     public ComponentTest<ToleranceStatistics> getPerformanceTester() {
-      return new PerformanceTester().setBatches(10).setSamples(1);
+      PerformanceTester temp_10_0004 = new PerformanceTester();
+      PerformanceTester temp_10_0008 = temp_10_0004.setBatches(10);
+      PerformanceTester temp_10_0003 = temp_10_0008.setSamples(1);
+      if (null != temp_10_0008)
+        temp_10_0008.freeRef();
+      if (null != temp_10_0004)
+        temp_10_0004.freeRef();
+      return temp_10_0003;
     }
 
     @Nonnull
@@ -326,8 +354,8 @@ class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
   public static @RefAware
   class SpanBug extends Image {
     public SpanBug() {
-      layer.setStrideX(2);
-      layer.setStrideY(2);
+      RefUtil.freeRef(layer.setStrideX(2));
+      RefUtil.freeRef(layer.setStrideY(2));
       largeSize = 800;
       smallSize = 5;
     }

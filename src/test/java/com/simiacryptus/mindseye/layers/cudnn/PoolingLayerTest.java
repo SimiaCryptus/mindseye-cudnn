@@ -56,7 +56,11 @@ class PoolingLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new PoolingLayer().setPrecision(precision);
+    PoolingLayer temp_60_0002 = new PoolingLayer();
+    PoolingLayer temp_60_0001 = temp_60_0002.setPrecision(precision);
+    if (null != temp_60_0002)
+      temp_60_0002.freeRef();
+    return temp_60_0001;
   }
 
   @Nonnull
@@ -109,7 +113,17 @@ class PoolingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new PoolingLayer().setWindowXY(3, 2).setStrideXY(3, 2).setPrecision(precision);
+      PoolingLayer temp_60_0004 = new PoolingLayer();
+      PoolingLayer temp_60_0007 = temp_60_0004.setWindowXY(3, 2);
+      PoolingLayer temp_60_0008 = temp_60_0007.setStrideXY(3, 2);
+      PoolingLayer temp_60_0003 = temp_60_0008.setPrecision(precision);
+      if (null != temp_60_0008)
+        temp_60_0008.freeRef();
+      if (null != temp_60_0007)
+        temp_60_0007.freeRef();
+      if (null != temp_60_0004)
+        temp_60_0004.freeRef();
+      return temp_60_0003;
     }
 
     public @SuppressWarnings("unused")
@@ -165,7 +179,14 @@ class PoolingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      return new PoolingLayer().setPrecision(precision).setWindowY(4);
+      PoolingLayer temp_60_0006 = new PoolingLayer();
+      PoolingLayer temp_60_0009 = temp_60_0006.setPrecision(precision);
+      PoolingLayer temp_60_0005 = temp_60_0009.setWindowY(4);
+      if (null != temp_60_0009)
+        temp_60_0009.freeRef();
+      if (null != temp_60_0006)
+        temp_60_0006.freeRef();
+      return temp_60_0005;
     }
 
     public @SuppressWarnings("unused")
