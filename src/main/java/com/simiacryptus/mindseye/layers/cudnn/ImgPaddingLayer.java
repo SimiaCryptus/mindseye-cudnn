@@ -294,26 +294,29 @@ class ImgPaddingLayer extends LayerBase
     }, inputData);
     int[] output_dimensions = outputData.getDimensions();
     int output_length = outputData.length();
-    return new Result(outputData, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      if (!RefArrays.equals(delta.getDimensions(), output_dimensions)) {
-        throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
-            + RefArrays.toString(output_dimensions));
-      }
-      if (delta.length() != output_length) {
-        throw new AssertionError(delta.length() + " != " + output_length);
-      }
-      assert delta.length() == length;
+    return new Result(outputData, new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+        if (!RefArrays.equals(delta.getDimensions(), output_dimensions)) {
+          throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
+              + RefArrays.toString(output_dimensions));
+        }
+        if (delta.length() != output_length) {
+          throw new AssertionError(delta.length() + " != " + output_length);
+        }
+        assert delta.length() == length;
 
-      if (input.isAlive()) {
-        final TensorList passbackTensorList = CudaSystem.run(gpu -> {
-          @Nullable final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
-          CudaTensor backpropTensor = copy_condense(gpu, errorPtr, dimOut, dimIn, length,
-              dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1]);
-          return new CudaTensorList(backpropTensor, length, dimIn, precision);
-        }, delta);
-        input.accumulate(buffer, passbackTensorList);
-      }
+        if (input.isAlive()) {
+          final TensorList passbackTensorList = CudaSystem.run(gpu -> {
+            @Nullable final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
+            CudaTensor backpropTensor = ImgPaddingLayer.this.copy_condense(gpu, errorPtr, dimOut, dimIn, length,
+                dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1]);
+            return new CudaTensorList(backpropTensor, length, dimIn, precision);
+          }, delta);
+          input.accumulate(buffer, passbackTensorList);
+        }
 
+      }
     }) {
 
       @Override

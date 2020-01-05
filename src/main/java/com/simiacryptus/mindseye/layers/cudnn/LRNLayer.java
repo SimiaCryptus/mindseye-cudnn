@@ -163,11 +163,12 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
     final int length = inputData.length();
     final int inputDims = Tensor.length(inputSize);
     @Nonnull final int[] outputSize = new int[]{length, inputSize[2], inputSize[1], inputSize[0]};
+    final LRNLayer lrnLayer = this;
     final CudaTensor outputData = CudaSystem.run(gpu -> {
       try {
         gpu.initThread();
-        @Nonnull final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(this.getWidth(), this.getAlpha(),
-            this.getBeta(), this.getK());
+        @Nonnull final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(lrnLayer.getWidth(), lrnLayer.getAlpha(),
+            lrnLayer.getBeta(), lrnLayer.getK());
         @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, getPrecision(), MemoryType.Device, false);
         @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(getPrecision(), outputSize[0],
             outputSize[1], outputSize[2], outputSize[3], outputSize[1] * outputSize[2] * outputSize[3],
@@ -188,41 +189,44 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
       }
     }, inputData);
     return new Result(new CudaTensorList(outputData, length, new int[]{outputSize[3], outputSize[2], outputSize[1]},
-        getPrecision()), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList error) -> {
-      assert error.length() == inputData.length();
-      if (input.isAlive()) {
-        TensorList data = CudaSystem.run(gpu -> {
-          @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(getPrecision(), length,
-              inputSize[2], inputSize[1], inputSize[0], inputSize[2] * inputSize[1] * inputSize[0],
-              inputSize[1] * inputSize[0], inputSize[0], 1);
-          @Nonnull final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(this.getWidth(),
-              this.getAlpha(), this.getBeta(), this.getK());
-          @Nullable final CudaTensor inputTensor;
-          synchronized (gpu) {
-            inputTensor = gpu.getTensor(inputData, getPrecision(), MemoryType.Device, true);
-          }
-          @Nullable final CudaTensor errorPtr;
-          synchronized (gpu) {
-            errorPtr = gpu.getTensor(error, getPrecision(), MemoryType.Device, true);
-          }
-          @Nonnull final CudaMemory passbackBuffer = gpu.allocate((long) inputDims * getPrecision().size * length,
-              MemoryType.Managed.ifEnabled(), true);
-          CudaMemory outputDataMemory = outputData.getMemory(gpu);
-          CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
-          CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
-          CudaSystem.handle(gpu.cudnnLRNCrossChannelBackward(descriptor.getPtr(),
-              cudnnLRNMode.CUDNN_LRN_CROSS_CHANNEL_DIM1, getPrecision().getPointer(1.0),
-              outputData.descriptor.getPtr(), outputDataMemory.getPtr(), errorPtr.descriptor.getPtr(),
-              errorPtrMemory.getPtr(), inputTensor.descriptor.getPtr(), inputDataMemory.getPtr(),
-              getPrecision().getPointer(0.0), passbackDescriptor.getPtr(), passbackBuffer.getPtr()));
-          outputDataMemory.dirty();
-          errorPtrMemory.dirty();
-          inputDataMemory.dirty();
-          passbackBuffer.dirty();
-          return new CudaTensorList(new CudaTensor(passbackBuffer, passbackDescriptor, getPrecision()), length,
-              inputSize, getPrecision());
-        }, error);
-        input.accumulate(buffer, data);
+        getPrecision()), new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList error) {
+        assert error.length() == inputData.length();
+        if (input.isAlive()) {
+          TensorList data = CudaSystem.run(gpu -> {
+            @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(LRNLayer.this.getPrecision(), length,
+                inputSize[2], inputSize[1], inputSize[0], inputSize[2] * inputSize[1] * inputSize[0],
+                inputSize[1] * inputSize[0], inputSize[0], 1);
+            @Nonnull final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(lrnLayer.getWidth(),
+                lrnLayer.getAlpha(), lrnLayer.getBeta(), lrnLayer.getK());
+            @Nullable final CudaTensor inputTensor;
+            synchronized (gpu) {
+              inputTensor = gpu.getTensor(inputData, LRNLayer.this.getPrecision(), MemoryType.Device, true);
+            }
+            @Nullable final CudaTensor errorPtr;
+            synchronized (gpu) {
+              errorPtr = gpu.getTensor(error, LRNLayer.this.getPrecision(), MemoryType.Device, true);
+            }
+            @Nonnull final CudaMemory passbackBuffer = gpu.allocate((long) inputDims * LRNLayer.this.getPrecision().size * length,
+                MemoryType.Managed.ifEnabled(), true);
+            CudaMemory outputDataMemory = outputData.getMemory(gpu);
+            CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
+            CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
+            CudaSystem.handle(gpu.cudnnLRNCrossChannelBackward(descriptor.getPtr(),
+                cudnnLRNMode.CUDNN_LRN_CROSS_CHANNEL_DIM1, LRNLayer.this.getPrecision().getPointer(1.0),
+                outputData.descriptor.getPtr(), outputDataMemory.getPtr(), errorPtr.descriptor.getPtr(),
+                errorPtrMemory.getPtr(), inputTensor.descriptor.getPtr(), inputDataMemory.getPtr(),
+                LRNLayer.this.getPrecision().getPointer(0.0), passbackDescriptor.getPtr(), passbackBuffer.getPtr()));
+            outputDataMemory.dirty();
+            errorPtrMemory.dirty();
+            inputDataMemory.dirty();
+            passbackBuffer.dirty();
+            return new CudaTensorList(new CudaTensor(passbackBuffer, passbackDescriptor, LRNLayer.this.getPrecision()), length,
+                inputSize, LRNLayer.this.getPrecision());
+          }, error);
+          input.accumulate(buffer, data);
+        }
       }
     }) {
 

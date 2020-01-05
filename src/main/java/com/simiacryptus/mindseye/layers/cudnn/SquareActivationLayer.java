@@ -136,33 +136,36 @@ class SquareActivationLayer extends LayerBase
       outputPtr.dirty();
       CudaTensor cudaTensor = new CudaTensor(outputPtr, outputDescriptor, precision);
       return new CudaTensorList(cudaTensor, length, dimensions, precision);
-    }, inputData), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      if (input.isAlive()) {
-        @Nonnull
-        TensorList data = CudaSystem.run(gpu -> {
-          @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
-              .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-          @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
-              dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
-              dimensions[1] * dimensions[0], dimensions[0], 1);
-          @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
-          @Nullable final CudaTensor inputTensor = gpu.getTensor(input.getData(), precision, MemoryType.Device, false);
-          //assert deltaTensor.size == inputTensor.size;
-          @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
-              MemoryType.Device, true);
-          CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
-          CudaMemory rightTensorMemory = inputTensor.getMemory(gpu);
-          CudaSystem.handle(gpu.cudnnOpTensor(opDescriptor.getPtr(), precision.getPointer(2),
-              deltaTensor.descriptor.getPtr(), deltaTensorMemory.getPtr(), precision.getPointer(alpha),
-              inputTensor.descriptor.getPtr(), rightTensorMemory.getPtr(), precision.getPointer(0.0),
-              outputDescriptor.getPtr(), outputPtr.getPtr()));
-          deltaTensorMemory.dirty();
-          rightTensorMemory.dirty();
-          outputPtr.dirty();
-          CudaTensor cudaTensor = new CudaTensor(outputPtr, outputDescriptor, precision);
-          return new CudaTensorList(cudaTensor, length, dimensions, precision);
-        }, delta);
-        input.accumulate(buffer, data);
+    }, inputData), new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+        if (input.isAlive()) {
+          @Nonnull
+          TensorList data = CudaSystem.run(gpu -> {
+            @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+                .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
+            @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+                dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
+                dimensions[1] * dimensions[0], dimensions[0], 1);
+            @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
+            @Nullable final CudaTensor inputTensor = gpu.getTensor(input.getData(), precision, MemoryType.Device, false);
+            //assert deltaTensor.size == inputTensor.size;
+            @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
+                MemoryType.Device, true);
+            CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
+            CudaMemory rightTensorMemory = inputTensor.getMemory(gpu);
+            CudaSystem.handle(gpu.cudnnOpTensor(opDescriptor.getPtr(), precision.getPointer(2),
+                deltaTensor.descriptor.getPtr(), deltaTensorMemory.getPtr(), precision.getPointer(alpha),
+                inputTensor.descriptor.getPtr(), rightTensorMemory.getPtr(), precision.getPointer(0.0),
+                outputDescriptor.getPtr(), outputPtr.getPtr()));
+            deltaTensorMemory.dirty();
+            rightTensorMemory.dirty();
+            outputPtr.dirty();
+            CudaTensor cudaTensor = new CudaTensor(outputPtr, outputDescriptor, precision);
+            return new CudaTensorList(cudaTensor, length, dimensions, precision);
+          }, delta);
+          input.accumulate(buffer, data);
+        }
       }
     }) {
 

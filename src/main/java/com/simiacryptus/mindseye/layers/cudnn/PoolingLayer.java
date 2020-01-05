@@ -285,40 +285,43 @@ class PoolingLayer extends LayerBase
     }, inputData);
     return new Result(new CudaTensorList(outputData, inputLength,
         new int[]{outputSize[3], outputSize[2], outputSize[1]}, precision),
-        (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList error) -> {
-          assert error.length() == inputLength;
-          if (input.isAlive()) {
-            TensorList data = CudaSystem.run(gpu -> {
-              @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, inputLength,
-                  inputDims[2], inputDims[1], inputDims[0], inputDims[2] * inputDims[1] * inputDims[0],
-                  inputDims[1] * inputDims[0], inputDims[0], 1);
-              @Nonnull final CudaResource<cudnnPoolingDescriptor> poolingDesc = gpu.createPoolingDescriptor(mode.id, poolDims,
-                  windowSize, padding, stride);
-              @Nullable final CudaTensor inputTensor;
-              synchronized (gpu) {
-                inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
-              }
-              @Nullable final CudaTensor errorPtr;
-              synchronized (gpu) {
-                errorPtr = gpu.getTensor(error, precision, MemoryType.Device, true);
-              }
-              @Nonnull final CudaMemory passbackBuffer = gpu.allocate(
-                  (long) Tensor.length(inputDims) * precision.size * inputLength, MemoryType.Managed.ifEnabled(), true);
-              CudaMemory outputDataMemory = outputData.getMemory(gpu);
-              CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
-              CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
-              CudaSystem.handle(gpu.cudnnPoolingBackward(poolingDesc.getPtr(), precision.getPointer(this.alpha),
-                  outputData.descriptor.getPtr(), outputDataMemory.getPtr(), errorPtr.descriptor.getPtr(),
-                  errorPtrMemory.getPtr(), inputTensor.descriptor.getPtr(), inputDataMemory.getPtr(),
-                  precision.getPointer(0.0), passbackDescriptor.getPtr(), passbackBuffer.getPtr()));
-              outputDataMemory.dirty();
-              errorPtrMemory.dirty();
-              inputDataMemory.dirty();
-              passbackBuffer.dirty();
-              return new CudaTensorList(new CudaTensor(passbackBuffer, passbackDescriptor, precision), inputLength,
-                  inputDims, precision);
-            }, error);
-            input.accumulate(buffer, data);
+        new Result.Accumulator() {
+          @Override
+          public void accept(DeltaSet<UUID> buffer, TensorList error) {
+            assert error.length() == inputLength;
+            if (input.isAlive()) {
+              TensorList data = CudaSystem.run(gpu -> {
+                @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, inputLength,
+                    inputDims[2], inputDims[1], inputDims[0], inputDims[2] * inputDims[1] * inputDims[0],
+                    inputDims[1] * inputDims[0], inputDims[0], 1);
+                @Nonnull final CudaResource<cudnnPoolingDescriptor> poolingDesc = gpu.createPoolingDescriptor(mode.id, poolDims,
+                    windowSize, padding, stride);
+                @Nullable final CudaTensor inputTensor;
+                synchronized (gpu) {
+                  inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
+                }
+                @Nullable final CudaTensor errorPtr;
+                synchronized (gpu) {
+                  errorPtr = gpu.getTensor(error, precision, MemoryType.Device, true);
+                }
+                @Nonnull final CudaMemory passbackBuffer = gpu.allocate(
+                    (long) Tensor.length(inputDims) * precision.size * inputLength, MemoryType.Managed.ifEnabled(), true);
+                CudaMemory outputDataMemory = outputData.getMemory(gpu);
+                CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
+                CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
+                CudaSystem.handle(gpu.cudnnPoolingBackward(poolingDesc.getPtr(), precision.getPointer(alpha),
+                    outputData.descriptor.getPtr(), outputDataMemory.getPtr(), errorPtr.descriptor.getPtr(),
+                    errorPtrMemory.getPtr(), inputTensor.descriptor.getPtr(), inputDataMemory.getPtr(),
+                    precision.getPointer(0.0), passbackDescriptor.getPtr(), passbackBuffer.getPtr()));
+                outputDataMemory.dirty();
+                errorPtrMemory.dirty();
+                inputDataMemory.dirty();
+                passbackBuffer.dirty();
+                return new CudaTensorList(new CudaTensor(passbackBuffer, passbackDescriptor, precision), inputLength,
+                    inputDims, precision);
+              }, error);
+              input.accumulate(buffer, data);
+            }
           }
         }) {
 

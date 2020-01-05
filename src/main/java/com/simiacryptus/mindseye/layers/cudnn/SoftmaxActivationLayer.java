@@ -160,49 +160,52 @@ class SoftmaxActivationLayer extends LayerBase
         }
       }, inputData);
       return new Result(new CudaTensorList(outPtr, length, outputSize, precision),
-          (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-            if (inputResult.isAlive()) {
-              final TensorList data = CudaSystem.run(gpu -> {
-                @Nullable
-                CudaTensor inputTensor;
-                synchronized (gpu) {
-                  inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
-                }
-                @Nullable
-                CudaTensor deltaTensor;
-                synchronized (gpu) {
-                  deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
-                }
-                CudaTensor localOut = outPtr.getDense(gpu);
-                CudaTensor passbackTensor;
-                passbackTensor = new CudaTensor(
-                    gpu.allocate((long) Tensor.length(inputSize) * length * precision.size,
-                        MemoryType.Managed.ifEnabled(), false),
-                    gpu.newTensorDescriptor(precision, delta.length(), inputSize[2], inputSize[1], inputSize[0],
-                        inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0], 1),
-                    precision);
+          new Result.Accumulator() {
+            @Override
+            public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+              if (inputResult.isAlive()) {
+                final TensorList data = CudaSystem.run(gpu -> {
+                  @Nullable
+                  CudaTensor inputTensor;
+                  synchronized (gpu) {
+                    inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
+                  }
+                  @Nullable
+                  CudaTensor deltaTensor;
+                  synchronized (gpu) {
+                    deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
+                  }
+                  CudaTensor localOut = outPtr.getDense(gpu);
+                  CudaTensor passbackTensor;
+                  passbackTensor = new CudaTensor(
+                      gpu.allocate((long) Tensor.length(inputSize) * length * precision.size,
+                          MemoryType.Managed.ifEnabled(), false),
+                      gpu.newTensorDescriptor(precision, delta.length(), inputSize[2], inputSize[1], inputSize[0],
+                          inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0], 1),
+                      precision);
 
-                try {
-                  CudaMemory localOutMemory = localOut.getMemory(gpu);
-                  CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
-                  CudaMemory inputMemory = inputTensor.getMemory(gpu);
-                  CudaMemory passbackMemory = passbackTensor.getMemory(gpu);
+                  try {
+                    CudaMemory localOutMemory = localOut.getMemory(gpu);
+                    CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
+                    CudaMemory inputMemory = inputTensor.getMemory(gpu);
+                    CudaMemory passbackMemory = passbackTensor.getMemory(gpu);
 
-                  CudaSystem.handle(gpu.cudnnSoftmaxBackward(algorithm.code, mode.code, precision.getPointer(1.0),
-                      localOut.descriptor.getPtr(), localOutMemory.getPtr(), deltaTensor.descriptor.getPtr(),
-                      deltaTensorMemory.getPtr(), precision.getPointer(0.0), passbackTensor.descriptor.getPtr(),
-                      passbackMemory.getPtr()));
-                  localOutMemory.dirty();
-                  deltaTensorMemory.dirty();
-                  passbackMemory.dirty();
-                } catch (@Nonnull final Throwable e) {
-                  throw new ComponentException(
-                      "Error apply " + RefArrays.toString(inputSize), e);
-                } finally {
-                }
-                return new CudaTensorList(passbackTensor, length, inputSize, precision);
-              }, delta);
-              inputResult.accumulate(buffer, data);
+                    CudaSystem.handle(gpu.cudnnSoftmaxBackward(algorithm.code, mode.code, precision.getPointer(1.0),
+                        localOut.descriptor.getPtr(), localOutMemory.getPtr(), deltaTensor.descriptor.getPtr(),
+                        deltaTensorMemory.getPtr(), precision.getPointer(0.0), passbackTensor.descriptor.getPtr(),
+                        passbackMemory.getPtr()));
+                    localOutMemory.dirty();
+                    deltaTensorMemory.dirty();
+                    passbackMemory.dirty();
+                  } catch (@Nonnull final Throwable e) {
+                    throw new ComponentException(
+                        "Error apply " + RefArrays.toString(inputSize), e);
+                  } finally {
+                  }
+                  return new CudaTensorList(passbackTensor, length, inputSize, precision);
+                }, delta);
+                inputResult.accumulate(buffer, data);
+              }
             }
           }) {
 

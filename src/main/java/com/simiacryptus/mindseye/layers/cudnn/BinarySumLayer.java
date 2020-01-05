@@ -188,53 +188,56 @@ class BinarySumLayer extends LayerBase
       outputPtr.dirty();
       CudaTensor cudaTensor = new CudaTensor(outputPtr, outputDescriptor, precision);
       return new CudaTensorList(cudaTensor, length, dimensions, precision);
-    }, leftData), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
+    }, leftData), new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList delta) {
 
-      Runnable a = () -> {
-        if (inObj[0].isAlive()) {
-          CudaTensorList tensorList = CudaSystem.run(gpu -> {
-            @Nullable final CudaTensor lPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
-            @Nonnull final CudaMemory passbackPtr = gpu.allocate(precision.size * Tensor.length(dimensions) * length,
-                MemoryType.Managed.ifEnabled(), true);
-            @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, length,
-                dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
-                dimensions[1] * dimensions[0], dimensions[0], 1);
-            CudaMemory lPtrMemory = lPtr.getMemory(gpu);
-            gpu.cudnnTransformTensor(precision.getPointer(leftFactor), lPtr.descriptor.getPtr(), lPtrMemory.getPtr(),
-                precision.getPointer(0.0), passbackDescriptor.getPtr(), passbackPtr.getPtr());
-            assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-            passbackPtr.dirty();
-            lPtrMemory.dirty();
-            CudaTensor cudaTensor = new CudaTensor(passbackPtr, passbackDescriptor, precision);
-            return new CudaTensorList(cudaTensor, length, dimensions, precision);
-          }, delta);
-          inObj[0].accumulate(buffer, tensorList);
-        }
-      };
-      Runnable b = () -> {
-        if (inObj[1].isAlive()) {
-          CudaTensorList tensorList = CudaSystem.run(gpu -> {
-            @Nullable final CudaTensor lPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
-            @Nonnull final CudaMemory outputPtr = gpu.allocate(precision.size * Tensor.length(dimensions) * length,
-                MemoryType.Managed.ifEnabled(), true);
-            @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, length,
-                dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
-                dimensions[1] * dimensions[0], dimensions[0], 1);
-            CudaMemory lPtrMemory = lPtr.getMemory(gpu);
-            gpu.cudnnTransformTensor(precision.getPointer(rightFactor), lPtr.descriptor.getPtr(), lPtrMemory.getPtr(),
-                precision.getPointer(0.0), passbackDescriptor.getPtr(), outputPtr.getPtr());
-            outputPtr.dirty();
-            lPtrMemory.dirty();
-            return new CudaTensorList(new CudaTensor(outputPtr, passbackDescriptor, precision), length, dimensions,
-                precision);
-          }, delta);
-          inObj[1].accumulate(buffer, tensorList);
-        }
-      };
-      if (CoreSettings.INSTANCE().isSingleThreaded())
-        Util.runAllSerial(a, b);
-      else
-        Util.runAllParallel(a, b);
+        Runnable a = () -> {
+          if (inObj[0].isAlive()) {
+            CudaTensorList tensorList = CudaSystem.run(gpu -> {
+              @Nullable final CudaTensor lPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
+              @Nonnull final CudaMemory passbackPtr = gpu.allocate(precision.size * Tensor.length(dimensions) * length,
+                  MemoryType.Managed.ifEnabled(), true);
+              @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, length,
+                  dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
+                  dimensions[1] * dimensions[0], dimensions[0], 1);
+              CudaMemory lPtrMemory = lPtr.getMemory(gpu);
+              gpu.cudnnTransformTensor(precision.getPointer(leftFactor), lPtr.descriptor.getPtr(), lPtrMemory.getPtr(),
+                  precision.getPointer(0.0), passbackDescriptor.getPtr(), passbackPtr.getPtr());
+              assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+              passbackPtr.dirty();
+              lPtrMemory.dirty();
+              CudaTensor cudaTensor = new CudaTensor(passbackPtr, passbackDescriptor, precision);
+              return new CudaTensorList(cudaTensor, length, dimensions, precision);
+            }, delta);
+            inObj[0].accumulate(buffer, tensorList);
+          }
+        };
+        Runnable b = () -> {
+          if (inObj[1].isAlive()) {
+            CudaTensorList tensorList = CudaSystem.run(gpu -> {
+              @Nullable final CudaTensor lPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
+              @Nonnull final CudaMemory outputPtr = gpu.allocate(precision.size * Tensor.length(dimensions) * length,
+                  MemoryType.Managed.ifEnabled(), true);
+              @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, length,
+                  dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
+                  dimensions[1] * dimensions[0], dimensions[0], 1);
+              CudaMemory lPtrMemory = lPtr.getMemory(gpu);
+              gpu.cudnnTransformTensor(precision.getPointer(rightFactor), lPtr.descriptor.getPtr(), lPtrMemory.getPtr(),
+                  precision.getPointer(0.0), passbackDescriptor.getPtr(), outputPtr.getPtr());
+              outputPtr.dirty();
+              lPtrMemory.dirty();
+              return new CudaTensorList(new CudaTensor(outputPtr, passbackDescriptor, precision), length, dimensions,
+                  precision);
+            }, delta);
+            inObj[1].accumulate(buffer, tensorList);
+          }
+        };
+        if (CoreSettings.INSTANCE().isSingleThreaded())
+          Util.runAllSerial(a, b);
+        else
+          Util.runAllParallel(a, b);
+      }
     }) {
 
       @Override

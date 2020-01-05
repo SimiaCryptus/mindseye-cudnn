@@ -142,6 +142,7 @@ class ImgBandBiasLayer extends LayerBase
       return input;
     }
     //   assert !right.isAlive();
+    final ImgBandBiasLayer imgBandBiasLayer = ImgBandBiasLayer.this;
     return new Result(CudaSystem.run(gpu -> {
       try {
         @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
@@ -174,30 +175,33 @@ class ImgBandBiasLayer extends LayerBase
             RefArrays.toString(bias.getDimensions()),
             RefArrays.toString(inputDimensions)), e);
       }
-    }, inputData), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      if (!isFrozen()) {
-        @Nonnull
-        double[] biasDelta = CudaSystem.run(gpu -> {
-          @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, false);
+    }, inputData), new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+        if (!ImgBandBiasLayer.this.isFrozen()) {
+          @Nonnull
+          double[] biasDelta = CudaSystem.run(gpu -> {
+            @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, false);
 
-          CudaMemory biasMem = gpu.allocate(bias.length() * precision.size, MemoryType.Device, true).write(precision,
-              bias.getData());
-          int[] biasDim = bias.getDimensions();
-          CudaDevice.CudaTensorDescriptor biasDescriptor = gpu.newTensorDescriptor(precision, 1, biasDim[2], biasDim[1],
-              biasDim[0], biasDim[2] * biasDim[1] * biasDim[0], biasDim[1] * biasDim[0], biasDim[0], 1);
-          CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
-          gpu.cudnnConvolutionBackwardBias(precision.getPointer(1.0), deltaTensor.descriptor.getPtr(),
-              deltaTensorMemory.getPtr(), precision.getPointer(0.0), biasDescriptor.getPtr(), biasMem.getPtr());
-          assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-          biasMem.dirty();
-          double[] biasV = new double[bias.length()];
-          biasMem.read(precision, biasV);
-          return biasV;
-        }, delta);
-        buffer.get(ImgBandBiasLayer.this.getId(), bias).addInPlace(biasDelta);
-      }
-      if (input.isAlive()) {
-        input.accumulate(buffer, delta);
+            CudaMemory biasMem = gpu.allocate(bias.length() * precision.size, MemoryType.Device, true).write(precision,
+                bias.getData());
+            int[] biasDim = bias.getDimensions();
+            CudaDevice.CudaTensorDescriptor biasDescriptor = gpu.newTensorDescriptor(precision, 1, biasDim[2], biasDim[1],
+                biasDim[0], biasDim[2] * biasDim[1] * biasDim[0], biasDim[1] * biasDim[0], biasDim[0], 1);
+            CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
+            gpu.cudnnConvolutionBackwardBias(precision.getPointer(1.0), deltaTensor.descriptor.getPtr(),
+                deltaTensorMemory.getPtr(), precision.getPointer(0.0), biasDescriptor.getPtr(), biasMem.getPtr());
+            assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+            biasMem.dirty();
+            double[] biasV = new double[bias.length()];
+            biasMem.read(precision, biasV);
+            return biasV;
+          }, delta);
+          buffer.get(imgBandBiasLayer.getId(), bias).addInPlace(biasDelta);
+        }
+        if (input.isAlive()) {
+          input.accumulate(buffer, delta);
+        }
       }
     }) {
 

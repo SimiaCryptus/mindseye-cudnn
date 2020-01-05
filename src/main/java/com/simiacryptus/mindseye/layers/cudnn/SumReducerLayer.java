@@ -124,12 +124,15 @@ class SumReducerLayer extends LayerBase
           new int[]{1, 1, 1}, precision);
     });
 
-    return new Result(result, (DeltaSet<UUID> ctx, TensorList delta) -> {
-      TensorList passback = new TensorArray(RefIntStream.range(0, length).mapToObj(i -> {
-        Tensor tensor = delta.get(i);
-        return new Tensor(inputSize).setAll(tensor.get(0));
-      }).toArray(i -> new Tensor[i]));
-      input.accumulate(ctx, passback);
+    return new Result(result, new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> ctx, TensorList delta) {
+        TensorList passback = new TensorArray(RefIntStream.range(0, length).mapToObj(i -> {
+          Tensor tensor = delta.get(i);
+          return new Tensor(inputSize).setAll(tensor.get(0));
+        }).toArray(i -> new Tensor[i]));
+        input.accumulate(ctx, passback);
+      }
     }) {
       public void _free() {
         super._free();

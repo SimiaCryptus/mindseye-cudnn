@@ -271,11 +271,15 @@ class ConvolutionLayer extends LayerBase
     assert inObj[0].getData().length() == resultData.length();
     assert 3 == resultData.getDimensions().length;
     assert outputBands == resultData.getDimensions()[2];
-    return new Result(resultData, (@Nonnull final DeltaSet<UUID> deltaSet, @Nonnull final TensorList delta) -> {
-      result.accumulate(deltaSet, delta);
-      if (!isFrozen()) {
-        Tensor read = grid.read(deltaSet, true);
-        deltaSet.get(ConvolutionLayer.this.getId(), kernel.getData()).addInPlace(read.getData());
+    final ConvolutionLayer convolutionLayer = ConvolutionLayer.this;
+    return new Result(resultData, new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> deltaSet, TensorList delta) {
+        result.accumulate(deltaSet, delta);
+        if (!ConvolutionLayer.this.isFrozen()) {
+          Tensor read = grid.read(deltaSet, true);
+          deltaSet.get(convolutionLayer.getId(), kernel.getData()).addInPlace(read.getData());
+        }
       }
     }) {
 

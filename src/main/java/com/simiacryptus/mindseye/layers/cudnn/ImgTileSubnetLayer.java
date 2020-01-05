@@ -156,13 +156,16 @@ class ImgTileSubnetLayer extends WrapperLayer
           });
 
           tileResults[row][col] = getInner().eval(new Result(
-              new CudaTensorList(tile, length, tileDimensions, precision), (DeltaSet<UUID> ctx, TensorList delta) -> {
-            CudaSystem.run(gpu -> {
-              ImgTileSelectLayer.copy(gpu, delta, tileDimensions, -positionX, -positionY, precision, passback);
-            });
-            if (counter.incrementAndGet() >= rows * cols) {
-              counter.set(0);
-              input.accumulate(ctx, new CudaTensorList(passback, length, inputDims, precision));
+              new CudaTensorList(tile, length, tileDimensions, precision), new Result.Accumulator() {
+            @Override
+            public void accept(DeltaSet<UUID> ctx, TensorList delta) {
+              CudaSystem.run(gpu -> {
+                ImgTileSelectLayer.copy(gpu, delta, tileDimensions, -positionX, -positionY, precision, passback);
+              });
+              if (counter.incrementAndGet() >= rows * cols) {
+                counter.set(0);
+                input.accumulate(ctx, new CudaTensorList(passback, length, inputDims, precision));
+              }
             }
           }) {
             public void _free() {
@@ -176,8 +179,11 @@ class ImgTileSubnetLayer extends WrapperLayer
       Result result = new ImgTileAssemblyLayer(cols, rows).setParallel(parallel).setPrecision(precision)
           .eval(RefArrays.stream(tileResults)
               .flatMap(RefArrays::stream).<Result>toArray(i -> new Result[i]));
-      return new Result(result.getData(), (ctx, delta) -> {
-        result.accumulate(ctx, delta);
+      return new Result(result.getData(), new Result.Accumulator() {
+        @Override
+        public void accept(DeltaSet<UUID> ctx, TensorList delta) {
+          result.accumulate(ctx, delta);
+        }
       }) {
 
         @Override

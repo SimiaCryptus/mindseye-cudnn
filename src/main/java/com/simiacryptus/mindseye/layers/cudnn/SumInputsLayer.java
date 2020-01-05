@@ -138,15 +138,18 @@ class SumInputsLayer extends LayerBase
       tensorListStream = tensorListStream.parallel();
     return new Result(tensorListStream.reduce((leftData, rightData) -> CudaSystem.run(gpu -> {
       return gpu.addAndFree(precision, leftData, rightData);
-    }, leftData, rightData)).get(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      @Nonnull
-      RefStream<Result> deltaStream = RefArrays
-          .stream(inObj);
-      if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
-        deltaStream = deltaStream.parallel();
-      deltaStream.filter(Result::isAlive).forEach(obj -> {
-        obj.accumulate(buffer, delta);
-      });
+    }, leftData, rightData)).get(), new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+        @Nonnull
+        RefStream<Result> deltaStream = RefArrays
+            .stream(inObj);
+        if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+          deltaStream = deltaStream.parallel();
+        deltaStream.filter(Result::isAlive).forEach(obj -> {
+          obj.accumulate(buffer, delta);
+        });
+      }
     }) {
 
       @Override

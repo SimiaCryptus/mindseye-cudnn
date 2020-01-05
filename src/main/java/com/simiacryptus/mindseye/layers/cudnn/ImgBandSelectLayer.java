@@ -144,41 +144,44 @@ class ImgBandSelectLayer extends LayerBase
       assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
       CudaTensor cudaTensor = new CudaTensor(cudaInputMemory.withByteOffset(byteOffset), inputDescriptor, precision);
       return new CudaTensorList(cudaTensor, length, outputDimensions, precision);
-    }, inputData), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      if (!RefArrays.equals(delta.getDimensions(), outputDimensions)) {
-        throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
-            + RefArrays.toString(outputDimensions));
-      }
-      if (in0.isAlive()) {
-        final TensorList passbackTensorList = CudaSystem.run(gpu -> {
-          @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
-              outputDimensions[2], outputDimensions[1], outputDimensions[0], //
-              inputDimensions[2] * inputDimensions[1] * inputDimensions[0], //
-              inputDimensions[1] * inputDimensions[0], //
-              inputDimensions[0], //
-              1);
-          @Nonnull final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length,
-              inputDimensions[2], inputDimensions[1], inputDimensions[0], //
-              inputDimensions[2] * inputDimensions[1] * inputDimensions[0], //
-              inputDimensions[1] * inputDimensions[0], //
-              inputDimensions[0], //
-              1);
-          final int byteOffset = viewDescriptor.cStride * getFrom() * precision.size;
-          assert delta.length() == length;
-          //assert error.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(Double::isFinite);
-          @Nullable final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
-          long size1 = (length * inputDimensions[2] * inputDimensions[1] * inputDimensions[0] * precision.size);
-          @Nonnull final CudaMemory passbackBuffer = gpu.allocate(size1, MemoryType.Managed.ifEnabled(), false);
-          CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
-          gpu.cudnnTransformTensor(precision.getPointer(1.0), errorPtr.descriptor.getPtr(), errorPtrMemory.getPtr(),
-              precision.getPointer(0.0), viewDescriptor.getPtr(), passbackBuffer.getPtr().withByteOffset(byteOffset));
-          errorPtrMemory.dirty();
-          passbackBuffer.dirty();
-          CudaTensor cudaTensor = new CudaTensor(passbackBuffer, inputDescriptor, precision);
-          return new CudaTensorList(cudaTensor, length, inputDimensions, precision);
-          //assert passbackTensorList.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(v->Double.isFinite(v));
-        }, delta);
-        in0.accumulate(buffer, passbackTensorList);
+    }, inputData), new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+        if (!RefArrays.equals(delta.getDimensions(), outputDimensions)) {
+          throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
+              + RefArrays.toString(outputDimensions));
+        }
+        if (in0.isAlive()) {
+          final TensorList passbackTensorList = CudaSystem.run(gpu -> {
+            @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
+                outputDimensions[2], outputDimensions[1], outputDimensions[0], //
+                inputDimensions[2] * inputDimensions[1] * inputDimensions[0], //
+                inputDimensions[1] * inputDimensions[0], //
+                inputDimensions[0], //
+                1);
+            @Nonnull final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length,
+                inputDimensions[2], inputDimensions[1], inputDimensions[0], //
+                inputDimensions[2] * inputDimensions[1] * inputDimensions[0], //
+                inputDimensions[1] * inputDimensions[0], //
+                inputDimensions[0], //
+                1);
+            final int byteOffset = viewDescriptor.cStride * ImgBandSelectLayer.this.getFrom() * precision.size;
+            assert delta.length() == length;
+            //assert error.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(Double::isFinite);
+            @Nullable final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
+            long size1 = (length * inputDimensions[2] * inputDimensions[1] * inputDimensions[0] * precision.size);
+            @Nonnull final CudaMemory passbackBuffer = gpu.allocate(size1, MemoryType.Managed.ifEnabled(), false);
+            CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
+            gpu.cudnnTransformTensor(precision.getPointer(1.0), errorPtr.descriptor.getPtr(), errorPtrMemory.getPtr(),
+                precision.getPointer(0.0), viewDescriptor.getPtr(), passbackBuffer.getPtr().withByteOffset(byteOffset));
+            errorPtrMemory.dirty();
+            passbackBuffer.dirty();
+            CudaTensor cudaTensor = new CudaTensor(passbackBuffer, inputDescriptor, precision);
+            return new CudaTensorList(cudaTensor, length, inputDimensions, precision);
+            //assert passbackTensorList.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(v->Double.isFinite(v));
+          }, delta);
+          in0.accumulate(buffer, passbackTensorList);
+        }
       }
     }) {
 

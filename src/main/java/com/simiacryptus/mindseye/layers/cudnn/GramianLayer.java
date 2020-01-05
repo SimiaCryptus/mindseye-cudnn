@@ -116,19 +116,22 @@ class GramianLayer extends LayerBase
       CudaTensor tensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
       return getOutput(gpu, tensor);
     }, inputData);
-    return new Result(tensorList, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      @Nonnull final int[] outputDimensions = {1, 1, inputDimensions[2] * inputDimensions[2]};
-      if (!RefArrays.equals(delta.getDimensions(), outputDimensions)) {
-        throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
-            + RefArrays.toString(outputDimensions));
-      }
-      if (inObj[0].isAlive()) {
-        final TensorList passbackTensorList = CudaSystem.run(gpu -> {
-          @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
-          CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
-          return getFeedback(gpu, inputTensor, deltaTensor);
-        }, delta);
-        inObj[0].accumulate(buffer, passbackTensorList);
+    return new Result(tensorList, new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+        @Nonnull final int[] outputDimensions = {1, 1, inputDimensions[2] * inputDimensions[2]};
+        if (!RefArrays.equals(delta.getDimensions(), outputDimensions)) {
+          throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
+              + RefArrays.toString(outputDimensions));
+        }
+        if (inObj[0].isAlive()) {
+          final TensorList passbackTensorList = CudaSystem.run(gpu -> {
+            @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
+            CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
+            return GramianLayer.this.getFeedback(gpu, inputTensor, deltaTensor);
+          }, delta);
+          inObj[0].accumulate(buffer, passbackTensorList);
+        }
       }
     }) {
 

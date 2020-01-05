@@ -227,24 +227,27 @@ class ImgTileCycleLayer extends LayerBase
       CudaTensor cudaTensor = copy(gpu, inputTensor, length, precision, splitX1, splitY1);
       return new CudaTensorList(cudaTensor, length, dimIn, precision);
     }, inputData);
-    return new Result(outputData, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      if (!RefArrays.equals(delta.getDimensions(), outputData.getDimensions())) {
-        throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
-            + RefArrays.toString(outputData.getDimensions()));
-      }
-      if (delta.length() != outputData.length()) {
-        throw new AssertionError(delta.length() + " != " + outputData.length());
-      }
-      assert delta.length() == length;
-      if (input.isAlive()) {
-        final TensorList passbackTensorList = CudaSystem.run(gpu -> {
-          @Nullable final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
-          CudaTensor cudaTensor = copy(gpu, errorPtr, length, precision, splitX2, splitY2);
-          return new CudaTensorList(cudaTensor, length, dimIn, precision);
-        }, delta);
-        input.accumulate(buffer, passbackTensorList);
-      }
+    return new Result(outputData, new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+        if (!RefArrays.equals(delta.getDimensions(), outputData.getDimensions())) {
+          throw new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
+              + RefArrays.toString(outputData.getDimensions()));
+        }
+        if (delta.length() != outputData.length()) {
+          throw new AssertionError(delta.length() + " != " + outputData.length());
+        }
+        assert delta.length() == length;
+        if (input.isAlive()) {
+          final TensorList passbackTensorList = CudaSystem.run(gpu -> {
+            @Nullable final CudaTensor errorPtr = gpu.getTensor(delta, precision, MemoryType.Device, false);
+            CudaTensor cudaTensor = copy(gpu, errorPtr, length, precision, splitX2, splitY2);
+            return new CudaTensorList(cudaTensor, length, dimIn, precision);
+          }, delta);
+          input.accumulate(buffer, passbackTensorList);
+        }
 
+      }
     }) {
 
       @Override

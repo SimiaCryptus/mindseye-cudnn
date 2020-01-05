@@ -138,41 +138,44 @@ class NProductLayer extends LayerBase
       }).get();
       return result1;
     }, RefArrays.stream(inObj).map(Result::getData).toArray()),
-        (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-          for (int index = 0; index < inObj.length; index++) {
-            final Result input = inObj[index];
-            if (input.isAlive()) {
-              final int _index = index;
-              @Nonnull
-              TensorList data = RefIntStream.range(0, inObj.length).mapToObj(i -> {
-                return i == _index ? delta : inObj[i].getData();
-              }).reduce((l, r) -> {
-                return CudaSystem.run(gpu -> {
-                  @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
-                      .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-                  @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
-                      dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
-                      dimensions[1] * dimensions[0], dimensions[0], 1);
+        new Result.Accumulator() {
+          @Override
+          public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+            for (int index = 0; index < inObj.length; index++) {
+              final Result input = inObj[index];
+              if (input.isAlive()) {
+                final int _index = index;
+                @Nonnull
+                TensorList data = RefIntStream.range(0, inObj.length).mapToObj(i -> {
+                  return i == _index ? delta : inObj[i].getData();
+                }).reduce((l, r) -> {
+                  return CudaSystem.run(gpu -> {
+                    @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+                        .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
+                    @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+                        dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
+                        dimensions[1] * dimensions[0], dimensions[0], 1);
 
-                  @Nullable final CudaTensor lPtr = gpu.getTensor(l, precision, MemoryType.Device, false);
-                  @Nullable final CudaTensor rPtr = gpu.getTensor(r, precision, MemoryType.Device, false);
-                  //assert lPtr.memory.size == rPtr.memory.size;
-                  @Nonnull final CudaMemory outputPtr = gpu.allocate((long) outputDescriptor.nStride * length * precision.size,
-                      MemoryType.Device, true);
-                  CudaMemory lPtrMemory = lPtr.getMemory(gpu);
-                  CudaMemory rPtrMemory = rPtr.getMemory(gpu);
-                  CudaSystem.handle(JCudnn.cudnnOpTensor(gpu.handle, opDescriptor.getPtr(), precision.getPointer(1.0),
-                      lPtr.descriptor.getPtr(), lPtrMemory.getPtr(), precision.getPointer(1.0),
-                      rPtr.descriptor.getPtr(), rPtrMemory.getPtr(), precision.getPointer(0.0),
-                      outputDescriptor.getPtr(), outputPtr.getPtr()));
-                  lPtrMemory.dirty();
-                  rPtrMemory.dirty();
-                  outputPtr.dirty();
-                  return new CudaTensorList(new CudaTensor(outputPtr, outputDescriptor, precision), length, dimensions,
-                      precision);
-                }, l, r);
-              }).get();
-              input.accumulate(buffer, data);
+                    @Nullable final CudaTensor lPtr = gpu.getTensor(l, precision, MemoryType.Device, false);
+                    @Nullable final CudaTensor rPtr = gpu.getTensor(r, precision, MemoryType.Device, false);
+                    //assert lPtr.memory.size == rPtr.memory.size;
+                    @Nonnull final CudaMemory outputPtr = gpu.allocate((long) outputDescriptor.nStride * length * precision.size,
+                        MemoryType.Device, true);
+                    CudaMemory lPtrMemory = lPtr.getMemory(gpu);
+                    CudaMemory rPtrMemory = rPtr.getMemory(gpu);
+                    CudaSystem.handle(JCudnn.cudnnOpTensor(gpu.handle, opDescriptor.getPtr(), precision.getPointer(1.0),
+                        lPtr.descriptor.getPtr(), lPtrMemory.getPtr(), precision.getPointer(1.0),
+                        rPtr.descriptor.getPtr(), rPtrMemory.getPtr(), precision.getPointer(0.0),
+                        outputDescriptor.getPtr(), outputPtr.getPtr()));
+                    lPtrMemory.dirty();
+                    rPtrMemory.dirty();
+                    outputPtr.dirty();
+                    return new CudaTensorList(new CudaTensor(outputPtr, outputDescriptor, precision), length, dimensions,
+                        precision);
+                  }, l, r);
+                }).get();
+                input.accumulate(buffer, data);
+              }
             }
           }
         }) {

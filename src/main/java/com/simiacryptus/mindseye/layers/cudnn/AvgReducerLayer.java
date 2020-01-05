@@ -124,12 +124,15 @@ class AvgReducerLayer extends LayerBase
           new int[]{1, 1, 1}, precision);
     });
 
-    return new Result(result, (DeltaSet<UUID> ctx, TensorList delta) -> {
-      input.accumulate(ctx, new TensorArray(RefIntStream.range(0, length).mapToObj(i -> {
-        Tensor tensor = delta.get(i);
-        double v = (double) tensor.get(0) / Tensor.length(inputSize);
-        return new Tensor(inputSize).setAll(v);
-      }).toArray(i -> new Tensor[i])));
+    return new Result(result, new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> ctx, TensorList delta) {
+        input.accumulate(ctx, new TensorArray(RefIntStream.range(0, length).mapToObj(i -> {
+          Tensor tensor = delta.get(i);
+          double v = (double) tensor.get(0) / Tensor.length(inputSize);
+          return new Tensor(inputSize).setAll(v);
+        }).toArray(i -> new Tensor[i])));
+      }
     }) {
       public void _free() {
         super._free();

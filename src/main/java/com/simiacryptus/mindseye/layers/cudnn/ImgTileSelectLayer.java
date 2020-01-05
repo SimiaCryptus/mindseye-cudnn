@@ -237,31 +237,35 @@ class ImgTileSelectLayer extends LayerBase
     }
     @Nonnull final int[] dimOut = getViewDimensions(dimIn, new int[]{sizeX, sizeY, dimIn[2]},
         new int[]{-positionX, -positionY, 0});
+    final ImgTileSelectLayer imgTileSelectLayer = this;
     final TensorList outputData = CudaSystem.run(gpu -> {
       assert dimOut[0] > 0;
       assert dimOut[1] > 0;
       assert dimOut[2] > 0;
       boolean dirty = dimOut[0] == dimIn[0] && dimOut[1] == dimIn[1];
-      return new CudaTensorList(copy(gpu, inputData, dimIn, dimOut, precision, this.positionX, this.positionY, dirty),
+      return new CudaTensorList(copy(gpu, inputData, dimIn, dimOut, precision, imgTileSelectLayer.positionX, imgTileSelectLayer.positionY, dirty),
           length, dimOut, precision);
     }, inputData);
     int[] outputDimensions = outputData.getDimensions();
     assert length == outputData.length();
-    return new Result(outputData, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList error) -> {
-      if (!RefArrays.equals(error.getDimensions(), outputDimensions)) {
-        throw new AssertionError(RefArrays.toString(error.getDimensions()) + " != "
-            + RefArrays.toString(outputDimensions));
-      }
-      if (error.length() != length) {
-        throw new AssertionError(error.length() + " != " + length);
-      }
-      assert error.length() == length;
-      if (input.isAlive()) {
-        input.accumulate(buffer, CudaSystem.run(gpu -> {
-          boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
-          final CudaTensor ptr = copy(gpu, error, dimOut, dimIn, precision, -this.positionX, -this.positionY, dirty);
-          return new CudaTensorList(ptr, length, dimIn, precision);
-        }, error));
+    return new Result(outputData, new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList error) {
+        if (!RefArrays.equals(error.getDimensions(), outputDimensions)) {
+          throw new AssertionError(RefArrays.toString(error.getDimensions()) + " != "
+              + RefArrays.toString(outputDimensions));
+        }
+        if (error.length() != length) {
+          throw new AssertionError(error.length() + " != " + length);
+        }
+        assert error.length() == length;
+        if (input.isAlive()) {
+          input.accumulate(buffer, CudaSystem.run(gpu -> {
+            boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
+            final CudaTensor ptr = copy(gpu, error, dimOut, dimIn, precision, -imgTileSelectLayer.positionX, -imgTileSelectLayer.positionY, dirty);
+            return new CudaTensorList(ptr, length, dimIn, precision);
+          }, error));
+        }
       }
     }) {
 

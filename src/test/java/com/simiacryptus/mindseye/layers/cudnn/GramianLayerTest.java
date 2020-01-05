@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 public abstract @RefAware
 class GramianLayerTest extends CudnnLayerTestBase {
@@ -63,7 +64,10 @@ class GramianLayerTest extends CudnnLayerTestBase {
             }).average().getAsDouble();
           }).average().getAsDouble();
         });
-        return new Result(new TensorArray(output), (a, b) -> {
+        return new Result(new TensorArray(output), new Result.Accumulator() {
+          @Override
+          public void accept(DeltaSet<UUID> a, TensorList b) {
+          }
         });
       }
 

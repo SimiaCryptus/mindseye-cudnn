@@ -125,6 +125,7 @@ class ImgTileAssemblyLayer extends LayerBase
     assert 3 == inputDimensions.length;
     final int length = inObj[0].getData().length();
     int[] outputDims = getOutputDims(inObj);
+    final ImgTileAssemblyLayer imgTileAssemblyLayer = this;
     final TensorList outputData = CudaSystem.run(gpu -> {
       assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
       assert outputDims[0] > 0;
@@ -156,7 +157,7 @@ class ImgTileAssemblyLayer extends LayerBase
       RefStream<CopyParams> stream = copies.stream();
       if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
         stream = stream.parallel();
-      stream.forEach(this::copy);
+      stream.forEach(imgTileAssemblyLayer::copy);
       RefArrays.stream(inObj).forEach(r -> r.getData());
       CudaDevice.CudaTensorDescriptor descriptor = gpu.newTensorDescriptor(precision, length, outputDims[2],
           outputDims[1], outputDims[0]);
@@ -164,38 +165,41 @@ class ImgTileAssemblyLayer extends LayerBase
       return new CudaTensorList(ptr, length, outputDims, precision);
     }, RefArrays.stream(inObj).map(Result::getData).toArray());
 
-    return new Result(outputData, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList error) -> {
-      if (!RefArrays.equals(error.getDimensions(), outputData.getDimensions())) {
-        throw new AssertionError(RefArrays.toString(error.getDimensions()) + " != "
-            + RefArrays.toString(outputData.getDimensions()));
-      }
-      if (error.length() != outputData.length()) {
-        throw new AssertionError(error.length() + " != " + outputData.length());
-      }
-      assert error.length() == length;
-      int totalHeight = 0;
-      int inputIndex = 0;
-      RefList<BackpropParams> tasks = new RefArrayList<>();
-      for (int row = 0; row < rows; row++) {
-        int positionX = 0;
-        int rowHeight = 0;
-        for (int col = 0; col < columns; col++) {
-          Result in = inObj[inputIndex];
-          int[] tileDimensions = in.getData().getDimensions();
-          rowHeight = Math.max(rowHeight, tileDimensions[1]);
-          if (inObj[inputIndex].isAlive()) {
-            tasks.add(new BackpropParams(inObj, buffer, error, outputDims, tileDimensions, length, positionX,
-                totalHeight, inputIndex));
-          }
-          positionX += tileDimensions[0];
-          inputIndex += 1;
+    return new Result(outputData, new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList error) {
+        if (!RefArrays.equals(error.getDimensions(), outputData.getDimensions())) {
+          throw new AssertionError(RefArrays.toString(error.getDimensions()) + " != "
+              + RefArrays.toString(outputData.getDimensions()));
         }
-        totalHeight += rowHeight;
+        if (error.length() != outputData.length()) {
+          throw new AssertionError(error.length() + " != " + outputData.length());
+        }
+        assert error.length() == length;
+        int totalHeight = 0;
+        int inputIndex = 0;
+        RefList<BackpropParams> tasks = new RefArrayList<>();
+        for (int row = 0; row < rows; row++) {
+          int positionX = 0;
+          int rowHeight = 0;
+          for (int col = 0; col < columns; col++) {
+            Result in = inObj[inputIndex];
+            int[] tileDimensions = in.getData().getDimensions();
+            rowHeight = Math.max(rowHeight, tileDimensions[1]);
+            if (inObj[inputIndex].isAlive()) {
+              tasks.add(new BackpropParams(inObj, buffer, error, outputDims, tileDimensions, length, positionX,
+                  totalHeight, inputIndex));
+            }
+            positionX += tileDimensions[0];
+            inputIndex += 1;
+          }
+          totalHeight += rowHeight;
+        }
+        RefStream<BackpropParams> stream = tasks.stream();
+        if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+          stream = stream.parallel();
+        stream.forEach(imgTileAssemblyLayer::backprop);
       }
-      RefStream<BackpropParams> stream = tasks.stream();
-      if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
-        stream = stream.parallel();
-      stream.forEach(this::backprop);
     }) {
 
       @Override

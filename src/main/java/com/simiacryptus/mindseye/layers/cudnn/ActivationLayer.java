@@ -174,45 +174,48 @@ class ActivationLayer extends LayerBase
         }
       }, inputData);
       return new Result(new CudaTensorList(outPtr, length, outputSize, precision),
-          (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-            if (inputResult.isAlive()) {
-              final TensorList data = CudaSystem.run(gpu -> {
-                @Nullable
-                CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
-                @Nullable
-                CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
-                assert length == delta.length();
-                CudaTensor localOut = outPtr.getDense(gpu);
-                CudaTensor passbackTensor = new CudaTensor(
-                    gpu.allocate((long) Tensor.length(inputSize) * length * precision.size,
-                        MemoryType.Managed.ifEnabled(), false),
-                    gpu.newTensorDescriptor(precision, length, inputSize[2], inputSize[1], inputSize[0],
-                        inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0], 1),
-                    precision);
+          new Result.Accumulator() {
+            @Override
+            public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+              if (inputResult.isAlive()) {
+                final TensorList data = CudaSystem.run(gpu -> {
+                  @Nullable
+                  CudaTensor inputTensor = gpu.getTensor(inputData, precision, MemoryType.Device, true);
+                  @Nullable
+                  CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, true);
+                  assert length == delta.length();
+                  CudaTensor localOut = outPtr.getDense(gpu);
+                  CudaTensor passbackTensor = new CudaTensor(
+                      gpu.allocate((long) Tensor.length(inputSize) * length * precision.size,
+                          MemoryType.Managed.ifEnabled(), false),
+                      gpu.newTensorDescriptor(precision, length, inputSize[2], inputSize[1], inputSize[0],
+                          inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0], 1),
+                      precision);
 
-                @Nonnull final CudaResource<cudnnActivationDescriptor> activationDesc = gpu.newActivationDescriptor(mode,
-                    cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN, 0);
-                try {
-                  CudaMemory localOutMemory = localOut.getMemory(gpu);
-                  CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
-                  CudaMemory inputTensorMemory = inputTensor.getMemory(gpu);
-                  CudaMemory passbackTensorMemory = passbackTensor.getMemory(gpu);
-                  CudaSystem.handle(gpu.cudnnActivationBackward(activationDesc.getPtr(),
-                      precision.getPointer(getAlpha()), localOut.descriptor.getPtr(), localOutMemory.getPtr(),
-                      deltaTensor.descriptor.getPtr(), deltaTensorMemory.getPtr(), inputTensor.descriptor.getPtr(),
-                      inputTensorMemory.getPtr(), precision.getPointer(0.0), passbackTensor.descriptor.getPtr(),
-                      passbackTensorMemory.getPtr()));
-                  assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-                  RefStream
-                      .of(localOutMemory, deltaTensorMemory, inputTensorMemory, passbackTensorMemory)
-                      .forEach(CudaMemory::dirty);
-                  return new CudaTensorList(passbackTensor, length, inputSize, precision);
-                } catch (@Nonnull final Throwable e) {
-                  throw new ComponentException(
-                      "Error apply " + RefArrays.toString(inputSize), e);
-                }
-              }, delta);
-              inputResult.accumulate(buffer, data);
+                  @Nonnull final CudaResource<cudnnActivationDescriptor> activationDesc = gpu.newActivationDescriptor(mode,
+                      cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN, 0);
+                  try {
+                    CudaMemory localOutMemory = localOut.getMemory(gpu);
+                    CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
+                    CudaMemory inputTensorMemory = inputTensor.getMemory(gpu);
+                    CudaMemory passbackTensorMemory = passbackTensor.getMemory(gpu);
+                    CudaSystem.handle(gpu.cudnnActivationBackward(activationDesc.getPtr(),
+                        precision.getPointer(ActivationLayer.this.getAlpha()), localOut.descriptor.getPtr(), localOutMemory.getPtr(),
+                        deltaTensor.descriptor.getPtr(), deltaTensorMemory.getPtr(), inputTensor.descriptor.getPtr(),
+                        inputTensorMemory.getPtr(), precision.getPointer(0.0), passbackTensor.descriptor.getPtr(),
+                        passbackTensorMemory.getPtr()));
+                    assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+                    RefStream
+                        .of(localOutMemory, deltaTensorMemory, inputTensorMemory, passbackTensorMemory)
+                        .forEach(CudaMemory::dirty);
+                    return new CudaTensorList(passbackTensor, length, inputSize, precision);
+                  } catch (@Nonnull final Throwable e) {
+                    throw new ComponentException(
+                        "Error apply " + RefArrays.toString(inputSize), e);
+                  }
+                }, delta);
+                inputResult.accumulate(buffer, data);
+              }
             }
           }) {
 
