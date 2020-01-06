@@ -54,8 +54,8 @@ class StochasticSamplingSubnetLayer extends WrapperLayer
 
   private final int samples;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
-  private long seed = System.nanoTime();
-  private long layerSeed = System.nanoTime();
+  private long seed = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
+  private long layerSeed = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
 
   public StochasticSamplingSubnetLayer(final Layer subnetwork, final int samples) {
     super(subnetwork);

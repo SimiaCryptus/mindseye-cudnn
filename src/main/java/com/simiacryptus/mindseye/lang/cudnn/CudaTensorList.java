@@ -28,6 +28,7 @@ import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefStream;
+import com.simiacryptus.ref.wrappers.RefString;
 import com.simiacryptus.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,13 +89,13 @@ class CudaTensorList extends RegisteredObjectBase
     assert ptr.memory.size >= (long) (length - 1) * Tensor.length(dimensions) * precision.size : String
         .format("%s < %s", ptr.memory.size, (long) length * Tensor.length(dimensions) * precision.size);
     assert ptr.descriptor.batchCount == length;
-    assert ptr.descriptor.channels == (dimensions.length < 3 ? 1 : dimensions[2]) : String.format("%s != (%d,%d,%d,%d)",
+    assert ptr.descriptor.channels == (dimensions.length < 3 ? 1 : dimensions[2]) : RefString.format("%s != (%d,%d,%d,%d)",
         RefArrays.toString(dimensions), ptr.descriptor.batchCount, ptr.descriptor.channels, ptr.descriptor.height,
         ptr.descriptor.width);
-    assert ptr.descriptor.height == (dimensions.length < 2 ? 1 : dimensions[1]) : String.format("%s != (%d,%d,%d,%d)",
+    assert ptr.descriptor.height == (dimensions.length < 2 ? 1 : dimensions[1]) : RefString.format("%s != (%d,%d,%d,%d)",
         RefArrays.toString(dimensions), ptr.descriptor.batchCount, ptr.descriptor.channels, ptr.descriptor.height,
         ptr.descriptor.width);
-    assert ptr.descriptor.width == (dimensions.length < 1 ? 1 : dimensions[0]) : String.format("%s != (%d,%d,%d,%d)",
+    assert ptr.descriptor.width == (dimensions.length < 1 ? 1 : dimensions[0]) : RefString.format("%s != (%d,%d,%d,%d)",
         RefArrays.toString(dimensions), ptr.descriptor.batchCount, ptr.descriptor.channels, ptr.descriptor.height,
         ptr.descriptor.width);
     assert ptr.getPrecision() == precision;
@@ -145,7 +146,7 @@ class CudaTensorList extends RegisteredObjectBase
           x.freeRef();
         return temp_07_0009;
       }).mapToLong(CudaTensorList::evictToHeap).sum();
-      logger.debug(String.format("Cleared %s bytes from GpuTensorLists for device %s", size, deviceId));
+      logger.debug(RefString.format("Cleared %s bytes from GpuTensorLists for device %s", size, deviceId));
       return size;
     });
   }
@@ -322,8 +323,8 @@ class CudaTensorList extends RegisteredObjectBase
                   }
                   return t;
                 }, gpuCopy == null ? null : gpuCopy.addRef()));
-            CudaTensorList.logger.debug(String.format("Read %s bytes in %.4f from Tensor %s, GPU at %s, created by %s",
-                gpuCopy.size(), timedResult.seconds(), Integer.toHexString(System.identityHashCode(timedResult.result)),
+            CudaTensorList.logger.debug(RefString.format("Read %s bytes in %.4f from Tensor %s, GPU at %s, created by %s",
+                gpuCopy.size(), timedResult.seconds(), Integer.toHexString(com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(timedResult.result)),
                 Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
                 Util.toString(createdBy).replaceAll("\n", "\n\t")));
             return timedResult.result;
@@ -539,8 +540,8 @@ class CudaTensorList extends RegisteredObjectBase
         Tensor.addRefs(output), gpuCopy == null ? null : gpuCopy.addRef()));
     if (null != output)
       ReferenceCounting.freeRefs(output);
-    CudaTensorList.logger.debug(String.format("Read %s bytes in %.4f from Tensor %s on GPU at %s, created by %s",
-        gpuCopy.size(), timedResult.seconds(), Integer.toHexString(System.identityHashCode(timedResult.result)),
+    CudaTensorList.logger.debug(RefString.format("Read %s bytes in %.4f from Tensor %s on GPU at %s, created by %s",
+        gpuCopy.size(), timedResult.seconds(), Integer.toHexString(com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(timedResult.result)),
         Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
         Util.toString(createdBy).replaceAll("\n", "\n\t")));
     if (null != gpuCopy)

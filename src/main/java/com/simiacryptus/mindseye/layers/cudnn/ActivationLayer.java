@@ -30,6 +30,7 @@ import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefStream;
+import com.simiacryptus.ref.wrappers.RefString;
 import jcuda.jcudnn.cudnnActivationDescriptor;
 import jcuda.jcudnn.cudnnActivationMode;
 import jcuda.jcudnn.cudnnNanPropagation;
@@ -93,7 +94,7 @@ class ActivationLayer extends LayerBase implements MultiPrecision<ActivationLaye
   @Nullable
   @Override
   public String getName() {
-    return String.format("Activation (%s)", mode);
+    return RefString.format("Activation (%s)", mode);
   }
 
   @Override

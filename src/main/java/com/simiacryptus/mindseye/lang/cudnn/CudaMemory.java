@@ -28,6 +28,7 @@ import com.simiacryptus.ref.wrappers.RefCollectors;
 import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
 import com.simiacryptus.ref.wrappers.RefMap;
 import com.simiacryptus.ref.wrappers.RefSet;
+import com.simiacryptus.ref.wrappers.RefString;
 import jcuda.runtime.cudaMemcpyKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ class CudaMemory extends CudaResourceBase<CudaPointer> {
   public final long size;
   private final int deviceId;
   private final MemoryType type;
-  private long writtenAt = System.nanoTime();
+  private long writtenAt = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
 
   CudaMemory(final CudaDevice gpu, final long size, @Nonnull MemoryType type) {
     this(size, type, gpu.acquire(size, type, 1), gpu.getDeviceId());
@@ -86,12 +87,12 @@ class CudaMemory extends CudaResourceBase<CudaPointer> {
       totalFreed += type.purge(deviceId);
     }
     if (totalFreed == 0) {
-      logger.info(String.format("Nothing Freed - Running Garbage Collector"));
-      System.gc();
+      logger.info(RefString.format("Nothing Freed - Running Garbage Collector"));
+      com.simiacryptus.ref.wrappers.RefSystem.gc();
       totalFreed = evictMemory(0);
     }
     if (totalFreed == 0) {
-      logger.info(String.format("Warning: High Active GPU Memory Usage"));
+      logger.info(RefString.format("Warning: High Active GPU Memory Usage"));
     }
     logLoad();
     return totalFreed;
@@ -104,7 +105,7 @@ class CudaMemory extends CudaResourceBase<CudaPointer> {
         x.freeRef();
       return temp_35_0001;
     }).sum();
-    logger.debug(String.format("Cleared %e bytes from ConvolutionFilters for device %s", bytes, deviceId));
+    logger.debug(RefString.format("Cleared %e bytes from ConvolutionFilters for device %s", bytes, deviceId));
     double tensorListsFreed = CudaTensorList.evictToHeap(deviceId);
     return tensorListsFreed + bytes;
   }
@@ -139,13 +140,13 @@ class CudaMemory extends CudaResourceBase<CudaPointer> {
             RefUtil.freeRef(e);
           return temp_35_0002;
         }, e -> {
-          String temp_35_0003 = String.format("%e / %e", (double) e.getValue().activeMemory.get(),
+          String temp_35_0003 = RefString.format("%e / %e", (double) e.getValue().activeMemory.get(),
               (double) e.getValue().usedMemory.get());
           if (null != e)
             RefUtil.freeRef(e);
           return temp_35_0003;
         }));
-    logger.debug(String.format("Current Load: %s", temp_35_0006));
+    logger.debug(RefString.format("Current Load: %s", temp_35_0006));
     if (null != temp_35_0006)
       temp_35_0006.freeRef();
     if (null != temp_35_0005)
@@ -206,7 +207,7 @@ class CudaMemory extends CudaResourceBase<CudaPointer> {
       return this.addRef();
     if (size < (long) (offset + destination.length) * precision.size) {
       throw new IllegalArgumentException(
-          String.format("%d < %d + %d", size, (long) destination.length * precision.size, offset));
+          RefString.format("%d < %d + %d", size, (long) destination.length * precision.size, offset));
     }
     if (precision == Precision.Float) {
       @Nonnull
@@ -262,7 +263,7 @@ class CudaMemory extends CudaResourceBase<CudaPointer> {
     assert getType() == MemoryType.Managed || CudaDevice.isThreadDeviceId(getDeviceId());
     if (size < ((offset + data.length) * precision.size))
       throw new IllegalArgumentException(
-          String.format("%d != (%d + %d) * %d", size, offset, data.length, precision.size));
+          RefString.format("%d != (%d + %d) * %d", size, offset, data.length, precision.size));
     CudaSystem.cudaMemcpy(getPtr().withByteOffset(offset * precision.size), precision.getPointer(data),
         (long) data.length * precision.size, cudaMemcpyKind.cudaMemcpyHostToDevice);
     CudaMemory.getGpuStats(deviceId).memoryWrites.addAndGet((long) data.length * precision.size);
@@ -277,7 +278,7 @@ class CudaMemory extends CudaResourceBase<CudaPointer> {
   @Nonnull
   public CudaMemory write(@Nonnull final Precision precision, @Nonnull final float[] data, int offset) {
     if (size < (offset + data.length) * precision.size)
-      throw new IllegalArgumentException(String.format("%d != %d * %d", size, data.length, precision.size));
+      throw new IllegalArgumentException(RefString.format("%d != %d * %d", size, data.length, precision.size));
     CudaSystem.cudaMemcpy(getPtr().withByteOffset(offset * precision.size), precision.getPointer(data),
         (long) data.length * precision.size, cudaMemcpyKind.cudaMemcpyHostToDevice);
     CudaMemory.getGpuStats(deviceId).memoryWrites.addAndGet((long) data.length * precision.size);
@@ -309,7 +310,7 @@ class CudaMemory extends CudaResourceBase<CudaPointer> {
   public CudaMemory dirty() {
     assert type == MemoryType.Managed || CudaDevice.isThreadDeviceId(getDeviceId()) : getDeviceId() + " != "
         + CudaSystem.getThreadDeviceId();
-    writtenAt = System.nanoTime();
+    writtenAt = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
     return this.addRef();
   }
 

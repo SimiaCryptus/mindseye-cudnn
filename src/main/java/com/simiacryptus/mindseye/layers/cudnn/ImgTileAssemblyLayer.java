@@ -30,6 +30,7 @@ import com.simiacryptus.ref.wrappers.RefArrayList;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefStream;
+import com.simiacryptus.ref.wrappers.RefString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -374,7 +375,7 @@ class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision<ImgTileAs
     if (bands != destinationDimensions[2]) {
       source.freeRef();
       destination.freeRef();
-      throw new IllegalArgumentException(String.format("%d != %d", bands, destinationDimensions[2]));
+      throw new IllegalArgumentException(RefString.format("%d != %d", bands, destinationDimensions[2]));
     }
     //log.info(String.format("offset=%d,%d", offsetX, offsetY));
     @Nonnull final int[] viewDim = getViewDimensions(sourceDimensions, destinationDimensions,

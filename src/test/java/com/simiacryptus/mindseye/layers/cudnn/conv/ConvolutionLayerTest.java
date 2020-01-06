@@ -196,8 +196,8 @@ class ConvolutionLayerTest extends CudnnLayerTestBase {
   }
 
   private void print(final RefStream<CharSequence> stream) {
-    stream.forEach(x -> System.out.println("Zero: " + x));
-    //System.out.println("Zeros: " + stream.sumChannels((a,b)->a+","+b).get());
+    stream.forEach(x -> com.simiacryptus.ref.wrappers.RefSystem.out.println("Zero: " + x));
+    //com.simiacryptus.ref.wrappers.RefSystem.out.println("Zeros: " + stream.sumChannels((a,b)->a+","+b).get());
   }
 
   public static @RefAware

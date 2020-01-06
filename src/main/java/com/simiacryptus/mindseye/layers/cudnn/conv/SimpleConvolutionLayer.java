@@ -351,7 +351,7 @@ class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<SimpleC
                                 return temp_16_0007;
                               } catch (@Nonnull final Throwable e) {
                                 throw new ComponentException(
-                                    String.format("Error in convolution %s x %s => %s", RefArrays.toString(inputDims),
+                                    RefString.format("Error in convolution %s x %s => %s", RefArrays.toString(inputDims),
                                         RefArrays.toString(kernelDimensions), RefArrays.toString(outputSize)),
                                     e);
                               }
@@ -519,7 +519,7 @@ class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<SimpleC
         filterPtr.freeRef();
       return temp_16_0008;
     } catch (@Nonnull final Throwable e) {
-      throw new ComponentException(String.format("Error in convolution %s x %s => %s", RefArrays.toString(inputDims),
+      throw new ComponentException(RefString.format("Error in convolution %s x %s => %s", RefArrays.toString(inputDims),
           RefArrays.toString(kernelDimensions), RefArrays.toString(outputSize)), e);
     }
   }
@@ -534,7 +534,7 @@ class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<SimpleC
       inputData.freeRef();
     CudaResource<cudnnFilterDescriptor> filterDescriptor = gpu.newFilterDescriptor(precision,
         cudnnTensorFormat.CUDNN_TENSOR_NCHW, outputSize[2], inputDims[2], kernelDimensions[1], kernelDimensions[0]);
-    String msg = String.format("Error in convolution %s x %s", RefArrays.toString(inputDims),
+    String msg = RefString.format("Error in convolution %s x %s", RefArrays.toString(inputDims),
         RefArrays.toString(kernelDimensions));
     final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, inputLength,
         inputDims[2], inputDims[1], inputDims[0], inputDims[2] * inputDims[1] * inputDims[0],
@@ -714,7 +714,7 @@ class SimpleConvolutionLayer extends LayerBase implements MultiPrecision<SimpleC
         return x;
       }).toArray();
     } catch (Throwable e) {
-      throw new RuntimeException(String.format("Error apply convolution %s x %s (%s)", RefArrays.toString(inputSize),
+      throw new RuntimeException(RefString.format("Error apply convolution %s x %s (%s)", RefArrays.toString(inputSize),
           RefArrays.toString(kernelSize), getName()), e);
     }
   }

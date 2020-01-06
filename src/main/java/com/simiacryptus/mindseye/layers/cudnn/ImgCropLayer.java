@@ -27,6 +27,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,7 +191,7 @@ class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLayer> {
     if (input_channels != output_channels) {
       if (null != input)
         input.freeRef();
-      throw new IllegalArgumentException(String.format("%d != %d", input_channels, output_channels));
+      throw new IllegalArgumentException(RefString.format("%d != %d", input_channels, output_channels));
     }
     if (offset_left > 0) {
       destinationOffset += offset_left;

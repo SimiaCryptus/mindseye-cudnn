@@ -188,7 +188,7 @@ class BandAvgReducerLayer extends LayerBase implements MultiPrecision<BandAvgRed
               final double[] tensor1Data = tensor.getData();
               for (int p = 0; p < inputSize[0] * inputSize[1]; p++) {
                 for (int c = 0; c < inputSize[2]; c++) {
-                  System.arraycopy(xData, 0, tensor1Data, p * inputSize[2], inputSize[2]);
+                  com.simiacryptus.ref.wrappers.RefSystem.arraycopy(xData, 0, tensor1Data, p * inputSize[2], inputSize[2]);
                 }
               }
               return tensor;

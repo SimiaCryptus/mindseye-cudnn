@@ -23,6 +23,7 @@ import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefCollection;
 import com.simiacryptus.ref.wrappers.RefSet;
+import com.simiacryptus.ref.wrappers.RefString;
 import jcuda.jcudnn.*;
 import jcuda.runtime.JCuda;
 import jcuda.runtime.cudaDeviceProp;
@@ -65,9 +66,9 @@ class CudaDevice extends CudaSystem {
     if (cudaDeviceId < 0)
       throw new IllegalArgumentException("cudaDeviceId=" + cudaDeviceId);
     if (!isThreadDeviceId(cudaDeviceId)) {
-      long startTime = System.nanoTime();
+      long startTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
       final int result = JCuda.cudaSetDevice(cudaDeviceId);
-      setDevice_execution.accept((System.nanoTime() - startTime) / 1e9);
+      setDevice_execution.accept((com.simiacryptus.ref.wrappers.RefSystem.nanoTime() - startTime) / 1e9);
       log("cudaSetDevice", result, new Object[]{cudaDeviceId});
       handle(result);
       currentDeviceId.set(cudaDeviceId);
@@ -75,13 +76,13 @@ class CudaDevice extends CudaSystem {
   }
 
   public static void cudaFree(int deviceId, final CudaPointer devPtr) {
-    long startTime = System.nanoTime();
+    long startTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
     if (null == devPtr)
       return;
     Function<CudnnHandle, Integer> fn = dev -> {
       final int result = JCuda.cudaFree(devPtr);
       log("cudaFree", result, new Object[]{devPtr});
-      cudaFree_execution.accept((System.nanoTime() - startTime) / 1e9);
+      cudaFree_execution.accept((com.simiacryptus.ref.wrappers.RefSystem.nanoTime() - startTime) / 1e9);
       handle(result);
       return result;
     };
@@ -98,10 +99,10 @@ class CudaDevice extends CudaSystem {
 
   public static cudaDeviceProp getDeviceProperties(final int device) {
     return propertyCache.computeIfAbsent(device, deviceId -> {
-      long startTime = System.nanoTime();
+      long startTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
       @Nonnull final cudaDeviceProp deviceProp = new cudaDeviceProp();
       final int result = JCuda.cudaGetDeviceProperties(deviceProp, device);
-      getDeviceProperties_execution.accept((System.nanoTime() - startTime) / 1e9);
+      getDeviceProperties_execution.accept((com.simiacryptus.ref.wrappers.RefSystem.nanoTime() - startTime) / 1e9);
       log("cudaGetDeviceProperties", result, new Object[]{deviceProp, device});
       return deviceProp;
     });
@@ -124,7 +125,7 @@ class CudaDevice extends CudaSystem {
       if (null != temp_75_0001)
         temp_75_0001.freeRef();
       if (resultingTotalMemory > CudaSettings.INSTANCE().getMaxTotalMemory()) {
-        CudaMemory.logger.info(String.format("Clearing weak global memory while allocating %e bytes (%e > %e)",
+        CudaMemory.logger.info(RefString.format("Clearing weak global memory while allocating %e bytes (%e > %e)",
             (double) size, resultingTotalMemory, CudaSettings.INSTANCE().getMaxTotalMemory()));
         CudaMemory.clearWeakMemory(deviceId);
       }
@@ -134,13 +135,13 @@ class CudaDevice extends CudaSystem {
       if (null != temp_75_0002)
         temp_75_0002.freeRef();
       if (resultingTotalMemory > CudaSettings.INSTANCE().getMaxTotalMemory()) {
-        CudaMemory.logger.info(String.format("Clearing all global memory while allocating %e bytes (%e > %e)",
+        CudaMemory.logger.info(RefString.format("Clearing all global memory while allocating %e bytes (%e > %e)",
             (double) size, resultingTotalMemory, CudaSettings.INSTANCE().getMaxTotalMemory()));
         CudaMemory.clearMemory(deviceId);
       }
       double resultingDeviceMemory = metrics.usedMemory.get() + size;
       if (resultingDeviceMemory > CudaSettings.INSTANCE().getMaxDeviceMemory()) {
-        CudaMemory.logger.info(String.format("Clearing weak memory for device %s while allocating %e bytes (%e > %e)",
+        CudaMemory.logger.info(RefString.format("Clearing weak memory for device %s while allocating %e bytes (%e > %e)",
             this, (double) size, resultingDeviceMemory, CudaSettings.INSTANCE().getMaxDeviceMemory()));
         RefSet<Integer> temp_75_0003 = CudaMemory.METRICS.keySet();
         temp_75_0003.stream().mapToInt(x -> x).distinct().forEach(CudaMemory::clearWeakMemory);
@@ -149,7 +150,7 @@ class CudaDevice extends CudaSystem {
       }
       resultingDeviceMemory = metrics.usedMemory.get() + size;
       if (resultingDeviceMemory > CudaSettings.INSTANCE().getMaxDeviceMemory()) {
-        CudaMemory.logger.info(String.format("Clearing all memory for device %s while allocating %e bytes (%s > %e)",
+        CudaMemory.logger.info(RefString.format("Clearing all memory for device %s while allocating %e bytes (%s > %e)",
             this, (double) size, resultingDeviceMemory, CudaSettings.INSTANCE().getMaxDeviceMemory()));
         RefSet<Integer> temp_75_0004 = CudaMemory.METRICS.keySet();
         temp_75_0004.stream().mapToInt(x -> x).distinct().forEach(CudaMemory::clearMemory);
@@ -186,14 +187,14 @@ class CudaDevice extends CudaSystem {
     assert cStride > 0;
     assert hStride != 0;
     assert wStride != 0;
-    long startTime = System.nanoTime();
+    long startTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
     @Nonnull final cudnnTensorDescriptor desc = new cudnnTensorDescriptor();
     int result = JCudnn.cudnnCreateTensorDescriptor(desc);
     log("cudnnCreateTensorDescriptor", result, new Object[]{desc});
     handle(result);
     result = JCudnn.cudnnSetTensor4dDescriptorEx(desc, dataType.code, batchCount, channels, height, width, nStride,
         cStride, hStride, wStride);
-    newTensorDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
+    newTensorDescriptor_execution.accept((com.simiacryptus.ref.wrappers.RefSystem.nanoTime() - startTime) / 1e9);
     log("cudnnSetTensor4dDescriptorEx", result,
         new Object[]{desc, dataType, batchCount, channels, height, width, nStride, cStride, hStride, wStride});
     handle(result);
@@ -202,14 +203,14 @@ class CudaDevice extends CudaSystem {
   }
 
   public CudaResource<cudnnOpTensorDescriptor> newOpDescriptor(final int opType, final Precision dataType) {
-    long startTime = System.nanoTime();
+    long startTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
     @Nonnull final cudnnOpTensorDescriptor opDesc = new cudnnOpTensorDescriptor();
     int result = JCudnn.cudnnCreateOpTensorDescriptor(opDesc);
     log("cudnnCreateOpTensorDescriptor", result, new Object[]{opDesc});
     handle(result);
     result = JCudnn.cudnnSetOpTensorDescriptor(opDesc, opType, dataType.code,
         cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN);
-    newOpDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
+    newOpDescriptor_execution.accept((com.simiacryptus.ref.wrappers.RefSystem.nanoTime() - startTime) / 1e9);
     log("cudnnSetOpTensorDescriptor", result,
         new Object[]{opDesc, opType, dataType, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN});
     handle(result);
@@ -218,14 +219,14 @@ class CudaDevice extends CudaSystem {
 
   public CudaResource<cudnnFilterDescriptor> newFilterDescriptor(final Precision dataType, final int tensorLayout,
                                                                  final int outputChannels, final int inputChannels, final int height, final int width) {
-    long startTime = System.nanoTime();
+    long startTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
     @Nonnull final cudnnFilterDescriptor filterDesc = new cudnnFilterDescriptor();
     int result = JCudnn.cudnnCreateFilterDescriptor(filterDesc);
     log("cudnnCreateFilterDescriptor", result, new Object[]{filterDesc});
     handle(result);
     result = JCudnn.cudnnSetFilter4dDescriptor(filterDesc, dataType.code, tensorLayout, outputChannels, inputChannels,
         height, width);
-    newFilterDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
+    newFilterDescriptor_execution.accept((com.simiacryptus.ref.wrappers.RefSystem.nanoTime() - startTime) / 1e9);
     log("cudnnSetFilter4dDescriptor", result,
         new Object[]{filterDesc, dataType, tensorLayout, outputChannels, inputChannels, height, width});
     handle(result);
@@ -250,7 +251,7 @@ class CudaDevice extends CudaSystem {
   public CudaResource<cudnnConvolutionDescriptor> newConvolutions2dDescriptor(final int mode, final Precision dataType,
                                                                               final int paddingY, final int paddingX, final int strideHeight, final int strideWidth, int dilationY,
                                                                               int dilationX) {
-    long startTime = System.nanoTime();
+    long startTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
     @Nonnull final cudnnConvolutionDescriptor convDesc = new cudnnConvolutionDescriptor();
     int result = JCudnn.cudnnCreateConvolutionDescriptor(convDesc);
     log("cudnnCreateConvolutionDescriptor", result, new Object[]{convDesc});
@@ -262,7 +263,7 @@ class CudaDevice extends CudaSystem {
         dilationY, // upscale the input in x-direction
         dilationX, // upscale the input in y-direction
         mode, dataType.code);
-    newConvolutions2dDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
+    newConvolutions2dDescriptor_execution.accept((com.simiacryptus.ref.wrappers.RefSystem.nanoTime() - startTime) / 1e9);
     log("cudnnSetConvolution2dDescriptor", result,
         new Object[]{convDesc, paddingY, paddingX, strideHeight, strideWidth, dilationY, dilationX, mode, dataType});
     handle(result);
@@ -271,13 +272,13 @@ class CudaDevice extends CudaSystem {
 
   public CudaResource<cudnnActivationDescriptor> newActivationDescriptor(final int mode, final int reluNan,
                                                                          final double reluCeil) {
-    long startTime = System.nanoTime();
+    long startTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
     @Nonnull final cudnnActivationDescriptor desc = new cudnnActivationDescriptor();
     int result = JCudnn.cudnnCreateActivationDescriptor(desc);
     log("cudnnCreateActivationDescriptor", result, new Object[]{desc});
     handle(result);
     result = JCudnn.cudnnSetActivationDescriptor(desc, mode, reluNan, reluCeil);
-    newActivationDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
+    newActivationDescriptor_execution.accept((com.simiacryptus.ref.wrappers.RefSystem.nanoTime() - startTime) / 1e9);
     log("cudnnSetActivationDescriptor", result, new Object[]{desc, mode, reluNan, reluCeil});
     handle(result);
     return new CudaResource<>(desc, CudaSystem::cudnnDestroyActivationDescriptor, getDeviceId());
@@ -285,7 +286,7 @@ class CudaDevice extends CudaSystem {
 
   public CudaResource<cudnnPoolingDescriptor> createPoolingDescriptor(final int mode, final int poolDims,
                                                                       final int[] windowSize, final int[] padding, final int[] stride) {
-    long startTime = System.nanoTime();
+    long startTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
     @Nonnull final cudnnPoolingDescriptor poolingDesc = new cudnnPoolingDescriptor();
     int result = JCudnn.cudnnCreatePoolingDescriptor(poolingDesc);
     log("cudnnCreatePoolingDescriptor", result, new Object[]{poolingDesc});
@@ -295,12 +296,12 @@ class CudaDevice extends CudaSystem {
     log("cudnnSetPoolingNdDescriptor", result, new Object[]{poolingDesc, mode,
         cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN, poolDims, windowSize, padding, stride});
     handle(result);
-    createPoolingDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
+    createPoolingDescriptor_execution.accept((com.simiacryptus.ref.wrappers.RefSystem.nanoTime() - startTime) / 1e9);
     return new CudaResource<>(poolingDesc, CudaSystem::cudnnDestroyPoolingDescriptor, getDeviceId());
   }
 
   public CudaResource<cudnnLRNDescriptor> createLRNDescriptor(int lrnN, double lrnAlpha, double lrnBeta, double lrnK) {
-    long startTime = System.nanoTime();
+    long startTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
     @Nonnull final cudnnLRNDescriptor poolingDesc = new cudnnLRNDescriptor();
     int result = JCudnn.cudnnCreateLRNDescriptor(poolingDesc);
     log("cudnnCreateLRNDescriptor", result, new Object[]{poolingDesc});
@@ -308,7 +309,7 @@ class CudaDevice extends CudaSystem {
     result = JCudnn.cudnnSetLRNDescriptor(poolingDesc, lrnN, lrnAlpha, lrnBeta, lrnK);
     log("cudnnSetLRNDescriptor", result, new Object[]{poolingDesc, lrnN, lrnAlpha, lrnBeta, lrnK});
     handle(result);
-    createLRNDescriptor_execution.accept((System.nanoTime() - startTime) / 1e9);
+    createLRNDescriptor_execution.accept((com.simiacryptus.ref.wrappers.RefSystem.nanoTime() - startTime) / 1e9);
     return new CudaResource<>(poolingDesc, JCudnn::cudnnDestroyLRNDescriptor, getDeviceId());
   }
 
@@ -346,14 +347,14 @@ class CudaDevice extends CudaSystem {
       } catch (@Nonnull final Throwable e) {
         if (retries <= 0)
           throw new RuntimeException(
-              String.format(String.format("Error allocating %e bytes; %s currently allocated to device %s",
+              RefString.format(RefString.format("Error allocating %e bytes; %s currently allocated to device %s",
                   (double) size, metrics.usedMemory, this)),
               e);
         final long startMemory = metrics.usedMemory.get();
         @Nonnull
         TimedResult<Double> timedResult = TimedResult.time(() -> CudaMemory.clearMemory(getDeviceId()));
         final long freedMemory = startMemory - metrics.usedMemory.get();
-        CudaMemory.logger.warn(String.format(
+        CudaMemory.logger.warn(RefString.format(
             "Low GPU Memory while allocating %s bytes; %s freed in %.4fs resulting in %s total (triggered by %s)", size,
             freedMemory, timedResult.seconds(), metrics.usedMemory.get(), e.getMessage()));
       }

@@ -28,6 +28,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefString;
 import jcuda.jcudnn.*;
 
 import javax.annotation.Nonnull;
@@ -169,7 +170,7 @@ class ProductLayer extends LayerBase implements MultiPrecision<ProductLayer> {
         if (null != rightData)
           rightData.freeRef();
         ReferenceCounting.freeRefs(inObj);
-        throw new IllegalArgumentException(String.format("leftDimensions=%s;rightDimensions=%s",
+        throw new IllegalArgumentException(RefString.format("leftDimensions=%s;rightDimensions=%s",
             RefArrays.toString(leftDimensions), RefArrays.toString(rightDimensions)));
       }
     }

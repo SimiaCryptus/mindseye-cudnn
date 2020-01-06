@@ -30,6 +30,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefString;
 import jcuda.jcudnn.cudnnPoolingDescriptor;
 import jcuda.jcudnn.cudnnPoolingMode;
 
@@ -107,7 +108,7 @@ class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLayer> {
   @Nullable
   @Override
   public String getName() {
-    return String.format("%sPooling [%d/%d x %d/%d]", mode.name(), windowX, windowY, strideX, strideY);
+    return RefString.format("%sPooling [%d/%d x %d/%d]", mode.name(), windowX, windowY, strideX, strideY);
   }
 
   public int getPaddingX() {
@@ -188,7 +189,7 @@ class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLayer> {
   }
 
   public static PoolingLayer getPoolingLayer(int radius, PoolingLayer.PoolingMode mode, String qualifier) {
-    String name = String.format("%s.pool:%s;%s", qualifier, radius, mode);
+    String name = RefString.format("%s.pool:%s;%s", qualifier, radius, mode);
     PoolingLayer temp_37_0009 = new PoolingLayer(
         UUID.nameUUIDFromBytes(name.getBytes()), name);
     PoolingLayer temp_37_0011 = temp_37_0009.setMode(mode);

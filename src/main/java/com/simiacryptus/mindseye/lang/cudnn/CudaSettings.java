@@ -23,6 +23,7 @@ import com.simiacryptus.lang.Settings;
 import com.simiacryptus.ref.lang.PersistanceMode;
 import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefHashMap;
+import com.simiacryptus.ref.wrappers.RefString;
 import com.simiacryptus.util.JsonUtil;
 import com.simiacryptus.util.LocalAppSettings;
 import org.slf4j.Logger;
@@ -63,12 +64,12 @@ class CudaSettings implements Settings {
 
   private CudaSettings() {
     RefHashMap<String, String> appSettings = LocalAppSettings.read();
-    String spark_home = System.getenv("SPARK_HOME");
+    String spark_home = com.simiacryptus.ref.wrappers.RefSystem.getenv("SPARK_HOME");
     File sparkHomeFile = new File(spark_home == null ? "." : spark_home);
     if (sparkHomeFile.exists())
       appSettings.putAll(LocalAppSettings.read(sparkHomeFile));
     if (appSettings.containsKey("worker.index"))
-      System.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
+      com.simiacryptus.ref.wrappers.RefSystem.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
     if (null != appSettings)
       appSettings.freeRef();
     maxTotalMemory = Settings.get("MAX_TOTAL_MEMORY", 12 * CudaMemory.GiB);
@@ -175,7 +176,7 @@ class CudaSettings implements Settings {
         if (null == INSTANCE) {
           INSTANCE = new CudaSettings();
           logger.info(
-              String.format("Initialized %s = %s", INSTANCE.getClass().getSimpleName(), JsonUtil.toJson(INSTANCE)));
+              RefString.format("Initialized %s = %s", INSTANCE.getClass().getSimpleName(), JsonUtil.toJson(INSTANCE)));
         }
       }
     }

@@ -28,6 +28,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefString;
 import com.simiacryptus.util.Util;
 import jcuda.jcudnn.cudnnOpTensorDescriptor;
 import jcuda.jcudnn.cudnnOpTensorOp;
@@ -177,7 +178,7 @@ class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBandBiasLa
         inputData.freeRef();
       ReferenceCounting.freeRefs(inObj);
       throw new IllegalArgumentException(
-          String.format("Input dimensions=%s; Bias dimensions=%s", RefArrays.toString(bias.getDimensions())));
+          RefString.format("Input dimensions=%s; Bias dimensions=%s", RefArrays.toString(bias.getDimensions())));
     }
     if (0 == Tensor.length(inputData.getDimensions())) {
       if (null != inputData)
@@ -246,7 +247,7 @@ class ImgBandBiasLayer extends LayerBase implements MultiPrecision<ImgBandBiasLa
                       cudaTensor.freeRef();
                     return temp_17_0008;
                   } catch (Throwable e) {
-                    throw new RuntimeException(String.format("Error applying bias %s to input %s",
+                    throw new RuntimeException(RefString.format("Error applying bias %s to input %s",
                         RefArrays.toString(bias.getDimensions()), RefArrays.toString(inputDimensions)), e);
                   }
                 }, inputData == null ? null : inputData.addRef()), inputData == null ? null : inputData.addRef()),

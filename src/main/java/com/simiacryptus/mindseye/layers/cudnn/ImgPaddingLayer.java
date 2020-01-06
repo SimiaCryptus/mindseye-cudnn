@@ -29,6 +29,7 @@ import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,7 +204,7 @@ class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPaddingLaye
         input.freeRef();
       if (null != output_memory)
         output_memory.freeRef();
-      throw new IllegalArgumentException(String.format("%d != %d", input_channels, output_channels));
+      throw new IllegalArgumentException(RefString.format("%d != %d", input_channels, output_channels));
     }
 
     int input_wStride = input.descriptor.wStride;

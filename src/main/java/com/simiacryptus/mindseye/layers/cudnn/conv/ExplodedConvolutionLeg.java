@@ -138,9 +138,9 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
         this.convolutionParams.masterFilterDimensions.length);
     int outputBands = this.convolutionParams.outputBands;
     int squareOutputBands = (int) (Math.ceil(convolutionParams.outputBands * 1.0 / inputBands) * inputBands);
-    assert squareOutputBands >= convolutionParams.outputBands : String.format("%d >= %d", squareOutputBands,
+    assert squareOutputBands >= convolutionParams.outputBands : RefString.format("%d >= %d", squareOutputBands,
         convolutionParams.outputBands);
-    assert squareOutputBands % inputBands == 0 : String.format("%d %% %d", squareOutputBands, inputBands);
+    assert squareOutputBands % inputBands == 0 : RefString.format("%d %% %d", squareOutputBands, inputBands);
     filterDimensions[2] = inputBands * outputBands;
     assert RefArrays.equals(filter.getDimensions(), filterDimensions) : RefArrays.toString(filter.getDimensions())
         + " != " + RefArrays.toString(filterDimensions);
@@ -178,9 +178,9 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     filterDimensions[2] = inputBands * this.convolutionParams.outputBands;
     int outputBands = convolutionParams.outputBands;
     int squareOutputBands = (int) (Math.ceil(convolutionParams.outputBands * 1.0 / inputBands) * inputBands);
-    assert squareOutputBands >= convolutionParams.outputBands : String.format("%d >= %d", squareOutputBands,
+    assert squareOutputBands >= convolutionParams.outputBands : RefString.format("%d >= %d", squareOutputBands,
         convolutionParams.outputBands);
-    assert squareOutputBands % inputBands == 0 : String.format("%d %% %d", squareOutputBands, inputBands);
+    assert squareOutputBands % inputBands == 0 : RefString.format("%d %% %d", squareOutputBands, inputBands);
     @Nonnull
     Tensor resultDelta = new Tensor(filterDimensions[0], filterDimensions[1], inputBands * outputBands);
 

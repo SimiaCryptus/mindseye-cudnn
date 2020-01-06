@@ -27,6 +27,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefString;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,7 +139,7 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
       input.freeRef();
       if (null != outputPtr)
         outputPtr.freeRef();
-      throw new IllegalArgumentException(String.format("%d != %d", bands, outputDimensions[2]));
+      throw new IllegalArgumentException(RefString.format("%d != %d", bands, outputDimensions[2]));
     }
     //log.info(String.format("offset=%d,%d", offsetX, offsetY));
     @Nonnull final int[] viewDim = getViewDimensions(inputDimensions, outputDimensions, new int[]{-positionX, -positionY, 0});
@@ -228,7 +229,7 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
       int value = Math.min(sourceDimensions[i],
           Math.max(0, destinationDimensions[i] - offset[i] - Math.max(-offset[i], 0)));
       if (0 >= value) {
-        throw new IllegalArgumentException(String.format("%d: src=%d, dst=%d, offset=%d => %d", i, sourceDimensions[i],
+        throw new IllegalArgumentException(RefString.format("%d: src=%d, dst=%d, offset=%d => %d", i, sourceDimensions[i],
             destinationDimensions[i], offset[i], value));
       }
       return value;

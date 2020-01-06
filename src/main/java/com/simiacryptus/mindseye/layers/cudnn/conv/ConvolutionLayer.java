@@ -33,6 +33,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -178,10 +179,10 @@ class ConvolutionLayer extends LayerBase implements MultiPrecision<ConvolutionLa
   public String getName() {
     int[] kernelDimensions = kernel.getDimensions();
     if (kernelDimensions.length == 4) {
-      return String.format("Conv [%d/%d x %d/%d, %d -> %d]", kernelDimensions[0], strideX, kernelDimensions[1], strideY,
+      return RefString.format("Conv [%d/%d x %d/%d, %d -> %d]", kernelDimensions[0], strideX, kernelDimensions[1], strideY,
           kernelDimensions[2], kernelDimensions[3]);
     } else {
-      return String.format("Conv [%d/%d x %d/%d, %d]", kernelDimensions[0], strideX, kernelDimensions[1], strideY,
+      return RefString.format("Conv [%d/%d x %d/%d, %d]", kernelDimensions[0], strideX, kernelDimensions[1], strideY,
           kernelDimensions[2]);
     }
   }

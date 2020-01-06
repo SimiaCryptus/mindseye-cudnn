@@ -26,6 +26,7 @@ import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefConsumer;
+import com.simiacryptus.ref.wrappers.RefString;
 import com.simiacryptus.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,8 +120,8 @@ class CudaTensor extends ReferenceCountingBase implements CudaSystem.CudaDeviceR
     } else {
       TimedResult<CudaMemory> timedResult = TimedResult.time(() -> memory.copy(cudaDevice, memoryType));
       CudaTensorList.logger
-          .debug(String.format("Copy %s bytes in %.4f from Tensor %s on GPU %s to %s at %s, created by %s", memory.size,
-              timedResult.seconds(), Integer.toHexString(System.identityHashCode(this)), memory.getDeviceId(),
+          .debug(RefString.format("Copy %s bytes in %.4f from Tensor %s on GPU %s to %s at %s, created by %s", memory.size,
+              timedResult.seconds(), Integer.toHexString(com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(this)), memory.getDeviceId(),
               cudaDevice.getDeviceId(), Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
               Util.toString(createdBy).replaceAll("\n", "\n\t")));
       return timedResult.result;
@@ -158,8 +159,8 @@ class CudaTensor extends ReferenceCountingBase implements CudaSystem.CudaDeviceR
     });
     CudaTensor cudaTensor = timedResult.result.addRef();
     assert cudaTensor.isDense();
-    CudaTensorList.logger.debug(String.format("Densified %s bytes in %.4f from GPU %s at %s, created by %s",
-        cudaTensor.memory.size, timedResult.seconds(), Integer.toHexString(System.identityHashCode(this)),
+    CudaTensorList.logger.debug(RefString.format("Densified %s bytes in %.4f from GPU %s at %s, created by %s",
+        cudaTensor.memory.size, timedResult.seconds(), Integer.toHexString(com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(this)),
         Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
         Util.toString(createdBy).replaceAll("\n", "\n\t")));
     return cudaTensor;

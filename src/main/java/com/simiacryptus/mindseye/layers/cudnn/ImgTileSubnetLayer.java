@@ -30,6 +30,7 @@ import com.simiacryptus.ref.wrappers.RefArrayList;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefConsumer;
 import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -228,7 +229,7 @@ class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<ImgTileS
             tile.freeRef();
         }
       }
-      logger.debug(String.format("Broke input %s into %s rows, %s cols", RefArrays.toString(inputDims), rows, cols));
+      logger.debug(RefString.format("Broke input %s into %s rows, %s cols", RefArrays.toString(inputDims), rows, cols));
       ImgTileAssemblyLayer temp_03_0005 = new ImgTileAssemblyLayer(cols, rows);
       ImgTileAssemblyLayer temp_03_0008 = temp_03_0005.setParallel(parallel);
       ImgTileAssemblyLayer temp_03_0009 = temp_03_0008.setPrecision(precision);
