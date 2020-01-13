@@ -25,8 +25,7 @@ import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
 
-public @RefAware
-interface MultiPrecision<T> {
+public interface MultiPrecision<T> {
   Precision getPrecision();
 
   static <T extends LayerBase> T setPrecision(final T network, final Precision precision) {

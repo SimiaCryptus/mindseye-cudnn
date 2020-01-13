@@ -40,8 +40,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public @RefAware
-class ImgModulusCropLayer extends LayerBase implements MultiPrecision<ImgModulusCropLayer> {
+public class ImgModulusCropLayer extends LayerBase implements MultiPrecision<ImgModulusCropLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusCropLayer.class);
   private boolean roundUp = false;
 
@@ -108,16 +107,14 @@ class ImgModulusCropLayer extends LayerBase implements MultiPrecision<ImgModulus
     return new ImgModulusCropLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgModulusCropLayer[] addRefs(ImgModulusCropLayer[] array) {
+  public static @SuppressWarnings("unused") ImgModulusCropLayer[] addRefs(ImgModulusCropLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayer::addRef)
         .toArray((x) -> new ImgModulusCropLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgModulusCropLayer[][] addRefs(ImgModulusCropLayer[][] array) {
+  public static @SuppressWarnings("unused") ImgModulusCropLayer[][] addRefs(ImgModulusCropLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayer::addRefs)
@@ -178,8 +175,7 @@ class ImgModulusCropLayer extends LayerBase implements MultiPrecision<ImgModulus
       temp_40_0005.freeRef();
     if (null != temp_40_0003)
       temp_40_0003.freeRef();
-    Result temp_40_0001 = imgCropLayer
-        .eval(Result.addRefs(inObj));
+    Result temp_40_0001 = imgCropLayer.eval(Result.addRefs(inObj));
     ReferenceCounting.freeRefs(inObj);
     imgCropLayer.freeRef();
     return temp_40_0001;
@@ -188,7 +184,8 @@ class ImgModulusCropLayer extends LayerBase implements MultiPrecision<ImgModulus
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("roundUp", roundUp);
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
@@ -204,13 +201,10 @@ class ImgModulusCropLayer extends LayerBase implements MultiPrecision<ImgModulus
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ImgModulusCropLayer addRef() {
+  public @Override @SuppressWarnings("unused") ImgModulusCropLayer addRef() {
     return (ImgModulusCropLayer) super.addRef();
   }
 }

@@ -22,8 +22,7 @@ package com.simiacryptus.mindseye.lang.cudnn;
 import com.simiacryptus.ref.lang.RefAware;
 import jcuda.Pointer;
 
-public @RefAware
-class CudaPointer extends Pointer {
+public class CudaPointer extends Pointer {
 
   public final int deviceId = CudaSystem.getThreadDeviceId();
 

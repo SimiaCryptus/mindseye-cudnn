@@ -40,8 +40,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public @RefAware
-class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<ImgZeroPaddingLayer> {
+public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<ImgZeroPaddingLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgZeroPaddingLayer.class);
   public StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private int sizeX;
@@ -82,16 +81,14 @@ class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<ImgZeroPad
     return new ImgZeroPaddingLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgZeroPaddingLayer[] addRefs(ImgZeroPaddingLayer[] array) {
+  public static @SuppressWarnings("unused") ImgZeroPaddingLayer[] addRefs(ImgZeroPaddingLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgZeroPaddingLayer::addRef)
         .toArray((x) -> new ImgZeroPaddingLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgZeroPaddingLayer[][] addRefs(ImgZeroPaddingLayer[][] array) {
+  public static @SuppressWarnings("unused") ImgZeroPaddingLayer[][] addRefs(ImgZeroPaddingLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgZeroPaddingLayer::addRefs)
@@ -112,14 +109,12 @@ class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<ImgZeroPad
     int[] dimensions = temp_22_0004.getDimensions();
     if (null != temp_22_0004)
       temp_22_0004.freeRef();
-    ImgCropLayer temp_22_0003 = new ImgCropLayer(dimensions[0] + 2 * this.sizeX,
-        dimensions[1] + 2 * this.sizeY);
+    ImgCropLayer temp_22_0003 = new ImgCropLayer(dimensions[0] + 2 * this.sizeX, dimensions[1] + 2 * this.sizeY);
     @Nonnull
     ImgCropLayer imgCropLayer = temp_22_0003.setPrecision(precision);
     if (null != temp_22_0003)
       temp_22_0003.freeRef();
-    Result temp_22_0001 = imgCropLayer
-        .eval(Result.addRefs(inObj));
+    Result temp_22_0001 = imgCropLayer.eval(Result.addRefs(inObj));
     ReferenceCounting.freeRefs(inObj);
     imgCropLayer.freeRef();
     return temp_22_0001;
@@ -128,7 +123,8 @@ class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<ImgZeroPad
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
     json.addProperty("precision", precision.name());
@@ -141,13 +137,10 @@ class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<ImgZeroPad
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ImgZeroPaddingLayer addRef() {
+  public @Override @SuppressWarnings("unused") ImgZeroPaddingLayer addRef() {
     return (ImgZeroPaddingLayer) super.addRef();
   }
 

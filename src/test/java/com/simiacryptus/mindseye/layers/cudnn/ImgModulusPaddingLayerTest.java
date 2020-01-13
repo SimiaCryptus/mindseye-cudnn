@@ -26,8 +26,7 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Random;
 
-public abstract @RefAware
-class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
+public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
 
   final int modulus;
   final int offset;
@@ -43,16 +42,14 @@ class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  public static @SuppressWarnings("unused")
-  ImgModulusPaddingLayerTest[] addRefs(ImgModulusPaddingLayerTest[] array) {
+  public static @SuppressWarnings("unused") ImgModulusPaddingLayerTest[] addRefs(ImgModulusPaddingLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayerTest::addRef)
         .toArray((x) -> new ImgModulusPaddingLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgModulusPaddingLayerTest[][] addRefs(
+  public static @SuppressWarnings("unused") ImgModulusPaddingLayerTest[][] addRefs(
       ImgModulusPaddingLayerTest[][] array) {
     if (array == null)
       return null;
@@ -63,13 +60,13 @@ class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{{2, 2, 1}};
+    return new int[][] { { 2, 2, 1 } };
   }
 
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][]{{1200, 1200, 1}};
+    return new int[][] { { 1200, 1200, 1 } };
   }
 
   @Nonnull
@@ -78,36 +75,28 @@ class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
     return new ImgModulusPaddingLayer(modulus, modulus, offset, offset);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ImgModulusPaddingLayerTest addRef() {
+  public @Override @SuppressWarnings("unused") ImgModulusPaddingLayerTest addRef() {
     return (ImgModulusPaddingLayerTest) super.addRef();
   }
 
-  public static @RefAware
-  class Basic extends ImgModulusPaddingLayerTest {
+  public static class Basic extends ImgModulusPaddingLayerTest {
     public Basic() {
       super(2, 3, 0);
     }
 
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(Basic[] array) {
+    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
+    public @Override @SuppressWarnings("unused") Basic addRef() {
       return (Basic) super.addRef();
     }
   }

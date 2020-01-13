@@ -26,8 +26,7 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Random;
 
-public abstract @RefAware
-class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
+public abstract class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
 
   public ImgZeroPaddingLayerTest() {
     validateBatchExecution = false;
@@ -38,16 +37,14 @@ class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
     return com.simiacryptus.mindseye.layers.java.ImgZeroPaddingLayer.class;
   }
 
-  public static @SuppressWarnings("unused")
-  ImgZeroPaddingLayerTest[] addRefs(ImgZeroPaddingLayerTest[] array) {
+  public static @SuppressWarnings("unused") ImgZeroPaddingLayerTest[] addRefs(ImgZeroPaddingLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgZeroPaddingLayerTest::addRef)
         .toArray((x) -> new ImgZeroPaddingLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgZeroPaddingLayerTest[][] addRefs(ImgZeroPaddingLayerTest[][] array) {
+  public static @SuppressWarnings("unused") ImgZeroPaddingLayerTest[][] addRefs(ImgZeroPaddingLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgZeroPaddingLayerTest::addRefs)
@@ -57,13 +54,13 @@ class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{{8, 8, 1}};
+    return new int[][] { { 8, 8, 1 } };
   }
 
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][]{{1200, 1200, 3}};
+    return new int[][] { { 1200, 1200, 3 } };
   }
 
   @Nonnull
@@ -72,33 +69,25 @@ class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
     return new ImgZeroPaddingLayer(1, 1);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ImgZeroPaddingLayerTest addRef() {
+  public @Override @SuppressWarnings("unused") ImgZeroPaddingLayerTest addRef() {
     return (ImgZeroPaddingLayerTest) super.addRef();
   }
 
-  public static @RefAware
-  class Basic extends ImgZeroPaddingLayerTest {
+  public static class Basic extends ImgZeroPaddingLayerTest {
 
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(Basic[] array) {
+    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
+    public @Override @SuppressWarnings("unused") Basic addRef() {
       return (Basic) super.addRef();
     }
   }

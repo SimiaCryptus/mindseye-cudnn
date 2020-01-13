@@ -47,9 +47,7 @@ import java.util.Map;
 import java.util.function.DoubleSupplier;
 
 @SuppressWarnings("serial")
-public @RefAware
-class FullyConnectedLayer extends LayerBase
-    implements MultiPrecision<FullyConnectedLayer>, Explodable {
+public class FullyConnectedLayer extends LayerBase implements MultiPrecision<FullyConnectedLayer>, Explodable {
   private static final Logger log = LoggerFactory.getLogger(FullyConnectedLayer.class);
   @Nullable
   public final int[] inputDims;
@@ -63,12 +61,10 @@ class FullyConnectedLayer extends LayerBase
 
   private FullyConnectedLayer() {
     outputDims = null;
-    {
-      Tensor temp_15_0001 = null;
-      weights = temp_15_0001 == null ? null : temp_15_0001.addRef();
-      if (null != temp_15_0001)
-        temp_15_0001.freeRef();
-    }
+    Tensor temp_15_0001 = null;
+    weights = temp_15_0001 == null ? null : temp_15_0001.addRef();
+    if (null != temp_15_0001)
+      temp_15_0001.freeRef();
     inputDims = null;
   }
 
@@ -77,12 +73,10 @@ class FullyConnectedLayer extends LayerBase
     this.inputDims = RefArrays.copyOf(inputDims, inputDims.length);
     this.outputDims = RefArrays.copyOf(outputDims, outputDims.length);
     final int outs = Tensor.length(outputDims);
-    {
-      Tensor temp_15_0002 = new Tensor(inputs, outs);
-      weights = temp_15_0002 == null ? null : temp_15_0002.addRef();
-      if (null != temp_15_0002)
-        temp_15_0002.freeRef();
-    }
+    Tensor temp_15_0002 = new Tensor(inputs, outs);
+    weights = temp_15_0002 == null ? null : temp_15_0002.addRef();
+    if (null != temp_15_0002)
+      temp_15_0002.freeRef();
     setWeights(() -> {
       final double ratio = Math.sqrt(6. / (inputs + outs + 1));
       final double fate = Util.R.get().nextDouble();
@@ -94,13 +88,12 @@ class FullyConnectedLayer extends LayerBase
     super(json);
     outputDims = JsonUtil.getIntArray(json.getAsJsonArray("outputDims"));
     inputDims = JsonUtil.getIntArray(json.getAsJsonArray("inputDims"));
-    @Nullable final Tensor data = Tensor.fromJson(json.get("weights"), rs);
-    {
-      Tensor temp_15_0003 = data == null ? null : data.addRef();
-      weights = temp_15_0003 == null ? null : temp_15_0003.addRef();
-      if (null != temp_15_0003)
-        temp_15_0003.freeRef();
-    }
+    @Nullable
+    final Tensor data = Tensor.fromJson(json.get("weights"), rs);
+    Tensor temp_15_0003 = data == null ? null : data.addRef();
+    weights = temp_15_0003 == null ? null : temp_15_0003.addRef();
+    if (null != temp_15_0003)
+      temp_15_0003.freeRef();
     if (null != data)
       data.freeRef();
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
@@ -118,8 +111,7 @@ class FullyConnectedLayer extends LayerBase
 
   @Nonnull
   public Layer getCompatibilityLayer() {
-    FullyConnectedReferenceLayer temp_15_0007 = new FullyConnectedReferenceLayer(
-        inputDims, outputDims);
+    FullyConnectedReferenceLayer temp_15_0007 = new FullyConnectedReferenceLayer(inputDims, outputDims);
     FullyConnectedReferenceLayer temp_15_0006 = temp_15_0007.set(getWeights());
     if (null != temp_15_0007)
       temp_15_0007.freeRef();
@@ -154,8 +146,7 @@ class FullyConnectedLayer extends LayerBase
   @Nonnull
   public FullyConnectedLayer setWeightsLog(final double value) {
     Tensor temp_15_0010 = getWeights();
-    RefUtil
-        .freeRef(temp_15_0010.setByCoord(c -> (FastRandom.INSTANCE.random() - 0.5) * Math.pow(10, value)));
+    RefUtil.freeRef(temp_15_0010.setByCoord(c -> (FastRandom.INSTANCE.random() - 0.5) * Math.pow(10, value)));
     if (null != temp_15_0010)
       temp_15_0010.freeRef();
     return this.addRef();
@@ -166,16 +157,14 @@ class FullyConnectedLayer extends LayerBase
     return new FullyConnectedLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused")
-  FullyConnectedLayer[] addRefs(FullyConnectedLayer[] array) {
+  public static @SuppressWarnings("unused") FullyConnectedLayer[] addRefs(FullyConnectedLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayer::addRef)
         .toArray((x) -> new FullyConnectedLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  FullyConnectedLayer[][] addRefs(FullyConnectedLayer[][] array) {
+  public static @SuppressWarnings("unused") FullyConnectedLayer[][] addRefs(FullyConnectedLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayer::addRefs)
@@ -199,8 +188,7 @@ class FullyConnectedLayer extends LayerBase
   public Result eval(final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_15_0011 = getCompatibilityLayer();
-      Result temp_15_0005 = temp_15_0011
-          .eval(Result.addRefs(inObj));
+      Result temp_15_0005 = temp_15_0011.eval(Result.addRefs(inObj));
       if (null != temp_15_0011)
         temp_15_0011.freeRef();
       if (null != inObj)
@@ -208,8 +196,7 @@ class FullyConnectedLayer extends LayerBase
       return temp_15_0005;
     }
     Layer explode = explode();
-    Result temp_15_0004 = explode
-        .eval(Result.addRefs(inObj));
+    Result temp_15_0004 = explode.eval(Result.addRefs(inObj));
     if (null != inObj)
       ReferenceCounting.freeRefs(inObj);
     if (null != explode)
@@ -226,10 +213,8 @@ class FullyConnectedLayer extends LayerBase
     RefUtil.freeRef(network.add(new ReshapeLayer(1, 1, inputVol)));
     @Nullable
     Tensor tensor = this.weights.reshapeCast(1, 1, inputVol * outVol);
-    ConvolutionLayer temp_15_0008 = new ConvolutionLayer(1, 1, inputVol,
-        outVol);
-    ConvolutionLayer temp_15_0012 = temp_15_0008
-        .set(tensor == null ? null : tensor.addRef());
+    ConvolutionLayer temp_15_0008 = new ConvolutionLayer(1, 1, inputVol, outVol);
+    ConvolutionLayer temp_15_0012 = temp_15_0008.set(tensor == null ? null : tensor.addRef());
     @Nonnull
     ConvolutionLayer convolutionLayer = temp_15_0012.setBatchBands(getBatchBands());
     if (null != temp_15_0012)
@@ -251,7 +236,8 @@ class FullyConnectedLayer extends LayerBase
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.add("outputDims", JsonUtil.getJson(outputDims));
     json.add("inputDims", JsonUtil.getJson(inputDims));
     @Nullable
@@ -284,9 +270,7 @@ class FullyConnectedLayer extends LayerBase
     super._free();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  FullyConnectedLayer addRef() {
+  public @Override @SuppressWarnings("unused") FullyConnectedLayer addRef() {
     return (FullyConnectedLayer) super.addRef();
   }
 }

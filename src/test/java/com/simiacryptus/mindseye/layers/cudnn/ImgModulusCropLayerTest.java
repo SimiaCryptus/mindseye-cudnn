@@ -26,8 +26,7 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Random;
 
-public abstract @RefAware
-class ImgModulusCropLayerTest extends CudnnLayerTestBase {
+public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
 
   final int modulus;
   final int offset;
@@ -45,16 +44,14 @@ class ImgModulusCropLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  public static @SuppressWarnings("unused")
-  ImgModulusCropLayerTest[] addRefs(ImgModulusCropLayerTest[] array) {
+  public static @SuppressWarnings("unused") ImgModulusCropLayerTest[] addRefs(ImgModulusCropLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayerTest::addRef)
         .toArray((x) -> new ImgModulusCropLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgModulusCropLayerTest[][] addRefs(ImgModulusCropLayerTest[][] array) {
+  public static @SuppressWarnings("unused") ImgModulusCropLayerTest[][] addRefs(ImgModulusCropLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayerTest::addRefs)
@@ -64,7 +61,7 @@ class ImgModulusCropLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{{320, 240, 3}
+    return new int[][] { { 320, 240, 3 }
         //        {2, 2, 1}
     };
   }
@@ -72,7 +69,7 @@ class ImgModulusCropLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][]{{320, 240, 3}
+    return new int[][] { { 320, 240, 3 }
         //        {1200, 1200, 1}
     };
   }
@@ -81,40 +78,32 @@ class ImgModulusCropLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     return new ImgModulusCropLayer(modulus, modulus, offset, offset)
-        //.setRoundUp(true)
-        ;
+    //.setRoundUp(true)
+    ;
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ImgModulusCropLayerTest addRef() {
+  public @Override @SuppressWarnings("unused") ImgModulusCropLayerTest addRef() {
     return (ImgModulusCropLayerTest) super.addRef();
   }
 
-  public static @RefAware
-  class Basic extends ImgModulusCropLayerTest {
+  public static class Basic extends ImgModulusCropLayerTest {
     public Basic() {
       super(2, 7);
     }
 
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(Basic[] array) {
+    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
+    public @Override @SuppressWarnings("unused") Basic addRef() {
       return (Basic) super.addRef();
     }
   }

@@ -24,11 +24,7 @@ import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayer;
 import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.wrappers.RefCollectors;
-import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefSet;
-import com.simiacryptus.ref.wrappers.RefString;
+import com.simiacryptus.ref.wrappers.*;
 import jcuda.runtime.cudaMemcpyKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +36,7 @@ import java.util.Map;
 
 import static jcuda.runtime.cudaMemcpyKind.cudaMemcpyDeviceToHost;
 
-public @RefAware
-class CudaMemory extends CudaResourceBase<CudaPointer> {
+public class CudaMemory extends CudaResourceBase<CudaPointer> {
 
   public static final RefMap<Integer, DeviceMetrics> METRICS = new RefConcurrentHashMap<>();
   public static final int K = 1024;
@@ -114,38 +109,32 @@ class CudaMemory extends CudaResourceBase<CudaPointer> {
     return CudaMemory.METRICS.computeIfAbsent(deviceId, device -> new DeviceMetrics());
   }
 
-  public static @SuppressWarnings("unused")
-  CudaMemory[] addRefs(CudaMemory[] array) {
+  public static @SuppressWarnings("unused") CudaMemory[] addRefs(CudaMemory[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRef)
-        .toArray((x) -> new CudaMemory[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRef).toArray((x) -> new CudaMemory[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  CudaMemory[][] addRefs(CudaMemory[][] array) {
+  public static @SuppressWarnings("unused") CudaMemory[][] addRefs(CudaMemory[][] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRefs)
-        .toArray((x) -> new CudaMemory[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRefs).toArray((x) -> new CudaMemory[x][]);
   }
 
   private static void logLoad() {
-    RefSet<Map.Entry<Integer, DeviceMetrics>> temp_35_0005 = METRICS
-        .entrySet();
-    RefMap<Integer, String> temp_35_0006 = temp_35_0005.stream()
-        .collect(RefCollectors.toMap(e -> {
-          Integer temp_35_0002 = e.getKey();
-          if (null != e)
-            RefUtil.freeRef(e);
-          return temp_35_0002;
-        }, e -> {
-          String temp_35_0003 = RefString.format("%e / %e", (double) e.getValue().activeMemory.get(),
-              (double) e.getValue().usedMemory.get());
-          if (null != e)
-            RefUtil.freeRef(e);
-          return temp_35_0003;
-        }));
+    RefSet<Map.Entry<Integer, DeviceMetrics>> temp_35_0005 = METRICS.entrySet();
+    RefMap<Integer, String> temp_35_0006 = temp_35_0005.stream().collect(RefCollectors.toMap(e -> {
+      Integer temp_35_0002 = e.getKey();
+      if (null != e)
+        RefUtil.freeRef(e);
+      return temp_35_0002;
+    }, e -> {
+      String temp_35_0003 = RefString.format("%e / %e", (double) e.getValue().activeMemory.get(),
+          (double) e.getValue().usedMemory.get());
+      if (null != e)
+        RefUtil.freeRef(e);
+      return temp_35_0003;
+    }));
     logger.debug(RefString.format("Current Load: %s", temp_35_0006));
     if (null != temp_35_0006)
       temp_35_0006.freeRef();
@@ -156,22 +145,25 @@ class CudaMemory extends CudaResourceBase<CudaPointer> {
   @Nonnull
   public Tensor read(@Nonnull final Precision precision, final int[] dimensions) {
     synchronize();
-    @Nonnull final Tensor tensor = new Tensor(dimensions);
+    @Nonnull
+    final Tensor tensor = new Tensor(dimensions);
     switch (precision) {
-      case Float:
-        final int length = tensor.length();
-        @Nonnull final float[] data = new float[length];
-        read(precision, data);
-        @Nullable final double[] doubles = tensor.getData();
-        for (int i = 0; i < length; i++) {
-          doubles[i] = data[i];
-        }
-        break;
-      case Double:
-        read(precision, tensor.getData());
-        break;
-      default:
-        throw new IllegalStateException();
+    case Float:
+      final int length = tensor.length();
+      @Nonnull
+      final float[] data = new float[length];
+      read(precision, data);
+      @Nullable
+      final double[] doubles = tensor.getData();
+      for (int i = 0; i < length; i++) {
+        doubles[i] = data[i];
+      }
+      break;
+    case Double:
+      read(precision, tensor.getData());
+      break;
+    default:
+      throw new IllegalStateException();
     }
     return tensor;
   }
@@ -329,9 +321,7 @@ class CudaMemory extends CudaResourceBase<CudaPointer> {
       release();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  CudaMemory addRef() {
+  public @Override @SuppressWarnings("unused") CudaMemory addRef() {
     return (CudaMemory) super.addRef();
   }
 

@@ -40,8 +40,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public @RefAware
-class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<ImgModulusPaddingLayer> {
+public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<ImgModulusPaddingLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusPaddingLayer.class);
 
   private int sizeX;
@@ -109,16 +108,14 @@ class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<ImgModu
     return new ImgModulusPaddingLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgModulusPaddingLayer[] addRefs(ImgModulusPaddingLayer[] array) {
+  public static @SuppressWarnings("unused") ImgModulusPaddingLayer[] addRefs(ImgModulusPaddingLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayer::addRef)
         .toArray((x) -> new ImgModulusPaddingLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgModulusPaddingLayer[][] addRefs(ImgModulusPaddingLayer[][] array) {
+  public static @SuppressWarnings("unused") ImgModulusPaddingLayer[][] addRefs(ImgModulusPaddingLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayer::addRefs)
@@ -175,8 +172,7 @@ class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<ImgModu
       temp_44_0005.freeRef();
     if (null != temp_44_0003)
       temp_44_0003.freeRef();
-    Result temp_44_0001 = imgCropLayer
-        .eval(Result.addRefs(inObj));
+    Result temp_44_0001 = imgCropLayer.eval(Result.addRefs(inObj));
     ReferenceCounting.freeRefs(inObj);
     imgCropLayer.freeRef();
     return temp_44_0001;
@@ -185,7 +181,8 @@ class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<ImgModu
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
     json.addProperty("roundUp", roundUp);
     json.addProperty("sizeX", sizeX);
@@ -201,13 +198,10 @@ class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<ImgModu
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ImgModulusPaddingLayer addRef() {
+  public @Override @SuppressWarnings("unused") ImgModulusPaddingLayer addRef() {
     return (ImgModulusPaddingLayer) super.addRef();
   }
 }

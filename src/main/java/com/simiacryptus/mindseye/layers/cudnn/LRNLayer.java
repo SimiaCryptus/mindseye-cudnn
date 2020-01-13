@@ -41,8 +41,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @SuppressWarnings("serial")
-public @RefAware
-class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
+public class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
   private static final Logger log = LoggerFactory.getLogger(LRNLayer.class);
 
   private int width;
@@ -138,20 +137,16 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
     return new LRNLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused")
-  LRNLayer[] addRefs(LRNLayer[] array) {
+  public static @SuppressWarnings("unused") LRNLayer[] addRefs(LRNLayer[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LRNLayer::addRef)
-        .toArray((x) -> new LRNLayer[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(LRNLayer::addRef).toArray((x) -> new LRNLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  LRNLayer[][] addRefs(LRNLayer[][] array) {
+  public static @SuppressWarnings("unused") LRNLayer[][] addRefs(LRNLayer[][] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LRNLayer::addRefs)
-        .toArray((x) -> new LRNLayer[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(LRNLayer::addRefs).toArray((x) -> new LRNLayer[x][]);
   }
 
   @Nullable
@@ -159,8 +154,7 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_47_0008 = getCompatibilityLayer();
-      Result temp_47_0007 = temp_47_0008
-          .eval(Result.addRefs(inObj));
+      Result temp_47_0007 = temp_47_0008.eval(Result.addRefs(inObj));
       if (null != temp_47_0008)
         temp_47_0008.freeRef();
       ReferenceCounting.freeRefs(inObj);
@@ -169,45 +163,49 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
     final Result input = inObj[0].addRef();
     ReferenceCounting.freeRefs(inObj);
     final TensorList inputData = input.getData();
-    @Nonnull final int[] inputSize = inputData.getDimensions();
+    @Nonnull
+    final int[] inputSize = inputData.getDimensions();
     final int length = inputData.length();
     final int inputDims = Tensor.length(inputSize);
-    @Nonnull final int[] outputSize = new int[]{length, inputSize[2], inputSize[1], inputSize[0]};
+    @Nonnull
+    final int[] outputSize = new int[] { length, inputSize[2], inputSize[1], inputSize[0] };
     final LRNLayer lrnLayer = this.addRef();
-    final CudaTensor outputData = CudaSystem.run(RefUtil.wrapInterface(
-        (Function<CudnnHandle, CudaTensor>) gpu -> {
-          try {
-            gpu.initThread();
-            @Nonnull final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(lrnLayer.getWidth(),
-                lrnLayer.getAlpha(), lrnLayer.getBeta(), lrnLayer.getK());
-            @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData == null ? null : inputData.addRef(), getPrecision(),
-                MemoryType.Device, false);
-            @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(getPrecision(),
-                outputSize[0], outputSize[1], outputSize[2], outputSize[3],
-                outputSize[1] * outputSize[2] * outputSize[3], outputSize[2] * outputSize[3], outputSize[3], 1);
-            @Nonnull final CudaMemory outputTensor = gpu.allocate((long) getPrecision().size * Tensor.length(outputSize),
-                MemoryType.Managed.ifEnabled(), true);
-            CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
-            CudaSystem
-                .handle(gpu.cudnnLRNCrossChannelForward(descriptor.getPtr(), cudnnLRNMode.CUDNN_LRN_CROSS_CHANNEL_DIM1,
-                    getPrecision().getPointer(1.0), inputTensor.descriptor.getPtr(), inputDataMemory.getPtr(),
-                    getPrecision().getPointer(0.0), outputDescriptor.getPtr(), outputTensor.getPtr()));
-            if (null != inputTensor)
-              inputTensor.freeRef();
-            descriptor.freeRef();
-            assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-            RefUtil.freeRef(inputDataMemory.dirty());
-            if (null != inputDataMemory)
-              inputDataMemory.freeRef();
-            RefUtil.freeRef(outputTensor.dirty());
-            CudaTensor temp_47_0004 = new CudaTensor(
-                outputTensor == null ? null : outputTensor, outputDescriptor == null ? null : outputDescriptor,
-                getPrecision());
-            return temp_47_0004;
-          } catch (@Nonnull final Throwable e) {
-            throw new ComponentException("Error", e);
-          }
-        }, inputData == null ? null : inputData.addRef(), lrnLayer == null ? null : lrnLayer.addRef()),
+    final CudaTensor outputData = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensor>) gpu -> {
+      try {
+        gpu.initThread();
+        @Nonnull
+        final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(lrnLayer.getWidth(),
+            lrnLayer.getAlpha(), lrnLayer.getBeta(), lrnLayer.getK());
+        @Nullable
+        final CudaTensor inputTensor = gpu.getTensor(inputData == null ? null : inputData.addRef(), getPrecision(),
+            MemoryType.Device, false);
+        @Nonnull
+        final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(getPrecision(), outputSize[0],
+            outputSize[1], outputSize[2], outputSize[3], outputSize[1] * outputSize[2] * outputSize[3],
+            outputSize[2] * outputSize[3], outputSize[3], 1);
+        @Nonnull
+        final CudaMemory outputTensor = gpu.allocate((long) getPrecision().size * Tensor.length(outputSize),
+            MemoryType.Managed.ifEnabled(), true);
+        CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
+        CudaSystem
+            .handle(gpu.cudnnLRNCrossChannelForward(descriptor.getPtr(), cudnnLRNMode.CUDNN_LRN_CROSS_CHANNEL_DIM1,
+                getPrecision().getPointer(1.0), inputTensor.descriptor.getPtr(), inputDataMemory.getPtr(),
+                getPrecision().getPointer(0.0), outputDescriptor.getPtr(), outputTensor.getPtr()));
+        if (null != inputTensor)
+          inputTensor.freeRef();
+        descriptor.freeRef();
+        assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+        RefUtil.freeRef(inputDataMemory.dirty());
+        if (null != inputDataMemory)
+          inputDataMemory.freeRef();
+        RefUtil.freeRef(outputTensor.dirty());
+        CudaTensor temp_47_0004 = new CudaTensor(outputTensor == null ? null : outputTensor,
+            outputDescriptor == null ? null : outputDescriptor, getPrecision());
+        return temp_47_0004;
+      } catch (@Nonnull final Throwable e) {
+        throw new ComponentException("Error", e);
+      }
+    }, inputData == null ? null : inputData.addRef(), lrnLayer == null ? null : lrnLayer.addRef()),
         inputData == null ? null : inputData.addRef());
     try {
       try {
@@ -215,7 +213,7 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
           try {
             return new Result(
                 new CudaTensorList(outputData == null ? null : outputData.addRef(), length,
-                    new int[]{outputSize[3], outputSize[2], outputSize[1]}, getPrecision()),
+                    new int[] { outputSize[3], outputSize[2], outputSize[1] }, getPrecision()),
                 new Result.Accumulator() {
                   {
                   }
@@ -224,25 +222,30 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
                   public void accept(DeltaSet<UUID> buffer, TensorList error) {
                     assert error.length() == inputData.length();
                     if (input.isAlive()) {
-                      TensorList data = CudaSystem.run(RefUtil.wrapInterface(
-                          (Function<CudnnHandle, CudaTensorList>) gpu -> {
-                            @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(
+                      TensorList data = CudaSystem
+                          .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
+                            @Nonnull
+                            final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(
                                 LRNLayer.this.getPrecision(), length, inputSize[2], inputSize[1], inputSize[0],
                                 inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0],
                                 1);
-                            @Nonnull final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(
+                            @Nonnull
+                            final CudaResource<cudnnLRNDescriptor> descriptor = gpu.createLRNDescriptor(
                                 lrnLayer.getWidth(), lrnLayer.getAlpha(), lrnLayer.getBeta(), lrnLayer.getK());
-                            @Nullable final CudaTensor inputTensor;
+                            @Nullable
+                            final CudaTensor inputTensor;
                             synchronized (gpu) {
                               inputTensor = gpu.getTensor(inputData == null ? null : inputData.addRef(),
                                   LRNLayer.this.getPrecision(), MemoryType.Device, true);
                             }
-                            @Nullable final CudaTensor errorPtr;
+                            @Nullable
+                            final CudaTensor errorPtr;
                             synchronized (gpu) {
                               errorPtr = gpu.getTensor(error == null ? null : error.addRef(),
                                   LRNLayer.this.getPrecision(), MemoryType.Device, true);
                             }
-                            @Nonnull final CudaMemory passbackBuffer = gpu.allocate(
+                            @Nonnull
+                            final CudaMemory passbackBuffer = gpu.allocate(
                                 (long) inputDims * LRNLayer.this.getPrecision().size * length,
                                 MemoryType.Managed.ifEnabled(), true);
                             CudaMemory outputDataMemory = outputData.getMemory(gpu);
@@ -276,8 +279,8 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
                                 length, inputSize, LRNLayer.this.getPrecision());
                             return temp_47_0006;
                           }, outputData == null ? null : outputData.addRef(), error == null ? null : error.addRef(),
-                          inputData == null ? null : inputData.addRef(), lrnLayer == null ? null : lrnLayer.addRef()),
-                          error == null ? null : error.addRef());
+                              inputData == null ? null : inputData.addRef(),
+                              lrnLayer == null ? null : lrnLayer.addRef()), error == null ? null : error.addRef());
                       input.accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data.addRef());
                       if (null != data)
                         data.freeRef();
@@ -288,8 +291,7 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
                       buffer.freeRef();
                   }
 
-                  public @SuppressWarnings("unused")
-                  void _free() {
+                  public @SuppressWarnings("unused") void _free() {
                   }
                 }) {
 
@@ -325,7 +327,8 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("alpha", getAlpha());
     json.addProperty("beta", getBeta());
     json.addProperty("k", getK());
@@ -340,13 +343,10 @@ class LRNLayer extends LayerBase implements MultiPrecision<LRNLayer> {
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  LRNLayer addRef() {
+  public @Override @SuppressWarnings("unused") LRNLayer addRef() {
     return (LRNLayer) super.addRef();
   }
 }

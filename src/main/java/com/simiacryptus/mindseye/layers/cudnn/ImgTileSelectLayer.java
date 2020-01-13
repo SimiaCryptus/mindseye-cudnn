@@ -40,16 +40,14 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @SuppressWarnings("serial")
-public @RefAware
-class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSelectLayer> {
+public class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSelectLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgTileSelectLayer.class);
   private int positionX;
   private int positionY;
 
   private int sizeY;
   private int sizeX;
-  private @Nonnull
-  Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private @Nonnull Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   private ImgTileSelectLayer() {
   }
@@ -59,7 +57,7 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
   }
 
   public ImgTileSelectLayer(int sizeX, int sizeY, final int positionX, final int positionY,
-                            @NotNull Precision precision) {
+      @NotNull Precision precision) {
     this.sizeY = sizeY;
     this.sizeX = sizeX;
     this.positionX = positionX;
@@ -99,28 +97,29 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
   }
 
   public static CudaTensor copy(final CudnnHandle gpu, @Nonnull final TensorList input, final int[] inputDimensions,
-                                final int[] outputDimensions, @Nonnull Precision precision, final int positionX, final int positionY,
-                                final boolean dirty) {
-    @Nonnull final CudaMemory outputPtr = gpu.allocate(
+      final int[] outputDimensions, @Nonnull Precision precision, final int positionX, final int positionY,
+      final boolean dirty) {
+    @Nonnull
+    final CudaMemory outputPtr = gpu.allocate(
         (long) input.length() * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size,
         MemoryType.Managed.ifEnabled(), dirty);
-    CudaTensor temp_24_0001 = copy(gpu, input == null ? null : input,
-        inputDimensions, outputDimensions, positionX, positionY, precision, outputPtr == null ? null : outputPtr);
+    CudaTensor temp_24_0001 = copy(gpu, input == null ? null : input, inputDimensions, outputDimensions, positionX,
+        positionY, precision, outputPtr == null ? null : outputPtr);
     return temp_24_0001;
   }
 
   public static void copy(final CudnnHandle gpu, @Nonnull final TensorList input, final int[] inputDimensions,
-                          final int positionX, final int positionY, Precision precision, final CudaTensor output) {
+      final int positionX, final int positionY, Precision precision, final CudaTensor output) {
     RefUtil.freeRef(copy(gpu, input == null ? null : input, inputDimensions,
-        new int[]{output.descriptor.width, output.descriptor.height, output.descriptor.channels}, positionX,
+        new int[] { output.descriptor.width, output.descriptor.height, output.descriptor.channels }, positionX,
         positionY, precision, output.getMemory(gpu)));
     if (null != output)
       output.freeRef();
   }
 
   public static CudaTensor copy(final CudnnHandle gpu, @Nonnull final TensorList input, final int[] inputDimensions,
-                                final int[] outputDimensions, final int positionX, final int positionY, final Precision precision,
-                                final CudaMemory outputPtr) {
+      final int[] outputDimensions, final int positionX, final int positionY, final Precision precision,
+      final CudaMemory outputPtr) {
     final int length = input.length();
     if (3 != inputDimensions.length) {
       input.freeRef();
@@ -142,8 +141,10 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
       throw new IllegalArgumentException(RefString.format("%d != %d", bands, outputDimensions[2]));
     }
     //log.info(String.format("offset=%d,%d", offsetX, offsetY));
-    @Nonnull final int[] viewDim = getViewDimensions(inputDimensions, outputDimensions, new int[]{-positionX, -positionY, 0});
-    @Nullable final CudaTensor inputTensor = gpu.getTensor(input == null ? null : input, precision, MemoryType.Device, false);
+    @Nonnull
+    final int[] viewDim = getViewDimensions(inputDimensions, outputDimensions, new int[] { -positionX, -positionY, 0 });
+    @Nullable
+    final CudaTensor inputTensor = gpu.getTensor(input == null ? null : input, precision, MemoryType.Device, false);
     int sourceOffset = 0;
     int destinationOffset = 0;
     if (positionX < 0) {
@@ -161,7 +162,8 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
     assert sourceOffset + Tensor.length(viewDim) <= Tensor.length(inputDimensions);
     assert destinationOffset + Tensor.length(viewDim) <= Tensor.length(outputDimensions);
 
-    @Nonnull final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(precision, //
+    @Nonnull
+    final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         viewDim[2], //
         viewDim[1], //
@@ -176,8 +178,7 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
     if (RefArrays.equals(viewDim, outputDimensions)) {
       assert sourceOffset >= 0;
       assert destinationOffset == 0;
-      CudaTensor temp_24_0002 = new CudaTensor(
-          inputTensorMemory.withByteOffset(sourceOffset * precision.size),
+      CudaTensor temp_24_0002 = new CudaTensor(inputTensorMemory.withByteOffset(sourceOffset * precision.size),
           sourceViewDescriptor == null ? null : sourceViewDescriptor, precision);
       if (null != inputTensorMemory)
         inputTensorMemory.freeRef();
@@ -186,7 +187,8 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
       return temp_24_0002;
     }
 
-    @Nonnull final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(precision, //
+    @Nonnull
+    final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         viewDim[2], //
         viewDim[1], //
@@ -205,7 +207,8 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
     RefUtil.freeRef(inputTensorMemory.dirty());
     if (null != inputTensorMemory)
       inputTensorMemory.freeRef();
-    @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, //
+    @Nonnull
+    final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         outputDimensions[2], //
         outputDimensions[1], //
@@ -214,9 +217,8 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
         outputDimensions[1] * outputDimensions[0], //
         outputDimensions[0], //
         1);
-    CudaTensor temp_24_0003 = new CudaTensor(
-        outputPtr == null ? null : outputPtr.addRef(), passbackDescriptor == null ? null : passbackDescriptor,
-        precision);
+    CudaTensor temp_24_0003 = new CudaTensor(outputPtr == null ? null : outputPtr.addRef(),
+        passbackDescriptor == null ? null : passbackDescriptor, precision);
     if (null != outputPtr)
       outputPtr.freeRef();
     return temp_24_0003;
@@ -224,29 +226,28 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
 
   @Nonnull
   public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions, int[] offset) {
-    @Nonnull final int[] viewDim = new int[3];
+    @Nonnull
+    final int[] viewDim = new int[3];
     RefArrays.setAll(viewDim, i -> {
       int value = Math.min(sourceDimensions[i],
           Math.max(0, destinationDimensions[i] - offset[i] - Math.max(-offset[i], 0)));
       if (0 >= value) {
-        throw new IllegalArgumentException(RefString.format("%d: src=%d, dst=%d, offset=%d => %d", i, sourceDimensions[i],
-            destinationDimensions[i], offset[i], value));
+        throw new IllegalArgumentException(RefString.format("%d: src=%d, dst=%d, offset=%d => %d", i,
+            sourceDimensions[i], destinationDimensions[i], offset[i], value));
       }
       return value;
     });
     return viewDim;
   }
 
-  public static @SuppressWarnings("unused")
-  ImgTileSelectLayer[] addRefs(ImgTileSelectLayer[] array) {
+  public static @SuppressWarnings("unused") ImgTileSelectLayer[] addRefs(ImgTileSelectLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayer::addRef)
         .toArray((x) -> new ImgTileSelectLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgTileSelectLayer[][] addRefs(ImgTileSelectLayer[][] array) {
+  public static @SuppressWarnings("unused") ImgTileSelectLayer[][] addRefs(ImgTileSelectLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayer::addRefs)
@@ -258,8 +259,7 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_24_0013 = getCompatibilityLayer();
-      Result temp_24_0009 = temp_24_0013
-          .eval(Result.addRefs(inObj));
+      Result temp_24_0009 = temp_24_0013.eval(Result.addRefs(inObj));
       if (null != temp_24_0013)
         temp_24_0013.freeRef();
       ReferenceCounting.freeRefs(inObj);
@@ -279,19 +279,18 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
       ReferenceCounting.freeRefs(inObj);
       return input;
     }
-    @Nonnull final int[] dimOut = getViewDimensions(dimIn, new int[]{sizeX, sizeY, dimIn[2]},
-        new int[]{-positionX, -positionY, 0});
+    @Nonnull
+    final int[] dimOut = getViewDimensions(dimIn, new int[] { sizeX, sizeY, dimIn[2] },
+        new int[] { -positionX, -positionY, 0 });
     final ImgTileSelectLayer imgTileSelectLayer = this.addRef();
-    final TensorList outputData = CudaSystem.run(RefUtil.wrapInterface(
-        (Function<CudnnHandle, CudaTensorList>) gpu -> {
-          assert dimOut[0] > 0;
-          assert dimOut[1] > 0;
-          assert dimOut[2] > 0;
-          boolean dirty = dimOut[0] == dimIn[0] && dimOut[1] == dimIn[1];
-          return new CudaTensorList(copy(gpu, inputData == null ? null : inputData.addRef(), dimIn, dimOut, precision,
-              imgTileSelectLayer.positionX, imgTileSelectLayer.positionY, dirty), length, dimOut, precision);
-        }, inputData == null ? null : inputData.addRef(),
-        imgTileSelectLayer == null ? null : imgTileSelectLayer.addRef()),
+    final TensorList outputData = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
+      assert dimOut[0] > 0;
+      assert dimOut[1] > 0;
+      assert dimOut[2] > 0;
+      boolean dirty = dimOut[0] == dimIn[0] && dimOut[1] == dimIn[1];
+      return new CudaTensorList(copy(gpu, inputData == null ? null : inputData.addRef(), dimIn, dimOut, precision,
+          imgTileSelectLayer.positionX, imgTileSelectLayer.positionY, dirty), length, dimOut, precision);
+    }, inputData == null ? null : inputData.addRef(), imgTileSelectLayer == null ? null : imgTileSelectLayer.addRef()),
         inputData == null ? null : inputData.addRef());
     if (null != inputData)
       inputData.freeRef();
@@ -327,17 +326,16 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
                 assert error.length() == length;
                 if (input.isAlive()) {
                   input.accumulate(buffer == null ? null : buffer.addRef(),
-                      CudaSystem.run(RefUtil.wrapInterface(
-                          (Function<CudnnHandle, CudaTensorList>) gpu -> {
-                            boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
-                            final CudaTensor ptr = copy(gpu, error == null ? null : error.addRef(), dimOut, dimIn,
-                                precision, -imgTileSelectLayer.positionX, -imgTileSelectLayer.positionY, dirty);
-                            CudaTensorList temp_24_0007 = new CudaTensorList(
-                                ptr == null ? null : ptr.addRef(), length, dimIn, precision);
-                            if (null != ptr)
-                              ptr.freeRef();
-                            return temp_24_0007;
-                          }, error == null ? null : error.addRef(),
+                      CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
+                        boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
+                        final CudaTensor ptr = copy(gpu, error == null ? null : error.addRef(), dimOut, dimIn,
+                            precision, -imgTileSelectLayer.positionX, -imgTileSelectLayer.positionY, dirty);
+                        CudaTensorList temp_24_0007 = new CudaTensorList(ptr == null ? null : ptr.addRef(), length,
+                            dimIn, precision);
+                        if (null != ptr)
+                          ptr.freeRef();
+                        return temp_24_0007;
+                      }, error == null ? null : error.addRef(),
                           imgTileSelectLayer == null ? null : imgTileSelectLayer.addRef()),
                           error == null ? null : error.addRef()));
                 }
@@ -347,8 +345,7 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
                   buffer.freeRef();
               }
 
-              public @SuppressWarnings("unused")
-              void _free() {
+              public @SuppressWarnings("unused") void _free() {
               }
             }) {
 
@@ -390,7 +387,8 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("sizeX", sizeX);
     json.addProperty("sizeY", sizeY);
     json.addProperty("positionX", positionX);
@@ -411,13 +409,10 @@ class ImgTileSelectLayer extends LayerBase implements MultiPrecision<ImgTileSele
         + ", sizeY=" + sizeY + ", precision=" + precision + '}';
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ImgTileSelectLayer addRef() {
+  public @Override @SuppressWarnings("unused") ImgTileSelectLayer addRef() {
     return (ImgTileSelectLayer) super.addRef();
   }
 }

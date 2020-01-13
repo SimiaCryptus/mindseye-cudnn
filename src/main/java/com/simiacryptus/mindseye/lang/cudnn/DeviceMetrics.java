@@ -23,8 +23,7 @@ import com.simiacryptus.ref.lang.RefAware;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public @RefAware
-class DeviceMetrics {
+public class DeviceMetrics {
   public final AtomicLong memoryReads = new AtomicLong(0);
   public final AtomicLong memoryWrites = new AtomicLong(0);
   public final AtomicLong peakMemory = new AtomicLong(0);

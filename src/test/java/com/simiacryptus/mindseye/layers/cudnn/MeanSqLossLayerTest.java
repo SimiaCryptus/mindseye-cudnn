@@ -26,24 +26,21 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Random;
 
-public abstract @RefAware
-class MeanSqLossLayerTest extends CudnnLayerTestBase {
+public abstract class MeanSqLossLayerTest extends CudnnLayerTestBase {
 
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return com.simiacryptus.mindseye.layers.java.MeanSqLossLayer.class;
   }
 
-  public static @SuppressWarnings("unused")
-  MeanSqLossLayerTest[] addRefs(MeanSqLossLayerTest[] array) {
+  public static @SuppressWarnings("unused") MeanSqLossLayerTest[] addRefs(MeanSqLossLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayerTest::addRef)
         .toArray((x) -> new MeanSqLossLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  MeanSqLossLayerTest[][] addRefs(MeanSqLossLayerTest[][] array) {
+  public static @SuppressWarnings("unused") MeanSqLossLayerTest[][] addRefs(MeanSqLossLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayerTest::addRefs)
@@ -53,7 +50,7 @@ class MeanSqLossLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{{8, 8, 1}, {8, 8, 1}};
+    return new int[][] { { 8, 8, 1 }, { 8, 8, 1 } };
   }
 
   @Nonnull
@@ -65,71 +62,57 @@ class MeanSqLossLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][]{{1200, 1200, 3}, {1200, 1200, 3}};
+    return new int[][] { { 1200, 1200, 3 }, { 1200, 1200, 3 } };
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  MeanSqLossLayerTest addRef() {
+  public @Override @SuppressWarnings("unused") MeanSqLossLayerTest addRef() {
     return (MeanSqLossLayerTest) super.addRef();
   }
 
-  public static @RefAware
-  class Basic extends MeanSqLossLayerTest {
+  public static class Basic extends MeanSqLossLayerTest {
 
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(Basic[] array) {
+    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
+    public @Override @SuppressWarnings("unused") Basic addRef() {
       return (Basic) super.addRef();
     }
 
   }
 
-  public static @RefAware
-  class Asymetric extends MeanSqLossLayerTest {
+  public static class Asymetric extends MeanSqLossLayerTest {
 
-    public static @SuppressWarnings("unused")
-    Asymetric[] addRefs(Asymetric[] array) {
+    public static @SuppressWarnings("unused") Asymetric[] addRefs(Asymetric[] array) {
       if (array == null)
         return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Asymetric::addRef)
-          .toArray((x) -> new Asymetric[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Asymetric::addRef).toArray((x) -> new Asymetric[x]);
     }
 
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{2, 3, 1}, {2, 3, 1}};
+      return new int[][] { { 2, 3, 1 }, { 2, 3, 1 } };
     }
 
     @Nonnull
     @Override
     public int[][] getLargeDims(Random random) {
-      return new int[][]{{200, 300, 100}, {200, 300, 100}};
+      return new int[][] { { 200, 300, 100 }, { 200, 300, 100 } };
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Asymetric addRef() {
+    public @Override @SuppressWarnings("unused") Asymetric addRef() {
       return (Asymetric) super.addRef();
     }
   }

@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.ref.lang.RecycleBin;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceWrapper;
 import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
 import com.simiacryptus.ref.wrappers.RefMap;
@@ -196,7 +197,8 @@ public enum MemoryType {
 
         @Override
         public void reset(final @com.simiacryptus.ref.lang.RefAware ReferenceWrapper<CudaPointer> data,
-            final long size) {
+                          final long size) {
+          RefUtil.freeRef(data);
           // There is no need to clean new objects - native memory system doesn't either.
         }
 
@@ -206,6 +208,7 @@ public enum MemoryType {
               Integer.toHexString(com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(obj.peek())), device,
               !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller()));
           obj.destroy();
+          RefUtil.freeRef(obj);
         }
       }.setPersistanceMode(CudaSettings.INSTANCE().memoryCacheMode).setMinLengthPerBuffer(1).setMaxItemsPerBuffer(10)
           .setPurgeFreq(CudaSettings.INSTANCE().getMemoryCacheTTL());

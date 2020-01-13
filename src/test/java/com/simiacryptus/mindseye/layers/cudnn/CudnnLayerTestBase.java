@@ -32,19 +32,16 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 
-public abstract @RefAware
-class CudnnLayerTestBase extends LayerTestBase {
+public abstract class CudnnLayerTestBase extends LayerTestBase {
 
-  public static @SuppressWarnings("unused")
-  CudnnLayerTestBase[] addRefs(CudnnLayerTestBase[] array) {
+  public static @SuppressWarnings("unused") CudnnLayerTestBase[] addRefs(CudnnLayerTestBase[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CudnnLayerTestBase::addRef)
         .toArray((x) -> new CudnnLayerTestBase[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  CudnnLayerTestBase[][] addRefs(CudnnLayerTestBase[][] array) {
+  public static @SuppressWarnings("unused") CudnnLayerTestBase[][] addRefs(CudnnLayerTestBase[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CudnnLayerTestBase::addRefs)
@@ -59,13 +56,10 @@ class CudnnLayerTestBase extends LayerTestBase {
     super.run(log);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  CudnnLayerTestBase addRef() {
+  public @Override @SuppressWarnings("unused") CudnnLayerTestBase addRef() {
     return (CudnnLayerTestBase) super.addRef();
   }
 

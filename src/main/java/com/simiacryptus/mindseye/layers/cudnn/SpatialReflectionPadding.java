@@ -38,8 +38,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public @RefAware
-class SpatialReflectionPadding extends LayerBase implements MultiPrecision<SpatialReflectionPadding> {
+public class SpatialReflectionPadding extends LayerBase implements MultiPrecision<SpatialReflectionPadding> {
   private static final Logger log = LoggerFactory.getLogger(SpatialReflectionPadding.class);
   private Alignment verticalAlign = Alignment.Center;
   private Alignment horizontalAlign = Alignment.Center;
@@ -117,16 +116,14 @@ class SpatialReflectionPadding extends LayerBase implements MultiPrecision<Spati
     return new SpatialReflectionPadding(json, rs);
   }
 
-  public static @SuppressWarnings("unused")
-  SpatialReflectionPadding[] addRefs(SpatialReflectionPadding[] array) {
+  public static @SuppressWarnings("unused") SpatialReflectionPadding[] addRefs(SpatialReflectionPadding[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRef)
         .toArray((x) -> new SpatialReflectionPadding[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  SpatialReflectionPadding[][] addRefs(SpatialReflectionPadding[][] array) {
+  public static @SuppressWarnings("unused") SpatialReflectionPadding[][] addRefs(SpatialReflectionPadding[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRefs)
@@ -157,17 +154,14 @@ class SpatialReflectionPadding extends LayerBase implements MultiPrecision<Spati
     final int[] dimensions = temp_42_0003.getDimensions();
     if (null != temp_42_0003)
       temp_42_0003.freeRef();
-    ImgPaddingLayer temp_42_0002 = new ImgPaddingLayer(dimensions[0] + sizeX,
-        dimensions[1] + sizeY);
-    ImgPaddingLayer temp_42_0004 = temp_42_0002
-        .setHorizontalAlign(horizontalAlign);
+    ImgPaddingLayer temp_42_0002 = new ImgPaddingLayer(dimensions[0] + sizeX, dimensions[1] + sizeY);
+    ImgPaddingLayer temp_42_0004 = temp_42_0002.setHorizontalAlign(horizontalAlign);
     final ImgPaddingLayer paddingLayer = temp_42_0004.setVerticalAlign(verticalAlign);
     if (null != temp_42_0004)
       temp_42_0004.freeRef();
     if (null != temp_42_0002)
       temp_42_0002.freeRef();
-    Result temp_42_0001 = paddingLayer
-        .eval(Result.addRefs(inObj));
+    Result temp_42_0001 = paddingLayer.eval(Result.addRefs(inObj));
     ReferenceCounting.freeRefs(inObj);
     if (null != paddingLayer)
       paddingLayer.freeRef();
@@ -177,7 +171,8 @@ class SpatialReflectionPadding extends LayerBase implements MultiPrecision<Spati
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
     json.addProperty("roundUp", roundUp);
@@ -193,13 +188,10 @@ class SpatialReflectionPadding extends LayerBase implements MultiPrecision<Spati
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  SpatialReflectionPadding addRef() {
+  public @Override @SuppressWarnings("unused") SpatialReflectionPadding addRef() {
     return (SpatialReflectionPadding) super.addRef();
   }
 

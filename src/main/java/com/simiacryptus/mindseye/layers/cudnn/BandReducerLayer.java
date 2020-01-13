@@ -27,6 +27,7 @@ import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.cudnn.PoolingLayer.PoolingMode;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -37,8 +38,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public @RefAware
-class BandReducerLayer extends LayerBase implements MultiPrecision<BandReducerLayer> {
+public class BandReducerLayer extends LayerBase implements MultiPrecision<BandReducerLayer> {
 
   private PoolingLayer.PoolingMode mode = PoolingLayer.PoolingMode.Max;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
@@ -50,8 +50,8 @@ class BandReducerLayer extends LayerBase implements MultiPrecision<BandReducerLa
 
   protected BandReducerLayer(@Nonnull final JsonObject json) {
     super(json);
-    mode = RefArrays.stream(PoolingLayer.PoolingMode.values()).filter(i -> i.id == json.get("mode").getAsInt())
-        .findFirst().get();
+    mode = RefUtil.get(RefArrays.stream(PoolingLayer.PoolingMode.values()).filter(i -> i.id == json.get("mode").getAsInt())
+        .findFirst());
     precision = Precision.valueOf(json.get("precision").getAsString());
     alpha = json.get("alpha").getAsDouble();
   }
@@ -97,16 +97,14 @@ class BandReducerLayer extends LayerBase implements MultiPrecision<BandReducerLa
     return new BandReducerLayer(json);
   }
 
-  public static @SuppressWarnings("unused")
-  BandReducerLayer[] addRefs(BandReducerLayer[] array) {
+  public static @SuppressWarnings("unused") BandReducerLayer[] addRefs(BandReducerLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayer::addRef)
         .toArray((x) -> new BandReducerLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  BandReducerLayer[][] addRefs(BandReducerLayer[][] array) {
+  public static @SuppressWarnings("unused") BandReducerLayer[][] addRefs(BandReducerLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayer::addRefs)
@@ -118,8 +116,7 @@ class BandReducerLayer extends LayerBase implements MultiPrecision<BandReducerLa
   public Result eval(final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_27_0004 = getCompatibilityLayer();
-      Result temp_27_0002 = temp_27_0004
-          .eval(Result.addRefs(inObj));
+      Result temp_27_0002 = temp_27_0004.eval(Result.addRefs(inObj));
       if (null != temp_27_0004)
         temp_27_0004.freeRef();
       if (null != inObj)
@@ -130,7 +127,8 @@ class BandReducerLayer extends LayerBase implements MultiPrecision<BandReducerLa
     final TensorList batch = input.getData();
     if (null != input)
       input.freeRef();
-    @Nonnull final int[] inputSize = batch.getDimensions();
+    @Nonnull
+    final int[] inputSize = batch.getDimensions();
     if (null != batch)
       batch.freeRef();
     PoolingLayer temp_27_0003 = new PoolingLayer();
@@ -162,8 +160,7 @@ class BandReducerLayer extends LayerBase implements MultiPrecision<BandReducerLa
       temp_27_0005.freeRef();
     if (null != temp_27_0003)
       temp_27_0003.freeRef();
-    Result temp_27_0001 = impl
-        .eval(Result.addRefs(inObj));
+    Result temp_27_0001 = impl.eval(Result.addRefs(inObj));
     if (null != inObj)
       ReferenceCounting.freeRefs(inObj);
     impl.freeRef();
@@ -173,7 +170,8 @@ class BandReducerLayer extends LayerBase implements MultiPrecision<BandReducerLa
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("alpha", alpha);
     json.addProperty("mode", mode.id);
     json.addProperty("precision", precision.name());
@@ -186,13 +184,10 @@ class BandReducerLayer extends LayerBase implements MultiPrecision<BandReducerLa
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  BandReducerLayer addRef() {
+  public @Override @SuppressWarnings("unused") BandReducerLayer addRef() {
     return (BandReducerLayer) super.addRef();
   }
 }

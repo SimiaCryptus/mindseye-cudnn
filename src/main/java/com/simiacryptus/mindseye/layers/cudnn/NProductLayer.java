@@ -43,8 +43,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 
 @SuppressWarnings("serial")
-public @RefAware
-class NProductLayer extends LayerBase implements MultiPrecision<NProductLayer> {
+public class NProductLayer extends LayerBase implements MultiPrecision<NProductLayer> {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
@@ -78,16 +77,14 @@ class NProductLayer extends LayerBase implements MultiPrecision<NProductLayer> {
     return new NProductLayer(json);
   }
 
-  public static @SuppressWarnings("unused")
-  NProductLayer[] addRefs(NProductLayer[] array) {
+  public static @SuppressWarnings("unused") NProductLayer[] addRefs(NProductLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(NProductLayer::addRef)
         .toArray((x) -> new NProductLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  NProductLayer[][] addRefs(NProductLayer[][] array) {
+  public static @SuppressWarnings("unused") NProductLayer[][] addRefs(NProductLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(NProductLayer::addRefs)
@@ -99,8 +96,7 @@ class NProductLayer extends LayerBase implements MultiPrecision<NProductLayer> {
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_36_0010 = getCompatibilityLayer();
-      Result temp_36_0008 = temp_36_0010
-          .eval(Result.addRefs(inObj));
+      Result temp_36_0008 = temp_36_0010.eval(Result.addRefs(inObj));
       if (null != temp_36_0010)
         temp_36_0010.freeRef();
       ReferenceCounting.freeRefs(inObj);
@@ -113,7 +109,8 @@ class NProductLayer extends LayerBase implements MultiPrecision<NProductLayer> {
       throw temp_36_0009;
     }
     TensorList temp_36_0011 = inObj[0].getData();
-    @Nonnull final int[] dimensions = temp_36_0011.getDimensions();
+    @Nonnull
+    final int[] dimensions = temp_36_0011.getDimensions();
     if (null != temp_36_0011)
       temp_36_0011.freeRef();
     TensorList temp_36_0012 = inObj[0].getData();
@@ -138,60 +135,57 @@ class NProductLayer extends LayerBase implements MultiPrecision<NProductLayer> {
         data.freeRef();
     }
     try {
-      return new Result(CudaSystem.run(RefUtil.wrapInterface(
-          (Function<CudnnHandle, TensorList>) gpu -> {
-            @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
-                .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-            @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
-                dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
-                dimensions[1] * dimensions[0], dimensions[0], 1);
-            TensorList temp_36_0002 = RefArrays
-                .stream(Result.addRefs(inObj)).map(x -> {
-                  TensorList temp_36_0003 = x.getData();
-                  if (null != x)
-                    x.freeRef();
-                  return temp_36_0003;
-                }).reduce(RefUtil.wrapInterface(
-                    (BinaryOperator<TensorList>) (l, r) -> {
-                      @Nullable final CudaTensor lPtr = gpu.getTensor(l == null ? null : l.addRef(), precision, MemoryType.Device,
-                          false);
-                      if (null != l)
-                        l.freeRef();
-                      @Nullable final CudaTensor rPtr = gpu.getTensor(r == null ? null : r.addRef(), precision, MemoryType.Device,
-                          false);
-                      if (null != r)
-                        r.freeRef();
-                      @Nonnull final CudaMemory outputPtr = gpu
-                          .allocate((long) outputDescriptor.nStride * length * precision.size, MemoryType.Device, true);
-                      CudaMemory lPtrMemory = lPtr.getMemory(gpu);
-                      CudaMemory rPtrMemory = rPtr.getMemory(gpu);
-                      CudaSystem.handle(JCudnn.cudnnOpTensor(gpu.handle, opDescriptor.getPtr(),
-                          precision.getPointer(1.0), lPtr.descriptor.getPtr(), lPtrMemory.getPtr(),
-                          precision.getPointer(1.0), rPtr.descriptor.getPtr(), rPtrMemory.getPtr(),
-                          precision.getPointer(0.0), outputDescriptor.getPtr(), outputPtr.getPtr()));
-                      if (null != rPtr)
-                        rPtr.freeRef();
-                      if (null != lPtr)
-                        lPtr.freeRef();
-                      RefUtil.freeRef(lPtrMemory.dirty());
-                      if (null != lPtrMemory)
-                        lPtrMemory.freeRef();
-                      RefUtil.freeRef(rPtrMemory.dirty());
-                      if (null != rPtrMemory)
-                        rPtrMemory.freeRef();
-                      RefUtil.freeRef(outputPtr.dirty());
-                      CudaTensorList temp_36_0004 = new CudaTensorList(
-                          new CudaTensor(outputPtr == null ? null : outputPtr.addRef(),
-                              outputDescriptor == null ? null : outputDescriptor.addRef(), precision),
-                          length, dimensions, precision);
-                      if (null != outputPtr)
-                        outputPtr.freeRef();
-                      return temp_36_0004;
-                    }, opDescriptor == null ? null : opDescriptor, outputDescriptor == null ? null : outputDescriptor))
-                .get();
-            return temp_36_0002;
-          }, Result.addRefs(inObj)),
-          RefArrays.stream(Result.addRefs(inObj)).map(Result::getData).toArray()),
+      return new Result(CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, TensorList>) gpu -> {
+        @Nonnull
+        final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+            .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
+        @Nonnull
+        final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+            dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
+            dimensions[1] * dimensions[0], dimensions[0], 1);
+        TensorList temp_36_0002 = RefUtil.get(RefArrays.stream(Result.addRefs(inObj)).map(x -> {
+          TensorList temp_36_0003 = x.getData();
+          if (null != x)
+            x.freeRef();
+          return temp_36_0003;
+        }).reduce(RefUtil.wrapInterface((BinaryOperator<TensorList>) (l, r) -> {
+          @Nullable
+          final CudaTensor lPtr = gpu.getTensor(l == null ? null : l.addRef(), precision, MemoryType.Device, false);
+          if (null != l)
+            l.freeRef();
+          @Nullable
+          final CudaTensor rPtr = gpu.getTensor(r == null ? null : r.addRef(), precision, MemoryType.Device, false);
+          if (null != r)
+            r.freeRef();
+          @Nonnull
+          final CudaMemory outputPtr = gpu.allocate((long) outputDescriptor.nStride * length * precision.size,
+              MemoryType.Device, true);
+          CudaMemory lPtrMemory = lPtr.getMemory(gpu);
+          CudaMemory rPtrMemory = rPtr.getMemory(gpu);
+          CudaSystem.handle(JCudnn.cudnnOpTensor(gpu.handle, opDescriptor.getPtr(), precision.getPointer(1.0),
+              lPtr.descriptor.getPtr(), lPtrMemory.getPtr(), precision.getPointer(1.0), rPtr.descriptor.getPtr(),
+              rPtrMemory.getPtr(), precision.getPointer(0.0), outputDescriptor.getPtr(), outputPtr.getPtr()));
+          if (null != rPtr)
+            rPtr.freeRef();
+          if (null != lPtr)
+            lPtr.freeRef();
+          RefUtil.freeRef(lPtrMemory.dirty());
+          if (null != lPtrMemory)
+            lPtrMemory.freeRef();
+          RefUtil.freeRef(rPtrMemory.dirty());
+          if (null != rPtrMemory)
+            rPtrMemory.freeRef();
+          RefUtil.freeRef(outputPtr.dirty());
+          CudaTensorList temp_36_0004 = new CudaTensorList(
+              new CudaTensor(outputPtr == null ? null : outputPtr.addRef(),
+                  outputDescriptor == null ? null : outputDescriptor.addRef(), precision),
+              length, dimensions, precision);
+          if (null != outputPtr)
+            outputPtr.freeRef();
+          return temp_36_0004;
+        }, opDescriptor == null ? null : opDescriptor, outputDescriptor == null ? null : outputDescriptor)));
+        return temp_36_0002;
+      }, Result.addRefs(inObj)), RefArrays.stream(Result.addRefs(inObj)).map(Result::getData).toArray()),
           new Result.Accumulator() {
             {
               Result.addRefs(inObj);
@@ -204,29 +198,29 @@ class NProductLayer extends LayerBase implements MultiPrecision<NProductLayer> {
                 if (input.isAlive()) {
                   final int _index = index;
                   @Nonnull
-                  TensorList data = RefIntStream.range(0, inObj.length)
-                      .mapToObj(RefUtil.wrapInterface(
-                          (IntFunction<? extends TensorList>) i -> {
-                            return i == _index ? delta : inObj[i].getData();
-                          }, Result.addRefs(inObj),
-                          delta == null ? null : delta.addRef()))
-                      .reduce((l, r) -> {
+                  TensorList data = RefUtil.get(RefIntStream.range(0, inObj.length)
+                      .mapToObj(RefUtil.wrapInterface((IntFunction<TensorList>) i -> {
+                        return i == _index ? delta : inObj[i].getData();
+                      }, Result.addRefs(inObj), delta == null ? null : delta.addRef())).reduce((l, r) -> {
                         CudaTensorList temp_36_0005 = CudaSystem
-                            .run(RefUtil.wrapInterface(
-                                (Function<CudnnHandle, CudaTensorList>) gpu -> {
-                                  @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+                            .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
+                                  @Nonnull
+                                  final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
                                       .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-                                  @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(
+                                  @Nonnull
+                                  final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(
                                       precision, length, dimensions[2], dimensions[1], dimensions[0],
                                       dimensions[2] * dimensions[1] * dimensions[0], dimensions[1] * dimensions[0],
                                       dimensions[0], 1);
-                                  @Nullable final CudaTensor lPtr = gpu.getTensor(l == null ? null : l.addRef(), precision,
+                                  @Nullable
+                                  final CudaTensor lPtr = gpu.getTensor(l == null ? null : l.addRef(), precision,
                                       MemoryType.Device, false);
-                                  @Nullable final CudaTensor rPtr = gpu.getTensor(r == null ? null : r.addRef(), precision,
+                                  @Nullable
+                                  final CudaTensor rPtr = gpu.getTensor(r == null ? null : r.addRef(), precision,
                                       MemoryType.Device, false);
-                                  @Nonnull final CudaMemory outputPtr = gpu.allocate(
-                                      (long) outputDescriptor.nStride * length * precision.size, MemoryType.Device,
-                                      true);
+                                  @Nonnull
+                                  final CudaMemory outputPtr = gpu.allocate(
+                                      (long) outputDescriptor.nStride * length * precision.size, MemoryType.Device, true);
                                   CudaMemory lPtrMemory = lPtr.getMemory(gpu);
                                   CudaMemory rPtrMemory = rPtr.getMemory(gpu);
                                   CudaSystem.handle(JCudnn.cudnnOpTensor(gpu.handle, opDescriptor.getPtr(),
@@ -262,7 +256,7 @@ class NProductLayer extends LayerBase implements MultiPrecision<NProductLayer> {
                         if (null != l)
                           l.freeRef();
                         return temp_36_0005;
-                      }).get();
+                      }));
                   input.accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data);
                 }
                 if (null != input)
@@ -274,8 +268,7 @@ class NProductLayer extends LayerBase implements MultiPrecision<NProductLayer> {
                 buffer.freeRef();
             }
 
-            public @SuppressWarnings("unused")
-            void _free() {
+            public @SuppressWarnings("unused") void _free() {
               ReferenceCounting.freeRefs(inObj);
             }
           }) {
@@ -286,7 +279,8 @@ class NProductLayer extends LayerBase implements MultiPrecision<NProductLayer> {
 
         @Override
         public boolean isAlive() {
-          for (@Nonnull final Result element : inObj)
+          for (@Nonnull
+          final Result element : inObj)
             if (element.isAlive()) {
               return true;
             }
@@ -333,13 +327,10 @@ class NProductLayer extends LayerBase implements MultiPrecision<NProductLayer> {
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  NProductLayer addRef() {
+  public @Override @SuppressWarnings("unused") NProductLayer addRef() {
     return (NProductLayer) super.addRef();
   }
 }

@@ -28,8 +28,7 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Random;
 
-public abstract @RefAware
-class GateBiasLayerTest extends CudnnLayerTestBase {
+public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
 
@@ -37,16 +36,14 @@ class GateBiasLayerTest extends CudnnLayerTestBase {
     this.precision = precision;
   }
 
-  public static @SuppressWarnings("unused")
-  GateBiasLayerTest[] addRefs(GateBiasLayerTest[] array) {
+  public static @SuppressWarnings("unused") GateBiasLayerTest[] addRefs(GateBiasLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayerTest::addRef)
         .toArray((x) -> new GateBiasLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  GateBiasLayerTest[][] addRefs(GateBiasLayerTest[][] array) {
+  public static @SuppressWarnings("unused") GateBiasLayerTest[][] addRefs(GateBiasLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayerTest::addRefs)
@@ -56,12 +53,12 @@ class GateBiasLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{{4, 4, 3}, {1, 1, 3}};
+    return new int[][] { { 4, 4, 3 }, { 1, 1, 3 } };
   }
 
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][]{{1200, 1200, 3}, {1, 1, 3}};
+    return new int[][] { { 1200, 1200, 3 }, { 1, 1, 3 } };
   }
 
   @Nonnull
@@ -74,42 +71,33 @@ class GateBiasLayerTest extends CudnnLayerTestBase {
     return temp_74_0001;
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  GateBiasLayerTest addRef() {
+  public @Override @SuppressWarnings("unused") GateBiasLayerTest addRef() {
     return (GateBiasLayerTest) super.addRef();
   }
 
-  public static @RefAware
-  class Double extends GateBiasLayerTest {
+  public static class Double extends GateBiasLayerTest {
     public Double() {
       super(Precision.Double);
     }
 
-    public static @SuppressWarnings("unused")
-    Double[] addRefs(Double[] array) {
+    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
+    public @Override @SuppressWarnings("unused") Double addRef() {
       return (Double) super.addRef();
     }
   }
 
-  public static @RefAware
-  class Float extends GateBiasLayerTest {
+  public static class Float extends GateBiasLayerTest {
     public Float() {
       super(Precision.Float);
     }
@@ -119,20 +107,16 @@ class GateBiasLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public static @SuppressWarnings("unused")
-    Float[] addRefs(Float[] array) {
+    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
+    public @Override @SuppressWarnings("unused") Float addRef() {
       return (Float) super.addRef();
     }
 

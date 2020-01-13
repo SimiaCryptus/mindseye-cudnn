@@ -28,8 +28,7 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Random;
 
-public abstract @RefAware
-class PoolingLayerTest extends CudnnLayerTestBase {
+public abstract class PoolingLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
 
@@ -37,16 +36,14 @@ class PoolingLayerTest extends CudnnLayerTestBase {
     this.precision = precision;
   }
 
-  public static @SuppressWarnings("unused")
-  PoolingLayerTest[] addRefs(PoolingLayerTest[] array) {
+  public static @SuppressWarnings("unused") PoolingLayerTest[] addRefs(PoolingLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(PoolingLayerTest::addRef)
         .toArray((x) -> new PoolingLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  PoolingLayerTest[][] addRefs(PoolingLayerTest[][] array) {
+  public static @SuppressWarnings("unused") PoolingLayerTest[][] addRefs(PoolingLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(PoolingLayerTest::addRefs)
@@ -66,33 +63,28 @@ class PoolingLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{{8, 8, 1}};
+    return new int[][] { { 8, 8, 1 } };
   }
 
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][]{{800, 800, 16}};
+    return new int[][] { { 800, 800, 16 } };
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  PoolingLayerTest addRef() {
+  public @Override @SuppressWarnings("unused") PoolingLayerTest addRef() {
     return (PoolingLayerTest) super.addRef();
   }
 
-  public static @RefAware
-  class Repro extends PoolingLayerTest {
+  public static class Repro extends PoolingLayerTest {
     public Repro() {
       super(Precision.Double);
     }
 
-    public static @SuppressWarnings("unused")
-    Repro[] addRefs(Repro[] array) {
+    public static @SuppressWarnings("unused") Repro[] addRefs(Repro[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Repro::addRef).toArray((x) -> new Repro[x]);
@@ -101,13 +93,13 @@ class PoolingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{3, 2, 1}};
+      return new int[][] { { 3, 2, 1 } };
     }
 
     @Nonnull
     @Override
     public int[][] getLargeDims(Random random) {
-      return new int[][]{{3, 2, 512}};
+      return new int[][] { { 3, 2, 512 } };
     }
 
     @Nonnull
@@ -126,54 +118,43 @@ class PoolingLayerTest extends CudnnLayerTestBase {
       return temp_60_0003;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Repro addRef() {
+    public @Override @SuppressWarnings("unused") Repro addRef() {
       return (Repro) super.addRef();
     }
 
   }
 
-  public static @RefAware
-  class Double extends PoolingLayerTest {
+  public static class Double extends PoolingLayerTest {
     public Double() {
       super(Precision.Double);
     }
 
-    public static @SuppressWarnings("unused")
-    Double[] addRefs(Double[] array) {
+    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
+    public @Override @SuppressWarnings("unused") Double addRef() {
       return (Double) super.addRef();
     }
   }
 
-  public static @RefAware
-  class Asymmetric extends PoolingLayerTest {
+  public static class Asymmetric extends PoolingLayerTest {
     public Asymmetric() {
       super(Precision.Double);
     }
 
-    public static @SuppressWarnings("unused")
-    Asymmetric[] addRefs(Asymmetric[] array) {
+    public static @SuppressWarnings("unused") Asymmetric[] addRefs(Asymmetric[] array) {
       if (array == null)
         return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Asymmetric::addRef)
-          .toArray((x) -> new Asymmetric[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Asymmetric::addRef).toArray((x) -> new Asymmetric[x]);
     }
 
     @Nonnull
@@ -189,20 +170,16 @@ class PoolingLayerTest extends CudnnLayerTestBase {
       return temp_60_0005;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Asymmetric addRef() {
+    public @Override @SuppressWarnings("unused") Asymmetric addRef() {
       return (Asymmetric) super.addRef();
     }
 
   }
 
-  public static @RefAware
-  class Float extends PoolingLayerTest {
+  public static class Float extends PoolingLayerTest {
     public Float() {
       super(Precision.Float);
     }
@@ -212,20 +189,16 @@ class PoolingLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public static @SuppressWarnings("unused")
-    Float[] addRefs(Float[] array) {
+    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
+    public @Override @SuppressWarnings("unused") Float addRef() {
       return (Float) super.addRef();
     }
 

@@ -28,8 +28,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 
-public abstract @RefAware
-class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
+public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
 
   private final ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1).set(() -> this.random());
 
@@ -45,16 +44,14 @@ class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
     return com.simiacryptus.mindseye.layers.java.ImgTileSubnetLayer.class;
   }
 
-  public static @SuppressWarnings("unused")
-  ImgTileSubnetLayerTest[] addRefs(ImgTileSubnetLayerTest[] array) {
+  public static @SuppressWarnings("unused") ImgTileSubnetLayerTest[] addRefs(ImgTileSubnetLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayerTest::addRef)
         .toArray((x) -> new ImgTileSubnetLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgTileSubnetLayerTest[][] addRefs(ImgTileSubnetLayerTest[][] array) {
+  public static @SuppressWarnings("unused") ImgTileSubnetLayerTest[][] addRefs(ImgTileSubnetLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayerTest::addRefs)
@@ -64,12 +61,12 @@ class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{{5, 5, 1}};
+    return new int[][] { { 5, 5, 1 } };
   }
 
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][]{{1200, 1200, 1}};
+    return new int[][] { { 1200, 1200, 1 } };
   }
 
   @Nonnull
@@ -78,20 +75,16 @@ class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
     return new ImgTileSubnetLayer(new ActivationLayer(ActivationLayer.Mode.RELU), 3, 3, 2, 2);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
     if (null != convolutionLayer)
       convolutionLayer.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ImgTileSubnetLayerTest addRef() {
+  public @Override @SuppressWarnings("unused") ImgTileSubnetLayerTest addRef() {
     return (ImgTileSubnetLayerTest) super.addRef();
   }
 
-  public static @RefAware
-  class Basic extends ImgTileSubnetLayerTest {
+  public static class Basic extends ImgTileSubnetLayerTest {
 
     @Nullable
     @Override
@@ -99,20 +92,16 @@ class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
       return null;
     }
 
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(Basic[] array) {
+    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
+    public @Override @SuppressWarnings("unused") Basic addRef() {
       return (Basic) super.addRef();
     }
 

@@ -40,8 +40,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public @RefAware
-class ImgMinSizeLayer extends LayerBase implements MultiPrecision<ImgMinSizeLayer> {
+public class ImgMinSizeLayer extends LayerBase implements MultiPrecision<ImgMinSizeLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgMinSizeLayer.class);
 
   private int sizeX;
@@ -80,16 +79,14 @@ class ImgMinSizeLayer extends LayerBase implements MultiPrecision<ImgMinSizeLaye
     return new ImgMinSizeLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgMinSizeLayer[] addRefs(ImgMinSizeLayer[] array) {
+  public static @SuppressWarnings("unused") ImgMinSizeLayer[] addRefs(ImgMinSizeLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgMinSizeLayer::addRef)
         .toArray((x) -> new ImgMinSizeLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgMinSizeLayer[][] addRefs(ImgMinSizeLayer[][] array) {
+  public static @SuppressWarnings("unused") ImgMinSizeLayer[][] addRefs(ImgMinSizeLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgMinSizeLayer::addRefs)
@@ -127,8 +124,7 @@ class ImgMinSizeLayer extends LayerBase implements MultiPrecision<ImgMinSizeLaye
     ImgCropLayer imgCropLayer = temp_45_0002.setPrecision(precision);
     if (null != temp_45_0002)
       temp_45_0002.freeRef();
-    Result temp_45_0001 = imgCropLayer
-        .eval(Result.addRefs(inObj));
+    Result temp_45_0001 = imgCropLayer.eval(Result.addRefs(inObj));
     ReferenceCounting.freeRefs(inObj);
     imgCropLayer.freeRef();
     return temp_45_0001;
@@ -137,7 +133,8 @@ class ImgMinSizeLayer extends LayerBase implements MultiPrecision<ImgMinSizeLaye
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
     json.addProperty("precision", precision.name());
@@ -150,13 +147,10 @@ class ImgMinSizeLayer extends LayerBase implements MultiPrecision<ImgMinSizeLaye
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ImgMinSizeLayer addRef() {
+  public @Override @SuppressWarnings("unused") ImgMinSizeLayer addRef() {
     return (ImgMinSizeLayer) super.addRef();
   }
 

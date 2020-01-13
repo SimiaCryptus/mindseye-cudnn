@@ -31,8 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public @RefAware
-class CudaSettings implements Settings {
+public class CudaSettings implements Settings {
 
   private static final Logger logger = LoggerFactory.getLogger(CudaSettings.class);
 

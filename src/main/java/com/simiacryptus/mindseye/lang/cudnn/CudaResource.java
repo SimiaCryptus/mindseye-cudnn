@@ -27,8 +27,7 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.function.ToIntFunction;
 
-public @RefAware
-class CudaResource<T> extends CudaResourceBase<T> {
+public class CudaResource<T> extends CudaResourceBase<T> {
   protected static final Logger logger = LoggerFactory.getLogger(CudaResource.class);
 
   public final int deviceId;
@@ -45,16 +44,13 @@ class CudaResource<T> extends CudaResourceBase<T> {
     return deviceId;
   }
 
-  public static @SuppressWarnings("unused")
-  CudaResource[] addRefs(CudaResource[] array) {
+  public static @SuppressWarnings("unused") CudaResource[] addRefs(CudaResource[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaResource::addRef)
-        .toArray((x) -> new CudaResource[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(CudaResource::addRef).toArray((x) -> new CudaResource[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  CudaResource[][] addRefs(CudaResource[][] array) {
+  public static @SuppressWarnings("unused") CudaResource[][] addRefs(CudaResource[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CudaResource::addRefs)
@@ -81,9 +77,7 @@ class CudaResource<T> extends CudaResourceBase<T> {
       release();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  CudaResource<T> addRef() {
+  public @Override @SuppressWarnings("unused") CudaResource<T> addRef() {
     return (CudaResource<T>) super.addRef();
   }
 }

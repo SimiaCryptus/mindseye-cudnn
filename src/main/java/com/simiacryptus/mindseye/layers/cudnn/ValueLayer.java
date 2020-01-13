@@ -35,8 +35,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @SuppressWarnings("serial")
-public @RefAware
-class ValueLayer extends LayerBase {
+public class ValueLayer extends LayerBase {
 
   private final Precision precision;
   private final CudaTensorList tensorList;
@@ -45,13 +44,10 @@ class ValueLayer extends LayerBase {
     super(json);
     this.precision = Precision.valueOf(json.get("precision").getAsString());
     Tensor value = Tensor.fromJson(json.get("value"), resources);
-    {
-      CudaTensorList temp_19_0001 = toDevice(value == null ? null : value.addRef(),
-          precision);
-      this.tensorList = temp_19_0001 == null ? null : temp_19_0001.addRef();
-      if (null != temp_19_0001)
-        temp_19_0001.freeRef();
-    }
+    CudaTensorList temp_19_0001 = toDevice(value == null ? null : value.addRef(), precision);
+    this.tensorList = temp_19_0001 == null ? null : temp_19_0001.addRef();
+    if (null != temp_19_0001)
+      temp_19_0001.freeRef();
     if (null != value)
       value.freeRef();
   }
@@ -59,13 +55,10 @@ class ValueLayer extends LayerBase {
   public ValueLayer(final Tensor data) {
     super();
     this.precision = Precision.Float;
-    {
-      CudaTensorList temp_19_0002 = toDevice(data == null ? null : data.addRef(),
-          precision);
-      this.tensorList = temp_19_0002 == null ? null : temp_19_0002.addRef();
-      if (null != temp_19_0002)
-        temp_19_0002.freeRef();
-    }
+    CudaTensorList temp_19_0002 = toDevice(data == null ? null : data.addRef(), precision);
+    this.tensorList = temp_19_0002 == null ? null : temp_19_0002.addRef();
+    if (null != temp_19_0002)
+      temp_19_0002.freeRef();
     if (null != data)
       data.freeRef();
     this.frozen = true;
@@ -76,20 +69,16 @@ class ValueLayer extends LayerBase {
     return new ValueLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused")
-  ValueLayer[] addRefs(ValueLayer[] array) {
+  public static @SuppressWarnings("unused") ValueLayer[] addRefs(ValueLayer[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef)
-        .toArray((x) -> new ValueLayer[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef).toArray((x) -> new ValueLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ValueLayer[][] addRefs(ValueLayer[][] array) {
+  public static @SuppressWarnings("unused") ValueLayer[][] addRefs(ValueLayer[][] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs)
-        .toArray((x) -> new ValueLayer[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs).toArray((x) -> new ValueLayer[x][]);
   }
 
   public CudaTensorList toDevice(final Tensor data, final Precision precision) {
@@ -98,25 +87,20 @@ class ValueLayer extends LayerBase {
         data.freeRef();
       return null;
     }
-    CudaTensorList temp_19_0005 = CudaSystem
-        .run(RefUtil.wrapInterface(
-            (Function<CudnnHandle, CudaTensorList>) gpu -> {
-              CudaMemory cudaMemory = gpu.allocate(data.length() * precision.size, MemoryType.Managed.ifEnabled(),
-                  true);
-              RefUtil.freeRef(cudaMemory.write(precision, data.getData()));
-              int[] dimensions = data.getDimensions();
-              CudaDevice.CudaTensorDescriptor tensorDescriptor = gpu.newTensorDescriptor(precision, 1, dimensions[2],
-                  dimensions[1], dimensions[0]);
-              CudaTensorList temp_19_0003 = new CudaTensorList(
-                  new CudaTensor(cudaMemory == null ? null : cudaMemory.addRef(),
-                      tensorDescriptor == null ? null : tensorDescriptor.addRef(), precision),
-                  1, dimensions, precision);
-              if (null != tensorDescriptor)
-                tensorDescriptor.freeRef();
-              if (null != cudaMemory)
-                cudaMemory.freeRef();
-              return temp_19_0003;
-            }, data == null ? null : data.addRef()));
+    CudaTensorList temp_19_0005 = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
+      CudaMemory cudaMemory = gpu.allocate(data.length() * precision.size, MemoryType.Managed.ifEnabled(), true);
+      RefUtil.freeRef(cudaMemory.write(precision, data.getData()));
+      int[] dimensions = data.getDimensions();
+      CudaDevice.CudaTensorDescriptor tensorDescriptor = gpu.newTensorDescriptor(precision, 1, dimensions[2],
+          dimensions[1], dimensions[0]);
+      CudaTensorList temp_19_0003 = new CudaTensorList(new CudaTensor(cudaMemory == null ? null : cudaMemory.addRef(),
+          tensorDescriptor == null ? null : tensorDescriptor.addRef(), precision), 1, dimensions, precision);
+      if (null != tensorDescriptor)
+        tensorDescriptor.freeRef();
+      if (null != cudaMemory)
+        cudaMemory.freeRef();
+      return temp_19_0003;
+    }, data == null ? null : data.addRef()));
     if (null != data)
       data.freeRef();
     return temp_19_0005;
@@ -136,8 +120,7 @@ class ValueLayer extends LayerBase {
           buffer.freeRef();
       }
 
-      public @SuppressWarnings("unused")
-      void _free() {
+      public @SuppressWarnings("unused") void _free() {
       }
     }) {
 
@@ -154,7 +137,8 @@ class ValueLayer extends LayerBase {
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     Tensor tensor = tensorList.get(0);
     json.add("value", tensor.getJson(resources, dataSerializer));
     if (null != tensor)
@@ -178,9 +162,7 @@ class ValueLayer extends LayerBase {
       tensorList.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ValueLayer addRef() {
+  public @Override @SuppressWarnings("unused") ValueLayer addRef() {
     return (ValueLayer) super.addRef();
   }
 }

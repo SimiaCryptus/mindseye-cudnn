@@ -34,8 +34,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 
-public abstract @RefAware
-class FullyConnectedLayerTest extends CudnnLayerTestBase {
+public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   protected final int[] inputDim;
@@ -46,26 +45,20 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
   public FullyConnectedLayerTest(@Nonnull int[] inputDims, @Nonnull int[] outputDims, int batchBands) {
     this.inputDim = inputDims;
-    {
-      FullyConnectedLayer temp_11_0003 = new FullyConnectedLayer(inputDims,
-          outputDims);
-      FullyConnectedLayer temp_11_0001 = temp_11_0003.setWeightsLog(-2);
-      if (null != temp_11_0003)
-        temp_11_0003.freeRef();
-      this.fullyConnectedLayer = temp_11_0001 == null ? null : temp_11_0001.addRef();
-      if (null != temp_11_0001)
-        temp_11_0001.freeRef();
-    }
-    {
-      FullyConnectedLayer temp_11_0004 = this.fullyConnectedLayer
-          .setBatchBands(batchBands);
-      Layer temp_11_0002 = temp_11_0004.explode();
-      if (null != temp_11_0004)
-        temp_11_0004.freeRef();
-      this.layer = temp_11_0002 == null ? null : temp_11_0002.addRef();
-      if (null != temp_11_0002)
-        temp_11_0002.freeRef();
-    }
+    FullyConnectedLayer temp_11_0003 = new FullyConnectedLayer(inputDims, outputDims);
+    FullyConnectedLayer temp_11_0001 = temp_11_0003.setWeightsLog(-2);
+    if (null != temp_11_0003)
+      temp_11_0003.freeRef();
+    this.fullyConnectedLayer = temp_11_0001 == null ? null : temp_11_0001.addRef();
+    if (null != temp_11_0001)
+      temp_11_0001.freeRef();
+    FullyConnectedLayer temp_11_0004 = this.fullyConnectedLayer.setBatchBands(batchBands);
+    Layer temp_11_0002 = temp_11_0004.explode();
+    if (null != temp_11_0004)
+      temp_11_0004.freeRef();
+    this.layer = temp_11_0002 == null ? null : temp_11_0002.addRef();
+    if (null != temp_11_0002)
+      temp_11_0002.freeRef();
   }
 
   @Override
@@ -87,16 +80,14 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
     return FullyConnectedLayer.class;
   }
 
-  public static @SuppressWarnings("unused")
-  FullyConnectedLayerTest[] addRefs(FullyConnectedLayerTest[] array) {
+  public static @SuppressWarnings("unused") FullyConnectedLayerTest[] addRefs(FullyConnectedLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayerTest::addRef)
         .toArray((x) -> new FullyConnectedLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  FullyConnectedLayerTest[][] addRefs(FullyConnectedLayerTest[][] array) {
+  public static @SuppressWarnings("unused") FullyConnectedLayerTest[][] addRefs(FullyConnectedLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayerTest::addRefs)
@@ -106,7 +97,7 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{inputDim};
+    return new int[][] { inputDim };
   }
 
   @Nonnull
@@ -123,44 +114,35 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
     super.run(log);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
     layer.freeRef();
     fullyConnectedLayer.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  FullyConnectedLayerTest addRef() {
+  public @Override @SuppressWarnings("unused") FullyConnectedLayerTest addRef() {
     return (FullyConnectedLayerTest) super.addRef();
   }
 
-  public static @RefAware
-  class Basic extends FullyConnectedLayerTest {
+  public static class Basic extends FullyConnectedLayerTest {
     public Basic() {
-      super(new int[]{2}, new int[]{2}, 512);
+      super(new int[] { 2 }, new int[] { 2 }, 512);
     }
 
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(Basic[] array) {
+    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
+    public @Override @SuppressWarnings("unused") Basic addRef() {
       return (Basic) super.addRef();
     }
   }
 
-  public abstract static @RefAware
-  class BigTests extends FullyConnectedLayerTest {
+  public abstract static class BigTests extends FullyConnectedLayerTest {
 
     public BigTests(@Nonnull int[] inputDims, @Nonnull int[] outputDims, int batchBands) {
       super(inputDims, outputDims, batchBands);
@@ -178,8 +160,7 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
           return random();
         }
 
-        public @SuppressWarnings("unused")
-        void _free() {
+        public @SuppressWarnings("unused") void _free() {
         }
       }).setBatchSize(5);
     }
@@ -205,71 +186,55 @@ class FullyConnectedLayerTest extends CudnnLayerTestBase {
       return null;
     }
 
-    public static @SuppressWarnings("unused")
-    BigTests[] addRefs(BigTests[] array) {
+    public static @SuppressWarnings("unused") BigTests[] addRefs(BigTests[] array) {
       if (array == null)
         return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(BigTests::addRef)
-          .toArray((x) -> new BigTests[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(BigTests::addRef).toArray((x) -> new BigTests[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    BigTests addRef() {
+    public @Override @SuppressWarnings("unused") BigTests addRef() {
       return (BigTests) super.addRef();
     }
   }
 
-  public static @RefAware
-  class Big_VGG extends BigTests {
+  public static class Big_VGG extends BigTests {
     public Big_VGG() {
-      super(new int[]{25088}, new int[]{4096}, 25088 / 2);
+      super(new int[] { 25088 }, new int[] { 4096 }, 25088 / 2);
     }
 
-    public static @SuppressWarnings("unused")
-    Big_VGG[] addRefs(Big_VGG[] array) {
+    public static @SuppressWarnings("unused") Big_VGG[] addRefs(Big_VGG[] array) {
       if (array == null)
         return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Big_VGG::addRef)
-          .toArray((x) -> new Big_VGG[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Big_VGG::addRef).toArray((x) -> new Big_VGG[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Big_VGG addRef() {
+    public @Override @SuppressWarnings("unused") Big_VGG addRef() {
       return (Big_VGG) super.addRef();
     }
 
   }
 
-  public static @RefAware
-  class Big1 extends BigTests {
+  public static class Big1 extends BigTests {
     public Big1() {
-      super(new int[]{2 * 1024}, new int[]{2 * 1024}, 512);
+      super(new int[] { 2 * 1024 }, new int[] { 2 * 1024 }, 512);
     }
 
-    public static @SuppressWarnings("unused")
-    Big1[] addRefs(Big1[] array) {
+    public static @SuppressWarnings("unused") Big1[] addRefs(Big1[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Big1::addRef).toArray((x) -> new Big1[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Big1 addRef() {
+    public @Override @SuppressWarnings("unused") Big1 addRef() {
       return (Big1) super.addRef();
     }
 

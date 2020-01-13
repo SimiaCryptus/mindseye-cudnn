@@ -27,8 +27,7 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Random;
 
-public abstract @RefAware
-class ImgPaddingLayerTest extends CudnnLayerTestBase {
+public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   private static final int SIZE_OUT = 4;
   private static final int SIZE_IN = 2;
@@ -41,16 +40,14 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  public static @SuppressWarnings("unused")
-  ImgPaddingLayerTest[] addRefs(ImgPaddingLayerTest[] array) {
+  public static @SuppressWarnings("unused") ImgPaddingLayerTest[] addRefs(ImgPaddingLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayerTest::addRef)
         .toArray((x) -> new ImgPaddingLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgPaddingLayerTest[][] addRefs(ImgPaddingLayerTest[][] array) {
+  public static @SuppressWarnings("unused") ImgPaddingLayerTest[][] addRefs(ImgPaddingLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayerTest::addRefs)
@@ -65,20 +62,15 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
   @Override
   public abstract Layer getLayer(final int[][] inputSize, Random random);
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ImgPaddingLayerTest addRef() {
+  public @Override @SuppressWarnings("unused") ImgPaddingLayerTest addRef() {
     return (ImgPaddingLayerTest) super.addRef();
   }
 
-  public static @RefAware
-  class Center extends ImgPaddingLayerTest {
-    public static @SuppressWarnings("unused")
-    Center[] addRefs(Center[] array) {
+  public static class Center extends ImgPaddingLayerTest {
+    public static @SuppressWarnings("unused") Center[] addRefs(Center[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Center::addRef).toArray((x) -> new Center[x]);
@@ -87,7 +79,7 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+      return new int[][] { { SIZE_IN, SIZE_IN, 1 } };
     }
 
     @Nonnull
@@ -96,22 +88,17 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
       return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Center addRef() {
+    public @Override @SuppressWarnings("unused") Center addRef() {
       return (Center) super.addRef();
     }
 
   }
 
-  public static @RefAware
-  class Left extends ImgPaddingLayerTest {
-    public static @SuppressWarnings("unused")
-    Left[] addRefs(Left[] array) {
+  public static class Left extends ImgPaddingLayerTest {
+    public static @SuppressWarnings("unused") Left[] addRefs(Left[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Left::addRef).toArray((x) -> new Left[x]);
@@ -120,36 +107,30 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+      return new int[][] { { SIZE_IN, SIZE_IN, 1 } };
     }
 
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       ImgPaddingLayer temp_63_0002 = new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
-      ImgPaddingLayer temp_63_0001 = temp_63_0002
-          .setHorizontalAlign(Alignment.Left);
+      ImgPaddingLayer temp_63_0001 = temp_63_0002.setHorizontalAlign(Alignment.Left);
       if (null != temp_63_0002)
         temp_63_0002.freeRef();
       return temp_63_0001;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Left addRef() {
+    public @Override @SuppressWarnings("unused") Left addRef() {
       return (Left) super.addRef();
     }
 
   }
 
-  public static @RefAware
-  class Right extends ImgPaddingLayerTest {
-    public static @SuppressWarnings("unused")
-    Right[] addRefs(Right[] array) {
+  public static class Right extends ImgPaddingLayerTest {
+    public static @SuppressWarnings("unused") Right[] addRefs(Right[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Right::addRef).toArray((x) -> new Right[x]);
@@ -158,36 +139,30 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+      return new int[][] { { SIZE_IN, SIZE_IN, 1 } };
     }
 
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       ImgPaddingLayer temp_63_0004 = new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
-      ImgPaddingLayer temp_63_0003 = temp_63_0004
-          .setHorizontalAlign(Alignment.Right);
+      ImgPaddingLayer temp_63_0003 = temp_63_0004.setHorizontalAlign(Alignment.Right);
       if (null != temp_63_0004)
         temp_63_0004.freeRef();
       return temp_63_0003;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Right addRef() {
+    public @Override @SuppressWarnings("unused") Right addRef() {
       return (Right) super.addRef();
     }
 
   }
 
-  public static @RefAware
-  class Top extends ImgPaddingLayerTest {
-    public static @SuppressWarnings("unused")
-    Top[] addRefs(Top[] array) {
+  public static class Top extends ImgPaddingLayerTest {
+    public static @SuppressWarnings("unused") Top[] addRefs(Top[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Top::addRef).toArray((x) -> new Top[x]);
@@ -196,36 +171,30 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+      return new int[][] { { SIZE_IN, SIZE_IN, 1 } };
     }
 
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       ImgPaddingLayer temp_63_0006 = new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
-      ImgPaddingLayer temp_63_0005 = temp_63_0006
-          .setVerticalAlign(Alignment.Left);
+      ImgPaddingLayer temp_63_0005 = temp_63_0006.setVerticalAlign(Alignment.Left);
       if (null != temp_63_0006)
         temp_63_0006.freeRef();
       return temp_63_0005;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Top addRef() {
+    public @Override @SuppressWarnings("unused") Top addRef() {
       return (Top) super.addRef();
     }
 
   }
 
-  public static @RefAware
-  class Bottom extends ImgPaddingLayerTest {
-    public static @SuppressWarnings("unused")
-    Bottom[] addRefs(Bottom[] array) {
+  public static class Bottom extends ImgPaddingLayerTest {
+    public static @SuppressWarnings("unused") Bottom[] addRefs(Bottom[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Bottom::addRef).toArray((x) -> new Bottom[x]);
@@ -234,27 +203,23 @@ class ImgPaddingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+      return new int[][] { { SIZE_IN, SIZE_IN, 1 } };
     }
 
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       ImgPaddingLayer temp_63_0008 = new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
-      ImgPaddingLayer temp_63_0007 = temp_63_0008
-          .setVerticalAlign(Alignment.Right);
+      ImgPaddingLayer temp_63_0007 = temp_63_0008.setVerticalAlign(Alignment.Right);
       if (null != temp_63_0008)
         temp_63_0008.freeRef();
       return temp_63_0007;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Bottom addRef() {
+    public @Override @SuppressWarnings("unused") Bottom addRef() {
       return (Bottom) super.addRef();
     }
 

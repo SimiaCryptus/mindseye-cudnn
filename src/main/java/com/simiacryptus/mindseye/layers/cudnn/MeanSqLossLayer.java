@@ -36,8 +36,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @RefAware
-class MeanSqLossLayer extends PipelineNetwork {
+public class MeanSqLossLayer extends PipelineNetwork {
 
   @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(MeanSqLossLayer.class);
@@ -47,13 +46,10 @@ class MeanSqLossLayer extends PipelineNetwork {
   public MeanSqLossLayer() {
     super(2);
     final Layer nextHead = new BinarySumLayer(alpha, -alpha);
-    {
-      InnerNode temp_14_0001 = add(nextHead == null ? null : nextHead.addRef(),
-          getInput(0), getInput(1));
-      this.binaryNode = temp_14_0001 == null ? null : temp_14_0001.addRef();
-      if (null != temp_14_0001)
-        temp_14_0001.freeRef();
-    }
+    InnerNode temp_14_0001 = add(nextHead == null ? null : nextHead.addRef(), getInput(0), getInput(1));
+    this.binaryNode = temp_14_0001 == null ? null : temp_14_0001.addRef();
+    if (null != temp_14_0001)
+      temp_14_0001.freeRef();
     if (null != nextHead)
       nextHead.freeRef();
     RefUtil.freeRef(add(new SquareActivationLayer()));
@@ -63,13 +59,10 @@ class MeanSqLossLayer extends PipelineNetwork {
   protected MeanSqLossLayer(@Nonnull final JsonObject id, Map<CharSequence, byte[]> rs) {
     super(id, rs);
     alpha = id.get("alpha").getAsDouble();
-    {
-      InnerNode temp_14_0002 = (InnerNode) getNodeById(
-          UUID.fromString(id.get("binaryNode").getAsString()));
-      binaryNode = temp_14_0002 == null ? null : temp_14_0002.addRef();
-      if (null != temp_14_0002)
-        temp_14_0002.freeRef();
-    }
+    InnerNode temp_14_0002 = (InnerNode) getNodeById(UUID.fromString(id.get("binaryNode").getAsString()));
+    binaryNode = temp_14_0002 == null ? null : temp_14_0002.addRef();
+    if (null != temp_14_0002)
+      temp_14_0002.freeRef();
   }
 
   public double getAlpha() {
@@ -91,16 +84,14 @@ class MeanSqLossLayer extends PipelineNetwork {
     return new MeanSqLossLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused")
-  MeanSqLossLayer[] addRefs(MeanSqLossLayer[] array) {
+  public static @SuppressWarnings("unused") MeanSqLossLayer[] addRefs(MeanSqLossLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayer::addRef)
         .toArray((x) -> new MeanSqLossLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  MeanSqLossLayer[][] addRefs(MeanSqLossLayer[][] array) {
+  public static @SuppressWarnings("unused") MeanSqLossLayer[][] addRefs(MeanSqLossLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayer::addRefs)
@@ -121,9 +112,7 @@ class MeanSqLossLayer extends PipelineNetwork {
     super._free();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  MeanSqLossLayer addRef() {
+  public @Override @SuppressWarnings("unused") MeanSqLossLayer addRef() {
     return (MeanSqLossLayer) super.addRef();
   }
 }

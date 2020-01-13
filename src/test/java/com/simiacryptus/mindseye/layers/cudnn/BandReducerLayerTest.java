@@ -28,8 +28,7 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Random;
 
-public abstract @RefAware
-class BandReducerLayerTest extends CudnnLayerTestBase {
+public abstract class BandReducerLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
   private final double alpha;
@@ -39,16 +38,14 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
     this.alpha = alpha;
   }
 
-  public static @SuppressWarnings("unused")
-  BandReducerLayerTest[] addRefs(BandReducerLayerTest[] array) {
+  public static @SuppressWarnings("unused") BandReducerLayerTest[] addRefs(BandReducerLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayerTest::addRef)
         .toArray((x) -> new BandReducerLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  BandReducerLayerTest[][] addRefs(BandReducerLayerTest[][] array) {
+  public static @SuppressWarnings("unused") BandReducerLayerTest[][] addRefs(BandReducerLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayerTest::addRefs)
@@ -58,7 +55,7 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{{2, 2, 1}};
+    return new int[][] { { 2, 2, 1 } };
   }
 
   @Nonnull
@@ -77,108 +74,87 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][]{{32, 32, 3}};
+    return new int[][] { { 32, 32, 3 } };
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  BandReducerLayerTest addRef() {
+  public @Override @SuppressWarnings("unused") BandReducerLayerTest addRef() {
     return (BandReducerLayerTest) super.addRef();
   }
 
-  public static @RefAware
-  class Double extends BandReducerLayerTest {
+  public static class Double extends BandReducerLayerTest {
     public Double() {
       super(Precision.Double, 1.0);
     }
 
-    public static @SuppressWarnings("unused")
-    Double[] addRefs(Double[] array) {
+    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
+    public @Override @SuppressWarnings("unused") Double addRef() {
       return (Double) super.addRef();
     }
   }
 
-  public static @RefAware
-  class Negative extends BandReducerLayerTest {
+  public static class Negative extends BandReducerLayerTest {
     public Negative() {
       super(Precision.Double, -5.0);
     }
 
-    public static @SuppressWarnings("unused")
-    Negative[] addRefs(Negative[] array) {
+    public static @SuppressWarnings("unused") Negative[] addRefs(Negative[] array) {
       if (array == null)
         return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Negative::addRef)
-          .toArray((x) -> new Negative[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Negative::addRef).toArray((x) -> new Negative[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Negative addRef() {
+    public @Override @SuppressWarnings("unused") Negative addRef() {
       return (Negative) super.addRef();
     }
   }
 
-  public static @RefAware
-  class Asymmetric extends BandReducerLayerTest {
+  public static class Asymmetric extends BandReducerLayerTest {
     public Asymmetric() {
       super(Precision.Double, 1.0);
     }
 
-    public static @SuppressWarnings("unused")
-    Asymmetric[] addRefs(Asymmetric[] array) {
+    public static @SuppressWarnings("unused") Asymmetric[] addRefs(Asymmetric[] array) {
       if (array == null)
         return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Asymmetric::addRef)
-          .toArray((x) -> new Asymmetric[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Asymmetric::addRef).toArray((x) -> new Asymmetric[x]);
     }
 
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][]{{3, 5, 2}};
+      return new int[][] { { 3, 5, 2 } };
     }
 
     @Nonnull
     @Override
     public int[][] getLargeDims(Random random) {
-      return new int[][]{{200, 100, 3}};
+      return new int[][] { { 200, 100, 3 } };
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Asymmetric addRef() {
+    public @Override @SuppressWarnings("unused") Asymmetric addRef() {
       return (Asymmetric) super.addRef();
     }
 
   }
 
-  public static @RefAware
-  class Float extends BandReducerLayerTest {
+  public static class Float extends BandReducerLayerTest {
     public Float() {
       super(Precision.Float, 1.0);
     }
@@ -188,20 +164,16 @@ class BandReducerLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public static @SuppressWarnings("unused")
-    Float[] addRefs(Float[] array) {
+    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
+    public @Override @SuppressWarnings("unused") Float addRef() {
       return (Float) super.addRef();
     }
   }

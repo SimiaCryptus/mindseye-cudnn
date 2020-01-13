@@ -27,8 +27,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 
-public abstract @RefAware
-class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
+public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
 
   private final Layer layer1 = new ActivationLayer(ActivationLayer.Mode.RELU);
   private final Layer layer2 = new ActivationLayer(ActivationLayer.Mode.RELU);
@@ -48,16 +47,14 @@ class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  public static @SuppressWarnings("unused")
-  ImgLinearSubnetLayerTest[] addRefs(ImgLinearSubnetLayerTest[] array) {
+  public static @SuppressWarnings("unused") ImgLinearSubnetLayerTest[] addRefs(ImgLinearSubnetLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRef)
         .toArray((x) -> new ImgLinearSubnetLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgLinearSubnetLayerTest[][] addRefs(ImgLinearSubnetLayerTest[][] array) {
+  public static @SuppressWarnings("unused") ImgLinearSubnetLayerTest[][] addRefs(ImgLinearSubnetLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRefs)
@@ -67,24 +64,21 @@ class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][]{{smallSize, smallSize, 3}};
+    return new int[][] { { smallSize, smallSize, 3 } };
   }
 
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][]{{largeSize, largeSize, 3}};
+    return new int[][] { { largeSize, largeSize, 3 } };
   }
 
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     ImgLinearSubnetLayer temp_67_0002 = new ImgLinearSubnetLayer();
-    ImgLinearSubnetLayer temp_67_0003 = temp_67_0002.add(0, 1,
-        layer1 == null ? null : layer1.addRef());
-    ImgLinearSubnetLayer temp_67_0004 = temp_67_0003.add(1, 2,
-        layer2 == null ? null : layer2.addRef());
-    ImgLinearSubnetLayer temp_67_0001 = temp_67_0004.add(2, 3,
-        layer3 == null ? null : layer3.addRef());
+    ImgLinearSubnetLayer temp_67_0003 = temp_67_0002.add(0, 1, layer1 == null ? null : layer1.addRef());
+    ImgLinearSubnetLayer temp_67_0004 = temp_67_0003.add(1, 2, layer2 == null ? null : layer2.addRef());
+    ImgLinearSubnetLayer temp_67_0001 = temp_67_0004.add(2, 3, layer3 == null ? null : layer3.addRef());
     if (null != temp_67_0004)
       temp_67_0004.freeRef();
     if (null != temp_67_0003)
@@ -94,8 +88,7 @@ class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
     return temp_67_0001;
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
     if (null != layer3)
       layer3.freeRef();
     if (null != layer2)
@@ -104,29 +97,22 @@ class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
       layer1.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ImgLinearSubnetLayerTest addRef() {
+  public @Override @SuppressWarnings("unused") ImgLinearSubnetLayerTest addRef() {
     return (ImgLinearSubnetLayerTest) super.addRef();
   }
 
-  public static @RefAware
-  class Basic extends ImgLinearSubnetLayerTest {
+  public static class Basic extends ImgLinearSubnetLayerTest {
 
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(Basic[] array) {
+    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
+    public @Override @SuppressWarnings("unused") Basic addRef() {
       return (Basic) super.addRef();
     }
 

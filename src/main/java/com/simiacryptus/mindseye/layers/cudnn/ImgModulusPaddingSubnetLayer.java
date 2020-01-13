@@ -41,9 +41,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public @RefAware
-class ImgModulusPaddingSubnetLayer extends WrapperLayer
-    implements MultiPrecision<ImgModulusPaddingSubnetLayer> {
+public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiPrecision<ImgModulusPaddingSubnetLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusPaddingSubnetLayer.class);
 
   private int sizeX;
@@ -57,8 +55,6 @@ class ImgModulusPaddingSubnetLayer extends WrapperLayer
 
   public ImgModulusPaddingSubnetLayer(int sizeX, int sizeY, int offsetX, int offsetY, Layer inner) {
     super(inner);
-    if (null != inner)
-      inner.freeRef();
     this.sizeX = sizeX;
     this.sizeY = sizeY;
     this.offsetX = offsetX;
@@ -67,8 +63,6 @@ class ImgModulusPaddingSubnetLayer extends WrapperLayer
 
   public ImgModulusPaddingSubnetLayer(int sizeX, int sizeY, Layer inner) {
     this(sizeX, sizeY, 0, 0, inner);
-    if (null != inner)
-      inner.freeRef();
   }
 
   protected ImgModulusPaddingSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -105,8 +99,7 @@ class ImgModulusPaddingSubnetLayer extends WrapperLayer
     return new ImgModulusPaddingSubnetLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgModulusPaddingSubnetLayer[] addRefs(
+  public static @SuppressWarnings("unused") ImgModulusPaddingSubnetLayer[] addRefs(
       ImgModulusPaddingSubnetLayer[] array) {
     if (array == null)
       return null;
@@ -114,8 +107,7 @@ class ImgModulusPaddingSubnetLayer extends WrapperLayer
         .toArray((x) -> new ImgModulusPaddingSubnetLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ImgModulusPaddingSubnetLayer[][] addRefs(
+  public static @SuppressWarnings("unused") ImgModulusPaddingSubnetLayer[][] addRefs(
       ImgModulusPaddingSubnetLayer[][] array) {
     if (array == null)
       return null;
@@ -175,8 +167,7 @@ class ImgModulusPaddingSubnetLayer extends WrapperLayer
     ImgCropLayer imgCropLayer2 = temp_34_0004.setPrecision(precision);
     if (null != temp_34_0004)
       temp_34_0004.freeRef();
-    Result temp_34_0001 = imgCropLayer2
-        .eval(super.eval(imgCropLayer1.eval(Result.addRefs(inObj))).addRef());
+    Result temp_34_0001 = imgCropLayer2.eval(super.eval(imgCropLayer1.eval(Result.addRefs(inObj))).addRef());
     ReferenceCounting.freeRefs(inObj);
     imgCropLayer2.freeRef();
     imgCropLayer1.freeRef();
@@ -186,7 +177,8 @@ class ImgModulusPaddingSubnetLayer extends WrapperLayer
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
+    @Nonnull
+    final JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
     json.addProperty("offsetX", offsetX);
@@ -201,13 +193,10 @@ class ImgModulusPaddingSubnetLayer extends WrapperLayer
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ImgModulusPaddingSubnetLayer addRef() {
+  public @Override @SuppressWarnings("unused") ImgModulusPaddingSubnetLayer addRef() {
     return (ImgModulusPaddingSubnetLayer) super.addRef();
   }
 }

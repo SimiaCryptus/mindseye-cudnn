@@ -48,8 +48,7 @@ import java.util.Random;
 import java.util.function.LongFunction;
 
 @SuppressWarnings("serial")
-public @RefAware
-class StochasticSamplingSubnetLayer extends WrapperLayer
+public class StochasticSamplingSubnetLayer extends WrapperLayer
     implements StochasticComponent, MultiPrecision<StochasticSamplingSubnetLayer> {
 
   private final int samples;
@@ -59,8 +58,6 @@ class StochasticSamplingSubnetLayer extends WrapperLayer
 
   public StochasticSamplingSubnetLayer(final Layer subnetwork, final int samples) {
     super(subnetwork);
-    if (null != subnetwork)
-      subnetwork.freeRef();
     this.samples = samples;
   }
 
@@ -98,11 +95,10 @@ class StochasticSamplingSubnetLayer extends WrapperLayer
     PipelineNetwork gateNetwork = new PipelineNetwork(1);
     ProductLayer temp_28_0006 = new ProductLayer();
     Tensor temp_28_0007 = new Tensor(1, 1, 1);
-    RefUtil
-        .freeRef(gateNetwork.add(temp_28_0006.setPrecision(precision), gateNetwork.getInput(0),
-            gateNetwork.add(new ValueLayer(temp_28_0007.map(RefUtil.wrapInterface(
-                v -> 1.0 / samples.length,
-                Result.addRefs(samples)))), new DAGNode[]{})));
+    RefUtil.freeRef(gateNetwork.add(temp_28_0006.setPrecision(precision), gateNetwork.getInput(0),
+        gateNetwork.add(
+            new ValueLayer(temp_28_0007.map(RefUtil.wrapInterface(v -> 1.0 / samples.length, Result.addRefs(samples)))),
+            new DAGNode[] {})));
     if (null != temp_28_0007)
       temp_28_0007.freeRef();
     if (null != temp_28_0006)
@@ -111,8 +107,7 @@ class StochasticSamplingSubnetLayer extends WrapperLayer
     SumInputsLayer sumInputsLayer = temp_28_0008.setPrecision(precision);
     if (null != temp_28_0008)
       temp_28_0008.freeRef();
-    Result temp_28_0001 = gateNetwork
-        .eval(sumInputsLayer.eval(Result.addRefs(samples)));
+    Result temp_28_0001 = gateNetwork.eval(sumInputsLayer.eval(Result.addRefs(samples)));
     if (null != samples)
       ReferenceCounting.freeRefs(samples);
     if (null != sumInputsLayer)
@@ -122,8 +117,7 @@ class StochasticSamplingSubnetLayer extends WrapperLayer
     return temp_28_0001;
   }
 
-  public static @SuppressWarnings("unused")
-  StochasticSamplingSubnetLayer[] addRefs(
+  public static @SuppressWarnings("unused") StochasticSamplingSubnetLayer[] addRefs(
       StochasticSamplingSubnetLayer[] array) {
     if (array == null)
       return null;
@@ -131,8 +125,7 @@ class StochasticSamplingSubnetLayer extends WrapperLayer
         .toArray((x) -> new StochasticSamplingSubnetLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  StochasticSamplingSubnetLayer[][] addRefs(
+  public static @SuppressWarnings("unused") StochasticSamplingSubnetLayer[][] addRefs(
       StochasticSamplingSubnetLayer[][] array) {
     if (array == null)
       return null;
@@ -145,54 +138,49 @@ class StochasticSamplingSubnetLayer extends WrapperLayer
   public Result eval(@Nonnull final Result... inObj) {
     if (seed == 0) {
       Layer temp_28_0009 = getInner();
-      Result temp_28_0005 = temp_28_0009
-          .eval(Result.addRefs(inObj));
+      Result temp_28_0005 = temp_28_0009.eval(Result.addRefs(inObj));
       if (null != temp_28_0009)
         temp_28_0009.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_28_0005;
     }
     Result[] counting = RefArrays.stream(Result.addRefs(inObj)).map(r -> {
-      CountingResult temp_28_0002 = new CountingResult(r == null ? null : r.addRef(),
-          samples);
+      CountingResult temp_28_0002 = new CountingResult(r == null ? null : r.addRef(), samples);
       if (null != r)
         r.freeRef();
       return temp_28_0002;
     }).toArray(i -> new Result[i]);
     ReferenceCounting.freeRefs(inObj);
     Result temp_28_0003 = average(
-        RefArrays.stream(getSeeds()).mapToObj(RefUtil
-            .wrapInterface((LongFunction<? extends Result>) seed -> {
-              Layer inner = getInner();
-              if (inner instanceof DAGNetwork) {
-                ((DAGNetwork) inner).visitNodes(node -> {
-                  Layer layer = node.getLayer();
-                  if (null != node)
-                    node.freeRef();
-                  if (layer instanceof StochasticComponent) {
-                    ((StochasticComponent) layer).shuffle(seed);
-                  }
-                  if (layer instanceof MultiPrecision<?>) {
-                    ((MultiPrecision) layer).setPrecision(precision);
-                  }
-                  if (null != layer)
-                    layer.freeRef();
-                });
+        RefArrays.stream(getSeeds()).mapToObj(RefUtil.wrapInterface((LongFunction<? extends Result>) seed -> {
+          Layer inner = getInner();
+          if (inner instanceof DAGNetwork) {
+            ((DAGNetwork) inner).visitNodes(node -> {
+              Layer layer = node.getLayer();
+              if (null != node)
+                node.freeRef();
+              if (layer instanceof StochasticComponent) {
+                ((StochasticComponent) layer).shuffle(seed);
               }
-              if (inner instanceof MultiPrecision<?>) {
-                ((MultiPrecision) inner).setPrecision(precision);
+              if (layer instanceof MultiPrecision<?>) {
+                ((MultiPrecision) layer).setPrecision(precision);
               }
-              if (inner instanceof StochasticComponent) {
-                ((StochasticComponent) inner).shuffle(seed);
-              }
-              RefUtil.freeRef(inner.setFrozen(isFrozen()));
-              Result temp_28_0004 = inner
-                  .eval(Result.addRefs(counting));
-              if (null != inner)
-                inner.freeRef();
-              return temp_28_0004;
-            }, Result.addRefs(counting))).toArray(i -> new Result[i]),
-        precision);
+              if (null != layer)
+                layer.freeRef();
+            });
+          }
+          if (inner instanceof MultiPrecision<?>) {
+            ((MultiPrecision) inner).setPrecision(precision);
+          }
+          if (inner instanceof StochasticComponent) {
+            ((StochasticComponent) inner).shuffle(seed);
+          }
+          RefUtil.freeRef(inner.setFrozen(isFrozen()));
+          Result temp_28_0004 = inner.eval(Result.addRefs(counting));
+          if (null != inner)
+            inner.freeRef();
+          return temp_28_0004;
+        }, Result.addRefs(counting))).toArray(i -> new Result[i]), precision);
     if (null != counting)
       ReferenceCounting.freeRefs(counting);
     return temp_28_0003;
@@ -201,7 +189,8 @@ class StochasticSamplingSubnetLayer extends WrapperLayer
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
+    @Nonnull
+    final JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("samples", samples);
     json.addProperty("seed", seed);
     json.addProperty("layerSeed", layerSeed);
@@ -219,13 +208,10 @@ class StochasticSamplingSubnetLayer extends WrapperLayer
     seed = 0;
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  StochasticSamplingSubnetLayer addRef() {
+  public @Override @SuppressWarnings("unused") StochasticSamplingSubnetLayer addRef() {
     return (StochasticSamplingSubnetLayer) super.addRef();
   }
 }
