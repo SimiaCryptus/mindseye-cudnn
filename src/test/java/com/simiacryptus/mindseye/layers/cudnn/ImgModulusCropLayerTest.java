@@ -20,9 +20,9 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -44,14 +44,18 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  public static @SuppressWarnings("unused") ImgModulusCropLayerTest[] addRefs(ImgModulusCropLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgModulusCropLayerTest[] addRefs(@Nullable ImgModulusCropLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayerTest::addRef)
         .toArray((x) -> new ImgModulusCropLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgModulusCropLayerTest[][] addRefs(ImgModulusCropLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgModulusCropLayerTest[][] addRefs(@Nullable ImgModulusCropLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayerTest::addRefs)
@@ -61,7 +65,7 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 320, 240, 3 }
+    return new int[][]{{320, 240, 3}
         //        {2, 2, 1}
     };
   }
@@ -69,7 +73,7 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][] { { 320, 240, 3 }
+    return new int[][]{{320, 240, 3}
         //        {1200, 1200, 1}
     };
   }
@@ -78,14 +82,18 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     return new ImgModulusCropLayer(modulus, modulus, offset, offset)
-    //.setRoundUp(true)
-    ;
+        //.setRoundUp(true)
+        ;
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgModulusCropLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgModulusCropLayerTest addRef() {
     return (ImgModulusCropLayerTest) super.addRef();
   }
 
@@ -94,16 +102,22 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
       super(2, 7);
     }
 
-    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Basic[] addRefs(@Nullable Basic[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Basic addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Basic addRef() {
       return (Basic) super.addRef();
     }
   }

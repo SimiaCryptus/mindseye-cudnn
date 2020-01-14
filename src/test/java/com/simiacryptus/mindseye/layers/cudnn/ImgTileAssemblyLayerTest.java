@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,14 +38,18 @@ public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
     return com.simiacryptus.mindseye.layers.java.ImgTileAssemblyLayer.class;
   }
 
-  public static @SuppressWarnings("unused") ImgTileAssemblyLayerTest[] addRefs(ImgTileAssemblyLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgTileAssemblyLayerTest[] addRefs(@Nullable ImgTileAssemblyLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileAssemblyLayerTest::addRef)
         .toArray((x) -> new ImgTileAssemblyLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgTileAssemblyLayerTest[][] addRefs(ImgTileAssemblyLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgTileAssemblyLayerTest[][] addRefs(@Nullable ImgTileAssemblyLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileAssemblyLayerTest::addRefs)
@@ -56,15 +59,16 @@ public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 2, 2, 1 }, { 1, 2, 1 }, { 2, 2, 1 }, { 1, 2, 1 }, { 2, 1, 1 }, { 1, 1, 1 }
+    return new int[][]{{2, 2, 1}, {1, 2, 1}, {2, 2, 1}, {1, 2, 1}, {2, 1, 1}, {1, 1, 1}
         //      {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}
     };
   }
 
+  @Nonnull
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][] { { 200, 200, 100 }, { 100, 200, 100 }, { 200, 200, 100 }, { 100, 200, 100 }, { 200, 100, 100 },
-        { 100, 100, 100 } };
+    return new int[][]{{200, 200, 100}, {100, 200, 100}, {200, 200, 100}, {100, 200, 100}, {200, 100, 100},
+        {100, 100, 100}};
 
   }
 
@@ -74,25 +78,35 @@ public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
     return new ImgTileAssemblyLayer(2, 3);
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgTileAssemblyLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgTileAssemblyLayerTest addRef() {
     return (ImgTileAssemblyLayerTest) super.addRef();
   }
 
   public static class Basic extends ImgTileAssemblyLayerTest {
 
-    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Basic[] addRefs(@Nullable Basic[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Basic addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Basic addRef() {
       return (Basic) super.addRef();
     }
   }

@@ -22,12 +22,10 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.notebook.NotebookOutput;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,15 +45,14 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
   public Layer getReferenceLayer() {
     return new LayerBase() {
 
-      @Nullable
+      @Nonnull
       @Override
-      public Result eval(Result... array) {
+      public Result eval(@Nullable Result... array) {
+        assert array != null;
         TensorList temp_41_0002 = array[0].getData();
         Tensor input = temp_41_0002.get(0);
-        if (null != temp_41_0002)
-          temp_41_0002.freeRef();
-        if (null != array)
-          ReferenceCounting.freeRefs(array);
+        temp_41_0002.freeRef();
+        ReferenceCounting.freeRefs(array);
         int[] inputDimensions = input.getDimensions();
         int inBands = inputDimensions[2];
         Tensor output = new Tensor(1, 1, inBands * inBands);
@@ -67,29 +64,29 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
           return RefIntStream.range(0, inputDimensions[0]).mapToDouble(RefUtil.wrapInterface(x -> {
             return RefIntStream.range(0, inputDimensions[1]).mapToDouble(RefUtil.wrapInterface(y -> {
               return input.get(x, y, bandA) * input.get(x, y, bandB);
-            }, input == null ? null : input.addRef())).average().getAsDouble();
-          }, input == null ? null : input.addRef())).average().getAsDouble();
-        }, input == null ? null : input.addRef())));
-        if (null != input)
-          input.freeRef();
-        Result temp_41_0001 = new Result(new TensorArray(output == null ? null : output.addRef()),
+            }, input.addRef())).average().getAsDouble();
+          }, input.addRef())).average().getAsDouble();
+        }, input.addRef())));
+        input.freeRef();
+        Result temp_41_0001 = new Result(new TensorArray(output.addRef()),
             new Result.Accumulator() {
               @Override
-              public void accept(DeltaSet<UUID> a, TensorList b) {
+              public void accept(@Nullable DeltaSet<UUID> a, @Nullable TensorList b) {
                 if (null != b)
                   b.freeRef();
                 if (null != a)
                   a.freeRef();
               }
 
-              public @SuppressWarnings("unused") void _free() {
+              public @SuppressWarnings("unused")
+              void _free() {
               }
             });
-        if (null != output)
-          output.freeRef();
+        output.freeRef();
         return temp_41_0001;
       }
 
+      @Nullable
       @Override
       public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
         return null;
@@ -101,7 +98,8 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
         return null;
       }
 
-      public @SuppressWarnings("unused") void _free() {
+      public @SuppressWarnings("unused")
+      void _free() {
       }
     };
   }
@@ -112,14 +110,18 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
     return GramianLayer.class;
   }
 
-  public static @SuppressWarnings("unused") GramianLayerTest[] addRefs(GramianLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  GramianLayerTest[] addRefs(@Nullable GramianLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(GramianLayerTest::addRef)
         .toArray((x) -> new GramianLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") GramianLayerTest[][] addRefs(GramianLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  GramianLayerTest[][] addRefs(@Nullable GramianLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(GramianLayerTest::addRefs)
@@ -129,9 +131,10 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 2, 2, 3 } };
+    return new int[][]{{2, 2, 3}};
   }
 
+  @Nonnull
   @Override
   public abstract int[][] getLargeDims(final Random random);
 
@@ -142,17 +145,21 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
   }
 
   @Override
-  public void run(@NotNull NotebookOutput log) {
+  public void run(@Nonnull NotebookOutput log) {
     //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
     //    log.p(log.file((String) null, logName, "GPU Log"));
     //    CudaSystem.addLog(new PrintStream(log.file(logName)));
     super.run(log);
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") GramianLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  GramianLayerTest addRef() {
     return (GramianLayerTest) super.addRef();
   }
 
@@ -161,21 +168,28 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
       super();
     }
 
-    public static @SuppressWarnings("unused") Image[] addRefs(Image[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Image[] addRefs(@Nullable Image[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Image::addRef).toArray((x) -> new Image[x]);
     }
 
+    @Nonnull
     @Override
     public int[][] getLargeDims(final Random random) {
-      return new int[][] { { 1000, 1000, 3 } };
+      return new int[][]{{1000, 1000, 3}};
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Image addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Image addRef() {
       return (Image) super.addRef();
     }
 
@@ -186,21 +200,28 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
       super();
     }
 
-    public static @SuppressWarnings("unused") Deep[] addRefs(Deep[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Deep[] addRefs(@Nullable Deep[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Deep::addRef).toArray((x) -> new Deep[x]);
     }
 
+    @Nonnull
     @Override
     public int[][] getLargeDims(final Random random) {
-      return new int[][] { { 100, 100, 512 } };
+      return new int[][]{{100, 100, 512}};
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Deep addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Deep addRef() {
       return (Deep) super.addRef();
     }
   }

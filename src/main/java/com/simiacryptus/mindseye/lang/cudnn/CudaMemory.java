@@ -22,10 +22,10 @@ package com.simiacryptus.mindseye.lang.cudnn;
 import com.simiacryptus.mindseye.lang.RegisteredObjectBase;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayer;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.*;
 import jcuda.runtime.cudaMemcpyKind;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +45,13 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
   protected static final Logger logger = LoggerFactory.getLogger(CudaMemory.class);
   public final long size;
   private final int deviceId;
+  @Nonnull
   private final MemoryType type;
-  private long writtenAt = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
+  private long writtenAt = RefSystem.nanoTime();
 
-  CudaMemory(final CudaDevice gpu, final long size, @Nonnull MemoryType type) {
+  CudaMemory(@Nonnull final CudaDevice gpu, final long size, @Nonnull MemoryType type) {
     this(size, type, gpu.acquire(size, type, 1), gpu.getDeviceId());
+    gpu.freeRef();
   }
 
   CudaMemory(final long size, @Nonnull MemoryType type, final CudaPointer memory, final int deviceId) {
@@ -83,7 +85,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     }
     if (totalFreed == 0) {
       logger.info(RefString.format("Nothing Freed - Running Garbage Collector"));
-      com.simiacryptus.ref.wrappers.RefSystem.gc();
+      RefSystem.gc();
       totalFreed = evictMemory(0);
     }
     if (totalFreed == 0) {
@@ -96,8 +98,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
   public static double evictMemory(final int deviceId) {
     double bytes = RegisteredObjectBase.getLivingInstances(SimpleConvolutionLayer.class).mapToLong(x -> {
       long temp_35_0001 = x.evictDeviceData(deviceId);
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_35_0001;
     }).sum();
     logger.debug(RefString.format("Cleared %e bytes from ConvolutionFilters for device %s", bytes, deviceId));
@@ -105,17 +106,22 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     return tensorListsFreed + bytes;
   }
 
+  @NotNull
   public static DeviceMetrics getGpuStats(final int deviceId) {
     return CudaMemory.METRICS.computeIfAbsent(deviceId, device -> new DeviceMetrics());
   }
 
-  public static @SuppressWarnings("unused") CudaMemory[] addRefs(CudaMemory[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  CudaMemory[] addRefs(@Nullable CudaMemory[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRef).toArray((x) -> new CudaMemory[x]);
   }
 
-  public static @SuppressWarnings("unused") CudaMemory[][] addRefs(CudaMemory[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  CudaMemory[][] addRefs(@Nullable CudaMemory[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRefs).toArray((x) -> new CudaMemory[x][]);
@@ -125,52 +131,48 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     RefSet<Map.Entry<Integer, DeviceMetrics>> temp_35_0005 = METRICS.entrySet();
     RefMap<Integer, String> temp_35_0006 = temp_35_0005.stream().collect(RefCollectors.toMap(e -> {
       Integer temp_35_0002 = e.getKey();
-      if (null != e)
-        RefUtil.freeRef(e);
+      RefUtil.freeRef(e);
       return temp_35_0002;
     }, e -> {
       String temp_35_0003 = RefString.format("%e / %e", (double) e.getValue().activeMemory.get(),
           (double) e.getValue().usedMemory.get());
-      if (null != e)
-        RefUtil.freeRef(e);
+      RefUtil.freeRef(e);
       return temp_35_0003;
     }));
     logger.debug(RefString.format("Current Load: %s", temp_35_0006));
     if (null != temp_35_0006)
       temp_35_0006.freeRef();
-    if (null != temp_35_0005)
-      temp_35_0005.freeRef();
+    temp_35_0005.freeRef();
   }
 
   @Nonnull
   public Tensor read(@Nonnull final Precision precision, final int[] dimensions) {
     synchronize();
-    @Nonnull
-    final Tensor tensor = new Tensor(dimensions);
+    @Nonnull final Tensor tensor = new Tensor(dimensions);
     switch (precision) {
-    case Float:
-      final int length = tensor.length();
-      @Nonnull
-      final float[] data = new float[length];
-      read(precision, data);
-      @Nullable
-      final double[] doubles = tensor.getData();
-      for (int i = 0; i < length; i++) {
-        doubles[i] = data[i];
-      }
-      break;
-    case Double:
-      read(precision, tensor.getData());
-      break;
-    default:
-      throw new IllegalStateException();
+      case Float:
+        final int length = tensor.length();
+        @Nonnull final float[] data = new float[length];
+        read(precision, data);
+        @Nullable final double[] doubles = tensor.getData();
+        for (int i = 0; i < length; i++) {
+          doubles[i] = data[i];
+        }
+        break;
+      case Double:
+        read(precision, tensor.getData()).freeRef();
+        break;
+      default:
+        throw new IllegalStateException();
     }
     return tensor;
   }
 
-  public CudaMemory copy(CudaDevice deviceId, final MemoryType memoryType) {
+  @Nonnull
+  public CudaMemory copy(@Nonnull CudaDevice deviceId, @Nonnull final MemoryType memoryType) {
     @Nonnull
     CudaMemory copy = deviceId.allocate(size, memoryType, true);
+    deviceId.freeRef();
     synchronize();
     CudaSystem.cudaMemcpy(copy.getPtr(), this.getPtr(), size, cudaMemcpyKind.cudaMemcpyDeviceToDevice);
     return copy;
@@ -178,6 +180,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
 
   @Override
   public void release() {
+    assert ptr != null;
     if (ptr.getByteOffset() != 0)
       return;
     if (isActiveObj()) {
@@ -277,6 +280,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     return this.addRef();
   }
 
+  @Nonnull
   public CudaMemory withByteOffset(final int byteOffset) {
     if (size <= byteOffset)
       throw new IllegalArgumentException(size + " <= " + byteOffset);
@@ -285,6 +289,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     assertAlive();
     final CudaMemory baseMemorySegment = this.addRef();
     try {
+      assert ptr != null;
       return new CudaMemory(size - byteOffset, type, ptr.withByteOffset(byteOffset), baseMemorySegment.getDeviceId()) {
         @Override
         public void release() {
@@ -294,15 +299,15 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
         }
       };
     } finally {
-      if (null != baseMemorySegment)
-        baseMemorySegment.freeRef();
+      baseMemorySegment.freeRef();
     }
   }
 
+  @Nonnull
   public CudaMemory dirty() {
     assert type == MemoryType.Managed || CudaDevice.isThreadDeviceId(getDeviceId()) : getDeviceId() + " != "
         + CudaSystem.getThreadDeviceId();
-    writtenAt = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
+    writtenAt = RefSystem.nanoTime();
     return this.addRef();
   }
 
@@ -312,6 +317,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
   }
 
   public void _free() {
+    assert ptr != null;
     if (ptr.getByteOffset() != 0)
       return;
     CudnnHandle threadHandle = CudaSystem.getThreadHandle();
@@ -321,7 +327,10 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
       release();
   }
 
-  public @Override @SuppressWarnings("unused") CudaMemory addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  CudaMemory addRef() {
     return (CudaMemory) super.addRef();
   }
 

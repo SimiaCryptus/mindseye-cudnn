@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
@@ -78,138 +77,102 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
     return yPos;
   }
 
+  @Nonnull
   public ImgTileCycleLayer setXPos(double xPos) {
     this.xPos = xPos;
     return this.addRef();
   }
 
+  @Nonnull
   public ImgTileCycleLayer setYPos(double yPos) {
     this.yPos = yPos;
     return this.addRef();
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static ImgTileCycleLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgTileCycleLayer(json, rs);
   }
 
-  public static CudaTensor copy(final CudnnHandle gpu, final CudaTensor input, final int length, Precision precision,
-      final int splitX, final int splitY) {
-    CudaMemory inputTensorMemory = input.getMemory(gpu);
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor imageDescriptor = gpu.newTensorDescriptor(precision, //
-        length, //
-        input.descriptor.channels, //
-        input.descriptor.height, //
-        input.descriptor.width, //
-        input.descriptor.nStride, //
-        input.descriptor.cStride, //
-        input.descriptor.hStride, //
-        input.descriptor.wStride);
-    @Nonnull
-    final CudaMemory outputBuffer = gpu.allocate((long) length * imageDescriptor.nStride * precision.size,
+  @Nonnull
+  public static CudaTensor copy(@Nonnull final CudnnHandle gpu, @Nonnull final CudaTensor input, final int length,
+                                @Nonnull Precision precision, final int splitX, final int splitY) {
+    CudaMemory inputTensorMemory = input.getMemory(gpu.addRef());
+    @Nonnull final CudaDevice.CudaTensorDescriptor imageDescriptor = gpu.newTensorDescriptor(precision, length,
+        input.descriptor.channels, input.descriptor.height, input.descriptor.width, input.descriptor.nStride,
+        input.descriptor.cStride, input.descriptor.hStride, input.descriptor.wStride);
+    @Nonnull final CudaMemory outputBuffer = gpu.allocate((long) length * imageDescriptor.nStride * precision.size,
         MemoryType.Managed.ifEnabled(), true);
-
     int splitY2 = input.descriptor.height - splitY;
     int splitX2 = input.descriptor.width - splitX;
-
     {
-      @Nonnull
-      final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
-          length, //
-          input.descriptor.channels, //
-          splitY, //
-          splitX, //
-          input.descriptor.nStride, //
-          input.descriptor.cStride, //
-          input.descriptor.hStride, //
-          input.descriptor.wStride);
+      @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, length,
+          input.descriptor.channels, splitY, splitX, input.descriptor.nStride, input.descriptor.cStride,
+          input.descriptor.hStride, input.descriptor.wStride);
+      assert inputTensorMemory != null;
       CudaSystem.handle(gpu.cudnnTransformTensor(precision.getPointer(1.0), tileDescriptor.getPtr(),
           inputTensorMemory.getPtr().withByteOffset(0 * precision.size), precision.getPointer(0.0),
           tileDescriptor.getPtr(), outputBuffer.getPtr().withByteOffset(
               (splitY2 * input.descriptor.hStride + splitX2 * input.descriptor.wStride) * precision.size)));
       tileDescriptor.freeRef();
     }
-
     {
-      @Nonnull
-      final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
-          length, //
-          input.descriptor.channels, //
-          splitY2, //
-          splitX, //
-          input.descriptor.nStride, //
-          input.descriptor.cStride, //
-          input.descriptor.hStride, //
-          input.descriptor.wStride);
+      @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, length,
+          input.descriptor.channels, splitY2, splitX, input.descriptor.nStride, input.descriptor.cStride,
+          input.descriptor.hStride, input.descriptor.wStride);
       CudaSystem.handle(gpu.cudnnTransformTensor(precision.getPointer(1.0), tileDescriptor.getPtr(),
           inputTensorMemory.getPtr().withByteOffset(splitY * input.descriptor.hStride * precision.size),
           precision.getPointer(0.0), tileDescriptor.getPtr(),
           outputBuffer.getPtr().withByteOffset(splitX2 * input.descriptor.wStride * precision.size)));
       tileDescriptor.freeRef();
     }
-
     {
-      @Nonnull
-      final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
-          length, //
-          input.descriptor.channels, //
-          splitY, //
-          splitX2, //
-          input.descriptor.nStride, //
-          input.descriptor.cStride, //
-          input.descriptor.hStride, //
-          input.descriptor.wStride);
+      @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, length,
+          input.descriptor.channels, splitY, splitX2, input.descriptor.nStride, input.descriptor.cStride,
+          input.descriptor.hStride, input.descriptor.wStride);
       CudaSystem.handle(gpu.cudnnTransformTensor(precision.getPointer(1.0), tileDescriptor.getPtr(),
           inputTensorMemory.getPtr().withByteOffset(splitX * input.descriptor.wStride * precision.size),
           precision.getPointer(0.0), tileDescriptor.getPtr(),
           outputBuffer.getPtr().withByteOffset(splitY2 * input.descriptor.hStride * precision.size)));
       tileDescriptor.freeRef();
     }
-
-    @Nonnull
-    final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, //
-        length, //
-        input.descriptor.channels, //
-        splitY2, //
-        splitX2, //
-        input.descriptor.nStride, //
-        input.descriptor.cStride, //
-        input.descriptor.hStride, //
-        input.descriptor.wStride);
+    @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, length,
+        input.descriptor.channels, splitY2, splitX2, input.descriptor.nStride, input.descriptor.cStride,
+        input.descriptor.hStride, input.descriptor.wStride);
     CudaSystem.handle(gpu.cudnnTransformTensor(precision.getPointer(1.0), tileDescriptor.getPtr(),
         inputTensorMemory.getPtr()
             .withByteOffset((splitY * input.descriptor.hStride + splitX * input.descriptor.wStride) * precision.size),
         precision.getPointer(0.0), tileDescriptor.getPtr(), outputBuffer.getPtr().withByteOffset(0 * precision.size)));
-
+    gpu.freeRef();
     tileDescriptor.freeRef();
     RefUtil.freeRef(inputTensorMemory.dirty());
     RefUtil.freeRef(outputBuffer.dirty());
-    if (null != inputTensorMemory)
-      inputTensorMemory.freeRef();
-    CudaTensor temp_49_0001 = new CudaTensor(outputBuffer == null ? null : outputBuffer,
-        imageDescriptor == null ? null : imageDescriptor, precision);
-    if (null != input)
-      input.freeRef();
+    inputTensorMemory.freeRef();
+    CudaTensor temp_49_0001 = new CudaTensor(outputBuffer, imageDescriptor, precision);
+    input.freeRef();
     return temp_49_0001;
   }
 
   @Nonnull
   public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions) {
-    @Nonnull
-    final int[] viewDim = new int[3];
+    @Nonnull final int[] viewDim = new int[3];
     RefArrays.parallelSetAll(viewDim, i -> Math.min(sourceDimensions[i], destinationDimensions[i]));
     return viewDim;
   }
 
-  public static @SuppressWarnings("unused") ImgTileCycleLayer[] addRefs(ImgTileCycleLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgTileCycleLayer[] addRefs(@Nullable ImgTileCycleLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRef)
         .toArray((x) -> new ImgTileCycleLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgTileCycleLayer[][] addRefs(ImgTileCycleLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgTileCycleLayer[][] addRefs(@Nullable ImgTileCycleLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRefs)
@@ -222,8 +185,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
     if (!CudaSystem.isEnabled()) {
       Layer temp_49_0011 = getCompatibilityLayer();
       Result temp_49_0007 = temp_49_0011.eval(Result.addRefs(inObj));
-      if (null != temp_49_0011)
-        temp_49_0011.freeRef();
+      temp_49_0011.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_49_0007;
     }
@@ -239,21 +201,14 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
     int splitY1 = (int) (dimIn[1] * getyPos());
     int splitY2 = dimIn[1] - splitY1;
     final TensorList outputData = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-      @Nullable
-      final CudaTensor inputTensor = gpu.getTensor(inputData == null ? null : inputData.addRef(), precision,
-          MemoryType.Device, false);
-      CudaTensor cudaTensor = copy(gpu, inputTensor == null ? null : inputTensor.addRef(), length, precision, splitX1,
-          splitY1);
-      if (null != inputTensor)
-        inputTensor.freeRef();
-      CudaTensorList temp_49_0003 = new CudaTensorList(cudaTensor == null ? null : cudaTensor.addRef(), length, dimIn,
-          precision);
-      if (null != cudaTensor)
-        cudaTensor.freeRef();
+      @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision, MemoryType.Device, false);
+      CudaTensor cudaTensor = copy(gpu, inputTensor.addRef(), length, precision, splitX1, splitY1);
+      inputTensor.freeRef();
+      CudaTensorList temp_49_0003 = new CudaTensorList(cudaTensor.addRef(), length, dimIn, precision);
+      cudaTensor.freeRef();
       return temp_49_0003;
-    }, inputData == null ? null : inputData.addRef()), inputData == null ? null : inputData.addRef());
-    if (null != inputData)
-      inputData.freeRef();
+    }, inputData.addRef()), inputData.addRef());
+    inputData.freeRef();
     try {
       try {
         try {
@@ -262,54 +217,46 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
             }
 
             @Override
-            public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+            public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
               if (!RefArrays.equals(delta.getDimensions(), outputData.getDimensions())) {
                 if (null != buffer)
                   buffer.freeRef();
                 AssertionError temp_49_0009 = new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
                     + RefArrays.toString(outputData.getDimensions()));
-                if (null != delta)
-                  delta.freeRef();
+                delta.freeRef();
                 throw temp_49_0009;
               }
               if (delta.length() != outputData.length()) {
                 if (null != buffer)
                   buffer.freeRef();
                 AssertionError temp_49_0010 = new AssertionError(delta.length() + " != " + outputData.length());
-                if (null != delta)
-                  delta.freeRef();
+                delta.freeRef();
                 throw temp_49_0010;
               }
               assert delta.length() == length;
               if (input.isAlive()) {
                 final TensorList passbackTensorList = CudaSystem
                     .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                      @Nullable
-                      final CudaTensor errorPtr = gpu.getTensor(delta == null ? null : delta.addRef(), precision,
-                          MemoryType.Device, false);
-                      CudaTensor cudaTensor = copy(gpu, errorPtr == null ? null : errorPtr.addRef(), length, precision,
-                          splitX2, splitY2);
-                      if (null != errorPtr)
-                        errorPtr.freeRef();
-                      CudaTensorList temp_49_0005 = new CudaTensorList(cudaTensor == null ? null : cudaTensor.addRef(),
-                          length, dimIn, precision);
-                      if (null != cudaTensor)
-                        cudaTensor.freeRef();
+                      @Nullable final CudaTensor errorPtr = gpu.getTensor(delta.addRef(), precision, MemoryType.Device, false);
+                      CudaTensor cudaTensor = copy(gpu, errorPtr.addRef(), length, precision, splitX2, splitY2);
+                      errorPtr.freeRef();
+                      CudaTensorList temp_49_0005 = new CudaTensorList(cudaTensor.addRef(), length, dimIn, precision);
+                      cudaTensor.freeRef();
                       return temp_49_0005;
-                    }, delta == null ? null : delta.addRef()), delta == null ? null : delta.addRef());
+                    }, delta.addRef()), delta.addRef());
                 input.accumulate(buffer == null ? null : buffer.addRef(),
                     passbackTensorList == null ? null : passbackTensorList.addRef());
                 if (null != passbackTensorList)
                   passbackTensorList.freeRef();
               }
-              if (null != delta)
-                delta.freeRef();
+              delta.freeRef();
               if (null != buffer)
                 buffer.freeRef();
 
             }
 
-            public @SuppressWarnings("unused") void _free() {
+            public @SuppressWarnings("unused")
+            void _free() {
             }
           }) {
 
@@ -321,18 +268,17 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
             public boolean isAlive() {
               return RefArrays.stream(Result.addRefs(inObj)).anyMatch(x -> {
                 boolean temp_49_0006 = x.isAlive();
-                if (null != x)
-                  x.freeRef();
+                x.freeRef();
                 return temp_49_0006;
               });
             }
 
             @Override
-            public void accumulate(final DeltaSet<UUID> buffer, final TensorList delta) {
+            public void accumulate(@Nullable final DeltaSet<UUID> buffer, @Nullable final TensorList delta) {
               Result.Accumulator temp_49_0012 = getAccumulator();
+              assert temp_49_0012 != null;
               temp_49_0012.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
-              if (null != temp_49_0012)
-                temp_49_0012.freeRef();
+              temp_49_0012.freeRef();
               if (null != delta)
                 delta.freeRef();
               if (null != buffer)
@@ -351,16 +297,14 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
           outputData.freeRef();
       }
     } finally {
-      if (null != input)
-        input.freeRef();
+      input.freeRef();
     }
   }
 
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
     return json;
   }
@@ -371,10 +315,14 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgTileCycleLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgTileCycleLayer addRef() {
     return (ImgTileCycleLayer) super.addRef();
   }
 }

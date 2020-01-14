@@ -29,7 +29,6 @@ import com.simiacryptus.mindseye.layers.Explodable;
 import com.simiacryptus.mindseye.layers.java.FullyConnectedReferenceLayer;
 import com.simiacryptus.mindseye.layers.java.ReshapeLayer;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
@@ -62,9 +61,7 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
   private FullyConnectedLayer() {
     outputDims = null;
     Tensor temp_15_0001 = null;
-    weights = temp_15_0001 == null ? null : temp_15_0001.addRef();
-    if (null != temp_15_0001)
-      temp_15_0001.freeRef();
+    weights = null;
     inputDims = null;
   }
 
@@ -74,9 +71,8 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     this.outputDims = RefArrays.copyOf(outputDims, outputDims.length);
     final int outs = Tensor.length(outputDims);
     Tensor temp_15_0002 = new Tensor(inputs, outs);
-    weights = temp_15_0002 == null ? null : temp_15_0002.addRef();
-    if (null != temp_15_0002)
-      temp_15_0002.freeRef();
+    weights = temp_15_0002.addRef();
+    temp_15_0002.freeRef();
     setWeights(() -> {
       final double ratio = Math.sqrt(6. / (inputs + outs + 1));
       final double fate = Util.R.get().nextDouble();
@@ -88,8 +84,7 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     super(json);
     outputDims = JsonUtil.getIntArray(json.getAsJsonArray("outputDims"));
     inputDims = JsonUtil.getIntArray(json.getAsJsonArray("inputDims"));
-    @Nullable
-    final Tensor data = Tensor.fromJson(json.get("weights"), rs);
+    @Nullable final Tensor data = Tensor.fromJson(json.get("weights"), rs);
     Tensor temp_15_0003 = data == null ? null : data.addRef();
     weights = temp_15_0003 == null ? null : temp_15_0003.addRef();
     if (null != temp_15_0003)
@@ -111,10 +106,11 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
 
   @Nonnull
   public Layer getCompatibilityLayer() {
+    assert outputDims != null;
+    assert inputDims != null;
     FullyConnectedReferenceLayer temp_15_0007 = new FullyConnectedReferenceLayer(inputDims, outputDims);
     FullyConnectedReferenceLayer temp_15_0006 = temp_15_0007.set(getWeights());
-    if (null != temp_15_0007)
-      temp_15_0007.freeRef();
+    temp_15_0007.freeRef();
     return temp_15_0006;
   }
 
@@ -138,33 +134,38 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
   @Nonnull
   public void setWeights(@Nonnull final DoubleSupplier f) {
     Tensor temp_15_0009 = getWeights();
+    assert temp_15_0009 != null;
     RefArrays.parallelSetAll(temp_15_0009.getData(), i -> f.getAsDouble());
-    if (null != temp_15_0009)
-      temp_15_0009.freeRef();
+    temp_15_0009.freeRef();
   }
 
   @Nonnull
   public FullyConnectedLayer setWeightsLog(final double value) {
     Tensor temp_15_0010 = getWeights();
+    assert temp_15_0010 != null;
     RefUtil.freeRef(temp_15_0010.setByCoord(c -> (FastRandom.INSTANCE.random() - 0.5) * Math.pow(10, value)));
-    if (null != temp_15_0010)
-      temp_15_0010.freeRef();
+    temp_15_0010.freeRef();
     return this.addRef();
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static FullyConnectedLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new FullyConnectedLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused") FullyConnectedLayer[] addRefs(FullyConnectedLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  FullyConnectedLayer[] addRefs(@Nullable FullyConnectedLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayer::addRef)
         .toArray((x) -> new FullyConnectedLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") FullyConnectedLayer[][] addRefs(FullyConnectedLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  FullyConnectedLayer[][] addRefs(@Nullable FullyConnectedLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayer::addRefs)
@@ -173,24 +174,25 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
 
   @Nonnull
   public FullyConnectedLayer set(final double[] data) {
+    assert weights != null;
     RefUtil.freeRef(weights.set(data));
     return this.addRef();
   }
 
   @Nonnull
   public FullyConnectedLayer set(@Nonnull final Tensor data) {
-    weights.set(data == null ? null : data);
+    assert weights != null;
+    weights.set(data);
     return this.addRef();
   }
 
   @Nullable
   @Override
-  public Result eval(final Result... inObj) {
+  public Result eval(@Nullable final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_15_0011 = getCompatibilityLayer();
       Result temp_15_0005 = temp_15_0011.eval(Result.addRefs(inObj));
-      if (null != temp_15_0011)
-        temp_15_0011.freeRef();
+      temp_15_0011.freeRef();
       if (null != inObj)
         ReferenceCounting.freeRefs(inObj);
       return temp_15_0005;
@@ -199,30 +201,29 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     Result temp_15_0004 = explode.eval(Result.addRefs(inObj));
     if (null != inObj)
       ReferenceCounting.freeRefs(inObj);
-    if (null != explode)
-      explode.freeRef();
+    explode.freeRef();
     return temp_15_0004;
   }
 
   @Nonnull
   public Layer explode() {
+    assert inputDims != null;
     int inputVol = Tensor.length(inputDims);
+    assert outputDims != null;
     int outVol = Tensor.length(outputDims);
     @Nonnull
     PipelineNetwork network = new PipelineNetwork(1);
     RefUtil.freeRef(network.add(new ReshapeLayer(1, 1, inputVol)));
+    assert this.weights != null;
     @Nullable
     Tensor tensor = this.weights.reshapeCast(1, 1, inputVol * outVol);
     ConvolutionLayer temp_15_0008 = new ConvolutionLayer(1, 1, inputVol, outVol);
-    ConvolutionLayer temp_15_0012 = temp_15_0008.set(tensor == null ? null : tensor.addRef());
+    ConvolutionLayer temp_15_0012 = temp_15_0008.set(tensor.addRef());
     @Nonnull
     ConvolutionLayer convolutionLayer = temp_15_0012.setBatchBands(getBatchBands());
-    if (null != temp_15_0012)
-      temp_15_0012.freeRef();
-    if (null != temp_15_0008)
-      temp_15_0008.freeRef();
-    if (null != tensor)
-      tensor.freeRef();
+    temp_15_0012.freeRef();
+    temp_15_0008.freeRef();
+    tensor.freeRef();
     @Nonnull
     ExplodedConvolutionGrid grid = convolutionLayer.getExplodedNetwork();
     convolutionLayer.freeRef();
@@ -236,15 +237,16 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
+    assert outputDims != null;
     json.add("outputDims", JsonUtil.getJson(outputDims));
+    assert inputDims != null;
     json.add("inputDims", JsonUtil.getJson(inputDims));
     @Nullable
     Tensor tensor = getWeights();
+    assert tensor != null;
     json.add("weights", tensor.getJson(resources, dataSerializer));
-    if (null != tensor)
-      tensor.freeRef();
+    tensor.freeRef();
     json.addProperty("precision", precision.name());
     return json;
   }
@@ -253,13 +255,15 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
   @Override
   public RefList<double[]> state() {
     Tensor temp_15_0014 = getWeights();
+    assert temp_15_0014 != null;
     RefList<double[]> temp_15_0013 = RefArrays.asList(temp_15_0014.getData());
-    if (null != temp_15_0014)
-      temp_15_0014.freeRef();
+    temp_15_0014.freeRef();
     return temp_15_0013;
   }
 
-  public FullyConnectedLayer set(DoubleSupplier fn) {
+  @Nonnull
+  public FullyConnectedLayer set(@Nonnull DoubleSupplier fn) {
+    assert weights != null;
     RefUtil.freeRef(weights.set(fn));
     return this.addRef();
   }
@@ -270,7 +274,10 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision<Ful
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") FullyConnectedLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  FullyConnectedLayer addRef() {
     return (FullyConnectedLayer) super.addRef();
   }
 }

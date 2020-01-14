@@ -20,11 +20,13 @@
 package com.simiacryptus.mindseye.layers;
 
 import com.simiacryptus.mindseye.test.unit.StandardLayerTests;
-import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefSystem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public abstract class LayerTestBase extends StandardLayerTests {
@@ -34,14 +36,18 @@ public abstract class LayerTestBase extends StandardLayerTests {
   //    apply(this::monteCarlo);
   //  }
 
-  public static @SuppressWarnings("unused") LayerTestBase[] addRefs(LayerTestBase[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LayerTestBase[] addRefs(@Nullable LayerTestBase[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LayerTestBase::addRef)
         .toArray((x) -> new LayerTestBase[x]);
   }
 
-  public static @SuppressWarnings("unused") LayerTestBase[][] addRefs(LayerTestBase[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LayerTestBase[][] addRefs(@Nullable LayerTestBase[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LayerTestBase::addRefs)
@@ -61,14 +67,18 @@ public abstract class LayerTestBase extends StandardLayerTests {
 
   @After
   public void cleanup() {
-    com.simiacryptus.ref.wrappers.RefSystem.gc();
+    RefSystem.gc();
     //GpuController.remove();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") LayerTestBase addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  LayerTestBase addRef() {
     return (LayerTestBase) super.addRef();
   }
 

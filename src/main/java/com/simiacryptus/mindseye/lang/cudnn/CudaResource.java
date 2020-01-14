@@ -19,11 +19,11 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
-import com.simiacryptus.ref.lang.RefAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.function.ToIntFunction;
 
@@ -44,13 +44,17 @@ public class CudaResource<T> extends CudaResourceBase<T> {
     return deviceId;
   }
 
-  public static @SuppressWarnings("unused") CudaResource[] addRefs(CudaResource[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  CudaResource[] addRefs(@Nullable CudaResource[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CudaResource::addRef).toArray((x) -> new CudaResource[x]);
   }
 
-  public static @SuppressWarnings("unused") CudaResource[][] addRefs(CudaResource[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  CudaResource[][] addRefs(@Nullable CudaResource[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CudaResource::addRefs)
@@ -77,7 +81,10 @@ public class CudaResource<T> extends CudaResourceBase<T> {
       release();
   }
 
-  public @Override @SuppressWarnings("unused") CudaResource<T> addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  CudaResource<T> addRef() {
     return (CudaResource<T>) super.addRef();
   }
 }

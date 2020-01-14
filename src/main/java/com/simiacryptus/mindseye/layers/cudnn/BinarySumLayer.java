@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.LinearActivationLayer;
 import com.simiacryptus.mindseye.layers.java.SumInputsLayer;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
@@ -74,14 +73,10 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
     LinearActivationLayer temp_51_0015 = temp_51_0013.setScale(this.rightFactor);
     RefUtil.freeRef(network.add(new SumInputsLayer(), network.add(temp_51_0014.freeze(), network.getInput(0)),
         network.add(temp_51_0015.freeze(), network.getInput(1))));
-    if (null != temp_51_0015)
-      temp_51_0015.freeRef();
-    if (null != temp_51_0014)
-      temp_51_0014.freeRef();
-    if (null != temp_51_0013)
-      temp_51_0013.freeRef();
-    if (null != temp_51_0012)
-      temp_51_0012.freeRef();
+    temp_51_0015.freeRef();
+    temp_51_0014.freeRef();
+    temp_51_0013.freeRef();
+    temp_51_0012.freeRef();
     return network;
 
   }
@@ -116,19 +111,24 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
     this.rightFactor = rightFactor;
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static BinarySumLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new BinarySumLayer(json);
   }
 
-  public static @SuppressWarnings("unused") BinarySumLayer[] addRefs(BinarySumLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  BinarySumLayer[] addRefs(@Nullable BinarySumLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayer::addRef)
         .toArray((x) -> new BinarySumLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") BinarySumLayer[][] addRefs(BinarySumLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  BinarySumLayer[][] addRefs(@Nullable BinarySumLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayer::addRefs)
@@ -161,11 +161,10 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
         throw new IllegalStateException();
       }
       Result temp_51_0008 = RefUtil.get(RefArrays.stream(Result.addRefs(inObj)).reduce((a, b) -> {
-        Result temp_51_0001 = eval(a == null ? null : a.addRef(), b == null ? null : b.addRef());
+        Result temp_51_0001 = eval(a.addRef(), b == null ? null : b.addRef());
         if (null != b)
           b.freeRef();
-        if (null != a)
-          a.freeRef();
+        a.freeRef();
         return temp_51_0001;
       }));
       ReferenceCounting.freeRefs(inObj);
@@ -176,61 +175,40 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
     final TensorList rightData = inObj[1].getData();
     int[] leftDimensions = leftData.getDimensions();
     if (3 < leftDimensions.length) {
-      if (null != leftData)
-        leftData.freeRef();
-      if (null != rightData)
-        rightData.freeRef();
+      leftData.freeRef();
+      rightData.freeRef();
       ReferenceCounting.freeRefs(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(leftDimensions));
     }
-    @Nonnull
-    final int[] dimensions = { leftDimensions.length < 1 ? 0 : leftDimensions[0],
-        leftDimensions.length < 2 ? 1 : leftDimensions[1], leftDimensions.length < 3 ? 1 : leftDimensions[2] };
+    @Nonnull final int[] dimensions = {leftDimensions.length < 1 ? 0 : leftDimensions[0],
+        leftDimensions.length < 2 ? 1 : leftDimensions[1], leftDimensions.length < 3 ? 1 : leftDimensions[2]};
     final int length = leftData.length();
     if (length != rightData.length()) {
-      if (null != leftData)
-        leftData.freeRef();
-      if (null != rightData)
-        rightData.freeRef();
+      leftData.freeRef();
+      rightData.freeRef();
       ReferenceCounting.freeRefs(inObj);
       throw new IllegalArgumentException();
-    }
-    if (3 != dimensions.length) {
-      if (null != leftData)
-        leftData.freeRef();
-      if (null != rightData)
-        rightData.freeRef();
-      ReferenceCounting.freeRefs(inObj);
-      throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
     }
     for (int i = 1; i < inObj.length; i++) {
       TensorList temp_51_0016 = inObj[i].getData();
       if (Tensor.length(dimensions) != Tensor.length(temp_51_0016.getDimensions())) {
-        if (null != leftData)
-          leftData.freeRef();
-        if (null != rightData)
-          rightData.freeRef();
+        leftData.freeRef();
+        rightData.freeRef();
         TensorList temp_51_0017 = inObj[i].getData();
         IllegalArgumentException temp_51_0009 = new IllegalArgumentException(
             RefArrays.toString(dimensions) + " != " + RefArrays.toString(temp_51_0017.getDimensions()));
-        if (null != temp_51_0017)
-          temp_51_0017.freeRef();
-        if (null != inObj)
-          ReferenceCounting.freeRefs(inObj);
+        temp_51_0017.freeRef();
+        ReferenceCounting.freeRefs(inObj);
         throw temp_51_0009;
       }
-      if (null != temp_51_0016)
-        temp_51_0016.freeRef();
+      temp_51_0016.freeRef();
     }
     if (!CudaSystem.isEnabled()) {
-      if (null != leftData)
-        leftData.freeRef();
-      if (null != rightData)
-        rightData.freeRef();
+      leftData.freeRef();
+      rightData.freeRef();
       Layer temp_51_0018 = getCompatibilityLayer();
       Result temp_51_0010 = temp_51_0018.eval(Result.addRefs(inObj));
-      if (null != temp_51_0018)
-        temp_51_0018.freeRef();
+      temp_51_0018.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_51_0010;
     }
@@ -238,89 +216,76 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
       try {
         try {
           return new Result(CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-            @Nonnull
-            final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
-                .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_ADD, precision);
-            @Nonnull
-            final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
-                dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
-                dimensions[1] * dimensions[0], dimensions[0], 1);
-            @Nullable
-            final CudaTensor lPtr = gpu.getTensor(leftData == null ? null : leftData.addRef(), precision,
-                MemoryType.Device, false);
-            @Nullable
-            final CudaTensor rPtr = gpu.getTensor(rightData == null ? null : rightData.addRef(), precision,
-                MemoryType.Device, false);
-            @Nonnull
-            final CudaMemory outputPtr = gpu.allocate((long) precision.size * Tensor.length(dimensions) * length,
-                MemoryType.Managed.ifEnabled(), true);
-            CudaMemory lPtrMemory = lPtr.getMemory(gpu);
-            CudaMemory rPtrMemory = rPtr.getMemory(gpu);
-            gpu.cudnnOpTensor(opDescriptor.getPtr(), precision.getPointer(leftFactor), lPtr.descriptor.getPtr(),
-                lPtrMemory.getPtr(), precision.getPointer(rightFactor), rPtr.descriptor.getPtr(), rPtrMemory.getPtr(),
-                precision.getPointer(0.0), outputDescriptor.getPtr(), outputPtr.getPtr());
-            if (null != rPtr)
-              rPtr.freeRef();
-            if (null != lPtr)
-              lPtr.freeRef();
-            opDescriptor.freeRef();
-            assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-            RefUtil.freeRef(lPtrMemory.dirty());
-            if (null != lPtrMemory)
-              lPtrMemory.freeRef();
-            RefUtil.freeRef(rPtrMemory.dirty());
-            if (null != rPtrMemory)
-              rPtrMemory.freeRef();
-            RefUtil.freeRef(outputPtr.dirty());
-            CudaTensor cudaTensor = new CudaTensor(outputPtr == null ? null : outputPtr,
-                outputDescriptor == null ? null : outputDescriptor, precision);
-            CudaTensorList temp_51_0004 = new CudaTensorList(cudaTensor == null ? null : cudaTensor.addRef(), length,
-                dimensions, precision);
-            if (null != cudaTensor)
-              cudaTensor.freeRef();
-            return temp_51_0004;
-          }, rightData == null ? null : rightData.addRef(), leftData == null ? null : leftData.addRef()),
-              leftData == null ? null : leftData.addRef()), new Result.Accumulator() {
-                {
-                  Result.addRefs(inObj);
-                }
+                @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+                    .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_ADD, precision);
+                @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+                    dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
+                    dimensions[1] * dimensions[0], dimensions[0], 1);
+                @Nullable final CudaTensor lPtr = gpu.getTensor(leftData.addRef(), precision,
+                    MemoryType.Device, false);
+                @Nullable final CudaTensor rPtr = gpu.getTensor(rightData.addRef(), precision,
+                    MemoryType.Device, false);
+                @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * Tensor.length(dimensions) * length,
+                    MemoryType.Managed.ifEnabled(), true);
+                CudaMemory lPtrMemory = lPtr.getMemory(gpu);
+                CudaMemory rPtrMemory = rPtr.getMemory(gpu);
+                assert rPtrMemory != null;
+                assert lPtrMemory != null;
+                gpu.cudnnOpTensor(opDescriptor.getPtr(), precision.getPointer(leftFactor), lPtr.descriptor.getPtr(),
+                    lPtrMemory.getPtr(), precision.getPointer(rightFactor), rPtr.descriptor.getPtr(), rPtrMemory.getPtr(),
+                    precision.getPointer(0.0), outputDescriptor.getPtr(), outputPtr.getPtr());
+                rPtr.freeRef();
+                lPtr.freeRef();
+                opDescriptor.freeRef();
+                assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+                RefUtil.freeRef(lPtrMemory.dirty());
+                lPtrMemory.freeRef();
+                RefUtil.freeRef(rPtrMemory.dirty());
+                rPtrMemory.freeRef();
+                RefUtil.freeRef(outputPtr.dirty());
+                CudaTensor cudaTensor = new CudaTensor(outputPtr,
+                    outputDescriptor, precision);
+                CudaTensorList temp_51_0004 = new CudaTensorList(cudaTensor.addRef(), length,
+                    dimensions, precision);
+                cudaTensor.freeRef();
+                return temp_51_0004;
+              }, rightData.addRef(), leftData.addRef()),
+              leftData.addRef()), new Result.Accumulator() {
+            {
+              Result.addRefs(inObj);
+            }
 
-                @Override
-                public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+            @Override
+            public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
 
-                  Runnable a = RefUtil.wrapInterface(() -> {
+              Runnable a = RefUtil.wrapInterface(() -> {
                     if (inObj[0].isAlive()) {
                       CudaTensorList tensorList = CudaSystem
                           .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                            @Nullable
-                            final CudaTensor lPtr = gpu.getTensor(delta == null ? null : delta.addRef(), precision,
+                            @Nullable final CudaTensor lPtr = gpu.getTensor(delta == null ? null : delta.addRef(), precision,
                                 MemoryType.Device, false);
-                            @Nonnull
-                            final CudaMemory passbackPtr = gpu.allocate(
+                            @Nonnull final CudaMemory passbackPtr = gpu.allocate(
                                 precision.size * Tensor.length(dimensions) * length, MemoryType.Managed.ifEnabled(),
                                 true);
-                            @Nonnull
-                            final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(
+                            @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(
                                 precision, length, dimensions[2], dimensions[1], dimensions[0],
                                 dimensions[2] * dimensions[1] * dimensions[0], dimensions[1] * dimensions[0],
                                 dimensions[0], 1);
                             CudaMemory lPtrMemory = lPtr.getMemory(gpu);
+                            assert lPtrMemory != null;
                             gpu.cudnnTransformTensor(precision.getPointer(leftFactor), lPtr.descriptor.getPtr(),
                                 lPtrMemory.getPtr(), precision.getPointer(0.0), passbackDescriptor.getPtr(),
                                 passbackPtr.getPtr());
-                            if (null != lPtr)
-                              lPtr.freeRef();
+                            lPtr.freeRef();
                             assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
                             RefUtil.freeRef(passbackPtr.dirty());
                             RefUtil.freeRef(lPtrMemory.dirty());
-                            if (null != lPtrMemory)
-                              lPtrMemory.freeRef();
-                            CudaTensor cudaTensor = new CudaTensor(passbackPtr == null ? null : passbackPtr,
-                                passbackDescriptor == null ? null : passbackDescriptor, precision);
+                            lPtrMemory.freeRef();
+                            CudaTensor cudaTensor = new CudaTensor(passbackPtr,
+                                passbackDescriptor, precision);
                             CudaTensorList temp_51_0005 = new CudaTensorList(
-                                cudaTensor == null ? null : cudaTensor.addRef(), length, dimensions, precision);
-                            if (null != cudaTensor)
-                              cudaTensor.freeRef();
+                                cudaTensor.addRef(), length, dimensions, precision);
+                            cudaTensor.freeRef();
                             return temp_51_0005;
                           }, delta == null ? null : delta.addRef()), delta == null ? null : delta.addRef());
                       inObj[0].accumulate(buffer == null ? null : buffer.addRef(),
@@ -329,36 +294,32 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
                         tensorList.freeRef();
                     }
                   }, delta == null ? null : delta.addRef(), buffer == null ? null : buffer.addRef(),
-                      Result.addRefs(inObj));
-                  Runnable b = RefUtil.wrapInterface(() -> {
+                  Result.addRefs(inObj));
+              Runnable b = RefUtil.wrapInterface(() -> {
                     if (inObj[1].isAlive()) {
                       CudaTensorList tensorList = CudaSystem
                           .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                            @Nullable
-                            final CudaTensor lPtr = gpu.getTensor(delta == null ? null : delta.addRef(), precision,
+                            @Nullable final CudaTensor lPtr = gpu.getTensor(delta == null ? null : delta.addRef(), precision,
                                 MemoryType.Device, false);
-                            @Nonnull
-                            final CudaMemory outputPtr = gpu.allocate(
+                            @Nonnull final CudaMemory outputPtr = gpu.allocate(
                                 precision.size * Tensor.length(dimensions) * length, MemoryType.Managed.ifEnabled(),
                                 true);
-                            @Nonnull
-                            final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(
+                            @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(
                                 precision, length, dimensions[2], dimensions[1], dimensions[0],
                                 dimensions[2] * dimensions[1] * dimensions[0], dimensions[1] * dimensions[0],
                                 dimensions[0], 1);
                             CudaMemory lPtrMemory = lPtr.getMemory(gpu);
+                            assert lPtrMemory != null;
                             gpu.cudnnTransformTensor(precision.getPointer(rightFactor), lPtr.descriptor.getPtr(),
                                 lPtrMemory.getPtr(), precision.getPointer(0.0), passbackDescriptor.getPtr(),
                                 outputPtr.getPtr());
-                            if (null != lPtr)
-                              lPtr.freeRef();
+                            lPtr.freeRef();
                             RefUtil.freeRef(outputPtr.dirty());
                             RefUtil.freeRef(lPtrMemory.dirty());
-                            if (null != lPtrMemory)
-                              lPtrMemory.freeRef();
+                            lPtrMemory.freeRef();
                             CudaTensorList temp_51_0006 = new CudaTensorList(
-                                new CudaTensor(outputPtr == null ? null : outputPtr,
-                                    passbackDescriptor == null ? null : passbackDescriptor, precision),
+                                new CudaTensor(outputPtr,
+                                    passbackDescriptor, precision),
                                 length, dimensions, precision);
                             return temp_51_0006;
                           }, delta == null ? null : delta.addRef()), delta == null ? null : delta.addRef());
@@ -368,21 +329,22 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
                         tensorList.freeRef();
                     }
                   }, buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef(),
-                      Result.addRefs(inObj));
-                  if (null != delta)
-                    delta.freeRef();
-                  if (null != buffer)
-                    buffer.freeRef();
-                  if (CoreSettings.INSTANCE().isSingleThreaded())
-                    Util.runAllSerial(a, b);
-                  else
-                    Util.runAllParallel(a, b);
-                }
+                  Result.addRefs(inObj));
+              if (null != delta)
+                delta.freeRef();
+              if (null != buffer)
+                buffer.freeRef();
+              if (CoreSettings.INSTANCE().isSingleThreaded())
+                Util.runAllSerial(a, b);
+              else
+                Util.runAllParallel(a, b);
+            }
 
-                public @SuppressWarnings("unused") void _free() {
-                  ReferenceCounting.freeRefs(inObj);
-                }
-              }) {
+            public @SuppressWarnings("unused")
+            void _free() {
+              ReferenceCounting.freeRefs(inObj);
+            }
+          }) {
 
             {
               Result.addRefs(inObj);
@@ -390,8 +352,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
 
             @Override
             public boolean isAlive() {
-              for (@Nonnull
-              final Result element : inObj)
+              for (@Nonnull final Result element : inObj)
                 if (element.isAlive()) {
                   return true;
                 }
@@ -407,20 +368,17 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
           ReferenceCounting.freeRefs(inObj);
         }
       } finally {
-        if (null != rightData)
-          rightData.freeRef();
+        rightData.freeRef();
       }
     } finally {
-      if (null != leftData)
-        leftData.freeRef();
+      leftData.freeRef();
     }
   }
 
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("rightFactor", rightFactor);
     json.addProperty("leftFactor", leftFactor);
     json.addProperty("precision", precision.name());
@@ -433,10 +391,14 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision<BinarySu
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") BinarySumLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  BinarySumLayer addRef() {
     return (BinarySumLayer) super.addRef();
   }
 }

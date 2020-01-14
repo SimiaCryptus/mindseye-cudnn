@@ -27,7 +27,6 @@ import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -42,6 +41,7 @@ import java.util.Map;
 @SuppressWarnings("serial")
 public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<ImgZeroPaddingLayer> {
   private static final Logger log = LoggerFactory.getLogger(ImgZeroPaddingLayer.class);
+  @Nonnull
   public StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private int sizeX;
   private int sizeY;
@@ -76,19 +76,24 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<Img
     return this.addRef();
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static ImgZeroPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgZeroPaddingLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused") ImgZeroPaddingLayer[] addRefs(ImgZeroPaddingLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgZeroPaddingLayer[] addRefs(@Nullable ImgZeroPaddingLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgZeroPaddingLayer::addRef)
         .toArray((x) -> new ImgZeroPaddingLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgZeroPaddingLayer[][] addRefs(ImgZeroPaddingLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgZeroPaddingLayer[][] addRefs(@Nullable ImgZeroPaddingLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgZeroPaddingLayer::addRefs)
@@ -107,13 +112,11 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<Img
     TensorList temp_22_0004 = inObj[0].getData();
     @Nonnull
     int[] dimensions = temp_22_0004.getDimensions();
-    if (null != temp_22_0004)
-      temp_22_0004.freeRef();
+    temp_22_0004.freeRef();
     ImgCropLayer temp_22_0003 = new ImgCropLayer(dimensions[0] + 2 * this.sizeX, dimensions[1] + 2 * this.sizeY);
     @Nonnull
     ImgCropLayer imgCropLayer = temp_22_0003.setPrecision(precision);
-    if (null != temp_22_0003)
-      temp_22_0003.freeRef();
+    temp_22_0003.freeRef();
     Result temp_22_0001 = imgCropLayer.eval(Result.addRefs(inObj));
     ReferenceCounting.freeRefs(inObj);
     imgCropLayer.freeRef();
@@ -123,8 +126,7 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<Img
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
     json.addProperty("precision", precision.name());
@@ -137,10 +139,14 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<Img
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgZeroPaddingLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgZeroPaddingLayer addRef() {
     return (ImgZeroPaddingLayer) super.addRef();
   }
 

@@ -20,9 +20,9 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -42,15 +42,19 @@ public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  public static @SuppressWarnings("unused") ImgModulusPaddingLayerTest[] addRefs(ImgModulusPaddingLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgModulusPaddingLayerTest[] addRefs(@Nullable ImgModulusPaddingLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayerTest::addRef)
         .toArray((x) -> new ImgModulusPaddingLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgModulusPaddingLayerTest[][] addRefs(
-      ImgModulusPaddingLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgModulusPaddingLayerTest[][] addRefs(
+      @Nullable ImgModulusPaddingLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayerTest::addRefs)
@@ -60,13 +64,13 @@ public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 2, 2, 1 } };
+    return new int[][]{{2, 2, 1}};
   }
 
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][] { { 1200, 1200, 1 } };
+    return new int[][]{{1200, 1200, 1}};
   }
 
   @Nonnull
@@ -75,10 +79,14 @@ public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
     return new ImgModulusPaddingLayer(modulus, modulus, offset, offset);
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgModulusPaddingLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgModulusPaddingLayerTest addRef() {
     return (ImgModulusPaddingLayerTest) super.addRef();
   }
 
@@ -87,16 +95,22 @@ public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
       super(2, 3, 0);
     }
 
-    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Basic[] addRefs(@Nullable Basic[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Basic addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Basic addRef() {
       return (Basic) super.addRef();
     }
   }

@@ -22,13 +22,13 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
@@ -38,6 +38,7 @@ import java.util.function.Function;
 public class ValueLayer extends LayerBase {
 
   private final Precision precision;
+  @Nonnull
   private final CudaTensorList tensorList;
 
   protected ValueLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
@@ -52,7 +53,7 @@ public class ValueLayer extends LayerBase {
       value.freeRef();
   }
 
-  public ValueLayer(final Tensor data) {
+  public ValueLayer(@Nullable final Tensor data) {
     super();
     this.precision = Precision.Float;
     CudaTensorList temp_19_0002 = toDevice(data == null ? null : data.addRef(), precision);
@@ -64,27 +65,31 @@ public class ValueLayer extends LayerBase {
     this.frozen = true;
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static ValueLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ValueLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused") ValueLayer[] addRefs(ValueLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ValueLayer[] addRefs(@Nullable ValueLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef).toArray((x) -> new ValueLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") ValueLayer[][] addRefs(ValueLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ValueLayer[][] addRefs(@Nullable ValueLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs).toArray((x) -> new ValueLayer[x][]);
   }
 
-  public CudaTensorList toDevice(final Tensor data, final Precision precision) {
+  @Nullable
+  public CudaTensorList toDevice(@Nullable final Tensor data, @Nonnull final Precision precision) {
     if (null == data) {
-      if (null != data)
-        data.freeRef();
       return null;
     }
     CudaTensorList temp_19_0005 = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
@@ -93,16 +98,13 @@ public class ValueLayer extends LayerBase {
       int[] dimensions = data.getDimensions();
       CudaDevice.CudaTensorDescriptor tensorDescriptor = gpu.newTensorDescriptor(precision, 1, dimensions[2],
           dimensions[1], dimensions[0]);
-      CudaTensorList temp_19_0003 = new CudaTensorList(new CudaTensor(cudaMemory == null ? null : cudaMemory.addRef(),
-          tensorDescriptor == null ? null : tensorDescriptor.addRef(), precision), 1, dimensions, precision);
-      if (null != tensorDescriptor)
-        tensorDescriptor.freeRef();
-      if (null != cudaMemory)
-        cudaMemory.freeRef();
+      CudaTensorList temp_19_0003 = new CudaTensorList(new CudaTensor(cudaMemory.addRef(),
+          tensorDescriptor.addRef(), precision), 1, dimensions, precision);
+      tensorDescriptor.freeRef();
+      cudaMemory.freeRef();
       return temp_19_0003;
-    }, data == null ? null : data.addRef()));
-    if (null != data)
-      data.freeRef();
+    }, data.addRef()));
+    data.freeRef();
     return temp_19_0005;
   }
 
@@ -111,16 +113,17 @@ public class ValueLayer extends LayerBase {
   public Result eval(@Nonnull final Result... array) {
     assert 0 == array.length;
     ReferenceCounting.freeRefs(array);
-    return new Result(tensorList, new Result.Accumulator() {
+    return new Result(tensorList.addRef(), new Result.Accumulator() {
       @Override
-      public void accept(DeltaSet<UUID> buffer, TensorList data) {
+      public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data) {
         if (null != data)
           data.freeRef();
         if (null != buffer)
           buffer.freeRef();
       }
 
-      public @SuppressWarnings("unused") void _free() {
+      public @SuppressWarnings("unused")
+      void _free() {
       }
     }) {
 
@@ -137,12 +140,10 @@ public class ValueLayer extends LayerBase {
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     Tensor tensor = tensorList.get(0);
     json.add("value", tensor.getJson(resources, dataSerializer));
-    if (null != tensor)
-      tensor.freeRef();
+    tensor.freeRef();
     json.addProperty("precision", precision.name());
     return json;
   }
@@ -152,17 +153,18 @@ public class ValueLayer extends LayerBase {
   public RefList<double[]> state() {
     Tensor tensor = tensorList.get(0);
     RefList<double[]> temp_19_0004 = RefArrays.asList(tensor.getData());
-    if (null != tensor)
-      tensor.freeRef();
+    tensor.freeRef();
     return temp_19_0004;
   }
 
   public void _free() {
-    if (null != tensorList)
-      tensorList.freeRef();
+    tensorList.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") ValueLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ValueLayer addRef() {
     return (ValueLayer) super.addRef();
   }
 }

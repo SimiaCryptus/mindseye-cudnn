@@ -19,8 +19,6 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
-import com.simiacryptus.ref.lang.RefAware;
-
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DeviceMetrics {

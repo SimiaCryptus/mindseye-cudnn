@@ -28,7 +28,6 @@ import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSystem;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -45,13 +44,14 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
   private static final Logger log = LoggerFactory.getLogger(RescaledSubnetLayer.class);
 
   private int scale;
+  @Nullable
   private Layer layer;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   private RescaledSubnetLayer() {
   }
 
-  public RescaledSubnetLayer(int scale, Layer layer) {
+  public RescaledSubnetLayer(int scale, @Nullable Layer layer) {
     this.scale = scale;
     Layer temp_13_0001 = layer == null ? null : layer.addRef();
     if (null != this.layer)
@@ -69,9 +69,8 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
     Layer temp_13_0002 = Layer.fromJson(json, rs);
     if (null != layer)
       layer.freeRef();
-    layer = temp_13_0002 == null ? null : temp_13_0002.addRef();
-    if (null != temp_13_0002)
-      temp_13_0002.freeRef();
+    layer = temp_13_0002.addRef();
+    temp_13_0002.freeRef();
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
@@ -92,19 +91,24 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
     return this.addRef();
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static RescaledSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new RescaledSubnetLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused") RescaledSubnetLayer[] addRefs(RescaledSubnetLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  RescaledSubnetLayer[] addRefs(@Nullable RescaledSubnetLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayer::addRef)
         .toArray((x) -> new RescaledSubnetLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") RescaledSubnetLayer[][] addRefs(RescaledSubnetLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  RescaledSubnetLayer[][] addRefs(@Nullable RescaledSubnetLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayer::addRefs)
@@ -113,12 +117,11 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
 
   @Nullable
   @Override
-  public Result eval(final Result... inObj) {
+  public Result eval(@Nullable final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_13_0005 = getCompatibilityLayer();
       Result temp_13_0004 = temp_13_0005.eval(Result.addRefs(inObj));
-      if (null != temp_13_0005)
-        temp_13_0005.freeRef();
+      temp_13_0005.freeRef();
       if (null != inObj)
         ReferenceCounting.freeRefs(inObj);
       return temp_13_0004;
@@ -126,8 +129,7 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
     log.warn("Not Implemented: " + getClass().getCanonicalName());
     Layer temp_13_0006 = getCompatibilityLayer();
     Result temp_13_0003 = temp_13_0006.eval(Result.addRefs(inObj));
-    if (null != temp_13_0006)
-      temp_13_0006.freeRef();
+    temp_13_0006.freeRef();
     if (null != inObj)
       ReferenceCounting.freeRefs(inObj);
     return temp_13_0003;
@@ -136,9 +138,9 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("scale", scale);
+    assert layer != null;
     json.add("key", layer.getJson(resources, dataSerializer));
     json.addProperty("precision", precision.name());
     return json;
@@ -150,13 +152,17 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
     if (null != layer)
       layer.freeRef();
     layer = null;
   }
 
-  public @Override @SuppressWarnings("unused") RescaledSubnetLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  RescaledSubnetLayer addRef() {
     return (RescaledSubnetLayer) super.addRef();
   }
 }

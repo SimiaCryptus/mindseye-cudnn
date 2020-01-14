@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
@@ -91,19 +90,24 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
     this.to = to;
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static ImgBandSelectLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgBandSelectLayer(json);
   }
 
-  public static @SuppressWarnings("unused") ImgBandSelectLayer[] addRefs(ImgBandSelectLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgBandSelectLayer[] addRefs(@Nullable ImgBandSelectLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayer::addRef)
         .toArray((x) -> new ImgBandSelectLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgBandSelectLayer[][] addRefs(ImgBandSelectLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgBandSelectLayer[][] addRefs(@Nullable ImgBandSelectLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayer::addRefs)
@@ -122,82 +126,70 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
     final Result in0 = inObj[0].addRef();
     TensorList temp_46_0009 = in0.getData();
     assert 3 == temp_46_0009.getDimensions().length;
-    if (null != temp_46_0009)
-      temp_46_0009.freeRef();
+    temp_46_0009.freeRef();
     if (!CudaSystem.isEnabled()) {
-      if (null != in0)
-        in0.freeRef();
+      in0.freeRef();
       Layer temp_46_0010 = getCompatibilityLayer();
       Result temp_46_0006 = temp_46_0010.eval(Result.addRefs(inObj));
-      if (null != temp_46_0010)
-        temp_46_0010.freeRef();
+      temp_46_0010.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_46_0006;
     }
     final TensorList inputData = in0.getData();
-    @Nonnull
-    final int[] inputDimensions = inputData.getDimensions();
+    @Nonnull final int[] inputDimensions = inputData.getDimensions();
     final int length = inputData.length();
-    @Nonnull
-    final int[] outputDimensions = RefArrays.copyOf(inputDimensions, 3);
+    @Nonnull final int[] outputDimensions = RefArrays.copyOf(inputDimensions, 3);
     outputDimensions[2] = getTo() - getFrom();
     long size = (length * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size);
     try {
       try {
         try {
           return new Result(CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-            @Nullable
-            final CudaTensor cudaInput = gpu.getTensor(inputData == null ? null : inputData.addRef(), precision,
+            @Nullable final CudaTensor cudaInput = gpu.getTensor(inputData.addRef(), precision,
                 MemoryType.Device, false);
             final int byteOffset = cudaInput.descriptor.cStride * getFrom() * precision.size;
-            @Nonnull
-            final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length,
+            @Nonnull final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length,
                 outputDimensions[2], outputDimensions[1], outputDimensions[0], //
                 cudaInput.descriptor.nStride, //
                 cudaInput.descriptor.cStride, //
                 cudaInput.descriptor.hStride, //
                 cudaInput.descriptor.wStride);
             CudaMemory cudaInputMemory = cudaInput.getMemory(gpu);
-            if (null != cudaInput)
-              cudaInput.freeRef();
+            cudaInput.freeRef();
             assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+            assert cudaInputMemory != null;
             CudaTensor cudaTensor = new CudaTensor(cudaInputMemory.withByteOffset(byteOffset),
-                inputDescriptor == null ? null : inputDescriptor, precision);
-            if (null != cudaInputMemory)
-              cudaInputMemory.freeRef();
-            CudaTensorList temp_46_0003 = new CudaTensorList(cudaTensor == null ? null : cudaTensor.addRef(), length,
+                inputDescriptor, precision);
+            cudaInputMemory.freeRef();
+            CudaTensorList temp_46_0003 = new CudaTensorList(cudaTensor.addRef(), length,
                 outputDimensions, precision);
-            if (null != cudaTensor)
-              cudaTensor.freeRef();
+            cudaTensor.freeRef();
             return temp_46_0003;
-          }, inputData == null ? null : inputData.addRef()), inputData == null ? null : inputData.addRef()),
+          }, inputData.addRef()), inputData.addRef()),
               new Result.Accumulator() {
                 {
                 }
 
                 @Override
-                public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+                public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
                   if (!RefArrays.equals(delta.getDimensions(), outputDimensions)) {
                     if (null != buffer)
                       buffer.freeRef();
                     AssertionError temp_46_0008 = new AssertionError(
                         RefArrays.toString(delta.getDimensions()) + " != " + RefArrays.toString(outputDimensions));
-                    if (null != delta)
-                      delta.freeRef();
+                    delta.freeRef();
                     throw temp_46_0008;
                   }
                   if (in0.isAlive()) {
                     final TensorList passbackTensorList = CudaSystem
                         .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                          @Nonnull
-                          final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision,
+                          @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision,
                               length, outputDimensions[2], outputDimensions[1], outputDimensions[0], //
                               inputDimensions[2] * inputDimensions[1] * inputDimensions[0], //
                               inputDimensions[1] * inputDimensions[0], //
                               inputDimensions[0], //
                               1);
-                          @Nonnull
-                          final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision,
+                          @Nonnull final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision,
                               length, inputDimensions[2], inputDimensions[1], inputDimensions[0], //
                               inputDimensions[2] * inputDimensions[1] * inputDimensions[0], //
                               inputDimensions[1] * inputDimensions[0], //
@@ -207,45 +199,41 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
                               * precision.size;
                           assert delta.length() == length;
                           //assert error.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(Double::isFinite);
-                          @Nullable
-                          final CudaTensor errorPtr = gpu.getTensor(delta == null ? null : delta.addRef(), precision,
+                          @Nullable final CudaTensor errorPtr = gpu.getTensor(delta.addRef(), precision,
                               MemoryType.Device, false);
                           long size1 = (length * inputDimensions[2] * inputDimensions[1] * inputDimensions[0]
                               * precision.size);
-                          @Nonnull
-                          final CudaMemory passbackBuffer = gpu.allocate(size1, MemoryType.Managed.ifEnabled(), false);
+                          @Nonnull final CudaMemory passbackBuffer = gpu.allocate(size1, MemoryType.Managed.ifEnabled(), false);
                           CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
+                          assert errorPtrMemory != null;
                           gpu.cudnnTransformTensor(precision.getPointer(1.0), errorPtr.descriptor.getPtr(),
                               errorPtrMemory.getPtr(), precision.getPointer(0.0), viewDescriptor.getPtr(),
                               passbackBuffer.getPtr().withByteOffset(byteOffset));
-                          if (null != errorPtr)
-                            errorPtr.freeRef();
+                          errorPtr.freeRef();
                           viewDescriptor.freeRef();
                           RefUtil.freeRef(errorPtrMemory.dirty());
-                          if (null != errorPtrMemory)
-                            errorPtrMemory.freeRef();
+                          errorPtrMemory.freeRef();
                           RefUtil.freeRef(passbackBuffer.dirty());
-                          CudaTensor cudaTensor = new CudaTensor(passbackBuffer == null ? null : passbackBuffer,
-                              inputDescriptor == null ? null : inputDescriptor, precision);
+                          CudaTensor cudaTensor = new CudaTensor(passbackBuffer,
+                              inputDescriptor, precision);
                           CudaTensorList temp_46_0004 = new CudaTensorList(
-                              cudaTensor == null ? null : cudaTensor.addRef(), length, inputDimensions, precision);
-                          if (null != cudaTensor)
-                            cudaTensor.freeRef();
+                              cudaTensor.addRef(), length, inputDimensions, precision);
+                          cudaTensor.freeRef();
                           return temp_46_0004;
                           //assert passbackTensorList.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(v->Double.isFinite(v));
-                        }, delta == null ? null : delta.addRef()), delta == null ? null : delta.addRef());
+                        }, delta.addRef()), delta.addRef());
                     in0.accumulate(buffer == null ? null : buffer.addRef(),
                         passbackTensorList == null ? null : passbackTensorList.addRef());
                     if (null != passbackTensorList)
                       passbackTensorList.freeRef();
                   }
-                  if (null != delta)
-                    delta.freeRef();
+                  delta.freeRef();
                   if (null != buffer)
                     buffer.freeRef();
                 }
 
-                public @SuppressWarnings("unused") void _free() {
+                public @SuppressWarnings("unused")
+                void _free() {
                 }
               }) {
 
@@ -257,18 +245,17 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
             public boolean isAlive() {
               return RefArrays.stream(Result.addRefs(inObj)).anyMatch(x -> {
                 boolean temp_46_0005 = x.isAlive();
-                if (null != x)
-                  x.freeRef();
+                x.freeRef();
                 return temp_46_0005;
               });
             }
 
             @Override
-            public void accumulate(final DeltaSet<UUID> buffer, final TensorList delta) {
+            public void accumulate(@Nullable final DeltaSet<UUID> buffer, @Nullable final TensorList delta) {
               Result.Accumulator temp_46_0011 = getAccumulator();
+              assert temp_46_0011 != null;
               temp_46_0011.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
-              if (null != temp_46_0011)
-                temp_46_0011.freeRef();
+              temp_46_0011.freeRef();
               if (null != delta)
                 delta.freeRef();
               if (null != buffer)
@@ -283,20 +270,17 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
           ReferenceCounting.freeRefs(inObj);
         }
       } finally {
-        if (null != inputData)
-          inputData.freeRef();
+        inputData.freeRef();
       }
     } finally {
-      if (null != in0)
-        in0.freeRef();
+      in0.freeRef();
     }
   }
 
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("from", getFrom());
     json.addProperty("to", getTo());
     json.addProperty("precision", precision.name());
@@ -309,10 +293,14 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision<ImgB
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgBandSelectLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgBandSelectLayer addRef() {
     return (ImgBandSelectLayer) super.addRef();
   }
 }

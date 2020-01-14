@@ -21,11 +21,12 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.network.DAGNetwork;
-import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface MultiPrecision<T> {
+  @Nullable
   Precision getPrecision();
 
   static <T extends LayerBase> T setPrecision(final T network, final Precision precision) {

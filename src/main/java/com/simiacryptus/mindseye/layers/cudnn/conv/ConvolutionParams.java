@@ -20,8 +20,9 @@
 package com.simiacryptus.mindseye.layers.cudnn.conv;
 
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefArrays;
+
+import javax.annotation.Nonnull;
 
 public class ConvolutionParams {
   public final int inputBands;
@@ -34,7 +35,7 @@ public class ConvolutionParams {
   public final int[] masterFilterDimensions;
 
   public ConvolutionParams(int inputBands, int outputBands, Precision precision, int strideX, int strideY,
-      Integer paddingX, Integer paddingY, int[] masterFilterDimensions) {
+                           Integer paddingX, Integer paddingY, int[] masterFilterDimensions) {
     this.inputBands = inputBands;
     this.outputBands = outputBands;
     this.precision = precision;
@@ -45,6 +46,7 @@ public class ConvolutionParams {
     this.masterFilterDimensions = masterFilterDimensions;
   }
 
+  @Nonnull
   @Override
   public String toString() {
     return "{" + "inputBands=" + inputBands + ", outputBands=" + outputBands + ", filterDimensions="

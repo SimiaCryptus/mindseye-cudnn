@@ -23,7 +23,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
@@ -64,6 +63,7 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
     }
   }
 
+  @Nullable
   public RefList<SubnetLeg> getLegs() {
     return legs == null ? null : legs.addRef();
   }
@@ -88,30 +88,36 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
     this.parallel = parallel;
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static ImgLinearSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgLinearSubnetLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused") ImgLinearSubnetLayer[] addRefs(ImgLinearSubnetLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgLinearSubnetLayer[] addRefs(@Nullable ImgLinearSubnetLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRef)
         .toArray((x) -> new ImgLinearSubnetLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgLinearSubnetLayer[][] addRefs(ImgLinearSubnetLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgLinearSubnetLayer[][] addRefs(@Nullable ImgLinearSubnetLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRefs)
         .toArray((x) -> new ImgLinearSubnetLayer[x][]);
   }
 
-  public ImgLinearSubnetLayer add(final int from, final int to, final Layer layer) {
+  @Nonnull
+  public ImgLinearSubnetLayer add(final int from, final int to, @Nullable final Layer layer) {
     RefList<ImgLinearSubnetLayer.SubnetLeg> temp_06_0010 = getLegs();
+    assert temp_06_0010 != null;
     temp_06_0010.add(new SubnetLeg(layer == null ? null : layer.addRef(), from, to));
-    if (null != temp_06_0010)
-      temp_06_0010.freeRef();
+    temp_06_0010.freeRef();
     if (null != layer)
       layer.freeRef();
     return this.addRef();
@@ -124,140 +130,122 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
     Result input = inObj[0].addRef();
     ReferenceCounting.freeRefs(inObj);
     TensorList inputData = input.getData();
-    @Nonnull
-    final int[] inputDims = inputData.getDimensions();
+    @Nonnull final int[] inputDims = inputData.getDimensions();
     assert 3 == inputDims.length;
     int length = inputData.length();
     int maxBand = legs.stream().mapToInt(x -> {
       int temp_06_0003 = x.toBand;
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_06_0003;
     }).max().getAsInt();
     assert maxBand == inputDims[2] : maxBand + " != " + inputDims[2];
     assert RefIntStream.range(0, maxBand).allMatch(i -> 1 == legs.stream().filter(x -> {
       boolean temp_06_0004 = x.fromBand <= i && x.toBand > i;
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_06_0004;
     }).count());
     CudaTensor passback = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensor>) gpu -> {
       return new CudaTensor(gpu.allocate(inputData.getElements() * precision.size, MemoryType.Device, true),
           gpu.newTensorDescriptor(precision, length, inputDims[2], inputDims[1], inputDims[0]), precision);
-    }, inputData == null ? null : inputData.addRef()));
-    if (null != inputData)
-      inputData.freeRef();
+    }, inputData.addRef()));
+    inputData.freeRef();
     AtomicInteger counter = new AtomicInteger(0);
     Result[] legResults;
     legResults = legs.stream()
         .map(RefUtil.wrapInterface((Function<? super ImgLinearSubnetLayer.SubnetLeg, ? extends Result>) leg -> {
           ImgBandSelectLayer imgBandSelectLayer = new ImgBandSelectLayer(leg.fromBand, leg.toBand);
-          Result temp_06_0011 = imgBandSelectLayer.eval(input == null ? null : input.addRef());
+          Result temp_06_0011 = imgBandSelectLayer.eval(input.addRef());
+          assert temp_06_0011 != null;
           TensorList legData = temp_06_0011.getData();
-          if (null != temp_06_0011)
-            temp_06_0011.freeRef();
-          if (null != imgBandSelectLayer)
-            imgBandSelectLayer.freeRef();
+          temp_06_0011.freeRef();
+          imgBandSelectLayer.freeRef();
+          assert leg.inner != null;
           Result temp_06_0006 = leg.inner.eval(new Result(legData, new Result.Accumulator() {
             {
             }
 
             @Override
-            public void accept(DeltaSet<UUID> ctx, TensorList delta) {
+            public void accept(@Nullable DeltaSet<UUID> ctx, @Nonnull TensorList delta) {
               int[] outputDimensions = delta.getDimensions();
               synchronized (passback) {
                 CudaSystem.run(RefUtil.wrapInterface((RefConsumer<CudnnHandle>) gpu -> {
-                  @Nonnull
-                  final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
-                      outputDimensions[2], outputDimensions[1], outputDimensions[0],
-                      inputDims[2] * inputDims[1] * inputDims[0], inputDims[1] * inputDims[0], inputDims[0], 1);
-                  final int byteOffset = viewDescriptor.cStride * leg.fromBand * precision.size;
-                  assert delta.length() == length;
-                  assert passback.getDeviceId() == gpu.getDeviceId();
-                  @Nullable
-                  final CudaTensor deltaTensor = gpu.getTensor(delta == null ? null : delta.addRef(), precision,
-                      MemoryType.Device, true);
-                  @Nonnull
-                  final CudaMemory passbackBuffer = passback.getMemory(gpu);
-                  CudaMemory errorPtrMemory = deltaTensor.getMemory(gpu);
-                  passbackBuffer.synchronize();
-                  gpu.cudnnTransformTensor(precision.getPointer(1.0), deltaTensor.descriptor.getPtr(),
-                      errorPtrMemory.getPtr(), precision.getPointer(0.0), viewDescriptor.getPtr(),
-                      passbackBuffer.getPtr().withByteOffset(byteOffset));
-                  if (null != deltaTensor)
-                    deltaTensor.freeRef();
-                  if (null != viewDescriptor)
-                    viewDescriptor.freeRef();
-                  RefUtil.freeRef(errorPtrMemory.dirty());
-                  if (null != errorPtrMemory)
-                    errorPtrMemory.freeRef();
-                  RefUtil.freeRef(passbackBuffer.dirty());
-                  if (null != passbackBuffer)
-                    passbackBuffer.freeRef();
-                }, passback == null ? null : passback.addRef(), delta == null ? null : delta.addRef(),
-                    leg == null ? null : leg.addRef()), passback == null ? null : passback.addRef());
+                      @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
+                          outputDimensions[2], outputDimensions[1], outputDimensions[0],
+                          inputDims[2] * inputDims[1] * inputDims[0], inputDims[1] * inputDims[0], inputDims[0], 1);
+                      final int byteOffset = viewDescriptor.cStride * leg.fromBand * precision.size;
+                      assert delta.length() == length;
+                      assert passback.getDeviceId() == gpu.getDeviceId();
+                      @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta.addRef(), precision,
+                          MemoryType.Device, true);
+                      @Nonnull final CudaMemory passbackBuffer = passback.getMemory(gpu);
+                      CudaMemory errorPtrMemory = deltaTensor.getMemory(gpu);
+                      assert passbackBuffer != null;
+                      passbackBuffer.synchronize();
+                      assert errorPtrMemory != null;
+                      gpu.cudnnTransformTensor(precision.getPointer(1.0), deltaTensor.descriptor.getPtr(),
+                          errorPtrMemory.getPtr(), precision.getPointer(0.0), viewDescriptor.getPtr(),
+                          passbackBuffer.getPtr().withByteOffset(byteOffset));
+                      deltaTensor.freeRef();
+                      viewDescriptor.freeRef();
+                      RefUtil.freeRef(errorPtrMemory.dirty());
+                      errorPtrMemory.freeRef();
+                      RefUtil.freeRef(passbackBuffer.dirty());
+                      passbackBuffer.freeRef();
+                    }, passback.addRef(), delta.addRef(),
+                    leg.addRef()), passback.addRef());
               }
-              if (null != delta)
-                delta.freeRef();
+              delta.freeRef();
               if (counter.incrementAndGet() >= legs.size()) {
                 counter.set(0);
                 input.accumulate(ctx == null ? null : ctx.addRef(),
-                    new CudaTensorList(passback == null ? null : passback.addRef(), length, inputDims, precision));
+                    new CudaTensorList(passback.addRef(), length, inputDims, precision));
               }
               if (null != ctx)
                 ctx.freeRef();
             }
 
-            public @SuppressWarnings("unused") void _free() {
+            public @SuppressWarnings("unused")
+            void _free() {
             }
           }) {
             public void _free() {
               super._free();
             }
           });
-          if (null != legData)
-            legData.freeRef();
-          if (null != leg)
-            leg.freeRef();
+          legData.freeRef();
+          leg.freeRef();
           //
           //
           //
           //
           //assert error.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(Double::isFinite);
           return temp_06_0006;
-        }, passback == null ? null : passback.addRef(), input == null ? null : input.addRef()))
+        }, passback == null ? null : passback.addRef(), input.addRef()))
         .toArray(i -> new Result[i]);
     if (null != passback)
       passback.freeRef();
-    if (null != input)
-      input.freeRef();
+    input.freeRef();
     SumInputsLayer temp_06_0009 = new SumInputsLayer();
     SumInputsLayer temp_06_0012 = temp_06_0009.setParallel(parallel);
     SumInputsLayer sumInputsLayer = temp_06_0012.setPrecision(precision);
-    if (null != temp_06_0012)
-      temp_06_0012.freeRef();
-    if (null != temp_06_0009)
-      temp_06_0009.freeRef();
+    temp_06_0012.freeRef();
+    temp_06_0009.freeRef();
     Result temp_06_0005 = sumInputsLayer.eval(Result.addRefs(legResults));
-    if (null != sumInputsLayer)
-      sumInputsLayer.freeRef();
-    if (null != legResults)
-      ReferenceCounting.freeRefs(legResults);
+    sumInputsLayer.freeRef();
+    ReferenceCounting.freeRefs(legResults);
     return temp_06_0005;
   }
 
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
     json.addProperty("parallel", isParallel());
     JsonArray jsonArray = new JsonArray();
     legs.stream().map(x -> {
       JsonObject temp_06_0007 = x.getJson(resources, dataSerializer);
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_06_0007;
     }).forEach(jsonArray::add);
     json.add("legs", jsonArray);
@@ -275,13 +263,12 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
   public Layer setFrozen(final boolean frozen) {
     legs.stream().map(x -> {
       Layer temp_06_0008 = x.inner;
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_06_0008;
     }).forEach(x -> {
+      assert x != null;
       RefUtil.freeRef(x.setFrozen(frozen));
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
     });
     return super.setFrozen(frozen);
   }
@@ -292,17 +279,21 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") ImgLinearSubnetLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgLinearSubnetLayer addRef() {
     return (ImgLinearSubnetLayer) super.addRef();
   }
 
   public static class SubnetLeg extends ReferenceCountingBase {
 
+    @Nullable
     private final Layer inner;
     private final int fromBand;
     private final int toBand;
 
-    public SubnetLeg(final Layer inner, final int fromBand, final int toBand) {
+    public SubnetLeg(@Nullable final Layer inner, final int fromBand, final int toBand) {
       Layer temp_06_0001 = inner == null ? null : inner.addRef();
       this.inner = temp_06_0001 == null ? null : temp_06_0001.addRef();
       if (null != temp_06_0001)
@@ -317,12 +308,13 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
       fromBand = json.getAsJsonPrimitive("fromBand").getAsInt();
       toBand = json.getAsJsonPrimitive("toBand").getAsInt();
       Layer temp_06_0002 = Layer.fromJson(json.getAsJsonObject("network"), rs);
-      inner = temp_06_0002 == null ? null : temp_06_0002.addRef();
-      if (null != temp_06_0002)
-        temp_06_0002.freeRef();
+      inner = temp_06_0002.addRef();
+      temp_06_0002.freeRef();
     }
 
-    public static @SuppressWarnings("unused") SubnetLeg[] addRefs(SubnetLeg[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    SubnetLeg[] addRefs(@Nullable SubnetLeg[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(SubnetLeg::addRef).toArray((x) -> new SubnetLeg[x]);
@@ -330,10 +322,10 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
 
     @Nonnull
     public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-      @Nonnull
-      final JsonObject json = new JsonObject();
+      @Nonnull final JsonObject json = new JsonObject();
       json.addProperty("fromBand", fromBand);
       json.addProperty("toBand", toBand);
+      assert inner != null;
       json.add("network", inner.getJson(resources, dataSerializer));
       return json;
     }
@@ -344,7 +336,10 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
       super._free();
     }
 
-    public @Override @SuppressWarnings("unused") SubnetLeg addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    SubnetLeg addRef() {
       return (SubnetLeg) super.addRef();
     }
 

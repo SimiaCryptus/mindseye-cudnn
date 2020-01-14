@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ProductInputsLayer;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
@@ -57,6 +56,7 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
     return alpha;
   }
 
+  @Nonnull
   public SquareActivationLayer setAlpha(double alpha) {
     this.alpha = alpha;
     return this.addRef();
@@ -79,19 +79,24 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
     return this.addRef();
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static SquareActivationLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new SquareActivationLayer(json);
   }
 
-  public static @SuppressWarnings("unused") SquareActivationLayer[] addRefs(SquareActivationLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SquareActivationLayer[] addRefs(@Nullable SquareActivationLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayer::addRef)
         .toArray((x) -> new SquareActivationLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") SquareActivationLayer[][] addRefs(SquareActivationLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SquareActivationLayer[][] addRefs(@Nullable SquareActivationLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayer::addRefs)
@@ -104,27 +109,22 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
     if (!CudaSystem.isEnabled()) {
       Layer temp_38_0008 = getCompatibilityLayer();
       Result temp_38_0005 = temp_38_0008.eval(Result.addRefs(inObj));
-      if (null != temp_38_0008)
-        temp_38_0008.freeRef();
+      temp_38_0008.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_38_0005;
     }
     if (inObj.length != 1) {
       IllegalArgumentException temp_38_0006 = new IllegalArgumentException("inObj.length=" + inObj.length);
-      if (null != inObj)
-        ReferenceCounting.freeRefs(inObj);
+      ReferenceCounting.freeRefs(inObj);
       throw temp_38_0006;
     }
     Result input = inObj[0].addRef();
     final TensorList inputData = input.getData();
-    @Nonnull
-    final int[] dimensions = inputData.getDimensions();
+    @Nonnull final int[] dimensions = inputData.getDimensions();
     final int length = inputData.length();
     if (3 != dimensions.length) {
-      if (null != input)
-        input.freeRef();
-      if (null != inputData)
-        inputData.freeRef();
+      input.freeRef();
+      inputData.freeRef();
       ReferenceCounting.freeRefs(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
     }
@@ -132,96 +132,82 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
       try {
         try {
           return new Result(CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-            @Nonnull
-            final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+            @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
                 .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-            @Nonnull
-            final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+            @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
                 dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
                 dimensions[1] * dimensions[0], dimensions[0], 1);
-            @Nullable
-            final CudaTensor inputTensor = gpu.getTensor(inputData == null ? null : inputData.addRef(), precision,
+            @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision,
                 MemoryType.Device, false);
             //assert inputTensor.size == rPtr.size;
-            @Nonnull
-            final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
+            @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
                 MemoryType.Device, true);
             CudaMemory lPtrMemory = inputTensor.getMemory(gpu);
+            assert lPtrMemory != null;
             CudaSystem.handle(
                 gpu.cudnnOpTensor(opDescriptor.getPtr(), precision.getPointer(alpha), inputTensor.descriptor.getPtr(),
                     lPtrMemory.getPtr(), precision.getPointer(1.0), inputTensor.descriptor.getPtr(),
                     lPtrMemory.getPtr(), precision.getPointer(0.0), outputDescriptor.getPtr(), outputPtr.getPtr()));
-            if (null != inputTensor)
-              inputTensor.freeRef();
+            inputTensor.freeRef();
             opDescriptor.freeRef();
             assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
             RefUtil.freeRef(outputPtr.dirty());
             RefUtil.freeRef(lPtrMemory.dirty());
-            if (null != lPtrMemory)
-              lPtrMemory.freeRef();
+            lPtrMemory.freeRef();
             RefUtil.freeRef(outputPtr.dirty());
-            CudaTensor cudaTensor = new CudaTensor(outputPtr == null ? null : outputPtr,
-                outputDescriptor == null ? null : outputDescriptor, precision);
-            CudaTensorList temp_38_0003 = new CudaTensorList(cudaTensor == null ? null : cudaTensor.addRef(), length,
+            CudaTensor cudaTensor = new CudaTensor(outputPtr,
+                outputDescriptor, precision);
+            CudaTensorList temp_38_0003 = new CudaTensorList(cudaTensor.addRef(), length,
                 dimensions, precision);
-            if (null != cudaTensor)
-              cudaTensor.freeRef();
+            cudaTensor.freeRef();
             return temp_38_0003;
-          }, inputData == null ? null : inputData.addRef()), inputData == null ? null : inputData.addRef()),
+          }, inputData.addRef()), inputData.addRef()),
               new Result.Accumulator() {
                 {
                 }
 
                 @Override
-                public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+                public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
                   if (input.isAlive()) {
                     @Nonnull
                     TensorList data = CudaSystem
                         .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                          @Nonnull
-                          final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
-                              .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-                          @Nonnull
-                          final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision,
-                              length, dimensions[2], dimensions[1], dimensions[0],
-                              dimensions[2] * dimensions[1] * dimensions[0], dimensions[1] * dimensions[0],
-                              dimensions[0], 1);
-                          @Nullable
-                          final CudaTensor deltaTensor = gpu.getTensor(delta == null ? null : delta.addRef(), precision,
-                              MemoryType.Device, true);
-                          @Nullable
-                          final CudaTensor inputTensor = gpu.getTensor(input.getData(), precision, MemoryType.Device,
-                              false);
-                          //assert deltaTensor.size == inputTensor.size;
-                          @Nonnull
-                          final CudaMemory outputPtr = gpu.allocate(
-                              (long) precision.size * outputDescriptor.nStride * length, MemoryType.Device, true);
-                          CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
-                          CudaMemory rightTensorMemory = inputTensor.getMemory(gpu);
-                          CudaSystem.handle(gpu.cudnnOpTensor(opDescriptor.getPtr(), precision.getPointer(2),
-                              deltaTensor.descriptor.getPtr(), deltaTensorMemory.getPtr(), precision.getPointer(alpha),
-                              inputTensor.descriptor.getPtr(), rightTensorMemory.getPtr(), precision.getPointer(0.0),
-                              outputDescriptor.getPtr(), outputPtr.getPtr()));
-                          if (null != inputTensor)
-                            inputTensor.freeRef();
-                          if (null != deltaTensor)
-                            deltaTensor.freeRef();
-                          opDescriptor.freeRef();
-                          RefUtil.freeRef(deltaTensorMemory.dirty());
-                          if (null != deltaTensorMemory)
-                            deltaTensorMemory.freeRef();
-                          RefUtil.freeRef(rightTensorMemory.dirty());
-                          if (null != rightTensorMemory)
-                            rightTensorMemory.freeRef();
-                          RefUtil.freeRef(outputPtr.dirty());
-                          CudaTensor cudaTensor = new CudaTensor(outputPtr == null ? null : outputPtr,
-                              outputDescriptor == null ? null : outputDescriptor, precision);
-                          CudaTensorList temp_38_0004 = new CudaTensorList(
-                              cudaTensor == null ? null : cudaTensor.addRef(), length, dimensions, precision);
-                          if (null != cudaTensor)
-                            cudaTensor.freeRef();
-                          return temp_38_0004;
-                        }, delta == null ? null : delta.addRef(), input == null ? null : input.addRef()),
+                              @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+                                  .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
+                              @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision,
+                                  length, dimensions[2], dimensions[1], dimensions[0],
+                                  dimensions[2] * dimensions[1] * dimensions[0], dimensions[1] * dimensions[0],
+                                  dimensions[0], 1);
+                              @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta == null ? null : delta.addRef(), precision,
+                                  MemoryType.Device, true);
+                              @Nullable final CudaTensor inputTensor = gpu.getTensor(input.getData(), precision, MemoryType.Device,
+                                  false);
+                              //assert deltaTensor.size == inputTensor.size;
+                              @Nonnull final CudaMemory outputPtr = gpu.allocate(
+                                  (long) precision.size * outputDescriptor.nStride * length, MemoryType.Device, true);
+                              CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
+                              CudaMemory rightTensorMemory = inputTensor.getMemory(gpu);
+                              assert rightTensorMemory != null;
+                              assert deltaTensorMemory != null;
+                              CudaSystem.handle(gpu.cudnnOpTensor(opDescriptor.getPtr(), precision.getPointer(2),
+                                  deltaTensor.descriptor.getPtr(), deltaTensorMemory.getPtr(), precision.getPointer(alpha),
+                                  inputTensor.descriptor.getPtr(), rightTensorMemory.getPtr(), precision.getPointer(0.0),
+                                  outputDescriptor.getPtr(), outputPtr.getPtr()));
+                              inputTensor.freeRef();
+                              deltaTensor.freeRef();
+                              opDescriptor.freeRef();
+                              RefUtil.freeRef(deltaTensorMemory.dirty());
+                              deltaTensorMemory.freeRef();
+                              RefUtil.freeRef(rightTensorMemory.dirty());
+                              rightTensorMemory.freeRef();
+                              RefUtil.freeRef(outputPtr.dirty());
+                              CudaTensor cudaTensor = new CudaTensor(outputPtr,
+                                  outputDescriptor, precision);
+                              CudaTensorList temp_38_0004 = new CudaTensorList(
+                                  cudaTensor.addRef(), length, dimensions, precision);
+                              cudaTensor.freeRef();
+                              return temp_38_0004;
+                            }, delta == null ? null : delta.addRef(), input.addRef()),
                             delta == null ? null : delta.addRef());
                     input.accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data);
                   }
@@ -231,7 +217,8 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
                     buffer.freeRef();
                 }
 
-                public @SuppressWarnings("unused") void _free() {
+                public @SuppressWarnings("unused")
+                void _free() {
                 }
               }) {
 
@@ -241,8 +228,7 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
 
             @Override
             public boolean isAlive() {
-              for (@Nonnull
-              final Result element : inObj)
+              for (@Nonnull final Result element : inObj)
                 if (element.isAlive()) {
                   return true;
                 }
@@ -250,11 +236,11 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
             }
 
             @Override
-            public void accumulate(final DeltaSet<UUID> buffer, final TensorList delta) {
+            public void accumulate(@Nullable final DeltaSet<UUID> buffer, @Nullable final TensorList delta) {
               Result.Accumulator temp_38_0009 = getAccumulator();
+              assert temp_38_0009 != null;
               temp_38_0009.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
-              if (null != temp_38_0009)
-                temp_38_0009.freeRef();
+              temp_38_0009.freeRef();
               if (null != delta)
                 delta.freeRef();
               if (null != buffer)
@@ -270,12 +256,10 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
           ReferenceCounting.freeRefs(inObj);
         }
       } finally {
-        if (null != inputData)
-          inputData.freeRef();
+        inputData.freeRef();
       }
     } finally {
-      if (null != input)
-        input.freeRef();
+      input.freeRef();
     }
   }
 
@@ -295,10 +279,14 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision<S
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") SquareActivationLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  SquareActivationLayer addRef() {
     return (SquareActivationLayer) super.addRef();
   }
 }

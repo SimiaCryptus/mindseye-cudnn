@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.InnerNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
@@ -79,21 +78,22 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
     return parallel;
   }
 
+  @Nonnull
   public SumInputsLayer setParallel(boolean parallel) {
     this.parallel = parallel;
     return this.addRef();
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static SumInputsLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new SumInputsLayer(json);
   }
 
-  public static PipelineNetwork combine(PipelineNetwork... networks) {
+  public static PipelineNetwork combine(@Nonnull PipelineNetwork... networks) {
     if (1 == networks.length) {
       PipelineNetwork temp_29_0004 = networks[0];
-      if (null != networks)
-        ReferenceCounting.freeRefs(networks);
+      ReferenceCounting.freeRefs(networks);
       return temp_29_0004;
     }
     RefArrays.stream(PipelineNetwork.addRefs(networks)).forEach(ReferenceCountingBase::assertAlive);
@@ -101,24 +101,26 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
     RefUtil.freeRef(pipelineNetwork.add(new SumInputsLayer(), RefArrays.stream(PipelineNetwork.addRefs(networks))
         .map(RefUtil.wrapInterface((Function<? super PipelineNetwork, ? extends InnerNode>) network -> {
           InnerNode temp_29_0001 = PipelineNetwork
-              .transferNode(pipelineNetwork == null ? null : pipelineNetwork.addRef(), network.getHead());
-          if (null != network)
-            network.freeRef();
+              .transferNode(pipelineNetwork.addRef(), network.getHead());
+          network.freeRef();
           return temp_29_0001;
-        }, pipelineNetwork == null ? null : pipelineNetwork.addRef())).toArray(i -> new DAGNode[i])));
-    if (null != networks)
-      ReferenceCounting.freeRefs(networks);
+        }, pipelineNetwork.addRef())).toArray(i -> new DAGNode[i])));
+    ReferenceCounting.freeRefs(networks);
     return pipelineNetwork;
   }
 
-  public static @SuppressWarnings("unused") SumInputsLayer[] addRefs(SumInputsLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SumInputsLayer[] addRefs(@Nullable SumInputsLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayer::addRef)
         .toArray((x) -> new SumInputsLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") SumInputsLayer[][] addRefs(SumInputsLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SumInputsLayer[][] addRefs(@Nullable SumInputsLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayer::addRefs)
@@ -129,10 +131,8 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     TensorList temp_29_0008 = inObj[0].getData();
-    @Nonnull
-    final int[] dimensions = temp_29_0008.getDimensions();
-    if (null != temp_29_0008)
-      temp_29_0008.freeRef();
+    @Nonnull final int[] dimensions = temp_29_0008.getDimensions();
+    temp_29_0008.freeRef();
     if (3 != dimensions.length) {
       ReferenceCounting.freeRefs(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
@@ -143,27 +143,22 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
         TensorList temp_29_0010 = inObj[i].getData();
         IllegalArgumentException temp_29_0006 = new IllegalArgumentException(
             RefArrays.toString(dimensions) + " != " + RefArrays.toString(temp_29_0010.getDimensions()));
-        if (null != temp_29_0010)
-          temp_29_0010.freeRef();
-        if (null != inObj)
-          ReferenceCounting.freeRefs(inObj);
+        temp_29_0010.freeRef();
+        ReferenceCounting.freeRefs(inObj);
         throw temp_29_0006;
       }
-      if (null != temp_29_0009)
-        temp_29_0009.freeRef();
+      temp_29_0009.freeRef();
     }
     if (!CudaSystem.isEnabled()) {
       Layer temp_29_0011 = getCompatibilityLayer();
       Result temp_29_0007 = temp_29_0011.eval(Result.addRefs(inObj));
-      if (null != temp_29_0011)
-        temp_29_0011.freeRef();
+      temp_29_0011.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_29_0007;
     }
     RefStream<TensorList> tensorListStream = RefArrays.stream(Result.addRefs(inObj)).map(x -> {
       TensorList temp_29_0002 = x.getData();
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_29_0002;
     });
     if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
@@ -171,14 +166,13 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
     try {
       return new Result(RefUtil.get(tensorListStream.reduce((leftData, rightData) -> {
         TensorList temp_29_0003 = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, TensorList>) gpu -> {
-              return gpu.addAndFree(precision, leftData == null ? null : leftData.addRef(),
+              return gpu.addAndFree(precision, leftData.addRef(),
                   rightData == null ? null : rightData.addRef());
-            }, rightData == null ? null : rightData.addRef(), leftData == null ? null : leftData.addRef()),
-            leftData == null ? null : leftData.addRef(), rightData == null ? null : rightData.addRef());
+            }, rightData == null ? null : rightData.addRef(), leftData.addRef()),
+            leftData.addRef(), rightData == null ? null : rightData.addRef());
         if (null != rightData)
           rightData.freeRef();
-        if (null != leftData)
-          leftData.freeRef();
+        leftData.freeRef();
         return temp_29_0003;
       })), new Result.Accumulator() {
         {
@@ -186,15 +180,14 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
         }
 
         @Override
-        public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+        public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
           @Nonnull
           RefStream<Result> deltaStream = RefArrays.stream(Result.addRefs(inObj));
           if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
             deltaStream = deltaStream.parallel();
           deltaStream.filter(Result::isAlive).forEach(RefUtil.wrapInterface((Consumer<? super Result>) obj -> {
             obj.accumulate(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
-            if (null != obj)
-              obj.freeRef();
+            obj.freeRef();
           }, buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef()));
           if (null != delta)
             delta.freeRef();
@@ -202,7 +195,8 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
             buffer.freeRef();
         }
 
-        public @SuppressWarnings("unused") void _free() {
+        public @SuppressWarnings("unused")
+        void _free() {
           ReferenceCounting.freeRefs(inObj);
         }
       }) {
@@ -213,8 +207,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
 
         @Override
         public boolean isAlive() {
-          for (@Nonnull
-          final Result element : inObj)
+          for (@Nonnull final Result element : inObj)
             if (element.isAlive()) {
               return true;
             }
@@ -234,8 +227,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
     json.addProperty("parallel", isParallel());
     return json;
@@ -247,10 +239,14 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision<SumInput
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") SumInputsLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  SumInputsLayer addRef() {
     return (SumInputsLayer) super.addRef();
   }
 }

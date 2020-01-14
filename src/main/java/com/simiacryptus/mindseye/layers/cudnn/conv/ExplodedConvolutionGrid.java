@@ -28,7 +28,6 @@ import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.InnerNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefCollectors;
@@ -47,6 +46,7 @@ import java.util.function.Function;
 class ExplodedConvolutionGrid extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(ExplodedConvolutionGrid.class);
 
+  @Nonnull
   public final RefList<ExplodedConvolutionLeg> subLayers;
   @Nonnull
   public final ConvolutionParams convolutionParams;
@@ -76,14 +76,18 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     return network;
   }
 
-  public static @SuppressWarnings("unused") ExplodedConvolutionGrid[] addRefs(ExplodedConvolutionGrid[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ExplodedConvolutionGrid[] addRefs(@Nullable ExplodedConvolutionGrid[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionGrid::addRef)
         .toArray((x) -> new ExplodedConvolutionGrid[x]);
   }
 
-  public static @SuppressWarnings("unused") ExplodedConvolutionGrid[][] addRefs(ExplodedConvolutionGrid[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ExplodedConvolutionGrid[][] addRefs(@Nullable ExplodedConvolutionGrid[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionGrid::addRefs)
@@ -94,27 +98,24 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
   public ExplodedConvolutionGrid write(@Nonnull Tensor filter) {
     if (1 == subLayers.size()) {
       ExplodedConvolutionLeg temp_08_0007 = subLayers.get(0);
-      temp_08_0007.write(filter == null ? null : filter.addRef());
-      if (null != temp_08_0007)
-        temp_08_0007.freeRef();
+      temp_08_0007.write(filter.addRef());
+      temp_08_0007.freeRef();
     } else {
-      for (@Nonnull
-      ExplodedConvolutionLeg leg : subLayers) {
+      subLayers.forEach(leg -> {
         @Nonnull
-        int[] legDims = { convolutionParams.masterFilterDimensions[0], convolutionParams.masterFilterDimensions[1],
-            leg.getInputBands() * convolutionParams.outputBands };
+        int[] legDims = {convolutionParams.masterFilterDimensions[0], convolutionParams.masterFilterDimensions[1],
+            leg.getInputBands() * convolutionParams.outputBands};
         @Nonnull
         Tensor template = new Tensor(legDims);
         @Nullable
         Tensor tensor = template.mapCoords(RefUtil.wrapInterface(c -> {
           int[] coords = c.getCoords();
-          return filter.get(coords[0], coords[1], getFilterBand(leg == null ? null : leg.addRef(), coords[2]));
-        }, leg == null ? null : leg.addRef(), filter == null ? null : filter.addRef()), false);
+          return filter.get(coords[0], coords[1], getFilterBand(leg.addRef(), coords[2]));
+        }, leg.addRef(), filter.addRef()), false);
         template.freeRef();
-        leg.write(tensor == null ? null : tensor.addRef());
-        if (null != tensor)
-          tensor.freeRef();
-      }
+        leg.write(tensor.addRef());
+        tensor.freeRef();
+      });
     }
     filter.freeRef();
     return this.addRef();
@@ -128,18 +129,15 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
         temp_08_0009.freeRef();
       return temp_08_0008;
     } else {
-      @Nonnull
-      final Tensor filterDelta = new Tensor(convolutionParams.masterFilterDimensions);
-      for (@Nonnull
-      ExplodedConvolutionLeg leg : subLayers) {
+      @Nonnull final Tensor filterDelta = new Tensor(convolutionParams.masterFilterDimensions);
+      subLayers.forEach(leg -> {
         Tensor tensor = extractor.apply(leg);
         tensor.forEach(RefUtil.wrapInterface((v, c) -> {
           int[] coords = c.getCoords();
           filterDelta.set(coords[0], coords[1], getFilterBand(leg == null ? null : leg.addRef(), coords[2]), v);
-        }, leg == null ? null : leg.addRef(), filterDelta == null ? null : filterDelta.addRef()), false);
-        if (null != tensor)
-          tensor.freeRef();
-      }
+        }, leg == null ? null : leg.addRef(), filterDelta.addRef()), false);
+        tensor.freeRef();
+      });
       return filterDelta;
     }
   }
@@ -147,19 +145,17 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
   public Tensor read() {
     return read(l -> {
       Tensor temp_08_0002 = l.read();
-      if (null != l)
-        l.freeRef();
+      l.freeRef();
       return temp_08_0002;
     });
   }
 
   public Tensor read(@Nonnull DeltaSet<UUID> deltaSet, boolean remove) {
     Tensor temp_08_0004 = read(RefUtil.wrapInterface(l -> {
-      Tensor temp_08_0003 = l.read(deltaSet == null ? null : deltaSet.addRef(), remove);
-      if (null != l)
-        l.freeRef();
+      Tensor temp_08_0003 = l.read(deltaSet.addRef(), remove);
+      l.freeRef();
       return temp_08_0003;
-    }, deltaSet == null ? null : deltaSet));
+    }, deltaSet));
     return temp_08_0004;
   }
 
@@ -188,51 +184,41 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
       } else {
         y = 0;
       }
-      if (x != 0 || y != 0) {
-        ImgZeroPaddingLayer temp_08_0005 = new ImgZeroPaddingLayer(x, y);
-        paddedInput = network.add(temp_08_0005.setPrecision(convolutionParams.precision),
-            input == null ? null : input.addRef());
-        if (null != temp_08_0005)
-          temp_08_0005.freeRef();
-      } else {
-        paddedInput = input == null ? null : input.addRef();
-      }
+      ImgZeroPaddingLayer temp_08_0005 = new ImgZeroPaddingLayer(x, y);
+      assert network != null;
+      paddedInput = network.add(temp_08_0005.setPrecision(convolutionParams.precision),
+          input.addRef());
+      temp_08_0005.freeRef();
     } else {
-      paddedInput = input == null ? null : input.addRef();
+      paddedInput = input.addRef();
     }
     input.freeRef();
     InnerNode output;
     if (subLayers.size() == 1) {
       ExplodedConvolutionLeg temp_08_0010 = subLayers.get(0);
-      output = (InnerNode) temp_08_0010.add(paddedInput == null ? null : paddedInput.addRef());
-      if (null != temp_08_0010)
-        temp_08_0010.freeRef();
+      output = (InnerNode) temp_08_0010.add(paddedInput.addRef());
+      temp_08_0010.freeRef();
     } else {
       ImgLinearSubnetLayer linearSubnetLayer = new ImgLinearSubnetLayer();
       subLayers.forEach(RefUtil.wrapInterface((Consumer<? super ExplodedConvolutionLeg>) leg -> {
         PipelineNetwork subnet = new PipelineNetwork();
         RefUtil.freeRef(leg.add(subnet.getHead()));
-        RefUtil.freeRef(linearSubnetLayer.add(leg.fromBand, leg.toBand, subnet == null ? null : subnet.addRef()));
-        if (null != subnet)
-          subnet.freeRef();
-        if (null != leg)
-          leg.freeRef();
-      }, linearSubnetLayer == null ? null : linearSubnetLayer.addRef()));
+        RefUtil.freeRef(linearSubnetLayer.add(leg.fromBand, leg.toBand, subnet.addRef()));
+        subnet.freeRef();
+        leg.freeRef();
+      }, linearSubnetLayer.addRef()));
       boolean isParallel = CudaSettings.INSTANCE().isConv_para_1();
       ImgLinearSubnetLayer temp_08_0011 = linearSubnetLayer.setPrecision(convolutionParams.precision);
       temp_08_0011.setParallel(isParallel);
-      if (null != temp_08_0011)
-        temp_08_0011.freeRef();
-      InnerNode temp_08_0012 = network.add(linearSubnetLayer == null ? null : linearSubnetLayer.addRef(),
-          paddedInput == null ? null : paddedInput.addRef());
+      temp_08_0011.freeRef();
+      assert network != null;
+      InnerNode temp_08_0012 = network.add(linearSubnetLayer.addRef(),
+          paddedInput.addRef());
       output = temp_08_0012.setParallel(isParallel);
-      if (null != temp_08_0012)
-        temp_08_0012.freeRef();
-      if (null != linearSubnetLayer)
-        linearSubnetLayer.freeRef();
+      temp_08_0012.freeRef();
+      linearSubnetLayer.freeRef();
     }
-    if (null != paddedInput)
-      paddedInput.freeRef();
+    paddedInput.freeRef();
     if (customPaddingX || customPaddingY) {
       int x = !customPaddingX ? 0 : (this.convolutionParams.paddingX - defaultPaddingX);
       int y = !customPaddingY ? 0 : (this.convolutionParams.paddingY - defaultPaddingY);
@@ -244,8 +230,7 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
         ImgZeroPaddingLayer temp_08_0006 = new ImgZeroPaddingLayer(x, y);
         RefUtil.freeRef(network.add(temp_08_0006.setPrecision(convolutionParams.precision),
             output == null ? null : output.addRef()));
-        if (null != temp_08_0006)
-          temp_08_0006.freeRef();
+        temp_08_0006.freeRef();
       }
     }
     if (null != output)
@@ -255,12 +240,14 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
   }
 
   public void _free() {
-    if (null != subLayers)
-      subLayers.freeRef();
+    subLayers.freeRef();
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") ExplodedConvolutionGrid addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ExplodedConvolutionGrid addRef() {
     return (ExplodedConvolutionGrid) super.addRef();
   }
 

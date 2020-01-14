@@ -21,22 +21,26 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.lang.Settings;
 import com.simiacryptus.ref.lang.PersistanceMode;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefHashMap;
 import com.simiacryptus.ref.wrappers.RefString;
+import com.simiacryptus.ref.wrappers.RefSystem;
 import com.simiacryptus.util.JsonUtil;
 import com.simiacryptus.util.LocalAppSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 
 public class CudaSettings implements Settings {
 
   private static final Logger logger = LoggerFactory.getLogger(CudaSettings.class);
 
+  @Nullable
   private static transient CudaSettings INSTANCE = null;
   public final String defaultDevices;
+  @Nonnull
   public final PersistanceMode memoryCacheMode;
   public final boolean allDense;
   public final boolean verbose;
@@ -63,14 +67,16 @@ public class CudaSettings implements Settings {
 
   private CudaSettings() {
     RefHashMap<String, String> appSettings = LocalAppSettings.read();
-    String spark_home = com.simiacryptus.ref.wrappers.RefSystem.getenv("SPARK_HOME");
+    String spark_home = RefSystem.getenv("SPARK_HOME");
     File sparkHomeFile = new File(spark_home == null ? "." : spark_home);
-    if (sparkHomeFile.exists())
+    if (sparkHomeFile.exists()) {
+      assert appSettings != null;
       appSettings.putAll(LocalAppSettings.read(sparkHomeFile));
+    }
+    assert appSettings != null;
     if (appSettings.containsKey("worker.index"))
-      com.simiacryptus.ref.wrappers.RefSystem.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
-    if (null != appSettings)
-      appSettings.freeRef();
+      RefSystem.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
+    appSettings.freeRef();
     maxTotalMemory = Settings.get("MAX_TOTAL_MEMORY", 12 * CudaMemory.GiB);
     maxDeviceMemory = Settings.get("MAX_DEVICE_MEMORY", 6 * CudaMemory.GiB);
     maxAllocSize = (long) Settings.get("MAX_ALLOC_SIZE", (double) Precision.Double.size * (Integer.MAX_VALUE / 2 - 1L));
@@ -169,6 +175,7 @@ public class CudaSettings implements Settings {
     return syncBeforeFree;
   }
 
+  @Nullable
   public static CudaSettings INSTANCE() {
     if (null == INSTANCE) {
       synchronized (CudaSettings.class) {

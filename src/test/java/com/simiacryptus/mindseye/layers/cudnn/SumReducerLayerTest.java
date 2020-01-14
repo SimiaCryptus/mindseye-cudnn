@@ -22,9 +22,9 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
-import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -36,14 +36,18 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
     this.precision = precision;
   }
 
-  public static @SuppressWarnings("unused") SumReducerLayerTest[] addRefs(SumReducerLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SumReducerLayerTest[] addRefs(@Nullable SumReducerLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SumReducerLayerTest::addRef)
         .toArray((x) -> new SumReducerLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") SumReducerLayerTest[][] addRefs(SumReducerLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SumReducerLayerTest[][] addRefs(@Nullable SumReducerLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SumReducerLayerTest::addRefs)
@@ -53,7 +57,7 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 8, 8, 1 } };
+    return new int[][]{{8, 8, 1}};
   }
 
   @Nonnull
@@ -61,21 +65,24 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
   public Layer getLayer(final int[][] inputSize, Random random) {
     SumReducerLayer temp_59_0002 = new SumReducerLayer();
     SumReducerLayer temp_59_0001 = temp_59_0002.setPrecision(precision);
-    if (null != temp_59_0002)
-      temp_59_0002.freeRef();
+    temp_59_0002.freeRef();
     return temp_59_0001;
   }
 
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][] { { 1200, 1200, 3 } };
+    return new int[][]{{1200, 1200, 3}};
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") SumReducerLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  SumReducerLayerTest addRef() {
     return (SumReducerLayerTest) super.addRef();
   }
 
@@ -84,16 +91,22 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
       super(Precision.Double);
     }
 
-    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Double[] addRefs(@Nullable Double[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Double addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Double addRef() {
       return (Double) super.addRef();
     }
   }
@@ -103,7 +116,9 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
       super(Precision.Double);
     }
 
-    public static @SuppressWarnings("unused") Asymmetric[] addRefs(Asymmetric[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Asymmetric[] addRefs(@Nullable Asymmetric[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Asymmetric::addRef).toArray((x) -> new Asymmetric[x]);
@@ -112,19 +127,23 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][] { { 3, 5, 2 } };
+      return new int[][]{{3, 5, 2}};
     }
 
     @Nonnull
     @Override
     public int[][] getLargeDims(Random random) {
-      return new int[][] { { 1000, 600, 3 } };
+      return new int[][]{{1000, 600, 3}};
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Asymmetric addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Asymmetric addRef() {
       return (Asymmetric) super.addRef();
     }
 
@@ -140,16 +159,22 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Float[] addRefs(@Nullable Float[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Float addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Float addRef() {
       return (Float) super.addRef();
     }
   }

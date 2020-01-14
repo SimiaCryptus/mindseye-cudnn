@@ -21,9 +21,9 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
-import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -42,13 +42,17 @@ public class LRNLayerTest extends CudnnLayerTestBase {
     return new SingleDerivativeTester(1e-2, 1e-4);
   }
 
-  public static @SuppressWarnings("unused") LRNLayerTest[] addRefs(LRNLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LRNLayerTest[] addRefs(@Nullable LRNLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LRNLayerTest::addRef).toArray((x) -> new LRNLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") LRNLayerTest[][] addRefs(LRNLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LRNLayerTest[][] addRefs(@Nullable LRNLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LRNLayerTest::addRefs)
@@ -58,7 +62,7 @@ public class LRNLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { smallSize, smallSize, 1 } };
+    return new int[][]{{smallSize, smallSize, 1}};
   }
 
   @Nonnull
@@ -70,13 +74,17 @@ public class LRNLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][] { { largeSize, largeSize, 1 } };
+    return new int[][]{{largeSize, largeSize, 1}};
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") LRNLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  LRNLayerTest addRef() {
     return (LRNLayerTest) super.addRef();
   }
 

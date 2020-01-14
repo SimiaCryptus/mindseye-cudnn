@@ -23,10 +23,9 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSystem;
 import com.simiacryptus.mindseye.layers.LayerTestBase;
 import com.simiacryptus.notebook.NotebookOutput;
-import com.simiacryptus.ref.lang.RefAware;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -34,14 +33,18 @@ import java.util.Arrays;
 
 public abstract class CudnnLayerTestBase extends LayerTestBase {
 
-  public static @SuppressWarnings("unused") CudnnLayerTestBase[] addRefs(CudnnLayerTestBase[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  CudnnLayerTestBase[] addRefs(@Nullable CudnnLayerTestBase[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CudnnLayerTestBase::addRef)
         .toArray((x) -> new CudnnLayerTestBase[x]);
   }
 
-  public static @SuppressWarnings("unused") CudnnLayerTestBase[][] addRefs(CudnnLayerTestBase[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  CudnnLayerTestBase[][] addRefs(@Nullable CudnnLayerTestBase[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CudnnLayerTestBase::addRefs)
@@ -49,20 +52,25 @@ public abstract class CudnnLayerTestBase extends LayerTestBase {
   }
 
   @Override
-  public void run(@NotNull @Nonnull NotebookOutput log) {
+  public void run(@Nonnull NotebookOutput log) {
     OutputStream file = log.file("gpu.log");
     log.out(log.link(new File(log.getResourceDir(), "gpu.log"), "Cuda Log"));
     CudaSystem.addLog(new PrintStream(file));
     super.run(log);
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") CudnnLayerTestBase addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  CudnnLayerTestBase addRef() {
     return (CudnnLayerTestBase) super.addRef();
   }
 
+  @Nonnull
   @Override
   protected Layer lossLayer() {
     return new MeanSqLossLayer();

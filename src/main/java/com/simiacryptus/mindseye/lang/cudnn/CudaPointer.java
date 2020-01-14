@@ -19,18 +19,19 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
-import com.simiacryptus.ref.lang.RefAware;
 import jcuda.Pointer;
+
+import javax.annotation.Nonnull;
 
 public class CudaPointer extends Pointer {
 
   public final int deviceId = CudaSystem.getThreadDeviceId();
 
-  public CudaPointer(final Pointer other) {
+  public CudaPointer(@Nonnull final Pointer other) {
     super(other);
   }
 
-  public CudaPointer(final Pointer other, final long byteOffset) {
+  public CudaPointer(@Nonnull final Pointer other, final long byteOffset) {
     super(other, byteOffset);
   }
 
@@ -43,14 +44,17 @@ public class CudaPointer extends Pointer {
     return super.getByteOffset();
   }
 
-  public static CudaPointer to(float values[]) {
+  @Nonnull
+  public static CudaPointer to(@Nonnull float values[]) {
     return new CudaPointer(Pointer.to(values));
   }
 
-  public static CudaPointer to(double values[]) {
+  @Nonnull
+  public static CudaPointer to(@Nonnull double values[]) {
     return new CudaPointer(Pointer.to(values));
   }
 
+  @Nonnull
   @Override
   public CudaPointer withByteOffset(final long byteOffset) {
     return new CudaPointer(this, byteOffset);

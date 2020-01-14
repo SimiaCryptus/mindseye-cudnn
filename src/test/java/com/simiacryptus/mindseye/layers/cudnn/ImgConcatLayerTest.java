@@ -24,7 +24,6 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.BatchingTester;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 
@@ -41,7 +40,7 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
   private final int largeSize;
 
   public ImgConcatLayerTest(final Precision precision, int inputs, int bandsPerInput, final int smallSize,
-      final int largeSize) {
+                            final int largeSize) {
     this(precision, RefIntStream.range(0, inputs).map(i -> bandsPerInput).toArray(), smallSize, largeSize);
   }
 
@@ -57,14 +56,18 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     return com.simiacryptus.mindseye.layers.java.ImgConcatLayer.class;
   }
 
-  public static @SuppressWarnings("unused") ImgConcatLayerTest[] addRefs(ImgConcatLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgConcatLayerTest[] addRefs(@Nullable ImgConcatLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgConcatLayerTest::addRef)
         .toArray((x) -> new ImgConcatLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgConcatLayerTest[][] addRefs(ImgConcatLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgConcatLayerTest[][] addRefs(@Nullable ImgConcatLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgConcatLayerTest::addRefs)
@@ -74,7 +77,7 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return RefArrays.stream(bandSeq).mapToObj(x -> new int[] { smallSize, smallSize, x }).toArray(i -> new int[i][]);
+    return RefArrays.stream(bandSeq).mapToObj(x -> new int[]{smallSize, smallSize, x}).toArray(i -> new int[i][]);
   }
 
   @Nonnull
@@ -82,8 +85,7 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
   public Layer getLayer(final int[][] inputSize, Random random) {
     ImgConcatLayer temp_62_0002 = new ImgConcatLayer();
     ImgConcatLayer temp_62_0001 = temp_62_0002.setPrecision(precision);
-    if (null != temp_62_0002)
-      temp_62_0002.freeRef();
+    temp_62_0002.freeRef();
     return temp_62_0001;
   }
   //
@@ -102,13 +104,17 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return RefArrays.stream(bandSeq).mapToObj(x -> new int[] { largeSize, largeSize, x }).toArray(i -> new int[i][]);
+    return RefArrays.stream(bandSeq).mapToObj(x -> new int[]{largeSize, largeSize, x}).toArray(i -> new int[i][]);
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgConcatLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgConcatLayerTest addRef() {
     return (ImgConcatLayerTest) super.addRef();
   }
 
@@ -118,7 +124,9 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
       super(Precision.Double, 2, 1, 8, 1200);
     }
 
-    public static @SuppressWarnings("unused") BandLimitTest[] addRefs(BandLimitTest[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    BandLimitTest[] addRefs(@Nullable BandLimitTest[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(BandLimitTest::addRef)
@@ -128,7 +136,7 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][] { { 1, 1, 3 } };
+      return new int[][]{{1, 1, 3}};
     }
 
     @Nonnull
@@ -142,15 +150,18 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     public Layer getLayer(final int[][] inputSize, Random random) {
       ImgConcatLayer temp_62_0004 = new ImgConcatLayer();
       ImgConcatLayer temp_62_0003 = temp_62_0004.setMaxBands(2);
-      if (null != temp_62_0004)
-        temp_62_0004.freeRef();
+      temp_62_0004.freeRef();
       return temp_62_0003;
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") BandLimitTest addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    BandLimitTest addRef() {
       return (BandLimitTest) super.addRef();
     }
   }
@@ -158,10 +169,12 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
   public static class BandConcatLimitTest extends ImgConcatLayerTest {
 
     public BandConcatLimitTest() {
-      super(Precision.Double, new int[] { 2, 3, 4 }, 2, 1200);
+      super(Precision.Double, new int[]{2, 3, 4}, 2, 1200);
     }
 
-    public static @SuppressWarnings("unused") BandConcatLimitTest[] addRefs(BandConcatLimitTest[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    BandConcatLimitTest[] addRefs(@Nullable BandConcatLimitTest[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(BandConcatLimitTest::addRef)
@@ -179,15 +192,18 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     public Layer getLayer(final int[][] inputSize, Random random) {
       ImgConcatLayer temp_62_0006 = new ImgConcatLayer();
       ImgConcatLayer temp_62_0005 = temp_62_0006.setMaxBands(8);
-      if (null != temp_62_0006)
-        temp_62_0006.freeRef();
+      temp_62_0006.freeRef();
       return temp_62_0005;
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") BandConcatLimitTest addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    BandConcatLimitTest addRef() {
       return (BandConcatLimitTest) super.addRef();
     }
   }
@@ -197,16 +213,22 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
       super(Precision.Double, 2, 1, 8, 1200);
     }
 
-    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Double[] addRefs(@Nullable Double[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Double addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Double addRef() {
       return (Double) super.addRef();
     }
   }
@@ -229,7 +251,8 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
           return random();
         }
 
-        public @SuppressWarnings("unused") void _free() {
+        public @SuppressWarnings("unused")
+        void _free() {
         }
       }).setBatchSize(5);
     }
@@ -248,16 +271,22 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
       return null;
     }
 
-    public static @SuppressWarnings("unused") Big[] addRefs(Big[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Big[] addRefs(@Nullable Big[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Big::addRef).toArray((x) -> new Big[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Big addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Big addRef() {
       return (Big) super.addRef();
     }
 
@@ -269,16 +298,22 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
       tolerance = 1e-2;
     }
 
-    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Float[] addRefs(@Nullable Float[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Float addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Float addRef() {
       return (Float) super.addRef();
     }
   }

@@ -26,13 +26,12 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.ValueLayer;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -47,13 +46,13 @@ public class ScaleLayer extends PipelineNetwork implements MultiPrecision<ScaleL
   }
 
   public ScaleLayer(double value) {
-    this(new Tensor(new double[] { value }, 1));
+    this(new Tensor(new double[]{value}, 1));
   }
 
-  public ScaleLayer(final Tensor weights) {
+  public ScaleLayer(@Nullable final Tensor weights) {
     super(1);
     RefUtil.freeRef(add(new ProductLayer(), getInput(0),
-        add(new ValueLayer(weights == null ? null : weights.addRef()), new DAGNode[] {})));
+        add(new ValueLayer(weights == null ? null : weights.addRef()), new DAGNode[]{})));
     if (null != weights)
       weights.freeRef();
   }
@@ -63,6 +62,7 @@ public class ScaleLayer extends PipelineNetwork implements MultiPrecision<ScaleL
     //weights = new Tensor(1);
   }
 
+  @Nullable
   @Override
   public Precision getPrecision() {
     return null;
@@ -74,27 +74,36 @@ public class ScaleLayer extends PipelineNetwork implements MultiPrecision<ScaleL
     return MultiPrecision.setPrecision(this.addRef(), precision);
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
-  public static ScaleLayer fromJson(@NotNull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static ScaleLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ScaleLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused") ScaleLayer[] addRefs(ScaleLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ScaleLayer[] addRefs(@Nullable ScaleLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ScaleLayer::addRef).toArray((x) -> new ScaleLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") ScaleLayer[][] addRefs(ScaleLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ScaleLayer[][] addRefs(@Nullable ScaleLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ScaleLayer::addRefs).toArray((x) -> new ScaleLayer[x][]);
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ScaleLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ScaleLayer addRef() {
     return (ScaleLayer) super.addRef();
   }
 }

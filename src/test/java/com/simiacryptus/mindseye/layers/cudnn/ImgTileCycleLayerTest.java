@@ -20,9 +20,9 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -37,14 +37,18 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  public static @SuppressWarnings("unused") ImgTileCycleLayerTest[] addRefs(ImgTileCycleLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgTileCycleLayerTest[] addRefs(@Nullable ImgTileCycleLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayerTest::addRef)
         .toArray((x) -> new ImgTileCycleLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgTileCycleLayerTest[][] addRefs(ImgTileCycleLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgTileCycleLayerTest[][] addRefs(@Nullable ImgTileCycleLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayerTest::addRefs)
@@ -54,13 +58,13 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 8, 8, 1 } };
+    return new int[][]{{8, 8, 1}};
   }
 
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][] { { 1200, 1200, 3 } };
+    return new int[][]{{1200, 1200, 3}};
   }
 
   @Nonnull
@@ -69,16 +73,22 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
     return new ImgTileCycleLayer();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgTileCycleLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgTileCycleLayerTest addRef() {
     return (ImgTileCycleLayerTest) super.addRef();
   }
 
   public static class OneThird extends ImgTileCycleLayerTest {
 
-    public static @SuppressWarnings("unused") OneThird[] addRefs(OneThird[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    OneThird[] addRefs(@Nullable OneThird[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(OneThird::addRef).toArray((x) -> new OneThird[x]);
@@ -90,17 +100,19 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
       ImgTileCycleLayer temp_71_0002 = new ImgTileCycleLayer();
       ImgTileCycleLayer temp_71_0003 = temp_71_0002.setXPos(0.3);
       ImgTileCycleLayer temp_71_0001 = temp_71_0003.setYPos(0.3);
-      if (null != temp_71_0003)
-        temp_71_0003.freeRef();
-      if (null != temp_71_0002)
-        temp_71_0002.freeRef();
+      temp_71_0003.freeRef();
+      temp_71_0002.freeRef();
       return temp_71_0001;
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") OneThird addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    OneThird addRef() {
       return (OneThird) super.addRef();
     }
 
@@ -108,16 +120,22 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
 
   public static class Basic extends ImgTileCycleLayerTest {
 
-    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Basic[] addRefs(@Nullable Basic[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Basic addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Basic addRef() {
       return (Basic) super.addRef();
     }
   }

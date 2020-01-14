@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.WrapperLayer;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.*;
@@ -50,7 +49,7 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
   private boolean parallel = true;
 
   public ImgTileSubnetLayer(final Layer subnetwork, final int width, final int height, final int strideX,
-      final int strideY) {
+                            final int strideY) {
     super(subnetwork);
     this.height = height;
     this.width = width;
@@ -88,24 +87,30 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
     return parallel;
   }
 
+  @Nonnull
   public ImgTileSubnetLayer setParallel(boolean parallel) {
     this.parallel = parallel;
     return this.addRef();
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static ImgTileSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgTileSubnetLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused") ImgTileSubnetLayer[] addRefs(ImgTileSubnetLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgTileSubnetLayer[] addRefs(@Nullable ImgTileSubnetLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayer::addRef)
         .toArray((x) -> new ImgTileSubnetLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgTileSubnetLayer[][] addRefs(ImgTileSubnetLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgTileSubnetLayer[][] addRefs(@Nullable ImgTileSubnetLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayer::addRefs)
@@ -118,8 +123,7 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
     assert 1 == inObj.length;
     Result input = inObj[0].addRef();
     TensorList inputData = input.getData();
-    @Nonnull
-    final int[] inputDims = inputData.getDimensions();
+    @Nonnull final int[] inputDims = inputData.getDimensions();
     assert 3 == inputDims.length;
     int bands = inputDims[2];
     int length = inputData.length();
@@ -127,24 +131,22 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
       return new CudaTensor(
           gpu.allocate(inputData.getElements() * precision.size, MemoryType.Managed.ifEnabled(), true),
           gpu.newTensorDescriptor(precision, length, inputDims[2], inputDims[1], inputDims[0]), precision);
-    }, inputData == null ? null : inputData.addRef()));
+    }, inputData.addRef()));
     int cols = (int) (Math.ceil((inputDims[0] - width) * 1.0 / strideX) + 1);
     int rows = (int) (Math.ceil((inputDims[1] - height) * 1.0 / strideY) + 1);
     if (cols == 1 && rows == 1) {
-      if (null != input)
-        input.freeRef();
-      if (null != inputData)
-        inputData.freeRef();
+      input.freeRef();
+      inputData.freeRef();
       if (null != passback)
         passback.freeRef();
       Layer temp_03_0006 = getInner();
+      assert temp_03_0006 != null;
       Result temp_03_0004 = temp_03_0006.eval(Result.addRefs(inObj));
-      if (null != temp_03_0006)
-        temp_03_0006.freeRef();
+      temp_03_0006.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_03_0004;
     }
-    int[] tileDimensions = { width, height, bands };
+    int[] tileDimensions = {width, height, bands};
     AtomicInteger counter = new AtomicInteger(0);
     Result[][] tileResults = new Result[rows][];
     for (int row = 0; row < rows; row++) {
@@ -152,8 +154,7 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
       if (null != tileResults[row])
         ReferenceCounting.freeRefs(tileResults[row]);
       tileResults[row] = Result.addRefs(temp_03_0001);
-      if (null != temp_03_0001)
-        ReferenceCounting.freeRefs(temp_03_0001);
+      ReferenceCounting.freeRefs(temp_03_0001);
       for (int col = 0; col < cols; col++) {
         int positionX = col * strideX;
         int positionY = row * strideY;
@@ -163,11 +164,12 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
         assert positionY < inputDims[1];
 
         CudaTensor tile = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensor>) gpu -> {
-          return ImgTileSelectLayer.copy(gpu, inputData == null ? null : inputData.addRef(), inputData.getDimensions(),
+          return ImgTileSelectLayer.copy(gpu, inputData.addRef(), inputData.getDimensions(),
               tileDimensions, precision, positionX, positionY, true);
-        }, inputData == null ? null : inputData.addRef()));
+        }, inputData.addRef()));
 
         Layer temp_03_0007 = getInner();
+        assert temp_03_0007 != null;
         Result temp_03_0002 = temp_03_0007
             .eval(new Result(new CudaTensorList(tile == null ? null : tile.addRef(), length, tileDimensions, precision),
                 new Result.Accumulator() {
@@ -175,7 +177,7 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
                   }
 
                   @Override
-                  public void accept(DeltaSet<UUID> ctx, TensorList delta) {
+                  public void accept(@Nullable DeltaSet<UUID> ctx, @Nullable TensorList delta) {
                     CudaSystem.run(RefUtil.wrapInterface((RefConsumer<CudnnHandle>) gpu -> {
                       ImgTileSelectLayer.copy(gpu, delta == null ? null : delta.addRef(), tileDimensions, -positionX,
                           -positionY, precision, passback == null ? null : passback.addRef());
@@ -191,15 +193,15 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
                       ctx.freeRef();
                   }
 
-                  public @SuppressWarnings("unused") void _free() {
+                  public @SuppressWarnings("unused")
+                  void _free() {
                   }
                 }) {
               public void _free() {
                 super._free();
               }
             });
-        if (null != temp_03_0007)
-          temp_03_0007.freeRef();
+        temp_03_0007.freeRef();
         if (null != tileResults[row][col])
           tileResults[row][col].freeRef();
         tileResults[row][col] = temp_03_0002 == null ? null : temp_03_0002.addRef();
@@ -215,28 +217,23 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
     ImgTileAssemblyLayer temp_03_0009 = temp_03_0008.setPrecision(precision);
     Result result = temp_03_0009.eval(
         RefArrays.stream(Result.addRefs(tileResults)).flatMap(RefArrays::stream).<Result>toArray(i -> new Result[i]));
-    if (null != temp_03_0009)
-      temp_03_0009.freeRef();
-    if (null != temp_03_0008)
-      temp_03_0008.freeRef();
-    if (null != temp_03_0005)
-      temp_03_0005.freeRef();
-    if (null != tileResults)
-      ReferenceCounting.freeRefs(tileResults);
-    if (null != input)
-      input.freeRef();
-    if (null != inputData)
-      inputData.freeRef();
+    temp_03_0009.freeRef();
+    temp_03_0008.freeRef();
+    temp_03_0005.freeRef();
+    ReferenceCounting.freeRefs(tileResults);
+    input.freeRef();
+    inputData.freeRef();
     if (null != passback)
       passback.freeRef();
     try {
       ReferenceCounting.freeRefs(inObj);
+      assert result != null;
       return new Result(result.getData(), new Result.Accumulator() {
         {
         }
 
         @Override
-        public void accept(DeltaSet<UUID> ctx, TensorList delta) {
+        public void accept(@Nullable DeltaSet<UUID> ctx, @Nullable TensorList delta) {
           result.accumulate(ctx == null ? null : ctx.addRef(), delta == null ? null : delta.addRef());
           if (null != delta)
             delta.freeRef();
@@ -244,16 +241,17 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
             ctx.freeRef();
         }
 
-        public @SuppressWarnings("unused") void _free() {
+        public @SuppressWarnings("unused")
+        void _free() {
         }
       }) {
 
         @Override
-        public void accumulate(final DeltaSet<UUID> buffer, final TensorList delta) {
+        public void accumulate(@Nullable final DeltaSet<UUID> buffer, @Nullable final TensorList delta) {
           Accumulator temp_03_0010 = getAccumulator();
+          assert temp_03_0010 != null;
           temp_03_0010.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
-          if (null != temp_03_0010)
-            temp_03_0010.freeRef();
+          temp_03_0010.freeRef();
           if (null != delta)
             delta.freeRef();
           if (null != buffer)
@@ -273,8 +271,7 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJson(resources, dataSerializer);
+    @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("height", height);
     json.addProperty("width", width);
     json.addProperty("strideX", strideX);
@@ -294,9 +291,9 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
   @Override
   public Layer setFrozen(final boolean frozen) {
     Layer temp_03_0011 = getInner();
+    assert temp_03_0011 != null;
     RefUtil.freeRef(temp_03_0011.setFrozen(frozen));
-    if (null != temp_03_0011)
-      temp_03_0011.freeRef();
+    temp_03_0011.freeRef();
     return super.setFrozen(frozen);
   }
 
@@ -304,7 +301,10 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") ImgTileSubnetLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgTileSubnetLayer addRef() {
     return (ImgTileSubnetLayer) super.addRef();
   }
 }

@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,14 +46,18 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  public static @SuppressWarnings("unused") ImgLinearSubnetLayerTest[] addRefs(ImgLinearSubnetLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgLinearSubnetLayerTest[] addRefs(@Nullable ImgLinearSubnetLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRef)
         .toArray((x) -> new ImgLinearSubnetLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgLinearSubnetLayerTest[][] addRefs(ImgLinearSubnetLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgLinearSubnetLayerTest[][] addRefs(@Nullable ImgLinearSubnetLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRefs)
@@ -64,12 +67,13 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { smallSize, smallSize, 3 } };
+    return new int[][]{{smallSize, smallSize, 3}};
   }
 
+  @Nonnull
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][] { { largeSize, largeSize, 3 } };
+    return new int[][]{{largeSize, largeSize, 3}};
   }
 
   @Nonnull
@@ -79,16 +83,14 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
     ImgLinearSubnetLayer temp_67_0003 = temp_67_0002.add(0, 1, layer1 == null ? null : layer1.addRef());
     ImgLinearSubnetLayer temp_67_0004 = temp_67_0003.add(1, 2, layer2 == null ? null : layer2.addRef());
     ImgLinearSubnetLayer temp_67_0001 = temp_67_0004.add(2, 3, layer3 == null ? null : layer3.addRef());
-    if (null != temp_67_0004)
-      temp_67_0004.freeRef();
-    if (null != temp_67_0003)
-      temp_67_0003.freeRef();
-    if (null != temp_67_0002)
-      temp_67_0002.freeRef();
+    temp_67_0004.freeRef();
+    temp_67_0003.freeRef();
+    temp_67_0002.freeRef();
     return temp_67_0001;
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
     if (null != layer3)
       layer3.freeRef();
     if (null != layer2)
@@ -97,22 +99,31 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
       layer1.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") ImgLinearSubnetLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgLinearSubnetLayerTest addRef() {
     return (ImgLinearSubnetLayerTest) super.addRef();
   }
 
   public static class Basic extends ImgLinearSubnetLayerTest {
 
-    public static @SuppressWarnings("unused") Basic[] addRefs(Basic[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Basic[] addRefs(@Nullable Basic[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Basic addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Basic addRef() {
       return (Basic) super.addRef();
     }
 

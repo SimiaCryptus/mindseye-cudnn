@@ -22,16 +22,16 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.notebook.NotebookOutput;
-import com.simiacryptus.ref.lang.RefAware;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 
 public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
+  @Nonnull
   final ImgBandSelectLayer layer;
   final int inputBands;
   private final int smallSize;
@@ -41,11 +41,9 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
     this.precision = precision;
     ImgBandSelectLayer temp_20_0002 = new ImgBandSelectLayer(fromBand, toBand);
     ImgBandSelectLayer temp_20_0001 = temp_20_0002.setPrecision(precision);
-    if (null != temp_20_0002)
-      temp_20_0002.freeRef();
-    layer = temp_20_0001 == null ? null : temp_20_0001.addRef();
-    if (null != temp_20_0001)
-      temp_20_0001.freeRef();
+    temp_20_0002.freeRef();
+    layer = temp_20_0001.addRef();
+    temp_20_0001.freeRef();
     this.inputBands = inputBands;
     smallSize = 2;
     largeSize = 1000;
@@ -57,14 +55,18 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
     return layer.getCompatibilityLayer();
   }
 
-  public static @SuppressWarnings("unused") ImgBandSelectLayerTest[] addRefs(ImgBandSelectLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgBandSelectLayerTest[] addRefs(@Nullable ImgBandSelectLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayerTest::addRef)
         .toArray((x) -> new ImgBandSelectLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgBandSelectLayerTest[][] addRefs(ImgBandSelectLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgBandSelectLayerTest[][] addRefs(@Nullable ImgBandSelectLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgBandSelectLayerTest::addRefs)
@@ -72,7 +74,7 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
   }
 
   @Override
-  public void run(@NotNull NotebookOutput log) {
+  public void run(@Nonnull NotebookOutput log) {
     //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
     //    log.p(log.file((String) null, logName, "GPU Log"));
     //    @Nonnull PrintStream apiLog = new PrintStream(log.file(logName));
@@ -97,26 +99,30 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { smallSize, smallSize, inputBands } };
+    return new int[][]{{smallSize, smallSize, inputBands}};
   }
 
+  @Nullable
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return layer == null ? null : layer.addRef();
+    return layer.addRef();
   }
 
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][] { { largeSize, largeSize, inputBands } };
+    return new int[][]{{largeSize, largeSize, inputBands}};
   }
 
-  public @SuppressWarnings("unused") void _free() {
-    if (null != layer)
-      layer.freeRef();
+  public @SuppressWarnings("unused")
+  void _free() {
+    layer.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") ImgBandSelectLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgBandSelectLayerTest addRef() {
     return (ImgBandSelectLayerTest) super.addRef();
   }
 
@@ -125,16 +131,22 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
       super(Precision.Double, 5, 2, 4);
     }
 
-    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Double[] addRefs(@Nullable Double[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Double addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Double addRef() {
       return (Double) super.addRef();
     }
   }
@@ -144,16 +156,22 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
       super(Precision.Float, 2, 0, 1);
     }
 
-    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Float[] addRefs(@Nullable Float[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Float addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Float addRef() {
       return (Float) super.addRef();
     }
   }

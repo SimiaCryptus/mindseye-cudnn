@@ -111,6 +111,7 @@ public enum Precision {
     }
   }
 
+  @Nonnull
   public CudaPointer getPointer(@Nonnull final double... data) {
     switch (this) {
       case Float:
@@ -122,6 +123,7 @@ public enum Precision {
     }
   }
 
+  @Nonnull
   public CudaPointer getPointer(@Nonnull final float... data) {
     switch (this) {
       case Float:

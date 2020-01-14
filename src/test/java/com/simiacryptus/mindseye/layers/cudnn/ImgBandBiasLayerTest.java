@@ -22,9 +22,9 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
-import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -36,14 +36,18 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
     this.precision = precision;
   }
 
-  public static @SuppressWarnings("unused") ImgBandBiasLayerTest[] addRefs(ImgBandBiasLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgBandBiasLayerTest[] addRefs(@Nullable ImgBandBiasLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgBandBiasLayerTest::addRef)
         .toArray((x) -> new ImgBandBiasLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgBandBiasLayerTest[][] addRefs(ImgBandBiasLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgBandBiasLayerTest[][] addRefs(@Nullable ImgBandBiasLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgBandBiasLayerTest::addRefs)
@@ -53,7 +57,7 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 8, 8, 3 } };
+    return new int[][]{{8, 8, 3}};
   }
 
   @Nonnull
@@ -62,23 +66,25 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
     ImgBandBiasLayer temp_55_0002 = new ImgBandBiasLayer(3);
     ImgBandBiasLayer temp_55_0003 = temp_55_0002.setPrecision(precision);
     ImgBandBiasLayer temp_55_0001 = temp_55_0003.addWeights(this::random);
-    if (null != temp_55_0003)
-      temp_55_0003.freeRef();
-    if (null != temp_55_0002)
-      temp_55_0002.freeRef();
+    temp_55_0003.freeRef();
+    temp_55_0002.freeRef();
     return temp_55_0001;
   }
 
   @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][] { { 1200, 1200, 3 } };
+    return new int[][]{{1200, 1200, 3}};
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgBandBiasLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgBandBiasLayerTest addRef() {
     return (ImgBandBiasLayerTest) super.addRef();
   }
 
@@ -87,16 +93,22 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
       super(Precision.Double);
     }
 
-    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Double[] addRefs(@Nullable Double[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Double addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Double addRef() {
       return (Double) super.addRef();
     }
   }
@@ -111,16 +123,22 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Float[] addRefs(@Nullable Float[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Float addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Float addRef() {
       return (Float) super.addRef();
     }
   }

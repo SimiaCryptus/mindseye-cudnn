@@ -19,22 +19,25 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public abstract class CudaResourceBase<T> extends ReferenceCountingBase implements CudaSystem.CudaDeviceResource {
   private static final Logger logger = LoggerFactory.getLogger(CudaResourceBase.class);
   public final int objGeneration = CudaSystem.gpuGeneration.get();
+  @Nullable
   protected T ptr;
 
   public CudaResourceBase(final T obj) {
     this.ptr = obj;
   }
 
+  @Nullable
   public T getPtr() {
     assertAlive();
     return ptr;
@@ -44,14 +47,18 @@ public abstract class CudaResourceBase<T> extends ReferenceCountingBase implemen
     return objGeneration == CudaSystem.gpuGeneration.get();
   }
 
-  public static @SuppressWarnings("unused") CudaResourceBase[] addRefs(CudaResourceBase[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  CudaResourceBase[] addRefs(@Nullable CudaResourceBase[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CudaResourceBase::addRef)
         .toArray((x) -> new CudaResourceBase[x]);
   }
 
-  public static @SuppressWarnings("unused") CudaResourceBase[][] addRefs(CudaResourceBase[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  CudaResourceBase[][] addRefs(@Nullable CudaResourceBase[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CudaResourceBase::addRefs)
@@ -62,7 +69,10 @@ public abstract class CudaResourceBase<T> extends ReferenceCountingBase implemen
 
   public abstract void _free();
 
-  public @Override @SuppressWarnings("unused") CudaResourceBase<T> addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  CudaResourceBase<T> addRef() {
     return (CudaResourceBase<T>) super.addRef();
   }
 }

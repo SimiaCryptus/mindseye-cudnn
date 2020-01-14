@@ -21,7 +21,6 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
-import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,14 +46,18 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
   //    };
   //  }
 
-  public static @SuppressWarnings("unused") ImgTileSelectLayerTest[] addRefs(ImgTileSelectLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgTileSelectLayerTest[] addRefs(@Nullable ImgTileSelectLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayerTest::addRef)
         .toArray((x) -> new ImgTileSelectLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgTileSelectLayerTest[][] addRefs(ImgTileSelectLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgTileSelectLayerTest[][] addRefs(@Nullable ImgTileSelectLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayerTest::addRefs)
@@ -64,23 +67,29 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 8, 6, 1 } };
+    return new int[][]{{8, 6, 1}};
   }
 
   @Nonnull
   @Override
   public abstract ImgTileSelectLayer getLayer(final int[][] inputSize, Random random);
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgTileSelectLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgTileSelectLayerTest addRef() {
     return (ImgTileSelectLayerTest) super.addRef();
   }
 
   public static class UL extends ImgTileSelectLayerTest {
 
-    public static @SuppressWarnings("unused") UL[] addRefs(UL[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    UL[] addRefs(@Nullable UL[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(UL::addRef).toArray((x) -> new UL[x]);
@@ -91,15 +100,18 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
       ImgTileSelectLayer temp_58_0002 = new ImgTileSelectLayer(4, 3, 0, 0);
       ImgTileSelectLayer temp_58_0001 = temp_58_0002.setPrecision(Precision.Double);
-      if (null != temp_58_0002)
-        temp_58_0002.freeRef();
+      temp_58_0002.freeRef();
       return temp_58_0001;
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") UL addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    UL addRef() {
       return (UL) super.addRef();
     }
 
@@ -107,7 +119,9 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
   public static class LL extends ImgTileSelectLayerTest {
 
-    public static @SuppressWarnings("unused") LL[] addRefs(LL[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    LL[] addRefs(@Nullable LL[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(LL::addRef).toArray((x) -> new LL[x]);
@@ -118,15 +132,18 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
       ImgTileSelectLayer temp_58_0004 = new ImgTileSelectLayer(4, 3, 4, 0);
       ImgTileSelectLayer temp_58_0003 = temp_58_0004.setPrecision(Precision.Double);
-      if (null != temp_58_0004)
-        temp_58_0004.freeRef();
+      temp_58_0004.freeRef();
       return temp_58_0003;
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") LL addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    LL addRef() {
       return (LL) super.addRef();
     }
 
@@ -134,7 +151,9 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
   public static class UR extends ImgTileSelectLayerTest {
 
-    public static @SuppressWarnings("unused") UR[] addRefs(UR[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    UR[] addRefs(@Nullable UR[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(UR::addRef).toArray((x) -> new UR[x]);
@@ -145,15 +164,18 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
       ImgTileSelectLayer temp_58_0006 = new ImgTileSelectLayer(4, 3, 0, 3);
       ImgTileSelectLayer temp_58_0005 = temp_58_0006.setPrecision(Precision.Double);
-      if (null != temp_58_0006)
-        temp_58_0006.freeRef();
+      temp_58_0006.freeRef();
       return temp_58_0005;
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") UR addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    UR addRef() {
       return (UR) super.addRef();
     }
 
@@ -161,7 +183,9 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
   public static class LR extends ImgTileSelectLayerTest {
 
-    public static @SuppressWarnings("unused") LR[] addRefs(LR[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    LR[] addRefs(@Nullable LR[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(LR::addRef).toArray((x) -> new LR[x]);
@@ -172,15 +196,18 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
       ImgTileSelectLayer temp_58_0008 = new ImgTileSelectLayer(4, 3, 4, 3);
       ImgTileSelectLayer temp_58_0007 = temp_58_0008.setPrecision(Precision.Double);
-      if (null != temp_58_0008)
-        temp_58_0008.freeRef();
+      temp_58_0008.freeRef();
       return temp_58_0007;
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") LR addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    LR addRef() {
       return (LR) super.addRef();
     }
 

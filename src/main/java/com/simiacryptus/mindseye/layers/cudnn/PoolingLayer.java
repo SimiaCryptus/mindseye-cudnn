@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
 import com.simiacryptus.mindseye.layers.java.AvgPoolingLayer;
 import com.simiacryptus.mindseye.layers.java.MaxPoolingLayer;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
@@ -79,6 +78,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     return alpha;
   }
 
+  @Nonnull
   public PoolingLayer setAlpha(double alpha) {
     this.alpha = alpha;
     return this.addRef();
@@ -182,33 +182,36 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     return this.addRef();
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static PoolingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new PoolingLayer(json);
   }
 
+  @Nonnull
   public static PoolingLayer getPoolingLayer(int radius, PoolingLayer.PoolingMode mode, String qualifier) {
     String name = RefString.format("%s.pool:%s;%s", qualifier, radius, mode);
     PoolingLayer temp_37_0009 = new PoolingLayer(UUID.nameUUIDFromBytes(name.getBytes()), name);
     PoolingLayer temp_37_0011 = temp_37_0009.setMode(mode);
     PoolingLayer temp_37_0012 = temp_37_0011.setStrideXY(radius, radius);
     PoolingLayer temp_37_0008 = temp_37_0012.setWindowXY(radius, radius);
-    if (null != temp_37_0012)
-      temp_37_0012.freeRef();
-    if (null != temp_37_0011)
-      temp_37_0011.freeRef();
-    if (null != temp_37_0009)
-      temp_37_0009.freeRef();
+    temp_37_0012.freeRef();
+    temp_37_0011.freeRef();
+    temp_37_0009.freeRef();
     return temp_37_0008;
   }
 
-  public static @SuppressWarnings("unused") PoolingLayer[] addRefs(PoolingLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  PoolingLayer[] addRefs(@Nullable PoolingLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(PoolingLayer::addRef).toArray((x) -> new PoolingLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") PoolingLayer[][] addRefs(PoolingLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  PoolingLayer[][] addRefs(@Nullable PoolingLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(PoolingLayer::addRefs)
@@ -232,17 +235,14 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     if (!CudaSystem.isEnabled()) {
       Layer temp_37_0013 = getCompatibilityLayer();
       Result temp_37_0007 = temp_37_0013.eval(Result.addRefs(inObj));
-      if (null != temp_37_0013)
-        temp_37_0013.freeRef();
+      temp_37_0013.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_37_0007;
     }
     TensorList temp_37_0014 = inObj[0].getData();
-    @Nonnull
-    final int[] rawInputDims = temp_37_0014.getDimensions();
+    @Nonnull final int[] rawInputDims = temp_37_0014.getDimensions();
 
-    if (null != temp_37_0014)
-      temp_37_0014.freeRef();
+    temp_37_0014.freeRef();
     int correctionX = correct(rawInputDims[0], strideX, windowX);
     int correctionY = correct(rawInputDims[1], strideY, windowY);
     int paddingX = Math.max(0, PoolingLayer.this.paddingX - ((correctionX + 1) / 2));
@@ -260,160 +260,139 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
       ImgPaddingLayer temp_37_0017 = temp_37_0016.setVerticalAlign(Alignment.Center);
       @Nonnull
       Layer paddingLayer = temp_37_0017.setRoundUp(false);
-      if (null != temp_37_0017)
-        temp_37_0017.freeRef();
-      if (null != temp_37_0016)
-        temp_37_0016.freeRef();
-      if (null != temp_37_0015)
-        temp_37_0015.freeRef();
-      if (null != temp_37_0010)
-        temp_37_0010.freeRef();
+      temp_37_0017.freeRef();
+      temp_37_0016.freeRef();
+      temp_37_0015.freeRef();
+      temp_37_0010.freeRef();
       input = paddingLayer.eval(inObj[0].addRef());
       paddingLayer.freeRef();
     } else {
       input = inObj[0].addRef();
     }
+    assert input != null;
     final TensorList inputData = input.getData();
-    @Nonnull
-    final int[] inputDims = inputData.getDimensions();
+    @Nonnull final int[] inputDims = inputData.getDimensions();
     final int inputLength = inputData.length();
 
     final int poolDims = 2;
-    @Nonnull
-    final int windowSize[] = { windowY, windowX };
-    @Nonnull
-    final int padding[] = { paddingY, paddingX };
-    @Nonnull
-    final int stride[] = { strideY, strideX };
-    @Nonnull
-    final int[] outputSize = new int[4];
+    @Nonnull final int windowSize[] = {windowY, windowX};
+    @Nonnull final int padding[] = {paddingY, paddingX};
+    @Nonnull final int stride[] = {strideY, strideX};
+    @Nonnull final int[] outputSize = new int[4];
     final CudaTensor outputData = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensor>) gpu -> {
-      try {
-        gpu.initThread();
-        @Nonnull
-        final CudaResource<cudnnPoolingDescriptor> poolingDesc = gpu.createPoolingDescriptor(mode.id, poolDims,
-            windowSize, padding, stride);
-        @Nullable
-        final CudaTensor inputTensor = gpu.getTensor(inputData == null ? null : inputData.addRef(), precision,
-            MemoryType.Device, false);
-        CudaSystem.handle(CudaSystem.cudnnGetPoolingNdForwardOutputDim(poolingDesc.getPtr(),
-            inputTensor.descriptor.getPtr(), 4, outputSize));
-        assert inputDims[2] == outputSize[1];
-        @Nonnull
-        final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, outputSize[0],
-            outputSize[1], outputSize[2], outputSize[3], outputSize[1] * outputSize[2] * outputSize[3],
-            outputSize[2] * outputSize[3], outputSize[3], 1);
-        @Nonnull
-        final CudaMemory outputTensor = gpu.allocate((long) precision.size * Tensor.length(outputSize),
-            MemoryType.Managed.ifEnabled(), true);
-        CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
-        CudaSystem.handle(
-            gpu.cudnnPoolingForward(poolingDesc.getPtr(), precision.getPointer(alpha), inputTensor.descriptor.getPtr(),
-                inputDataMemory.getPtr(), precision.getPointer(0.0), outputDescriptor.getPtr(), outputTensor.getPtr()));
-        if (null != inputTensor)
-          inputTensor.freeRef();
-        poolingDesc.freeRef();
-        assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-        RefUtil.freeRef(inputDataMemory.dirty());
-        if (null != inputDataMemory)
-          inputDataMemory.freeRef();
-        RefUtil.freeRef(outputTensor.dirty());
-        CudaTensor temp_37_0003 = new CudaTensor(outputTensor == null ? null : outputTensor,
-            outputDescriptor == null ? null : outputDescriptor, precision);
-        return temp_37_0003;
-      } catch (@Nonnull final Throwable e) {
-        throw new ComponentException("Error processing " + RefArrays.stream(Result.addRefs(inObj)).map(x -> {
-          TensorList temp_37_0018 = x.getData();
-          String temp_37_0004 = RefArrays.toString(temp_37_0018.getDimensions());
-          if (null != temp_37_0018)
-            temp_37_0018.freeRef();
-          if (null != x)
-            x.freeRef();
-          return temp_37_0004;
-        }).reduce((a, b) -> a + ";" + b) + " with " + this.toString(), e);
-      }
-    }, inputData == null ? null : inputData.addRef(), Result.addRefs(inObj)),
-        inputData == null ? null : inputData.addRef());
+          try {
+            gpu.initThread();
+            @Nonnull final CudaResource<cudnnPoolingDescriptor> poolingDesc = gpu.createPoolingDescriptor(mode.id, poolDims,
+                windowSize, padding, stride);
+            @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision,
+                MemoryType.Device, false);
+            CudaSystem.handle(CudaSystem.cudnnGetPoolingNdForwardOutputDim(poolingDesc.getPtr(),
+                inputTensor.descriptor.getPtr(), 4, outputSize));
+            assert inputDims[2] == outputSize[1];
+            @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, outputSize[0],
+                outputSize[1], outputSize[2], outputSize[3], outputSize[1] * outputSize[2] * outputSize[3],
+                outputSize[2] * outputSize[3], outputSize[3], 1);
+            @Nonnull final CudaMemory outputTensor = gpu.allocate((long) precision.size * Tensor.length(outputSize),
+                MemoryType.Managed.ifEnabled(), true);
+            CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
+            assert inputDataMemory != null;
+            CudaSystem.handle(
+                gpu.cudnnPoolingForward(poolingDesc.getPtr(), precision.getPointer(alpha), inputTensor.descriptor.getPtr(),
+                    inputDataMemory.getPtr(), precision.getPointer(0.0), outputDescriptor.getPtr(), outputTensor.getPtr()));
+            inputTensor.freeRef();
+            poolingDesc.freeRef();
+            assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+            RefUtil.freeRef(inputDataMemory.dirty());
+            inputDataMemory.freeRef();
+            RefUtil.freeRef(outputTensor.dirty());
+            CudaTensor temp_37_0003 = new CudaTensor(outputTensor,
+                outputDescriptor, precision);
+            return temp_37_0003;
+          } catch (@Nonnull final Throwable e) {
+            throw new ComponentException("Error processing " + RefArrays.stream(Result.addRefs(inObj)).map(x -> {
+              TensorList temp_37_0018 = x.getData();
+              String temp_37_0004 = RefArrays.toString(temp_37_0018.getDimensions());
+              temp_37_0018.freeRef();
+              x.freeRef();
+              return temp_37_0004;
+            }).reduce((a, b) -> a + ";" + b) + " with " + this.toString(), e);
+          }
+        }, inputData.addRef(), Result.addRefs(inObj)),
+        inputData.addRef());
     ReferenceCounting.freeRefs(inObj);
     try {
       try {
         try {
           return new Result(new CudaTensorList(outputData == null ? null : outputData.addRef(), inputLength,
-              new int[] { outputSize[3], outputSize[2], outputSize[1] }, precision), new Result.Accumulator() {
-                {
-                }
+              new int[]{outputSize[3], outputSize[2], outputSize[1]}, precision), new Result.Accumulator() {
+            {
+            }
 
-                @Override
-                public void accept(DeltaSet<UUID> buffer, TensorList error) {
-                  assert error.length() == inputLength;
-                  if (input.isAlive()) {
-                    TensorList data = CudaSystem
-                        .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                          @Nonnull
-                          final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision,
+            @Override
+            public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList error) {
+              assert error.length() == inputLength;
+              if (input.isAlive()) {
+                TensorList data = CudaSystem
+                    .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
+                          @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision,
                               inputLength, inputDims[2], inputDims[1], inputDims[0],
                               inputDims[2] * inputDims[1] * inputDims[0], inputDims[1] * inputDims[0], inputDims[0], 1);
-                          @Nonnull
-                          final CudaResource<cudnnPoolingDescriptor> poolingDesc = gpu.createPoolingDescriptor(mode.id,
+                          @Nonnull final CudaResource<cudnnPoolingDescriptor> poolingDesc = gpu.createPoolingDescriptor(mode.id,
                               poolDims, windowSize, padding, stride);
-                          @Nullable
-                          final CudaTensor inputTensor;
+                          @Nullable final CudaTensor inputTensor;
                           synchronized (gpu) {
-                            inputTensor = gpu.getTensor(inputData == null ? null : inputData.addRef(), precision,
+                            inputTensor = gpu.getTensor(inputData.addRef(), precision,
                                 MemoryType.Device, true);
                           }
-                          @Nullable
-                          final CudaTensor errorPtr;
+                          @Nullable final CudaTensor errorPtr;
                           synchronized (gpu) {
-                            errorPtr = gpu.getTensor(error == null ? null : error.addRef(), precision,
+                            errorPtr = gpu.getTensor(error.addRef(), precision,
                                 MemoryType.Device, true);
                           }
-                          @Nonnull
-                          final CudaMemory passbackBuffer = gpu.allocate(
+                          @Nonnull final CudaMemory passbackBuffer = gpu.allocate(
                               (long) Tensor.length(inputDims) * precision.size * inputLength,
                               MemoryType.Managed.ifEnabled(), true);
+                          assert outputData != null;
                           CudaMemory outputDataMemory = outputData.getMemory(gpu);
                           CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
                           CudaMemory inputDataMemory = inputTensor.getMemory(gpu);
+                          assert inputDataMemory != null;
+                          assert errorPtrMemory != null;
+                          assert outputDataMemory != null;
                           CudaSystem.handle(gpu.cudnnPoolingBackward(poolingDesc.getPtr(), precision.getPointer(alpha),
                               outputData.descriptor.getPtr(), outputDataMemory.getPtr(), errorPtr.descriptor.getPtr(),
                               errorPtrMemory.getPtr(), inputTensor.descriptor.getPtr(), inputDataMemory.getPtr(),
                               precision.getPointer(0.0), passbackDescriptor.getPtr(), passbackBuffer.getPtr()));
-                          if (null != errorPtr)
-                            errorPtr.freeRef();
-                          if (null != inputTensor)
-                            inputTensor.freeRef();
+                          errorPtr.freeRef();
+                          inputTensor.freeRef();
                           poolingDesc.freeRef();
                           RefUtil.freeRef(outputDataMemory.dirty());
-                          if (null != outputDataMemory)
-                            outputDataMemory.freeRef();
+                          outputDataMemory.freeRef();
                           RefUtil.freeRef(errorPtrMemory.dirty());
-                          if (null != errorPtrMemory)
-                            errorPtrMemory.freeRef();
+                          errorPtrMemory.freeRef();
                           RefUtil.freeRef(inputDataMemory.dirty());
-                          if (null != inputDataMemory)
-                            inputDataMemory.freeRef();
+                          inputDataMemory.freeRef();
                           RefUtil.freeRef(passbackBuffer.dirty());
                           CudaTensorList temp_37_0006 = new CudaTensorList(
-                              new CudaTensor(passbackBuffer == null ? null : passbackBuffer,
-                                  passbackDescriptor == null ? null : passbackDescriptor, precision),
+                              new CudaTensor(passbackBuffer,
+                                  passbackDescriptor, precision),
                               inputLength, inputDims, precision);
                           return temp_37_0006;
-                        }, error == null ? null : error.addRef(), outputData == null ? null : outputData.addRef(),
-                            inputData == null ? null : inputData.addRef()), error == null ? null : error.addRef());
-                    input.accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data.addRef());
-                    if (null != data)
-                      data.freeRef();
-                  }
-                  if (null != error)
-                    error.freeRef();
-                  if (null != buffer)
-                    buffer.freeRef();
-                }
+                        }, error.addRef(), outputData == null ? null : outputData.addRef(),
+                        inputData.addRef()), error.addRef());
+                input.accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data.addRef());
+                if (null != data)
+                  data.freeRef();
+              }
+              error.freeRef();
+              if (null != buffer)
+                buffer.freeRef();
+            }
 
-                public @SuppressWarnings("unused") void _free() {
-                }
-              }) {
+            public @SuppressWarnings("unused")
+            void _free() {
+            }
+          }) {
 
             {
             }
@@ -431,20 +410,17 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
             outputData.freeRef();
         }
       } finally {
-        if (null != inputData)
-          inputData.freeRef();
+        inputData.freeRef();
       }
     } finally {
-      if (null != input)
-        input.freeRef();
+      input.freeRef();
     }
   }
 
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("mode", mode.id);
     json.addProperty("windowX", windowX);
     json.addProperty("windowY", windowY);
@@ -484,10 +460,14 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     return this.addRef();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") PoolingLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  PoolingLayer addRef() {
     return (PoolingLayer) super.addRef();
   }
 

@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
@@ -69,19 +68,24 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision<SumRedu
     return this.addRef();
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static SumReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new SumReducerLayer(json);
   }
 
-  public static @SuppressWarnings("unused") SumReducerLayer[] addRefs(SumReducerLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SumReducerLayer[] addRefs(@Nullable SumReducerLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SumReducerLayer::addRef)
         .toArray((x) -> new SumReducerLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") SumReducerLayer[][] addRefs(SumReducerLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SumReducerLayer[][] addRefs(@Nullable SumReducerLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SumReducerLayer::addRefs)
@@ -90,65 +94,56 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision<SumRedu
 
   @Nullable
   @Override
-  public Result eval(final Result... inObj) {
+  public Result eval(@Nullable final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_39_0007 = getCompatibilityLayer();
       Result temp_39_0005 = temp_39_0007.eval(Result.addRefs(inObj));
-      if (null != temp_39_0007)
-        temp_39_0007.freeRef();
+      temp_39_0007.freeRef();
       if (null != inObj)
         ReferenceCounting.freeRefs(inObj);
       return temp_39_0005;
     }
+    assert inObj != null;
     final Result input = inObj[0].addRef();
-    if (null != inObj)
-      ReferenceCounting.freeRefs(inObj);
+    ReferenceCounting.freeRefs(inObj);
     final TensorList inputData = input.getData();
-    @Nonnull
-    final int[] inputSize = inputData.getDimensions();
+    @Nonnull final int[] inputSize = inputData.getDimensions();
     int length = inputData.length();
 
     CudaTensorList result = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-      CudaTensor inputTensor = gpu.getTensor(inputData == null ? null : inputData.addRef(), precision,
+      CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision,
           MemoryType.Device, false);
       CudaMemory inputMemory = inputTensor.getMemory(gpu);
 
-      @Nonnull
-      final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, 1, 1, 1);
+      @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, 1, 1, 1);
       long size = (long) precision.size * outputDescriptor.nStride * length;
-      @Nonnull
-      final CudaMemory outputMemory = gpu.allocate(size, MemoryType.Managed.ifEnabled(), true);
+      @Nonnull final CudaMemory outputMemory = gpu.allocate(size, MemoryType.Managed.ifEnabled(), true);
       CudaResource<cudnnReduceTensorDescriptor> reduceTensorDescriptor = gpu.cudnnCreateReduceTensorDescriptor(
           cudnnReduceTensorOp.CUDNN_REDUCE_TENSOR_ADD, precision.code, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN,
           cudnnReduceTensorIndices.CUDNN_REDUCE_TENSOR_NO_INDICES, cudnnIndicesType.CUDNN_32BIT_INDICES);
 
-      @Nonnull
-      final CudaMemory workspacePtr = gpu.allocate(inputMemory.size, MemoryType.Device, true);
-      @Nonnull
-      final CudaMemory indexPtr = gpu.allocate(12 * length, MemoryType.Device, false);
+      assert inputMemory != null;
+      @Nonnull final CudaMemory workspacePtr = gpu.allocate(inputMemory.size, MemoryType.Device, true);
+      @Nonnull final CudaMemory indexPtr = gpu.allocate(12 * length, MemoryType.Device, false);
 
       //outputPtr.synchronize();
       gpu.cudnnReduceTensor(reduceTensorDescriptor.getPtr(), indexPtr.getPtr(), indexPtr.size, workspacePtr.getPtr(),
           workspacePtr.size, precision.getPointer(1.0), inputTensor.descriptor.getPtr(), inputMemory.getPtr(),
           precision.getPointer(0.0), outputDescriptor.getPtr(), outputMemory.getPtr());
       indexPtr.freeRef();
-      if (null != reduceTensorDescriptor)
-        reduceTensorDescriptor.freeRef();
-      if (null != inputTensor)
-        inputTensor.freeRef();
+      reduceTensorDescriptor.freeRef();
+      inputTensor.freeRef();
       RefUtil.freeRef(inputMemory.dirty());
-      if (null != inputMemory)
-        inputMemory.freeRef();
+      inputMemory.freeRef();
       RefUtil.freeRef(outputMemory.dirty());
       RefUtil.freeRef(workspacePtr.dirty());
       workspacePtr.freeRef();
-      CudaTensorList temp_39_0002 = new CudaTensorList(new CudaTensor(outputMemory == null ? null : outputMemory,
-          outputDescriptor == null ? null : outputDescriptor, precision), length, new int[] { 1, 1, 1 }, precision);
+      CudaTensorList temp_39_0002 = new CudaTensorList(new CudaTensor(outputMemory,
+          outputDescriptor, precision), length, new int[]{1, 1, 1}, precision);
       return temp_39_0002;
-    }, inputData == null ? null : inputData.addRef()));
+    }, inputData.addRef()));
 
-    if (null != inputData)
-      inputData.freeRef();
+    inputData.freeRef();
     try {
       try {
         return new Result(result, new Result.Accumulator() {
@@ -156,28 +151,25 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision<SumRedu
           }
 
           @Override
-          public void accept(DeltaSet<UUID> ctx, TensorList delta) {
+          public void accept(@Nullable DeltaSet<UUID> ctx, @Nonnull TensorList delta) {
             TensorList passback = new TensorArray(
                 RefIntStream.range(0, length).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
                   Tensor tensor = delta.get(i);
                   Tensor temp_39_0006 = new Tensor(inputSize);
                   Tensor temp_39_0004 = temp_39_0006.setAll(tensor.get(0));
-                  if (null != temp_39_0006)
-                    temp_39_0006.freeRef();
-                  if (null != tensor)
-                    tensor.freeRef();
+                  temp_39_0006.freeRef();
+                  tensor.freeRef();
                   return temp_39_0004;
-                }, delta == null ? null : delta.addRef())).toArray(i -> new Tensor[i]));
-            if (null != delta)
-              delta.freeRef();
-            input.accumulate(ctx == null ? null : ctx.addRef(), passback == null ? null : passback.addRef());
+                }, delta.addRef())).toArray(i -> new Tensor[i]));
+            delta.freeRef();
+            input.accumulate(ctx == null ? null : ctx.addRef(), passback.addRef());
             if (null != ctx)
               ctx.freeRef();
-            if (null != passback)
-              passback.freeRef();
+            passback.freeRef();
           }
 
-          public @SuppressWarnings("unused") void _free() {
+          public @SuppressWarnings("unused")
+          void _free() {
           }
         }) {
           public void _free() {
@@ -189,16 +181,14 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision<SumRedu
           result.freeRef();
       }
     } finally {
-      if (null != input)
-        input.freeRef();
+      input.freeRef();
     }
   }
 
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("precision", precision.name());
     return json;
   }
@@ -209,10 +199,14 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision<SumRedu
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") SumReducerLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  SumReducerLayer addRef() {
     return (SumReducerLayer) super.addRef();
   }
 

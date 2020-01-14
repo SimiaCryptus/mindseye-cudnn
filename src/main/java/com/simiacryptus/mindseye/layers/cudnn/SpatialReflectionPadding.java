@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -106,24 +105,30 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
     return roundUp;
   }
 
+  @Nonnull
   public SpatialReflectionPadding setRoundUp(boolean roundUp) {
     this.roundUp = roundUp;
     return this.addRef();
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static SpatialReflectionPadding fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new SpatialReflectionPadding(json, rs);
   }
 
-  public static @SuppressWarnings("unused") SpatialReflectionPadding[] addRefs(SpatialReflectionPadding[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SpatialReflectionPadding[] addRefs(@Nullable SpatialReflectionPadding[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRef)
         .toArray((x) -> new SpatialReflectionPadding[x]);
   }
 
-  public static @SuppressWarnings("unused") SpatialReflectionPadding[][] addRefs(SpatialReflectionPadding[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SpatialReflectionPadding[][] addRefs(@Nullable SpatialReflectionPadding[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRefs)
@@ -152,27 +157,22 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
     }
     TensorList temp_42_0003 = inObj[0].getData();
     final int[] dimensions = temp_42_0003.getDimensions();
-    if (null != temp_42_0003)
-      temp_42_0003.freeRef();
+    temp_42_0003.freeRef();
     ImgPaddingLayer temp_42_0002 = new ImgPaddingLayer(dimensions[0] + sizeX, dimensions[1] + sizeY);
     ImgPaddingLayer temp_42_0004 = temp_42_0002.setHorizontalAlign(horizontalAlign);
     final ImgPaddingLayer paddingLayer = temp_42_0004.setVerticalAlign(verticalAlign);
-    if (null != temp_42_0004)
-      temp_42_0004.freeRef();
-    if (null != temp_42_0002)
-      temp_42_0002.freeRef();
+    temp_42_0004.freeRef();
+    temp_42_0002.freeRef();
     Result temp_42_0001 = paddingLayer.eval(Result.addRefs(inObj));
     ReferenceCounting.freeRefs(inObj);
-    if (null != paddingLayer)
-      paddingLayer.freeRef();
+    paddingLayer.freeRef();
     return temp_42_0001;
   }
 
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
     json.addProperty("roundUp", roundUp);
@@ -188,10 +188,14 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") SpatialReflectionPadding addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  SpatialReflectionPadding addRef() {
     return (SpatialReflectionPadding) super.addRef();
   }
 

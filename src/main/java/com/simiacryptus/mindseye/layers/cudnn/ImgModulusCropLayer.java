@@ -27,7 +27,6 @@ import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -102,19 +101,24 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision<Img
     this.roundUp = roundUp;
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static ImgModulusCropLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgModulusCropLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused") ImgModulusCropLayer[] addRefs(ImgModulusCropLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgModulusCropLayer[] addRefs(@Nullable ImgModulusCropLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayer::addRef)
         .toArray((x) -> new ImgModulusCropLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") ImgModulusCropLayer[][] addRefs(ImgModulusCropLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ImgModulusCropLayer[][] addRefs(@Nullable ImgModulusCropLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusCropLayer::addRefs)
@@ -128,8 +132,7 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision<Img
     TensorList temp_40_0004 = inObj[0].getData();
     @Nonnull
     int[] dimensions = temp_40_0004.getDimensions();
-    if (null != temp_40_0004)
-      temp_40_0004.freeRef();
+    temp_40_0004.freeRef();
     int inputWidth = dimensions[0];
     int inputHeight = dimensions[1];
 
@@ -171,10 +174,8 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision<Img
     ImgCropLayer temp_40_0005 = temp_40_0003.setPrecision(precision);
     @Nonnull
     ImgCropLayer imgCropLayer = temp_40_0005.setRoundUp(isRoundUp());
-    if (null != temp_40_0005)
-      temp_40_0005.freeRef();
-    if (null != temp_40_0003)
-      temp_40_0003.freeRef();
+    temp_40_0005.freeRef();
+    temp_40_0003.freeRef();
     Result temp_40_0001 = imgCropLayer.eval(Result.addRefs(inObj));
     ReferenceCounting.freeRefs(inObj);
     imgCropLayer.freeRef();
@@ -184,8 +185,7 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision<Img
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("roundUp", roundUp);
     json.addProperty("sizeY", sizeY);
     json.addProperty("sizeX", sizeX);
@@ -201,10 +201,14 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision<Img
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ImgModulusCropLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ImgModulusCropLayer addRef() {
     return (ImgModulusCropLayer) super.addRef();
   }
 }

@@ -22,11 +22,11 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefSystem;
 import jcuda.jcudnn.*;
 
 import javax.annotation.Nonnull;
@@ -56,6 +56,7 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
     return alpha;
   }
 
+  @Nonnull
   public BandAvgReducerLayer setAlpha(double alpha) {
     this.alpha = alpha;
     return this.addRef();
@@ -78,19 +79,24 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
     return this.addRef();
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static BandAvgReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new BandAvgReducerLayer(json);
   }
 
-  public static @SuppressWarnings("unused") BandAvgReducerLayer[] addRefs(BandAvgReducerLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  BandAvgReducerLayer[] addRefs(@Nullable BandAvgReducerLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BandAvgReducerLayer::addRef)
         .toArray((x) -> new BandAvgReducerLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") BandAvgReducerLayer[][] addRefs(BandAvgReducerLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  BandAvgReducerLayer[][] addRefs(@Nullable BandAvgReducerLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BandAvgReducerLayer::addRefs)
@@ -99,74 +105,62 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
 
   @Nullable
   @Override
-  public Result eval(final Result... inObj) {
+  public Result eval(@Nullable final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_32_0005 = getCompatibilityLayer();
       Result temp_32_0004 = temp_32_0005.eval(Result.addRefs(inObj));
-      if (null != temp_32_0005)
-        temp_32_0005.freeRef();
+      temp_32_0005.freeRef();
       if (null != inObj)
         ReferenceCounting.freeRefs(inObj);
       return temp_32_0004;
     }
+    assert inObj != null;
     final Result input = inObj[0].addRef();
-    if (null != inObj)
-      ReferenceCounting.freeRefs(inObj);
+    ReferenceCounting.freeRefs(inObj);
     TensorList inputData = input.getData();
-    @Nonnull
-    final int[] inputSize = inputData.getDimensions();
+    @Nonnull final int[] inputSize = inputData.getDimensions();
     int length = inputData.length();
     if (length <= 0) {
-      if (null != input)
-        input.freeRef();
-      if (null != inputData)
-        inputData.freeRef();
+      input.freeRef();
+      inputData.freeRef();
       throw new AssertionError();
     }
     if (Tensor.length(inputData.getDimensions()) <= 0) {
-      if (null != inputData)
-        inputData.freeRef();
+      inputData.freeRef();
       return input;
     }
     final int bands = inputSize[2];
     CudaTensorList result = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-      CudaTensor inputTensor = gpu.getTensor(inputData == null ? null : inputData.addRef(), precision,
+      CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision,
           MemoryType.Device, false);
-      @Nonnull
-      final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, bands, 1, 1);
+      @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, bands, 1, 1);
       long size = (long) precision.size * outputDescriptor.nStride * length;
-      @Nonnull
-      final CudaMemory outputPtr = gpu.allocate(size, MemoryType.Managed.ifEnabled(), true);
+      @Nonnull final CudaMemory outputPtr = gpu.allocate(size, MemoryType.Managed.ifEnabled(), true);
       CudaResource<cudnnReduceTensorDescriptor> reduceTensorDescriptor = gpu.cudnnCreateReduceTensorDescriptor(
           cudnnReduceTensorOp.CUDNN_REDUCE_TENSOR_AVG, precision.code, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN,
           cudnnReduceTensorIndices.CUDNN_REDUCE_TENSOR_NO_INDICES, cudnnIndicesType.CUDNN_32BIT_INDICES);
 
       CudaMemory inputMemory = inputTensor.getMemory(gpu);
-      @Nonnull
-      final CudaMemory workspacePtr = gpu.allocate(inputMemory.size, MemoryType.Device, true);
-      @Nonnull
-      final CudaMemory indexPtr = gpu.allocate(12 * length, MemoryType.Device, false);
+      assert inputMemory != null;
+      @Nonnull final CudaMemory workspacePtr = gpu.allocate(inputMemory.size, MemoryType.Device, true);
+      @Nonnull final CudaMemory indexPtr = gpu.allocate(12 * length, MemoryType.Device, false);
 
       gpu.cudnnReduceTensor(reduceTensorDescriptor.getPtr(), indexPtr.getPtr(), indexPtr.size, workspacePtr.getPtr(),
           workspacePtr.size, precision.getPointer(alpha), inputTensor.descriptor.getPtr(), inputMemory.getPtr(),
           precision.getPointer(0.0), outputDescriptor.getPtr(), outputPtr.getPtr());
       indexPtr.freeRef();
       workspacePtr.freeRef();
-      if (null != reduceTensorDescriptor)
-        reduceTensorDescriptor.freeRef();
-      if (null != inputTensor)
-        inputTensor.freeRef();
+      reduceTensorDescriptor.freeRef();
+      inputTensor.freeRef();
       RefUtil.freeRef(outputPtr.dirty());
       RefUtil.freeRef(inputMemory.dirty());
 
-      if (null != inputMemory)
-        inputMemory.freeRef();
-      CudaTensorList temp_32_0002 = new CudaTensorList(new CudaTensor(outputPtr == null ? null : outputPtr,
-          outputDescriptor == null ? null : outputDescriptor, precision), length, new int[] { 1, 1, bands }, precision);
+      inputMemory.freeRef();
+      CudaTensorList temp_32_0002 = new CudaTensorList(new CudaTensor(outputPtr,
+          outputDescriptor, precision), length, new int[]{1, 1, bands}, precision);
       return temp_32_0002;
-    }, inputData == null ? null : inputData.addRef()));
-    if (null != inputData)
-      inputData.freeRef();
+    }, inputData.addRef()));
+    inputData.freeRef();
     int pixels = inputSize[0] * inputSize[1];
     try {
       try {
@@ -175,32 +169,30 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
           }
 
           @Override
-          public void accept(DeltaSet<UUID> ctx, TensorList delta) {
+          public void accept(@Nullable DeltaSet<UUID> ctx, @Nonnull TensorList delta) {
             TensorList passback;
             passback = new TensorArray(delta.stream().map(x -> {
               final double[] xData = RefArrays.stream(x.getData()).map(v -> v * alpha / pixels).toArray();
-              if (null != x)
-                x.freeRef();
+              x.freeRef();
               final Tensor tensor = new Tensor(inputSize[0], inputSize[1], inputSize[2]);
               final double[] tensor1Data = tensor.getData();
               for (int p = 0; p < inputSize[0] * inputSize[1]; p++) {
                 for (int c = 0; c < inputSize[2]; c++) {
-                  com.simiacryptus.ref.wrappers.RefSystem.arraycopy(xData, 0, tensor1Data, p * inputSize[2],
+                  RefSystem.arraycopy(xData, 0, tensor1Data, p * inputSize[2],
                       inputSize[2]);
                 }
               }
               return tensor;
             }).toArray(i -> new Tensor[i]));
-            if (null != delta)
-              delta.freeRef();
-            input.accumulate(ctx == null ? null : ctx.addRef(), passback == null ? null : passback.addRef());
+            delta.freeRef();
+            input.accumulate(ctx == null ? null : ctx.addRef(), passback.addRef());
             if (null != ctx)
               ctx.freeRef();
-            if (null != passback)
-              passback.freeRef();
+            passback.freeRef();
           }
 
-          public @SuppressWarnings("unused") void _free() {
+          public @SuppressWarnings("unused")
+          void _free() {
           }
         }) {
           public void _free() {
@@ -212,16 +204,14 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
           result.freeRef();
       }
     } finally {
-      if (null != input)
-        input.freeRef();
+      input.freeRef();
     }
   }
 
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("alpha", alpha);
     json.addProperty("precision", precision.name());
     return json;
@@ -233,10 +223,14 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
     return RefArrays.asList();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") BandAvgReducerLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  BandAvgReducerLayer addRef() {
     return (BandAvgReducerLayer) super.addRef();
   }
 }

@@ -25,11 +25,11 @@ import com.simiacryptus.mindseye.layers.java.SumInputsLayer;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -45,23 +45,28 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
     largeSize = 1200;
   }
 
-  public static @SuppressWarnings("unused") BinarySumLayerTest[] addRefs(BinarySumLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  BinarySumLayerTest[] addRefs(@Nullable BinarySumLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayerTest::addRef)
         .toArray((x) -> new BinarySumLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") BinarySumLayerTest[][] addRefs(BinarySumLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  BinarySumLayerTest[][] addRefs(@Nullable BinarySumLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BinarySumLayerTest::addRefs)
         .toArray((x) -> new BinarySumLayerTest[x][]);
   }
 
+  @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { smallSize, smallSize, 1 }, { smallSize, smallSize, 1 } };
+    return new int[][]{{smallSize, smallSize, 1}, {smallSize, smallSize, 1}};
   }
 
   @Nonnull
@@ -69,20 +74,24 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
   public Layer getLayer(final int[][] inputSize, Random random) {
     BinarySumLayer temp_69_0002 = new BinarySumLayer();
     BinarySumLayer temp_69_0001 = temp_69_0002.setPrecision(precision);
-    if (null != temp_69_0002)
-      temp_69_0002.freeRef();
+    temp_69_0002.freeRef();
     return temp_69_0001;
   }
 
+  @Nonnull
   @Override
   public int[][] getLargeDims(Random random) {
-    return new int[][] { { largeSize, largeSize, 1 }, { largeSize, largeSize, 1 } };
+    return new int[][]{{largeSize, largeSize, 1}, {largeSize, largeSize, 1}};
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") BinarySumLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  BinarySumLayerTest addRef() {
     return (BinarySumLayerTest) super.addRef();
   }
 
@@ -91,26 +100,34 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
       super(Precision.Double);
     }
 
-    public static @SuppressWarnings("unused") Double_List[] addRefs(Double_List[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Double_List[] addRefs(@Nullable Double_List[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Double_List::addRef).toArray((x) -> new Double_List[x]);
     }
 
+    @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return RefIntStream.range(0, 5).mapToObj(i -> new int[] { smallSize, smallSize, 2 }).toArray(i -> new int[i][]);
+      return RefIntStream.range(0, 5).mapToObj(i -> new int[]{smallSize, smallSize, 2}).toArray(i -> new int[i][]);
     }
 
+    @Nonnull
     @Override
     public int[][] getLargeDims(Random random) {
-      return RefIntStream.range(0, 5).mapToObj(i -> new int[] { largeSize, largeSize, 3 }).toArray(i -> new int[i][]);
+      return RefIntStream.range(0, 5).mapToObj(i -> new int[]{largeSize, largeSize, 3}).toArray(i -> new int[i][]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Double_List addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Double_List addRef() {
       return (Double_List) super.addRef();
     }
 
@@ -127,19 +144,21 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
       @Nonnull
       PipelineNetwork network = new PipelineNetwork();
       DAGNode input = network.getInput(0);
-      RefUtil.freeRef(network.add(new SumInputsLayer(), input == null ? null : input.addRef(),
-          input == null ? null : input.addRef()));
-      if (null != input)
-        input.freeRef();
+      RefUtil.freeRef(network.add(new SumInputsLayer(), input.addRef(),
+          input.addRef()));
+      input.freeRef();
       return network;
     }
 
+    @Nonnull
     @Override
     protected Class<?> getTargetClass() {
       return BinarySumLayer.class;
     }
 
-    public static @SuppressWarnings("unused") OnePlusOne[] addRefs(OnePlusOne[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    OnePlusOne[] addRefs(@Nullable OnePlusOne[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(OnePlusOne::addRef).toArray((x) -> new OnePlusOne[x]);
@@ -151,29 +170,32 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
       @Nonnull
       PipelineNetwork network = new PipelineNetwork();
       DAGNode input = network.getInput(0);
-      RefUtil.freeRef(network.add(new BinarySumLayer(), input == null ? null : input.addRef(),
-          input == null ? null : input.addRef()));
-      if (null != input)
-        input.freeRef();
+      RefUtil.freeRef(network.add(new BinarySumLayer(), input.addRef(),
+          input.addRef()));
+      input.freeRef();
       return network;
     }
 
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][] { { 4, 4, 1 } };
+      return new int[][]{{4, 4, 1}};
     }
 
     @Nonnull
     @Override
     public int[][] getLargeDims(Random random) {
-      return new int[][] { { 1200, 800, 1 } };
+      return new int[][]{{1200, 800, 1}};
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") OnePlusOne addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    OnePlusOne addRef() {
       return (OnePlusOne) super.addRef();
     }
 
@@ -184,16 +206,22 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
       super(Precision.Double);
     }
 
-    public static @SuppressWarnings("unused") Double_Add[] addRefs(Double_Add[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Double_Add[] addRefs(@Nullable Double_Add[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Double_Add::addRef).toArray((x) -> new Double_Add[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Double_Add addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Double_Add addRef() {
       return (Double_Add) super.addRef();
     }
   }
@@ -203,7 +231,9 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
       super(Precision.Double);
     }
 
-    public static @SuppressWarnings("unused") Double_Subtract[] addRefs(Double_Subtract[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Double_Subtract[] addRefs(@Nullable Double_Subtract[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Double_Subtract::addRef)
@@ -215,15 +245,18 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
     public Layer getLayer(final int[][] inputSize, Random random) {
       BinarySumLayer temp_69_0004 = new BinarySumLayer(1.0, -1.0);
       BinarySumLayer temp_69_0003 = temp_69_0004.setPrecision(precision);
-      if (null != temp_69_0004)
-        temp_69_0004.freeRef();
+      temp_69_0004.freeRef();
       return temp_69_0003;
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Double_Subtract addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Double_Subtract addRef() {
       return (Double_Subtract) super.addRef();
     }
 
@@ -239,16 +272,22 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public static @SuppressWarnings("unused") Float_Add[] addRefs(Float_Add[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Float_Add[] addRefs(@Nullable Float_Add[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Float_Add::addRef).toArray((x) -> new Float_Add[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Float_Add addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Float_Add addRef() {
       return (Float_Add) super.addRef();
     }
 
@@ -264,7 +303,9 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public static @SuppressWarnings("unused") Float_Avg[] addRefs(Float_Avg[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Float_Avg[] addRefs(@Nullable Float_Avg[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Float_Avg::addRef).toArray((x) -> new Float_Avg[x]);
@@ -275,15 +316,18 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
     public Layer getLayer(final int[][] inputSize, Random random) {
       BinarySumLayer temp_69_0006 = new BinarySumLayer(0.5, 0.5);
       BinarySumLayer temp_69_0005 = temp_69_0006.setPrecision(precision);
-      if (null != temp_69_0006)
-        temp_69_0006.freeRef();
+      temp_69_0006.freeRef();
       return temp_69_0005;
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Float_Avg addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Float_Avg addRef() {
       return (Float_Avg) super.addRef();
     }
 

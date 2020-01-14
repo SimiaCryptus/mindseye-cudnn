@@ -22,9 +22,9 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
-import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -36,14 +36,18 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
     this.precision = precision;
   }
 
-  public static @SuppressWarnings("unused") NProductLayerTest[] addRefs(NProductLayerTest[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  NProductLayerTest[] addRefs(@Nullable NProductLayerTest[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(NProductLayerTest::addRef)
         .toArray((x) -> new NProductLayerTest[x]);
   }
 
-  public static @SuppressWarnings("unused") NProductLayerTest[][] addRefs(NProductLayerTest[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  NProductLayerTest[][] addRefs(@Nullable NProductLayerTest[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(NProductLayerTest::addRefs)
@@ -53,12 +57,13 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
-    return new int[][] { { 8, 8, 1 }, { 8, 8, 1 } };
+    return new int[][]{{8, 8, 1}, {8, 8, 1}};
   }
 
+  @Nonnull
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][] { { 1200, 1200, 3 }, { 1200, 1200, 3 } };
+    return new int[][]{{1200, 1200, 3}, {1200, 1200, 3}};
   }
 
   @Nonnull
@@ -66,15 +71,18 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
   public Layer getLayer(final int[][] inputSize, Random random) {
     NProductLayer temp_54_0002 = new NProductLayer();
     NProductLayer temp_54_0001 = temp_54_0002.setPrecision(precision);
-    if (null != temp_54_0002)
-      temp_54_0002.freeRef();
+    temp_54_0002.freeRef();
     return temp_54_0001;
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") NProductLayerTest addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  NProductLayerTest addRef() {
     return (NProductLayerTest) super.addRef();
   }
 
@@ -83,16 +91,22 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
       super(Precision.Double);
     }
 
-    public static @SuppressWarnings("unused") Double[] addRefs(Double[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Double[] addRefs(@Nullable Double[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Double addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Double addRef() {
       return (Double) super.addRef();
     }
   }
@@ -102,7 +116,9 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
       super(Precision.Double);
     }
 
-    public static @SuppressWarnings("unused") Double3[] addRefs(Double3[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Double3[] addRefs(@Nullable Double3[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Double3::addRef).toArray((x) -> new Double3[x]);
@@ -111,18 +127,23 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
-      return new int[][] { { 8, 8, 1 }, { 8, 8, 1 }, { 8, 8, 1 } };
+      return new int[][]{{8, 8, 1}, {8, 8, 1}, {8, 8, 1}};
     }
 
+    @Nonnull
     @Override
     public int[][] getLargeDims(final Random random) {
-      return new int[][] { { 1200, 1200, 3 }, { 1200, 1200, 3 }, { 1200, 1200, 3 } };
+      return new int[][]{{1200, 1200, 3}, {1200, 1200, 3}, {1200, 1200, 3}};
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Double3 addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Double3 addRef() {
       return (Double3) super.addRef();
     }
 
@@ -138,16 +159,22 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public static @SuppressWarnings("unused") Float[] addRefs(Float[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Float[] addRefs(@Nullable Float[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Float addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Float addRef() {
       return (Float) super.addRef();
     }
 
