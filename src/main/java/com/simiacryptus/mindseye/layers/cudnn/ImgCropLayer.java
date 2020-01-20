@@ -32,13 +32,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
 @SuppressWarnings("serial")
-public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLayer> {
+public class ImgCropLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgCropLayer.class);
   private Alignment verticalAlign = Alignment.Center;
   private Alignment horizontalAlign = Alignment.Center;
@@ -64,8 +63,8 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     sizeY = json.get("sizeY").getAsInt();
     setBaseValue(json.get("baseValue").getAsDouble());
     roundUp = json.get("roundUp").getAsBoolean();
-    RefUtil.freeRef(setVerticalAlign(Alignment.valueOf(json.get("verticalAlign").getAsString())));
-    RefUtil.freeRef(setHorizontalAlign(Alignment.valueOf(json.get("horizontalAlign").getAsString())));
+    setVerticalAlign(Alignment.valueOf(json.get("verticalAlign").getAsString()));
+    setHorizontalAlign(Alignment.valueOf(json.get("horizontalAlign").getAsString()));
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     assert 0 < sizeX;
     assert 0 < sizeY;
@@ -88,10 +87,8 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     return horizontalAlign;
   }
 
-  @Nonnull
-  public ImgCropLayer setHorizontalAlign(Alignment horizontalAlign) {
+  public void setHorizontalAlign(Alignment horizontalAlign) {
     this.horizontalAlign = horizontalAlign;
-    return this.addRef();
   }
 
   @Override
@@ -101,52 +98,30 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
 
   @Nonnull
   @Override
-  public ImgCropLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   public Alignment getVerticalAlign() {
     return verticalAlign;
   }
 
-  @Nonnull
-  public ImgCropLayer setVerticalAlign(Alignment verticalAlign) {
+  public void setVerticalAlign(Alignment verticalAlign) {
     this.verticalAlign = verticalAlign;
-    return this.addRef();
   }
 
   public boolean isRoundUp() {
     return roundUp;
   }
 
-  @Nonnull
-  public ImgCropLayer setRoundUp(boolean roundUp) {
+  public void setRoundUp(boolean roundUp) {
     this.roundUp = roundUp;
-    return this.addRef();
   }
 
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgCropLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgCropLayer(json, rs);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgCropLayer[] addRefs(@Nullable ImgCropLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayer::addRef).toArray((x) -> new ImgCropLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgCropLayer[][] addRefs(@Nullable ImgCropLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayer::addRefs)
-        .toArray((x) -> new ImgCropLayer[x][]);
   }
 
   @Nullable
@@ -255,16 +230,19 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
         1);
 
     destinationViewDescriptor.freeRef();
-    @Nonnull final CudaMemory outputBuffer;
+    @Nonnull CudaMemory outputBuffer = null;
     if (baseValue == 0.0) {
+      RefUtil.freeRef(outputBuffer);
       outputBuffer = gpu.allocate((long) length * output_channels * output_height * output_width * precision.size,
           MemoryType.Device, dirty);
     } else {
       Tensor temp_30_0013 = new Tensor(outputDimensions);
-      Tensor baseView = temp_30_0013.setAll(baseValue);
+      temp_30_0013.setAll(baseValue);
+      Tensor baseView = temp_30_0013.addRef();
       temp_30_0013.freeRef();
       CudaTensor temp_30_0014 = gpu.getTensor(new TensorArray(baseView.addRef()), precision,
           MemoryType.Device, true);
+      RefUtil.freeRef(outputBuffer);
       outputBuffer = temp_30_0014.getMemory(gpu.addRef());
       temp_30_0014.freeRef();
       baseView.freeRef();
@@ -277,8 +255,8 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
         outputViewDescriptor.getPtr(), outputBuffer.getPtr().withByteOffset(destinationOffset * precision.size)));
     outputViewDescriptor.freeRef();
     assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-    RefUtil.freeRef(inputTensorMemory.dirty());
-    RefUtil.freeRef(outputBuffer.dirty());
+    inputTensorMemory.dirty();
+    outputBuffer.dirty();
     CudaDevice.CudaTensorDescriptor descriptorCudaResource = gpu.newTensorDescriptor(precision, //
         length, //
         output_channels, //
@@ -319,7 +297,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_30_0015 = getCompatibilityLayer();
-      Result temp_30_0009 = temp_30_0015.eval(Result.addRefs(inObj));
+      Result temp_30_0009 = temp_30_0015.eval(RefUtil.addRefs(inObj));
       temp_30_0015.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_30_0009;
@@ -359,99 +337,92 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision<ImgCropLay
     int[] output_dimensions = outputData.getDimensions();
     int output_length = outputData.length();
     try {
-      try {
-        try {
-          return new Result(outputData, new Result.Accumulator() {
-            {
-            }
-
-            @Override
-            public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
-              if (!RefArrays.equals(delta.getDimensions(), output_dimensions)) {
-                if (null != buffer)
-                  buffer.freeRef();
-                AssertionError temp_30_0011 = new AssertionError(
-                    RefArrays.toString(delta.getDimensions()) + " != " + RefArrays.toString(output_dimensions));
-                delta.freeRef();
-                throw temp_30_0011;
-              }
-              if (delta.length() != output_length) {
-                if (null != buffer)
-                  buffer.freeRef();
-                AssertionError temp_30_0012 = new AssertionError(delta.length() + " != " + output_length);
-                delta.freeRef();
-                throw temp_30_0012;
-              }
-              assert delta.length() == length;
-
-              if (input.isAlive()) {
-                final TensorList passbackTensorList = CudaSystem
-                    .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                      @Nullable final CudaTensor errorPtr = gpu.getTensor(delta.addRef(), precision,
-                          MemoryType.Device, false);
-                      boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
-                      CudaTensor cudaTensor = ImgCropLayer.this.copy(gpu, errorPtr.addRef(),
-                          length, dimOut, dimIn, dirty, precision, ImgCropLayer.this.getHorizontalAlign(),
-                          ImgCropLayer.this.getVerticalAlign());
-                      errorPtr.freeRef();
-                      CudaTensorList temp_30_0006 = new CudaTensorList(cudaTensor == null ? null : cudaTensor.addRef(),
-                          length, dimIn, precision);
-                      if (null != cudaTensor)
-                        cudaTensor.freeRef();
-                      return temp_30_0006;
-                    }, delta.addRef()), delta.addRef());
-                input.accumulate(buffer == null ? null : buffer.addRef(),
-                    passbackTensorList == null ? null : passbackTensorList.addRef());
-                if (null != passbackTensorList)
-                  passbackTensorList.freeRef();
-              }
-              delta.freeRef();
-              if (null != buffer)
-                buffer.freeRef();
-
-            }
-
-            public @SuppressWarnings("unused")
-            void _free() {
-            }
-          }) {
-
-            {
-              Result.addRefs(inObj);
-            }
-
-            @Override
-            public boolean isAlive() {
-              return RefArrays.stream(Result.addRefs(inObj)).anyMatch(x -> {
-                boolean temp_30_0007 = x.isAlive();
-                x.freeRef();
-                return temp_30_0007;
-              });
-            }
-
-            @Override
-            public void accumulate(@Nullable final DeltaSet<UUID> buffer, @Nullable final TensorList delta) {
-              Result.Accumulator temp_30_0016 = getAccumulator();
-              assert temp_30_0016 != null;
-              temp_30_0016.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
-              temp_30_0016.freeRef();
-              if (null != delta)
-                delta.freeRef();
-              if (null != buffer)
-                buffer.freeRef();
-            }
-
-            public void _free() {
-              ReferenceCounting.freeRefs(inObj);
-            }
-          };
-        } finally {
-          ReferenceCounting.freeRefs(inObj);
+      return new Result(outputData, new Result.Accumulator() {
+        {
         }
-      } finally {
-        outputData.freeRef();
-      }
+
+        @Override
+        public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
+          if (!RefArrays.equals(delta.getDimensions(), output_dimensions)) {
+            if (null != buffer)
+              buffer.freeRef();
+            AssertionError temp_30_0011 = new AssertionError(
+                RefArrays.toString(delta.getDimensions()) + " != " + RefArrays.toString(output_dimensions));
+            delta.freeRef();
+            throw temp_30_0011;
+          }
+          if (delta.length() != output_length) {
+            if (null != buffer)
+              buffer.freeRef();
+            AssertionError temp_30_0012 = new AssertionError(delta.length() + " != " + output_length);
+            delta.freeRef();
+            throw temp_30_0012;
+          }
+          assert delta.length() == length;
+
+          if (input.isAlive()) {
+            final TensorList passbackTensorList = CudaSystem
+                .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
+                  @Nullable final CudaTensor errorPtr = gpu.getTensor(delta.addRef(), precision,
+                      MemoryType.Device, false);
+                  boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
+                  CudaTensor cudaTensor = ImgCropLayer.this.copy(gpu, errorPtr.addRef(),
+                      length, dimOut, dimIn, dirty, precision, ImgCropLayer.this.getHorizontalAlign(),
+                      ImgCropLayer.this.getVerticalAlign());
+                  errorPtr.freeRef();
+                  CudaTensorList temp_30_0006 = new CudaTensorList(cudaTensor == null ? null : cudaTensor.addRef(),
+                      length, dimIn, precision);
+                  if (null != cudaTensor)
+                    cudaTensor.freeRef();
+                  return temp_30_0006;
+                }, delta.addRef()), delta.addRef());
+            input.accumulate(buffer == null ? null : buffer.addRef(),
+                passbackTensorList == null ? null : passbackTensorList.addRef());
+            if (null != passbackTensorList)
+              passbackTensorList.freeRef();
+          }
+          delta.freeRef();
+          if (null != buffer)
+            buffer.freeRef();
+        }
+
+        public @SuppressWarnings("unused")
+        void _free() {
+        }
+      }) {
+
+        {
+          RefUtil.addRefs(inObj);
+        }
+
+        @Override
+        public boolean isAlive() {
+          return RefArrays.stream(RefUtil.addRefs(inObj)).anyMatch(x -> {
+            boolean temp_30_0007 = x.isAlive();
+            x.freeRef();
+            return temp_30_0007;
+          });
+        }
+
+        @Override
+        public void accumulate(@Nullable final DeltaSet<UUID> buffer, @Nullable final TensorList delta) {
+          Result.Accumulator temp_30_0016 = getAccumulator();
+          assert temp_30_0016 != null;
+          temp_30_0016.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
+          temp_30_0016.freeRef();
+          if (null != delta)
+            delta.freeRef();
+          if (null != buffer)
+            buffer.freeRef();
+        }
+
+        public void _free() {
+          ReferenceCounting.freeRefs(inObj);
+          super._free();
+        }
+      };
     } finally {
+      ReferenceCounting.freeRefs(inObj);
       input.freeRef();
     }
   }

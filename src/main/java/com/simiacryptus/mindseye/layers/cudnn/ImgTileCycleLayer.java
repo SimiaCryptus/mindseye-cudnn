@@ -37,7 +37,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @SuppressWarnings("serial")
-public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTileCycleLayer> {
+public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgTileCycleLayer.class);
   private double xPos = 0.5;
   private double yPos = 0.5;
@@ -64,9 +64,8 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
 
   @Nonnull
   @Override
-  public ImgTileCycleLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   public double getxPos() {
@@ -77,16 +76,12 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
     return yPos;
   }
 
-  @Nonnull
-  public ImgTileCycleLayer setXPos(double xPos) {
+  public void setXPos(double xPos) {
     this.xPos = xPos;
-    return this.addRef();
   }
 
-  @Nonnull
-  public ImgTileCycleLayer setYPos(double yPos) {
+  public void setYPos(double yPos) {
     this.yPos = yPos;
-    return this.addRef();
   }
 
   @Nonnull
@@ -146,8 +141,8 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
         precision.getPointer(0.0), tileDescriptor.getPtr(), outputBuffer.getPtr().withByteOffset(0 * precision.size)));
     gpu.freeRef();
     tileDescriptor.freeRef();
-    RefUtil.freeRef(inputTensorMemory.dirty());
-    RefUtil.freeRef(outputBuffer.dirty());
+    inputTensorMemory.dirty();
+    outputBuffer.dirty();
     inputTensorMemory.freeRef();
     CudaTensor temp_49_0001 = new CudaTensor(outputBuffer, imageDescriptor, precision);
     input.freeRef();
@@ -162,29 +157,11 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  ImgTileCycleLayer[] addRefs(@Nullable ImgTileCycleLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRef)
-        .toArray((x) -> new ImgTileCycleLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgTileCycleLayer[][] addRefs(@Nullable ImgTileCycleLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayer::addRefs)
-        .toArray((x) -> new ImgTileCycleLayer[x][]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_49_0011 = getCompatibilityLayer();
-      Result temp_49_0007 = temp_49_0011.eval(Result.addRefs(inObj));
+      Result temp_49_0007 = temp_49_0011.eval(RefUtil.addRefs(inObj));
       temp_49_0011.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_49_0007;
@@ -210,93 +187,74 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision<ImgTi
     }, inputData.addRef()), inputData.addRef());
     inputData.freeRef();
     try {
-      try {
-        try {
-          return new Result(outputData, new Result.Accumulator() {
-            {
-            }
-
-            @Override
-            public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
-              if (!RefArrays.equals(delta.getDimensions(), outputData.getDimensions())) {
-                if (null != buffer)
-                  buffer.freeRef();
-                AssertionError temp_49_0009 = new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
-                    + RefArrays.toString(outputData.getDimensions()));
-                delta.freeRef();
-                throw temp_49_0009;
-              }
-              if (delta.length() != outputData.length()) {
-                if (null != buffer)
-                  buffer.freeRef();
-                AssertionError temp_49_0010 = new AssertionError(delta.length() + " != " + outputData.length());
-                delta.freeRef();
-                throw temp_49_0010;
-              }
-              assert delta.length() == length;
-              if (input.isAlive()) {
-                final TensorList passbackTensorList = CudaSystem
-                    .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                      @Nullable final CudaTensor errorPtr = gpu.getTensor(delta.addRef(), precision, MemoryType.Device, false);
-                      CudaTensor cudaTensor = copy(gpu, errorPtr.addRef(), length, precision, splitX2, splitY2);
-                      errorPtr.freeRef();
-                      CudaTensorList temp_49_0005 = new CudaTensorList(cudaTensor.addRef(), length, dimIn, precision);
-                      cudaTensor.freeRef();
-                      return temp_49_0005;
-                    }, delta.addRef()), delta.addRef());
-                input.accumulate(buffer == null ? null : buffer.addRef(),
-                    passbackTensorList == null ? null : passbackTensorList.addRef());
-                if (null != passbackTensorList)
-                  passbackTensorList.freeRef();
-              }
-              delta.freeRef();
-              if (null != buffer)
-                buffer.freeRef();
-
-            }
-
-            public @SuppressWarnings("unused")
-            void _free() {
-            }
-          }) {
-
-            {
-              Result.addRefs(inObj);
-            }
-
-            @Override
-            public boolean isAlive() {
-              return RefArrays.stream(Result.addRefs(inObj)).anyMatch(x -> {
-                boolean temp_49_0006 = x.isAlive();
-                x.freeRef();
-                return temp_49_0006;
-              });
-            }
-
-            @Override
-            public void accumulate(@Nullable final DeltaSet<UUID> buffer, @Nullable final TensorList delta) {
-              Result.Accumulator temp_49_0012 = getAccumulator();
-              assert temp_49_0012 != null;
-              temp_49_0012.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
-              temp_49_0012.freeRef();
-              if (null != delta)
-                delta.freeRef();
-              if (null != buffer)
-                buffer.freeRef();
-            }
-
-            public void _free() {
-              ReferenceCounting.freeRefs(inObj);
-            }
-          };
-        } finally {
-          ReferenceCounting.freeRefs(inObj);
+      Result.Accumulator accumulator = new Result.Accumulator() {
+        {
         }
-      } finally {
-        if (null != outputData)
-          outputData.freeRef();
-      }
+
+        @Override
+        public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
+          if (!RefArrays.equals(delta.getDimensions(), outputData.getDimensions())) {
+            if (null != buffer)
+              buffer.freeRef();
+            AssertionError temp_49_0009 = new AssertionError(RefArrays.toString(delta.getDimensions()) + " != "
+                + RefArrays.toString(outputData.getDimensions()));
+            delta.freeRef();
+            throw temp_49_0009;
+          }
+          if (delta.length() != outputData.length()) {
+            if (null != buffer)
+              buffer.freeRef();
+            AssertionError temp_49_0010 = new AssertionError(delta.length() + " != " + outputData.length());
+            delta.freeRef();
+            throw temp_49_0010;
+          }
+          assert delta.length() == length;
+          if (input.isAlive()) {
+            final TensorList passbackTensorList = CudaSystem
+                .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
+                  @Nullable final CudaTensor errorPtr = gpu.getTensor(delta.addRef(), precision, MemoryType.Device, false);
+                  CudaTensor cudaTensor = copy(gpu, errorPtr.addRef(), length, precision, splitX2, splitY2);
+                  errorPtr.freeRef();
+                  CudaTensorList temp_49_0005 = new CudaTensorList(cudaTensor.addRef(), length, dimIn, precision);
+                  cudaTensor.freeRef();
+                  return temp_49_0005;
+                }, delta.addRef()), delta.addRef());
+            input.accumulate(buffer == null ? null : buffer.addRef(),
+                passbackTensorList == null ? null : passbackTensorList.addRef());
+            if (null != passbackTensorList)
+              passbackTensorList.freeRef();
+          }
+          delta.freeRef();
+          if (null != buffer)
+            buffer.freeRef();
+        }
+
+        public @SuppressWarnings("unused")
+        void _free() {
+        }
+      };
+      return new Result(outputData, accumulator) {
+
+        {
+          RefUtil.addRefs(inObj);
+        }
+
+        @Override
+        public boolean isAlive() {
+          return RefArrays.stream(RefUtil.addRefs(inObj)).anyMatch(x -> {
+            boolean temp_49_0006 = x.isAlive();
+            x.freeRef();
+            return temp_49_0006;
+          });
+        }
+
+        public void _free() {
+          ReferenceCounting.freeRefs(inObj);
+          super._free();
+        }
+      };
     } finally {
+      ReferenceCounting.freeRefs(inObj);
       input.freeRef();
     }
   }

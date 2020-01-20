@@ -21,10 +21,10 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Random;
 
 public class LRNLayerTest extends CudnnLayerTestBase {
@@ -40,23 +40,6 @@ public class LRNLayerTest extends CudnnLayerTestBase {
   @Override
   public SingleDerivativeTester getDerivativeTester() {
     return new SingleDerivativeTester(1e-2, 1e-4);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  LRNLayerTest[] addRefs(@Nullable LRNLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LRNLayerTest::addRef).toArray((x) -> new LRNLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  LRNLayerTest[][] addRefs(@Nullable LRNLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LRNLayerTest::addRefs)
-        .toArray((x) -> new LRNLayerTest[x][]);
   }
 
   @Nonnull

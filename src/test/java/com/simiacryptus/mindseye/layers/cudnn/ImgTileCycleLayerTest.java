@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,24 +36,6 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return null;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgTileCycleLayerTest[] addRefs(@Nullable ImgTileCycleLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayerTest::addRef)
-        .toArray((x) -> new ImgTileCycleLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgTileCycleLayerTest[][] addRefs(@Nullable ImgTileCycleLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileCycleLayerTest::addRefs)
-        .toArray((x) -> new ImgTileCycleLayerTest[x][]);
   }
 
   @Nonnull
@@ -86,20 +69,14 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
 
   public static class OneThird extends ImgTileCycleLayerTest {
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    OneThird[] addRefs(@Nullable OneThird[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(OneThird::addRef).toArray((x) -> new OneThird[x]);
-    }
-
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       ImgTileCycleLayer temp_71_0002 = new ImgTileCycleLayer();
-      ImgTileCycleLayer temp_71_0003 = temp_71_0002.setXPos(0.3);
-      ImgTileCycleLayer temp_71_0001 = temp_71_0003.setYPos(0.3);
+      temp_71_0002.setXPos(0.3);
+      ImgTileCycleLayer temp_71_0003 = temp_71_0002.addRef();
+      temp_71_0003.setYPos(0.3);
+      ImgTileCycleLayer temp_71_0001 = temp_71_0003.addRef();
       temp_71_0003.freeRef();
       temp_71_0002.freeRef();
       return temp_71_0001;
@@ -115,18 +92,9 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
     OneThird addRef() {
       return (OneThird) super.addRef();
     }
-
   }
 
   public static class Basic extends ImgTileCycleLayerTest {
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(@Nullable Basic[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
-    }
 
     public @SuppressWarnings("unused")
     void _free() {

@@ -49,7 +49,7 @@ import java.util.function.LongFunction;
 
 @SuppressWarnings("serial")
 public class StochasticSamplingSubnetLayer extends WrapperLayer
-    implements StochasticComponent, MultiPrecision<StochasticSamplingSubnetLayer> {
+    implements StochasticComponent, MultiPrecision {
 
   private final int samples;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
@@ -76,9 +76,8 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
 
   @Nonnull
   @Override
-  public StochasticSamplingSubnetLayer setPrecision(Precision precision) {
+  public void setPrecision(Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   public long[] getSeeds() {
@@ -97,40 +96,22 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
     PipelineNetwork gateNetwork = new PipelineNetwork(1);
     ProductLayer temp_28_0006 = new ProductLayer();
     Tensor temp_28_0007 = new Tensor(1, 1, 1);
-    RefUtil.freeRef(gateNetwork.add(temp_28_0006.setPrecision(precision), gateNetwork.getInput(0),
+    temp_28_0006.setPrecision(precision);
+    RefUtil.freeRef(gateNetwork.add(RefUtil.addRef(temp_28_0006), gateNetwork.getInput(0),
         gateNetwork.add(
-            new ValueLayer(temp_28_0007.map(RefUtil.wrapInterface(v -> 1.0 / samples.length, Result.addRefs(samples)))),
+            new ValueLayer(temp_28_0007.map(RefUtil.wrapInterface(v -> 1.0 / samples.length, RefUtil.addRefs(samples)))),
             new DAGNode[]{})));
     temp_28_0007.freeRef();
     temp_28_0006.freeRef();
     SumInputsLayer temp_28_0008 = new SumInputsLayer();
-    SumInputsLayer sumInputsLayer = temp_28_0008.setPrecision(precision);
+    temp_28_0008.setPrecision(precision);
+    SumInputsLayer sumInputsLayer = RefUtil.addRef(temp_28_0008);
     temp_28_0008.freeRef();
-    Result temp_28_0001 = gateNetwork.eval(sumInputsLayer.eval(Result.addRefs(samples)));
+    Result temp_28_0001 = gateNetwork.eval(sumInputsLayer.eval(RefUtil.addRefs(samples)));
     ReferenceCounting.freeRefs(samples);
     sumInputsLayer.freeRef();
     gateNetwork.freeRef();
     return temp_28_0001;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  StochasticSamplingSubnetLayer[] addRefs(
-      @Nullable StochasticSamplingSubnetLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(StochasticSamplingSubnetLayer::addRef)
-        .toArray((x) -> new StochasticSamplingSubnetLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  StochasticSamplingSubnetLayer[][] addRefs(
-      @Nullable StochasticSamplingSubnetLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(StochasticSamplingSubnetLayer::addRefs)
-        .toArray((x) -> new StochasticSamplingSubnetLayer[x][]);
   }
 
   @Nullable
@@ -139,12 +120,12 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
     if (seed == 0) {
       Layer temp_28_0009 = getInner();
       assert temp_28_0009 != null;
-      Result temp_28_0005 = temp_28_0009.eval(Result.addRefs(inObj));
+      Result temp_28_0005 = temp_28_0009.eval(RefUtil.addRefs(inObj));
       temp_28_0009.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_28_0005;
     }
-    Result[] counting = RefArrays.stream(Result.addRefs(inObj)).map(r -> {
+    Result[] counting = RefArrays.stream(RefUtil.addRefs(inObj)).map(r -> {
       CountingResult temp_28_0002 = new CountingResult(r == null ? null : r.addRef(), samples);
       if (null != r)
         r.freeRef();
@@ -161,25 +142,25 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
               if (layer instanceof StochasticComponent) {
                 ((StochasticComponent) layer).shuffle(seed);
               }
-              if (layer instanceof MultiPrecision<?>) {
+              if (layer instanceof MultiPrecision) {
                 ((MultiPrecision) layer).setPrecision(precision);
               }
               if (null != layer)
                 layer.freeRef();
             });
           }
-          if (inner instanceof MultiPrecision<?>) {
+          if (inner instanceof MultiPrecision) {
             ((MultiPrecision) inner).setPrecision(precision);
           }
           if (inner instanceof StochasticComponent) {
             ((StochasticComponent) inner).shuffle(seed);
           }
           assert inner != null;
-          RefUtil.freeRef(inner.setFrozen(isFrozen()));
-          Result temp_28_0004 = inner.eval(Result.addRefs(counting));
+          inner.setFrozen(isFrozen());
+          Result temp_28_0004 = inner.eval(RefUtil.addRefs(counting));
           inner.freeRef();
           return temp_28_0004;
-        }, Result.addRefs(counting))).toArray(i -> new Result[i]), precision);
+        }, RefUtil.addRefs(counting))).toArray(i -> new Result[i]), precision);
     ReferenceCounting.freeRefs(counting);
     return temp_28_0003;
   }

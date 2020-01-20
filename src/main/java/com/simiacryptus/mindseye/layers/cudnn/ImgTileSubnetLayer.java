@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 @SuppressWarnings("serial")
-public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<ImgTileSubnetLayer> {
+public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
 
   private static final Logger logger = LoggerFactory.getLogger(ImgTileSubnetLayer.class);
   private final int height;
@@ -78,43 +78,22 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
 
   @Nonnull
   @Override
-  public ImgTileSubnetLayer setPrecision(Precision precision) {
+  public void setPrecision(Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   public boolean isParallel() {
     return parallel;
   }
 
-  @Nonnull
-  public ImgTileSubnetLayer setParallel(boolean parallel) {
+  public void setParallel(boolean parallel) {
     this.parallel = parallel;
-    return this.addRef();
   }
 
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgTileSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgTileSubnetLayer(json, rs);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgTileSubnetLayer[] addRefs(@Nullable ImgTileSubnetLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayer::addRef)
-        .toArray((x) -> new ImgTileSubnetLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgTileSubnetLayer[][] addRefs(@Nullable ImgTileSubnetLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSubnetLayer::addRefs)
-        .toArray((x) -> new ImgTileSubnetLayer[x][]);
   }
 
   @Nullable
@@ -141,7 +120,7 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
         passback.freeRef();
       Layer temp_03_0006 = getInner();
       assert temp_03_0006 != null;
-      Result temp_03_0004 = temp_03_0006.eval(Result.addRefs(inObj));
+      Result temp_03_0004 = temp_03_0006.eval(RefUtil.addRefs(inObj));
       temp_03_0006.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_03_0004;
@@ -150,11 +129,7 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
     AtomicInteger counter = new AtomicInteger(0);
     Result[][] tileResults = new Result[rows][];
     for (int row = 0; row < rows; row++) {
-      Result[] temp_03_0001 = new Result[cols];
-      if (null != tileResults[row])
-        ReferenceCounting.freeRefs(tileResults[row]);
-      tileResults[row] = Result.addRefs(temp_03_0001);
-      ReferenceCounting.freeRefs(temp_03_0001);
+      RefUtil.set(tileResults, row, new Result[cols]);
       for (int col = 0; col < cols; col++) {
         int positionX = col * strideX;
         int positionY = row * strideY;
@@ -196,27 +171,21 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
                   public @SuppressWarnings("unused")
                   void _free() {
                   }
-                }) {
-              public void _free() {
-                super._free();
-              }
-            });
+                }));
         temp_03_0007.freeRef();
-        if (null != tileResults[row][col])
-          tileResults[row][col].freeRef();
-        tileResults[row][col] = temp_03_0002 == null ? null : temp_03_0002.addRef();
-        if (null != temp_03_0002)
-          temp_03_0002.freeRef();
+        RefUtil.set(tileResults[row], col, temp_03_0002);
         if (null != tile)
           tile.freeRef();
       }
     }
     logger.debug(RefString.format("Broke input %s into %s rows, %s cols", RefArrays.toString(inputDims), rows, cols));
     ImgTileAssemblyLayer temp_03_0005 = new ImgTileAssemblyLayer(cols, rows);
-    ImgTileAssemblyLayer temp_03_0008 = temp_03_0005.setParallel(parallel);
-    ImgTileAssemblyLayer temp_03_0009 = temp_03_0008.setPrecision(precision);
+    temp_03_0005.setParallel(parallel);
+    ImgTileAssemblyLayer temp_03_0008 = temp_03_0005.addRef();
+    temp_03_0008.setPrecision(precision);
+    ImgTileAssemblyLayer temp_03_0009 = RefUtil.addRef(temp_03_0008);
     Result result = temp_03_0009.eval(
-        RefArrays.stream(Result.addRefs(tileResults)).flatMap(RefArrays::stream).<Result>toArray(i -> new Result[i]));
+        RefArrays.stream(RefUtil.addRefs(tileResults)).flatMap(RefArrays::stream).<Result>toArray(i -> new Result[i]));
     temp_03_0009.freeRef();
     temp_03_0008.freeRef();
     temp_03_0005.freeRef();
@@ -258,8 +227,8 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
             buffer.freeRef();
         }
 
-        public void _free() {
-          super._free();
+        public @SuppressWarnings("unused")
+        void _free() {
         }
       };
     } finally {
@@ -289,12 +258,11 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision<I
 
   @Nonnull
   @Override
-  public Layer setFrozen(final boolean frozen) {
-    Layer temp_03_0011 = getInner();
-    assert temp_03_0011 != null;
-    RefUtil.freeRef(temp_03_0011.setFrozen(frozen));
-    temp_03_0011.freeRef();
-    return super.setFrozen(frozen);
+  public void setFrozen(final boolean frozen) {
+    Layer inner = getInner();
+    assert inner != null;
+    inner.setFrozen(frozen);
+    inner.freeRef();
   }
 
   public void _free() {

@@ -32,11 +32,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class ScaleLayer extends PipelineNetwork implements MultiPrecision<ScaleLayer> {
+public class ScaleLayer extends PipelineNetwork implements MultiPrecision {
 
   @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(ScaleLayer.class);
@@ -70,8 +69,8 @@ public class ScaleLayer extends PipelineNetwork implements MultiPrecision<ScaleL
 
   @Nonnull
   @Override
-  public ScaleLayer setPrecision(Precision precision) {
-    return MultiPrecision.setPrecision(this.addRef(), precision);
+  public void setPrecision(Precision precision) {
+    MultiPrecision.setPrecision(this.addRef(), precision);
   }
 
   @Nonnull
@@ -80,21 +79,6 @@ public class ScaleLayer extends PipelineNetwork implements MultiPrecision<ScaleL
     return new ScaleLayer(json, rs);
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ScaleLayer[] addRefs(@Nullable ScaleLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ScaleLayer::addRef).toArray((x) -> new ScaleLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ScaleLayer[][] addRefs(@Nullable ScaleLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ScaleLayer::addRefs).toArray((x) -> new ScaleLayer[x][]);
-  }
 
   public @SuppressWarnings("unused")
   void _free() {

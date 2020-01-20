@@ -67,39 +67,19 @@ public class MeanSqLossLayer extends PipelineNetwork {
     return alpha;
   }
 
-  @Nonnull
-  public MeanSqLossLayer setAlpha(final double alpha) {
+  public void setAlpha(double alpha) {
     this.alpha = alpha;
     assert binaryNode != null;
     BinarySumLayer binarySumLayer = binaryNode.getLayer();
     binarySumLayer.setLeftFactor(alpha);
     binarySumLayer.setRightFactor(-alpha);
     binarySumLayer.freeRef();
-    return this.addRef();
   }
 
   @Nonnull
   @SuppressWarnings("unused")
   public static MeanSqLossLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new MeanSqLossLayer(json, rs);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  MeanSqLossLayer[] addRefs(@Nullable MeanSqLossLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayer::addRef)
-        .toArray((x) -> new MeanSqLossLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  MeanSqLossLayer[][] addRefs(@Nullable MeanSqLossLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(MeanSqLossLayer::addRefs)
-        .toArray((x) -> new MeanSqLossLayer[x][]);
   }
 
   @Override

@@ -64,15 +64,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
         .toArray((x) -> new SumInputsLayerTest[x]);
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SumInputsLayerTest[][] addRefs(@Nullable SumInputsLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayerTest::addRefs)
-        .toArray((x) -> new SumInputsLayerTest[x][]);
-  }
-
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -83,7 +74,8 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer temp_73_0002 = new com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer();
-    com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer temp_73_0001 = temp_73_0002.setPrecision(precision);
+    temp_73_0002.setPrecision(precision);
+    com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer temp_73_0001 = RefUtil.addRef(temp_73_0002);
     temp_73_0002.freeRef();
     return temp_73_0001;
   }
@@ -111,14 +103,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
       super(Precision.Double, 1, 5, 1200);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Double_List[] addRefs(@Nullable Double_List[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Double_List::addRef).toArray((x) -> new Double_List[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -129,7 +113,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     Double_List addRef() {
       return (Double_List) super.addRef();
     }
-
   }
 
   public static class OnePlusOne extends CudnnLayerTestBase {
@@ -158,14 +141,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     @Override
     protected Class<?> getTargetClass() {
       return SumInputsLayer.class;
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    OnePlusOne[] addRefs(@Nullable OnePlusOne[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(OnePlusOne::addRef).toArray((x) -> new OnePlusOne[x]);
     }
 
     @Nonnull
@@ -202,7 +177,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     OnePlusOne addRef() {
       return (OnePlusOne) super.addRef();
     }
-
   }
 
   public static class Big_Double_Add extends Big {
@@ -237,14 +211,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
       super(Precision.Double, 1, 2, 1200);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Double_Add[] addRefs(@Nullable Double_Add[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Double_Add::addRef).toArray((x) -> new Double_Add[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -267,14 +233,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Float_Add[] addRefs(@Nullable Float_Add[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Float_Add::addRef).toArray((x) -> new Float_Add[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -285,7 +243,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     Float_Add addRef() {
       return (Float_Add) super.addRef();
     }
-
   }
 
   public abstract static class Big extends SumInputsLayerTest {
@@ -316,14 +273,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
       return null;
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Big[] addRefs(@Nullable Big[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Big::addRef).toArray((x) -> new Big[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -334,7 +283,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     Big addRef() {
       return (Big) super.addRef();
     }
-
   }
 
 }

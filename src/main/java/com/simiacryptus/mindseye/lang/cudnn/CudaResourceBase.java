@@ -19,6 +19,7 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,24 +46,6 @@ public abstract class CudaResourceBase<T> extends ReferenceCountingBase implemen
 
   public boolean isActiveObj() {
     return objGeneration == CudaSystem.gpuGeneration.get();
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudaResourceBase[] addRefs(@Nullable CudaResourceBase[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaResourceBase::addRef)
-        .toArray((x) -> new CudaResourceBase[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudaResourceBase[][] addRefs(@Nullable CudaResourceBase[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaResourceBase::addRefs)
-        .toArray((x) -> new CudaResourceBase[x][]);
   }
 
   public abstract void release();

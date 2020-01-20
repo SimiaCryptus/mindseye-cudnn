@@ -44,7 +44,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @SuppressWarnings("serial")
-public class ActivationLayer extends LayerBase implements MultiPrecision<ActivationLayer> {
+public class ActivationLayer extends LayerBase implements MultiPrecision {
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(ActivationLayer.class);
   final int mode;
@@ -78,7 +78,8 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
   public Layer getCompatibilityLayer() {
     if (mode == Mode.SIGMOID.id) {
       SigmoidActivationLayer temp_50_0007 = new SigmoidActivationLayer();
-      SigmoidActivationLayer temp_50_0006 = temp_50_0007.setBalanced(false);
+      temp_50_0007.setBalanced(false);
+      SigmoidActivationLayer temp_50_0006 = temp_50_0007.addRef();
       temp_50_0007.freeRef();
       return temp_50_0006;
     } else if (mode == Mode.RELU.id) {
@@ -101,9 +102,8 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
 
   @Nonnull
   @Override
-  public ActivationLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   @Nonnull
@@ -113,29 +113,11 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  ActivationLayer[] addRefs(@Nullable ActivationLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ActivationLayer::addRef)
-        .toArray((x) -> new ActivationLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ActivationLayer[][] addRefs(@Nullable ActivationLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ActivationLayer::addRefs)
-        .toArray((x) -> new ActivationLayer[x][]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_50_0008 = getCompatibilityLayer();
-      Result temp_50_0005 = temp_50_0008.eval(Result.addRefs(inObj));
+      Result temp_50_0005 = temp_50_0008.eval(RefUtil.addRefs(inObj));
       temp_50_0008.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_50_0005;
@@ -152,9 +134,10 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
       final CudaTensor outPtr = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensor>) gpu -> {
             @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision,
                 MemoryType.Device, false);
-            final CudaTensor outputTensor;
+            CudaTensor outputTensor = null;
             if (1 == inputData.currentRefCount() && 1 == inputTensor.currentRefCount()
                 && (!inputResult.isAlive() || mode == Mode.RELU.id)) {
+              RefUtil.freeRef(outputTensor);
               outputTensor = inputTensor.addRef();
             } else {
               @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
@@ -162,6 +145,7 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
                   inputSize[1] * inputSize[0], inputSize[0], 1);
               @Nonnull final CudaMemory outputData = gpu.allocate((long) precision.size * inputDims * length,
                   MemoryType.Managed.ifEnabled(), true);
+              RefUtil.freeRef(outputTensor);
               outputTensor = new CudaTensor(outputData,
                   outputDescriptor, precision);
             }
@@ -177,8 +161,8 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
                   inputTensor.descriptor.getPtr(), memory.getPtr(), precision.getPointer(0.0),
                   outputTensor.descriptor.getPtr(), tensorMemory.getPtr()));
               assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-              RefUtil.freeRef(memory.dirty());
-              RefUtil.freeRef(tensorMemory.dirty());
+              memory.dirty();
+              tensorMemory.dirty();
               inputTensor.freeRef();
               activationDesc.freeRef();
               memory.freeRef();
@@ -245,7 +229,10 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
                                           deltaTensorMemory.addRef(),
                                           inputTensorMemory.addRef(),
                                           passbackTensorMemory.addRef())
-                                      .forEach(CudaMemory::dirty);
+                                      .forEach(cudaMemory -> {
+                                        cudaMemory.dirty();
+                                        cudaMemory.freeRef();
+                                      });
                                   passbackTensorMemory.freeRef();
                                   inputTensorMemory.freeRef();
                                   deltaTensorMemory.freeRef();
@@ -300,7 +287,8 @@ public class ActivationLayer extends LayerBase implements MultiPrecision<Activat
                   buffer.freeRef();
               }
 
-              public void _free() {
+              public @SuppressWarnings("unused")
+              void _free() {
               }
             };
           } finally {

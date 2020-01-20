@@ -25,6 +25,7 @@ import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -37,7 +38,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class SpatialReflectionPadding extends LayerBase implements MultiPrecision<SpatialReflectionPadding> {
+public class SpatialReflectionPadding extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(SpatialReflectionPadding.class);
   private Alignment verticalAlign = Alignment.Center;
   private Alignment horizontalAlign = Alignment.Center;
@@ -88,9 +89,8 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
 
   @Nonnull
   @Override
-  public SpatialReflectionPadding setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   public Alignment getVerticalAlign() {
@@ -106,33 +106,14 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
   }
 
   @Nonnull
-  public SpatialReflectionPadding setRoundUp(boolean roundUp) {
+  public void setRoundUp(boolean roundUp) {
     this.roundUp = roundUp;
-    return this.addRef();
   }
 
   @Nonnull
   @SuppressWarnings("unused")
   public static SpatialReflectionPadding fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new SpatialReflectionPadding(json, rs);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SpatialReflectionPadding[] addRefs(@Nullable SpatialReflectionPadding[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRef)
-        .toArray((x) -> new SpatialReflectionPadding[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SpatialReflectionPadding[][] addRefs(@Nullable SpatialReflectionPadding[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SpatialReflectionPadding::addRefs)
-        .toArray((x) -> new SpatialReflectionPadding[x][]);
   }
 
   public int half(int i, Alignment alignment) {
@@ -159,11 +140,13 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
     final int[] dimensions = temp_42_0003.getDimensions();
     temp_42_0003.freeRef();
     ImgPaddingLayer temp_42_0002 = new ImgPaddingLayer(dimensions[0] + sizeX, dimensions[1] + sizeY);
-    ImgPaddingLayer temp_42_0004 = temp_42_0002.setHorizontalAlign(horizontalAlign);
-    final ImgPaddingLayer paddingLayer = temp_42_0004.setVerticalAlign(verticalAlign);
+    temp_42_0002.setHorizontalAlign(horizontalAlign);
+    ImgPaddingLayer temp_42_0004 = temp_42_0002.addRef();
+    temp_42_0004.setVerticalAlign(verticalAlign);
+    final ImgPaddingLayer paddingLayer = temp_42_0004.addRef();
     temp_42_0004.freeRef();
     temp_42_0002.freeRef();
-    Result temp_42_0001 = paddingLayer.eval(Result.addRefs(inObj));
+    Result temp_42_0001 = paddingLayer.eval(RefUtil.addRefs(inObj));
     ReferenceCounting.freeRefs(inObj);
     paddingLayer.freeRef();
     return temp_42_0001;

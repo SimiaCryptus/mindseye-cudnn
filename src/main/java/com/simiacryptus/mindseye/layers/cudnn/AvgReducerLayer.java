@@ -38,7 +38,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 
 @SuppressWarnings("serial")
-public class AvgReducerLayer extends LayerBase implements MultiPrecision<AvgReducerLayer> {
+public class AvgReducerLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
@@ -63,9 +63,8 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision<AvgRedu
 
   @Nonnull
   @Override
-  public AvgReducerLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   @Nonnull
@@ -84,20 +83,11 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision<AvgRedu
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  AvgReducerLayer[][] addRefs(@Nullable AvgReducerLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(AvgReducerLayer::addRefs)
-        .toArray((x) -> new AvgReducerLayer[x][]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nullable final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_48_0007 = getCompatibilityLayer();
-      Result temp_48_0004 = temp_48_0007.eval(Result.addRefs(inObj));
+      Result temp_48_0004 = temp_48_0007.eval(RefUtil.addRefs(inObj));
       temp_48_0007.freeRef();
       if (null != inObj)
         ReferenceCounting.freeRefs(inObj);
@@ -134,8 +124,8 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision<AvgRedu
       workspacePtr.freeRef();
       reduceTensorDescriptor.freeRef();
       inputTensor.freeRef();
-      RefUtil.freeRef(outputMemory.dirty());
-      RefUtil.freeRef(inputMemory.dirty());
+      outputMemory.dirty();
+      inputMemory.dirty();
 
       inputMemory.freeRef();
       CudaTensorList temp_48_0002 = new CudaTensorList(new CudaTensor(outputMemory,
@@ -145,40 +135,33 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision<AvgRedu
 
     inputData.freeRef();
     try {
-      try {
-        return new Result(result, new Result.Accumulator() {
-          {
-          }
+      Result.Accumulator accumulator = new Result.Accumulator() {
+        {
+        }
 
-          @Override
-          public void accept(@Nullable DeltaSet<UUID> ctx, @Nonnull TensorList delta) {
-            input.accumulate(ctx == null ? null : ctx.addRef(), new TensorArray(
-                RefIntStream.range(0, length).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
-                  Tensor tensor = delta.get(i);
-                  double v = tensor.get(0) / Tensor.length(inputSize);
-                  tensor.freeRef();
-                  Tensor temp_48_0006 = new Tensor(inputSize);
-                  Tensor temp_48_0005 = temp_48_0006.setAll(v);
-                  temp_48_0006.freeRef();
-                  return temp_48_0005;
-                }, delta.addRef())).toArray(i -> new Tensor[i])));
-            delta.freeRef();
-            if (null != ctx)
-              ctx.freeRef();
-          }
+        @Override
+        public void accept(@Nullable DeltaSet<UUID> ctx, @Nonnull TensorList delta) {
+          input.accumulate(ctx == null ? null : ctx.addRef(), new TensorArray(
+              RefIntStream.range(0, length).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
+                Tensor tensor = delta.get(i);
+                double v = tensor.get(0) / Tensor.length(inputSize);
+                tensor.freeRef();
+                Tensor temp_48_0006 = new Tensor(inputSize);
+                temp_48_0006.setAll(v);
+                Tensor temp_48_0005 = temp_48_0006.addRef();
+                temp_48_0006.freeRef();
+                return temp_48_0005;
+              }, delta.addRef())).toArray(i -> new Tensor[i])));
+          delta.freeRef();
+          if (null != ctx)
+            ctx.freeRef();
+        }
 
-          public @SuppressWarnings("unused")
-          void _free() {
-          }
-        }) {
-          public void _free() {
-            super._free();
-          }
-        };
-      } finally {
-        if (null != result)
-          result.freeRef();
-      }
+        public @SuppressWarnings("unused")
+        void _free() {
+        }
+      };
+      return new Result(result, accumulator);
     } finally {
       input.freeRef();
     }

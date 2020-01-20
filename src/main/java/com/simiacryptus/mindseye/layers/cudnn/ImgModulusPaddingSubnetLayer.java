@@ -28,6 +28,7 @@ import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.WrapperLayer;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -40,7 +41,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiPrecision<ImgModulusPaddingSubnetLayer> {
+public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusPaddingSubnetLayer.class);
 
   private int sizeX;
@@ -88,35 +89,14 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
 
   @Nonnull
   @Override
-  public ImgModulusPaddingSubnetLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgModulusPaddingSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgModulusPaddingSubnetLayer(json, rs);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgModulusPaddingSubnetLayer[] addRefs(
-      @Nullable ImgModulusPaddingSubnetLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingSubnetLayer::addRef)
-        .toArray((x) -> new ImgModulusPaddingSubnetLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgModulusPaddingSubnetLayer[][] addRefs(
-      @Nullable ImgModulusPaddingSubnetLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingSubnetLayer::addRefs)
-        .toArray((x) -> new ImgModulusPaddingSubnetLayer[x][]);
   }
 
   @Nullable
@@ -154,21 +134,23 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     assert outputHeight > 0;
     if (ouputWidth == inputWidth) {
       if (outputHeight == inputHeight) {
-        Result temp_34_0002 = inObj[0];
+        Result temp_34_0002 = inObj[0].addRef();
         ReferenceCounting.freeRefs(inObj);
         return temp_34_0002;
       }
     }
 
     ImgCropLayer temp_34_0003 = new ImgCropLayer(ouputWidth, outputHeight);
+    temp_34_0003.setPrecision(precision);
     @Nonnull
-    ImgCropLayer imgCropLayer1 = temp_34_0003.setPrecision(precision);
+    ImgCropLayer imgCropLayer1 = RefUtil.addRef(temp_34_0003);
     temp_34_0003.freeRef();
     ImgCropLayer temp_34_0004 = new ImgCropLayer(inputWidth, inputHeight);
+    temp_34_0004.setPrecision(precision);
     @Nonnull
-    ImgCropLayer imgCropLayer2 = temp_34_0004.setPrecision(precision);
+    ImgCropLayer imgCropLayer2 = RefUtil.addRef(temp_34_0004);
     temp_34_0004.freeRef();
-    Result temp_34_0001 = imgCropLayer2.eval(super.eval(imgCropLayer1.eval(Result.addRefs(inObj))).addRef());
+    Result temp_34_0001 = imgCropLayer2.eval(super.eval(imgCropLayer1.eval(RefUtil.addRefs(inObj))).addRef());
     ReferenceCounting.freeRefs(inObj);
     imgCropLayer2.freeRef();
     imgCropLayer1.freeRef();

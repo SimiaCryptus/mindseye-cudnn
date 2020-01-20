@@ -35,13 +35,12 @@ import jcuda.jcudnn.cudnnPoolingMode;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
 @SuppressWarnings("serial")
-public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLayer> {
+public class PoolingLayer extends LayerBase implements MultiPrecision {
 
   private PoolingMode mode = PoolingMode.Max;
   private int paddingX = 0;
@@ -78,10 +77,8 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     return alpha;
   }
 
-  @Nonnull
-  public PoolingLayer setAlpha(double alpha) {
+  public void setAlpha(double alpha) {
     this.alpha = alpha;
-    return this.addRef();
   }
 
   @Nonnull
@@ -98,10 +95,8 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     return mode;
   }
 
-  @Nonnull
-  public PoolingLayer setMode(final PoolingMode mode) {
+  public void setMode(PoolingMode mode) {
     this.mode = mode;
-    return this.addRef();
   }
 
   @Nullable
@@ -114,20 +109,16 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     return paddingX;
   }
 
-  @Nonnull
-  public PoolingLayer setPaddingX(final int paddingX) {
+  public void setPaddingX(int paddingX) {
     this.paddingX = paddingX;
-    return this.addRef();
   }
 
   public int getPaddingY() {
     return paddingY;
   }
 
-  @Nonnull
-  public PoolingLayer setPaddingY(final int paddingY) {
+  public void setPaddingY(int paddingY) {
     this.paddingY = paddingY;
-    return this.addRef();
   }
 
   @Override
@@ -137,49 +128,40 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
 
   @Nonnull
   @Override
-  public PoolingLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   public int getStrideX() {
     return strideX;
   }
 
-  @Nonnull
-  public PoolingLayer setStrideX(final int strideX) {
+  public void setStrideX(int strideX) {
     this.strideX = strideX;
-    return this.addRef();
   }
 
   public int getStrideY() {
     return strideY;
   }
 
-  @Nonnull
-  public PoolingLayer setStrideY(final int strideY) {
+  public void setStrideY(int strideY) {
     this.strideY = strideY;
-    return this.addRef();
   }
 
   public int getWindowX() {
     return windowX;
   }
 
-  @Nonnull
-  public PoolingLayer setWindowX(final int windowX) {
+  public void setWindowX(int windowX) {
     this.windowX = windowX;
-    return this.addRef();
   }
 
   public int getWindowY() {
     return windowY;
   }
 
-  @Nonnull
-  public PoolingLayer setWindowY(final int windowY) {
+  public void setWindowY(int windowY) {
     this.windowY = windowY;
-    return this.addRef();
   }
 
   @Nonnull
@@ -192,30 +174,16 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
   public static PoolingLayer getPoolingLayer(int radius, PoolingLayer.PoolingMode mode, String qualifier) {
     String name = RefString.format("%s.pool:%s;%s", qualifier, radius, mode);
     PoolingLayer temp_37_0009 = new PoolingLayer(UUID.nameUUIDFromBytes(name.getBytes()), name);
-    PoolingLayer temp_37_0011 = temp_37_0009.setMode(mode);
-    PoolingLayer temp_37_0012 = temp_37_0011.setStrideXY(radius, radius);
-    PoolingLayer temp_37_0008 = temp_37_0012.setWindowXY(radius, radius);
+    temp_37_0009.setMode(mode);
+    PoolingLayer temp_37_0011 = temp_37_0009.addRef();
+    temp_37_0011.setStrideXY(radius, radius);
+    PoolingLayer temp_37_0012 = temp_37_0011.addRef();
+    temp_37_0012.setWindowXY(radius, radius);
+    PoolingLayer temp_37_0008 = temp_37_0012.addRef();
     temp_37_0012.freeRef();
     temp_37_0011.freeRef();
     temp_37_0009.freeRef();
     return temp_37_0008;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  PoolingLayer[] addRefs(@Nullable PoolingLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(PoolingLayer::addRef).toArray((x) -> new PoolingLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  PoolingLayer[][] addRefs(@Nullable PoolingLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(PoolingLayer::addRefs)
-        .toArray((x) -> new PoolingLayer[x][]);
   }
 
   private static int correct(int dim, int modulus, int offset) {
@@ -234,7 +202,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_37_0013 = getCompatibilityLayer();
-      Result temp_37_0007 = temp_37_0013.eval(Result.addRefs(inObj));
+      Result temp_37_0007 = temp_37_0013.eval(RefUtil.addRefs(inObj));
       temp_37_0013.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_37_0007;
@@ -252,21 +220,27 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     assert correctionX >= 0;
     assert correctionY >= 0;
     @Nullable
-    Result input;
+    Result input = null;
     if (correctionX > 0 || correctionY > 0) {
       ImgPaddingLayer temp_37_0010 = new ImgPaddingLayer(rawInputDims[0] + correctionX, rawInputDims[1] + correctionY);
-      ImgPaddingLayer temp_37_0015 = temp_37_0010.setPrecision(precision);
-      ImgPaddingLayer temp_37_0016 = temp_37_0015.setHorizontalAlign(Alignment.Center);
-      ImgPaddingLayer temp_37_0017 = temp_37_0016.setVerticalAlign(Alignment.Center);
+      temp_37_0010.setPrecision(precision);
+      ImgPaddingLayer temp_37_0015 = RefUtil.addRef(temp_37_0010);
+      temp_37_0015.setHorizontalAlign(Alignment.Center);
+      ImgPaddingLayer temp_37_0016 = temp_37_0015.addRef();
+      temp_37_0016.setVerticalAlign(Alignment.Center);
+      ImgPaddingLayer temp_37_0017 = temp_37_0016.addRef();
+      temp_37_0017.setRoundUp(false);
       @Nonnull
-      Layer paddingLayer = temp_37_0017.setRoundUp(false);
+      Layer paddingLayer = temp_37_0017.addRef();
       temp_37_0017.freeRef();
       temp_37_0016.freeRef();
       temp_37_0015.freeRef();
       temp_37_0010.freeRef();
+      RefUtil.freeRef(input);
       input = paddingLayer.eval(inObj[0].addRef());
       paddingLayer.freeRef();
     } else {
+      RefUtil.freeRef(input);
       input = inObj[0].addRef();
     }
     assert input != null;
@@ -302,14 +276,14 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
             inputTensor.freeRef();
             poolingDesc.freeRef();
             assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-            RefUtil.freeRef(inputDataMemory.dirty());
+            inputDataMemory.dirty();
             inputDataMemory.freeRef();
-            RefUtil.freeRef(outputTensor.dirty());
+            outputTensor.dirty();
             CudaTensor temp_37_0003 = new CudaTensor(outputTensor,
                 outputDescriptor, precision);
             return temp_37_0003;
           } catch (@Nonnull final Throwable e) {
-            throw new ComponentException("Error processing " + RefArrays.stream(Result.addRefs(inObj)).map(x -> {
+            throw new ComponentException("Error processing " + RefArrays.stream(RefUtil.addRefs(inObj)).map(x -> {
               TensorList temp_37_0018 = x.getData();
               String temp_37_0004 = RefArrays.toString(temp_37_0018.getDimensions());
               temp_37_0018.freeRef();
@@ -317,21 +291,22 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
               return temp_37_0004;
             }).reduce((a, b) -> a + ";" + b) + " with " + this.toString(), e);
           }
-        }, inputData.addRef(), Result.addRefs(inObj)),
+        }, inputData.addRef(), RefUtil.addRefs(inObj)),
         inputData.addRef());
     ReferenceCounting.freeRefs(inObj);
     try {
       try {
         try {
-          return new Result(new CudaTensorList(outputData == null ? null : outputData.addRef(), inputLength,
-              new int[]{outputSize[3], outputSize[2], outputSize[1]}, precision), new Result.Accumulator() {
+          Result finalInput = input.addRef();
+          final boolean finalInputAlive = finalInput.isAlive();
+          Result.Accumulator accumulator = new Result.Accumulator() {
             {
             }
 
             @Override
             public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList error) {
               assert error.length() == inputLength;
-              if (input.isAlive()) {
+              if (finalInputAlive) {
                 TensorList data = CudaSystem
                     .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
                           @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision,
@@ -339,13 +314,15 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
                               inputDims[2] * inputDims[1] * inputDims[0], inputDims[1] * inputDims[0], inputDims[0], 1);
                           @Nonnull final CudaResource<cudnnPoolingDescriptor> poolingDesc = gpu.createPoolingDescriptor(mode.id,
                               poolDims, windowSize, padding, stride);
-                          @Nullable final CudaTensor inputTensor;
+                          @Nullable CudaTensor inputTensor = null;
                           synchronized (gpu) {
+                            RefUtil.freeRef(inputTensor);
                             inputTensor = gpu.getTensor(inputData.addRef(), precision,
                                 MemoryType.Device, true);
                           }
-                          @Nullable final CudaTensor errorPtr;
+                          @Nullable CudaTensor errorPtr = null;
                           synchronized (gpu) {
+                            RefUtil.freeRef(errorPtr);
                             errorPtr = gpu.getTensor(error.addRef(), precision,
                                 MemoryType.Device, true);
                           }
@@ -366,13 +343,13 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
                           errorPtr.freeRef();
                           inputTensor.freeRef();
                           poolingDesc.freeRef();
-                          RefUtil.freeRef(outputDataMemory.dirty());
+                          outputDataMemory.dirty();
                           outputDataMemory.freeRef();
-                          RefUtil.freeRef(errorPtrMemory.dirty());
+                          errorPtrMemory.dirty();
                           errorPtrMemory.freeRef();
-                          RefUtil.freeRef(inputDataMemory.dirty());
+                          inputDataMemory.dirty();
                           inputDataMemory.freeRef();
-                          RefUtil.freeRef(passbackBuffer.dirty());
+                          passbackBuffer.dirty();
                           CudaTensorList temp_37_0006 = new CudaTensorList(
                               new CudaTensor(passbackBuffer,
                                   passbackDescriptor, precision),
@@ -380,7 +357,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
                           return temp_37_0006;
                         }, error.addRef(), outputData == null ? null : outputData.addRef(),
                         inputData.addRef()), error.addRef());
-                input.accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data.addRef());
+                finalInput.accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data.addRef());
                 if (null != data)
                   data.freeRef();
               }
@@ -392,17 +369,17 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
             public @SuppressWarnings("unused")
             void _free() {
             }
-          }) {
-
-            {
-            }
-
+          };
+          finalInput.freeRef();
+          return new Result(new CudaTensorList(outputData == null ? null : outputData.addRef(), inputLength,
+              new int[]{outputSize[3], outputSize[2], outputSize[1]}, precision), accumulator) {
             @Override
             public boolean isAlive() {
-              return input.isAlive() || !isFrozen();
+              return finalInputAlive || !isFrozen();
             }
 
-            public void _free() {
+            public @SuppressWarnings("unused")
+            void _free() {
             }
           };
         } finally {
@@ -439,25 +416,19 @@ public class PoolingLayer extends LayerBase implements MultiPrecision<PoolingLay
     return RefArrays.asList();
   }
 
-  @Nonnull
-  public PoolingLayer setWindowXY(int x, int y) {
-    RefUtil.freeRef(setWindowY(y));
-    RefUtil.freeRef(setWindowX(x));
-    return this.addRef();
+  public void setWindowXY(int x, int y) {
+    setWindowY(y);
+    setWindowX(x);
   }
 
-  @Nonnull
-  public PoolingLayer setStrideXY(int x, int y) {
-    RefUtil.freeRef(setStrideX(x));
-    RefUtil.freeRef(setStrideY(y));
-    return this.addRef();
+  public void setStrideXY(int x, int y) {
+    setStrideX(x);
+    setStrideY(y);
   }
 
-  @Nonnull
-  public PoolingLayer setPaddingXY(int x, int y) {
-    RefUtil.freeRef(setPaddingX(x));
-    RefUtil.freeRef(setPaddingY(y));
-    return this.addRef();
+  public void setPaddingXY(int x, int y) {
+    setPaddingX(x);
+    setPaddingY(y);
   }
 
   public @SuppressWarnings("unused")

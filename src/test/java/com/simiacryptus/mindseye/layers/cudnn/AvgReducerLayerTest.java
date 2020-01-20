@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,24 +41,6 @@ public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
     this.largeSize = largeSize;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  AvgReducerLayerTest[] addRefs(@Nullable AvgReducerLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(AvgReducerLayerTest::addRef)
-        .toArray((x) -> new AvgReducerLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  AvgReducerLayerTest[][] addRefs(@Nullable AvgReducerLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(AvgReducerLayerTest::addRefs)
-        .toArray((x) -> new AvgReducerLayerTest[x][]);
-  }
-
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -68,7 +51,8 @@ public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     AvgReducerLayer temp_61_0002 = new AvgReducerLayer();
-    AvgReducerLayer temp_61_0001 = temp_61_0002.setPrecision(precision);
+    temp_61_0002.setPrecision(precision);
+    AvgReducerLayer temp_61_0001 = RefUtil.addRef(temp_61_0002);
     temp_61_0002.freeRef();
     return temp_61_0001;
   }
@@ -95,14 +79,6 @@ public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
       super(Precision.Double, 2, 1200);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Double[] addRefs(@Nullable Double[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -118,14 +94,6 @@ public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
   public static class Asymmetric extends AvgReducerLayerTest {
     public Asymmetric() {
       super(Precision.Double, 2, 1200);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Asymmetric[] addRefs(@Nullable Asymmetric[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Asymmetric::addRef).toArray((x) -> new Asymmetric[x]);
     }
 
     @Nonnull
@@ -150,7 +118,6 @@ public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
     Asymmetric addRef() {
       return (Asymmetric) super.addRef();
     }
-
   }
 
   public static class Float extends AvgReducerLayerTest {
@@ -161,14 +128,6 @@ public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
     @Override
     public SingleDerivativeTester getDerivativeTester() {
       return new SingleDerivativeTester(1e-2, 1e-3);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Float[] addRefs(@Nullable Float[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
     public @SuppressWarnings("unused")

@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,15 +45,6 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayerTest::addRef)
         .toArray((x) -> new ImgCropLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgCropLayerTest[][] addRefs(@Nullable ImgCropLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayerTest::addRefs)
-        .toArray((x) -> new ImgCropLayerTest[x][]);
   }
 
   @Nonnull
@@ -80,14 +72,6 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
       return com.simiacryptus.mindseye.layers.java.ImgCropLayer.class;
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Center[] addRefs(@Nullable Center[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Center::addRef).toArray((x) -> new Center[x]);
-    }
-
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
@@ -110,17 +94,9 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
     Center addRef() {
       return (Center) super.addRef();
     }
-
   }
 
   public static class Left extends ImgCropLayerTest {
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Left[] addRefs(@Nullable Left[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Left::addRef).toArray((x) -> new Left[x]);
-    }
 
     @Nonnull
     @Override
@@ -132,7 +108,8 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       ImgCropLayer temp_57_0002 = new ImgCropLayer(2, 2);
-      ImgCropLayer temp_57_0001 = temp_57_0002.setHorizontalAlign(ImgCropLayer.Alignment.Left);
+      temp_57_0002.setHorizontalAlign(ImgCropLayer.Alignment.Left);
+      ImgCropLayer temp_57_0001 = temp_57_0002.addRef();
       temp_57_0002.freeRef();
       return temp_57_0001;
     }
@@ -147,17 +124,9 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
     Left addRef() {
       return (Left) super.addRef();
     }
-
   }
 
   public static class Right extends ImgCropLayerTest {
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Right[] addRefs(@Nullable Right[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Right::addRef).toArray((x) -> new Right[x]);
-    }
 
     @Nonnull
     @Override
@@ -169,7 +138,8 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       ImgCropLayer temp_57_0004 = new ImgCropLayer(2, 2);
-      ImgCropLayer temp_57_0003 = temp_57_0004.setHorizontalAlign(ImgCropLayer.Alignment.Right);
+      temp_57_0004.setHorizontalAlign(ImgCropLayer.Alignment.Right);
+      ImgCropLayer temp_57_0003 = temp_57_0004.addRef();
       temp_57_0004.freeRef();
       return temp_57_0003;
     }
@@ -184,17 +154,9 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
     Right addRef() {
       return (Right) super.addRef();
     }
-
   }
 
   public static class Top extends ImgCropLayerTest {
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Top[] addRefs(@Nullable Top[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Top::addRef).toArray((x) -> new Top[x]);
-    }
 
     @Nonnull
     @Override
@@ -206,7 +168,8 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       ImgCropLayer temp_57_0006 = new ImgCropLayer(2, 2);
-      ImgCropLayer temp_57_0005 = temp_57_0006.setVerticalAlign(ImgCropLayer.Alignment.Left);
+      temp_57_0006.setVerticalAlign(ImgCropLayer.Alignment.Left);
+      ImgCropLayer temp_57_0005 = temp_57_0006.addRef();
       temp_57_0006.freeRef();
       return temp_57_0005;
     }
@@ -221,17 +184,9 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
     Top addRef() {
       return (Top) super.addRef();
     }
-
   }
 
   public static class Bottom extends ImgCropLayerTest {
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Bottom[] addRefs(@Nullable Bottom[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Bottom::addRef).toArray((x) -> new Bottom[x]);
-    }
 
     @Nonnull
     @Override
@@ -243,7 +198,8 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
       ImgCropLayer temp_57_0008 = new ImgCropLayer(2, 2);
-      ImgCropLayer temp_57_0007 = temp_57_0008.setVerticalAlign(ImgCropLayer.Alignment.Left);
+      temp_57_0008.setVerticalAlign(ImgCropLayer.Alignment.Left);
+      ImgCropLayer temp_57_0007 = temp_57_0008.addRef();
       temp_57_0008.freeRef();
       return temp_57_0007;
     }
@@ -258,7 +214,6 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
     Bottom addRef() {
       return (Bottom) super.addRef();
     }
-
   }
 
 }

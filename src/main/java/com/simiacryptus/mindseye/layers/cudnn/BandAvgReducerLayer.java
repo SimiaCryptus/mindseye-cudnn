@@ -37,7 +37,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @SuppressWarnings("serial")
-public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<BandAvgReducerLayer> {
+public class BandAvgReducerLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
   private double alpha = 1.0;
@@ -56,10 +56,8 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
     return alpha;
   }
 
-  @Nonnull
-  public BandAvgReducerLayer setAlpha(double alpha) {
+  public void setAlpha(double alpha) {
     this.alpha = alpha;
-    return this.addRef();
   }
 
   @Nonnull
@@ -74,9 +72,8 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
 
   @Nonnull
   @Override
-  public BandAvgReducerLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   @Nonnull
@@ -86,29 +83,11 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  BandAvgReducerLayer[] addRefs(@Nullable BandAvgReducerLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(BandAvgReducerLayer::addRef)
-        .toArray((x) -> new BandAvgReducerLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  BandAvgReducerLayer[][] addRefs(@Nullable BandAvgReducerLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(BandAvgReducerLayer::addRefs)
-        .toArray((x) -> new BandAvgReducerLayer[x][]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nullable final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_32_0005 = getCompatibilityLayer();
-      Result temp_32_0004 = temp_32_0005.eval(Result.addRefs(inObj));
+      Result temp_32_0004 = temp_32_0005.eval(RefUtil.addRefs(inObj));
       temp_32_0005.freeRef();
       if (null != inObj)
         ReferenceCounting.freeRefs(inObj);
@@ -152,8 +131,8 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
       workspacePtr.freeRef();
       reduceTensorDescriptor.freeRef();
       inputTensor.freeRef();
-      RefUtil.freeRef(outputPtr.dirty());
-      RefUtil.freeRef(inputMemory.dirty());
+      outputPtr.dirty();
+      inputMemory.dirty();
 
       inputMemory.freeRef();
       CudaTensorList temp_32_0002 = new CudaTensorList(new CudaTensor(outputPtr,
@@ -163,46 +142,35 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision<Ban
     inputData.freeRef();
     int pixels = inputSize[0] * inputSize[1];
     try {
-      try {
-        return new Result(result, new Result.Accumulator() {
-          {
-          }
+      Result.Accumulator accumulator = new Result.Accumulator() {
 
-          @Override
-          public void accept(@Nullable DeltaSet<UUID> ctx, @Nonnull TensorList delta) {
-            TensorList passback;
-            passback = new TensorArray(delta.stream().map(x -> {
-              final double[] xData = RefArrays.stream(x.getData()).map(v -> v * alpha / pixels).toArray();
-              x.freeRef();
-              final Tensor tensor = new Tensor(inputSize[0], inputSize[1], inputSize[2]);
-              final double[] tensor1Data = tensor.getData();
-              for (int p = 0; p < inputSize[0] * inputSize[1]; p++) {
-                for (int c = 0; c < inputSize[2]; c++) {
-                  RefSystem.arraycopy(xData, 0, tensor1Data, p * inputSize[2],
-                      inputSize[2]);
-                }
+        @Override
+        public void accept(@Nullable DeltaSet<UUID> ctx, @Nonnull TensorList delta) {
+          TensorList passback = new TensorArray(delta.stream().map(x -> {
+            final double[] xData = RefArrays.stream(x.getData()).map(v -> v * alpha / pixels).toArray();
+            x.freeRef();
+            final Tensor tensor = new Tensor(inputSize[0], inputSize[1], inputSize[2]);
+            final double[] tensor1Data = tensor.getData();
+            for (int p = 0; p < inputSize[0] * inputSize[1]; p++) {
+              for (int c = 0; c < inputSize[2]; c++) {
+                RefSystem.arraycopy(xData, 0, tensor1Data, p * inputSize[2],
+                    inputSize[2]);
               }
-              return tensor;
-            }).toArray(i -> new Tensor[i]));
-            delta.freeRef();
-            input.accumulate(ctx == null ? null : ctx.addRef(), passback.addRef());
-            if (null != ctx)
-              ctx.freeRef();
-            passback.freeRef();
-          }
+            }
+            return tensor;
+          }).toArray(i -> new Tensor[i]));
+          delta.freeRef();
+          input.accumulate(ctx == null ? null : ctx.addRef(), passback.addRef());
+          if (null != ctx)
+            ctx.freeRef();
+          passback.freeRef();
+        }
 
-          public @SuppressWarnings("unused")
-          void _free() {
-          }
-        }) {
-          public void _free() {
-            super._free();
-          }
-        };
-      } finally {
-        if (null != result)
-          result.freeRef();
-      }
+        public @SuppressWarnings("unused")
+        void _free() {
+        }
+      };
+      return new Result(result, accumulator);
     } finally {
       input.freeRef();
     }

@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,25 +41,6 @@ public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return null;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgModulusPaddingLayerTest[] addRefs(@Nullable ImgModulusPaddingLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayerTest::addRef)
-        .toArray((x) -> new ImgModulusPaddingLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgModulusPaddingLayerTest[][] addRefs(
-      @Nullable ImgModulusPaddingLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayerTest::addRefs)
-        .toArray((x) -> new ImgModulusPaddingLayerTest[x][]);
   }
 
   @Nonnull
@@ -93,14 +75,6 @@ public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
   public static class Basic extends ImgModulusPaddingLayerTest {
     public Basic() {
       super(2, 3, 0);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(@Nullable Basic[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
     }
 
     public @SuppressWarnings("unused")

@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,24 +39,6 @@ public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
     return com.simiacryptus.mindseye.layers.java.ImgTileAssemblyLayer.class;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgTileAssemblyLayerTest[] addRefs(@Nullable ImgTileAssemblyLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileAssemblyLayerTest::addRef)
-        .toArray((x) -> new ImgTileAssemblyLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgTileAssemblyLayerTest[][] addRefs(@Nullable ImgTileAssemblyLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileAssemblyLayerTest::addRefs)
-        .toArray((x) -> new ImgTileAssemblyLayerTest[x][]);
-  }
-
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -69,7 +52,6 @@ public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
   public int[][] getLargeDims(final Random random) {
     return new int[][]{{200, 200, 100}, {100, 200, 100}, {200, 200, 100}, {100, 200, 100}, {200, 100, 100},
         {100, 100, 100}};
-
   }
 
   @Nonnull
@@ -90,14 +72,6 @@ public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
   }
 
   public static class Basic extends ImgTileAssemblyLayerTest {
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(@Nullable Basic[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
-    }
 
     public @SuppressWarnings("unused")
     void _free() {

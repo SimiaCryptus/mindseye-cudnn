@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.lang.cudnn;
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.ref.lang.RecycleBin;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefConsumer;
@@ -33,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.function.Function;
 
 public class CudaTensor extends ReferenceCountingBase implements CudaSystem.CudaDeviceResource {
@@ -88,21 +88,6 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     return descriptor.wStride == 1;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudaTensor[] addRefs(@Nullable CudaTensor[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaTensor::addRef).toArray((x) -> new CudaTensor[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudaTensor[][] addRefs(@Nullable CudaTensor[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaTensor::addRefs).toArray((x) -> new CudaTensor[x][]);
-  }
 
   @Nullable
   public CudaMemory getMemory(@Nonnull final CudaDevice cudaDevice) {
@@ -125,7 +110,9 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
             timedResult.seconds(), Integer.toHexString(RefSystem.identityHashCode(this)),
             memory.getDeviceId(), cudaDevice.getDeviceId(), Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
             Util.toString(createdBy).replaceAll("\n", "\n\t")));
-        return timedResult.result;
+        CudaMemory result = timedResult.getResult();
+        timedResult.freeRef();
+        return result;
       }
     } finally {
       cudaDevice.freeRef();
@@ -151,9 +138,9 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
       gpu.cudnnTransformTensor(getPrecision().getPointer(1.0), this.descriptor.getPtr(), memory.getPtr(),
           getPrecision().getPointer(0.0), destDescriptor.getPtr(), destMemory.getPtr());
       assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-      RefUtil.freeRef(memory.dirty());
+      memory.dirty();
       memory.freeRef();
-      RefUtil.freeRef(destMemory.dirty());
+      destMemory.dirty();
       CudaTensor temp_18_0003 = new CudaTensor(destMemory.addRef(),
           destDescriptor.addRef(), getPrecision());
       destMemory.freeRef();
@@ -161,15 +148,15 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
       return temp_18_0003;
     });
     gpu.freeRef();
-    CudaTensor cudaTensor = timedResult.result.addRef();
+    CudaTensor cudaTensor = timedResult.getResult();
     assert cudaTensor.isDense();
     CudaTensorList.logger
         .debug(RefString.format("Densified %s bytes in %.4f from GPU %s at %s, created by %s", cudaTensor.memory.size,
             timedResult.seconds(), Integer.toHexString(RefSystem.identityHashCode(this)),
             Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
             Util.toString(createdBy).replaceAll("\n", "\n\t")));
+    timedResult.freeRef();
     return cudaTensor;
-
   }
 
   public void read(@Nonnull final CudnnHandle gpu, final int index, @Nonnull final Tensor result, final boolean avoidAllocations) {
@@ -183,7 +170,7 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
           assert CudaDevice.isThreadDeviceId(dev.getDeviceId());
           CudaMemory memory = getMemory(dev);
           assert memory != null;
-          RefUtil.freeRef(memory.read(descriptor.dataType, result.getData(), index * descriptor.nStride));
+          memory.read(descriptor.dataType, result.getData(), index * descriptor.nStride);
           memory.freeRef();
           assert CudaDevice.isThreadDeviceId(dev.getDeviceId());
         }, result.addRef()));
@@ -200,14 +187,14 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
             + (descriptor.width - 1) * descriptor.wStride + 1;
         double[] buffer = RecycleBin.DOUBLES.obtain(size);
         try {
-          RefUtil.freeRef(memory.read(descriptor.dataType, buffer, descriptor.nStride * index));
-          RefUtil.freeRef(result.setByCoord(c -> {
-            int[] coords = c.getCoords();
-            int x = coords.length < 1 ? 1 : coords[0];
-            int y = coords.length < 2 ? 1 : coords[1];
-            int z = coords.length < 3 ? 1 : coords[2];
-            return buffer[x * descriptor.wStride + y * descriptor.hStride + z * descriptor.cStride];
-          }));
+          memory.read(descriptor.dataType, buffer, descriptor.nStride * index);
+          result.setByCoord(c -> {
+                  int[] coords = c.getCoords();
+                  int x = coords.length < 1 ? 1 : coords[0];
+                  int y = coords.length < 2 ? 1 : coords[1];
+                  int z = coords.length < 3 ? 1 : coords[2];
+                  return buffer[x * descriptor.wStride + y * descriptor.hStride + z * descriptor.cStride];
+                });
         } finally {
           RecycleBin.DOUBLES.recycle(buffer, buffer.length);
         }
@@ -217,7 +204,8 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     } else {
       try {
         withDense(gpu, index, RefUtil.wrapInterface((Function<CudaMemory, CudaMemory>) mem -> {
-          CudaMemory temp_18_0004 = mem.read(this.descriptor.dataType, result.getData());
+          mem.read(this.descriptor.dataType, result.getData(), 0);
+          CudaMemory temp_18_0004 = mem.addRef();
           mem.freeRef();
           return temp_18_0004;
         }, result.addRef()));
@@ -229,10 +217,10 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
   }
 
   @Nonnull
-  public <T> void withDense(@Nonnull final CudnnHandle gpu, final int index, @Nonnull final Function<CudaMemory, T> result) {
+  public <T> void withDense(@Nonnull final CudnnHandle gpu, final int index, @Nonnull @RefAware final Function<CudaMemory, T> memoryTFunction) {
     assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
     int deviceId = memory.getDeviceId();
-    Function<CudnnHandle, T> fn = dev -> {
+    Function<CudnnHandle, T> fn = RefUtil.wrapInterface(dev -> {
       assertAlive();
       assert this.descriptor.dataType == getPrecision();
       CudaDevice.CudaTensorDescriptor sourceDescriptor = dev.newTensorDescriptor(this.descriptor.dataType, 1,
@@ -250,18 +238,16 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
         dev.cudnnTransformTensor(this.descriptor.dataType.getPointer(1.0), sourceDescriptor.getPtr(),
             memory.getPtr().withByteOffset(index * this.descriptor.nStride * getPrecision().size),
             this.descriptor.dataType.getPointer(0.0), destDescriptor.getPtr(), cudaMemory.getPtr());
-        RefUtil.freeRef(memory.dirty());
-        RefUtil.freeRef(cudaMemory.dirty());
+        memory.dirty();
+        memory.freeRef();
+        cudaMemory.dirty();
         sourceDescriptor.freeRef();
         destDescriptor.freeRef();
-        T temp_18_0005 = result.apply(cudaMemory);
-        cudaMemory.freeRef();
-        memory.freeRef();
-        return temp_18_0005;
+        return memoryTFunction.apply(cudaMemory);
       } finally {
         assert CudaDevice.isThreadDeviceId(dev.getDeviceId());
       }
-    };
+    }, memoryTFunction);
     assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
     if (0 > deviceId || gpu.getDeviceId() == deviceId) {
       fn.apply(gpu);

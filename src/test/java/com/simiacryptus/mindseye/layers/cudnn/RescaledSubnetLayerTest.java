@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayer;
 import com.simiacryptus.notebook.NotebookOutput;
+import com.simiacryptus.ref.lang.RefUtil;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -36,30 +37,11 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
   final ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1);
 
   public RescaledSubnetLayerTest() {
-
   }
 
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return com.simiacryptus.mindseye.layers.java.RescaledSubnetLayer.class;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  RescaledSubnetLayerTest[] addRefs(@Nullable RescaledSubnetLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayerTest::addRef)
-        .toArray((x) -> new RescaledSubnetLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  RescaledSubnetLayerTest[][] addRefs(@Nullable RescaledSubnetLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayerTest::addRefs)
-        .toArray((x) -> new RescaledSubnetLayerTest[x][]);
   }
 
   @Override
@@ -104,13 +86,6 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
   }
 
   public static class Basic extends RescaledSubnetLayerTest {
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(@Nullable Basic[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
-    }
 
     @Override
     @Test(timeout = 15 * 60 * 1000)

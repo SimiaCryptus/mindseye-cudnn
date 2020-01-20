@@ -29,6 +29,7 @@ import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.InnerNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
@@ -72,11 +73,14 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
       SimpleConvolutionLayer temp_02_0010 = new SimpleConvolutionLayer(filterDimensions[0], filterDimensions[1],
           inputBandsSq) //
           ;
-      SimpleConvolutionLayer temp_02_0014 = temp_02_0010.setStrideX(this.convolutionParams.strideX) //
+      temp_02_0010.setStrideX(this.convolutionParams.strideX);
+      SimpleConvolutionLayer temp_02_0014 = temp_02_0010.addRef() //
           ;
-      SimpleConvolutionLayer temp_02_0015 = temp_02_0014.setStrideY(this.convolutionParams.strideY) //
+      temp_02_0014.setStrideY(this.convolutionParams.strideY);
+      SimpleConvolutionLayer temp_02_0015 = temp_02_0014.addRef() //
           ;
-      SimpleConvolutionLayer simpleConvolutionLayer = temp_02_0015.setPrecision(this.convolutionParams.precision);
+      temp_02_0015.setPrecision(this.convolutionParams.precision);
+      SimpleConvolutionLayer simpleConvolutionLayer = RefUtil.addRef(temp_02_0015);
 
       temp_02_0015.freeRef();
       temp_02_0014.freeRef();
@@ -103,24 +107,6 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     return this.toBand - this.fromBand;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ExplodedConvolutionLeg[] addRefs(@Nullable ExplodedConvolutionLeg[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionLeg::addRef)
-        .toArray((x) -> new ExplodedConvolutionLeg[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ExplodedConvolutionLeg[][] addRefs(@Nullable ExplodedConvolutionLeg[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ExplodedConvolutionLeg::addRefs)
-        .toArray((x) -> new ExplodedConvolutionLeg[x][]);
-  }
-
   @Nonnull
   public void write(@Nonnull Tensor filter) {
     int inputBands = getInputBands();
@@ -138,8 +124,7 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     RefIntStream.range(0, subLayers.size()).parallel().forEach(RefUtil.wrapInterface(layerNumber -> {
       final int filterBandOffset = layerNumber * inputBandsSq;
       Tensor temp_02_0011 = new Tensor(filterDimensions[0], filterDimensions[1], inputBandsSq);
-      @Nonnull
-      Tensor kernel = temp_02_0011.setByCoord(RefUtil.wrapInterface(c -> {
+      temp_02_0011.setByCoord(RefUtil.wrapInterface(c -> {
         int[] coords = c.getCoords();
         int filterBand = getFilterBand(filterBandOffset, coords[2], squareOutputBands);
         if (filterBand < filterDimensions[2]) {
@@ -148,6 +133,8 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
           return 0;
         }
       }, filter.addRef()), true);
+      @Nonnull
+      Tensor kernel = temp_02_0011.addRef();
       temp_02_0011.freeRef();
       SimpleConvolutionLayer temp_02_0016 = subKernels.get(layerNumber);
       temp_02_0016.set(kernel);
@@ -156,7 +143,7 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
   }
 
   @Nonnull
-  public Tensor read(@Nonnull Function<SimpleConvolutionLayer, Tensor> extractor) {
+  public Tensor read(@Nonnull @RefAware Function<SimpleConvolutionLayer, Tensor> extractor) {
     int inputBands = getInputBands();
     @Nonnull final int[] filterDimensions = RefArrays.copyOf(this.convolutionParams.masterFilterDimensions,
         this.convolutionParams.masterFilterDimensions.length);
@@ -184,6 +171,7 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
       if (null != deltaTensor)
         deltaTensor.freeRef();
     }
+    RefUtil.freeRef(extractor);
     return resultDelta;
   }
 
@@ -245,17 +233,21 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
       return temp_02_0005;
     } else {
       ImgConcatLayer temp_02_0012 = new ImgConcatLayer();
-      ImgConcatLayer temp_02_0020 = temp_02_0012.setMaxBands(this.convolutionParams.outputBands);
-      ImgConcatLayer temp_02_0021 = temp_02_0020.setPrecision(this.convolutionParams.precision);
+      temp_02_0012.setMaxBands(this.convolutionParams.outputBands);
+      ImgConcatLayer temp_02_0020 = temp_02_0012.addRef();
+      temp_02_0020.setPrecision(this.convolutionParams.precision);
+      ImgConcatLayer temp_02_0021 = RefUtil.addRef(temp_02_0020);
       assert network != null;
-      InnerNode temp_02_0022 = network.add(temp_02_0021.setParallel(CudaSettings.INSTANCE().isConv_para_2()),
+      temp_02_0021.setParallel(CudaSettings.INSTANCE().isConv_para_2());
+      InnerNode temp_02_0022 = network.add(temp_02_0021.addRef(),
           subLayers.stream().map(RefUtil.wrapInterface((Function<? super Layer, ? extends InnerNode>) l -> {
             InnerNode temp_02_0007 = network.add(l == null ? null : l.addRef(), input.addRef());
             if (null != l)
               l.freeRef();
             return temp_02_0007;
           }, network.addRef(), input)).toArray(i -> new DAGNode[i]));
-      InnerNode temp_02_0006 = temp_02_0022.setParallel(CudaSettings.INSTANCE().isConv_para_2());
+      temp_02_0022.setParallel(CudaSettings.INSTANCE().isConv_para_2());
+      InnerNode temp_02_0006 = temp_02_0022.addRef();
       temp_02_0022.freeRef();
       temp_02_0021.freeRef();
       temp_02_0020.freeRef();
@@ -292,8 +284,10 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     int height = kernelDimensions[1];
     ImgTileSubnetLayer temp_02_0013 = new ImgTileSubnetLayer(network == null ? null : network.addRef(), maxSize,
         maxSize, maxSize - ((width - 1) / 2), maxSize - ((height - 1) / 2));
-    ImgTileSubnetLayer temp_02_0023 = temp_02_0013.setParallel(CudaSettings.INSTANCE().isConv_para_3());
-    ImgTileSubnetLayer temp_02_0009 = temp_02_0023.setPrecision(precision);
+    temp_02_0013.setParallel(CudaSettings.INSTANCE().isConv_para_3());
+    ImgTileSubnetLayer temp_02_0023 = temp_02_0013.addRef();
+    temp_02_0023.setPrecision(precision);
+    ImgTileSubnetLayer temp_02_0009 = RefUtil.addRef(temp_02_0023);
     temp_02_0023.freeRef();
     temp_02_0013.freeRef();
     if (null != network)

@@ -28,6 +28,7 @@ import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSystem;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -40,7 +41,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<RescaledSubnetLayer> {
+public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(RescaledSubnetLayer.class);
 
   private int scale;
@@ -86,9 +87,8 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
 
   @Nonnull
   @Override
-  public RescaledSubnetLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   @Nonnull
@@ -98,29 +98,11 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  RescaledSubnetLayer[] addRefs(@Nullable RescaledSubnetLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayer::addRef)
-        .toArray((x) -> new RescaledSubnetLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  RescaledSubnetLayer[][] addRefs(@Nullable RescaledSubnetLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(RescaledSubnetLayer::addRefs)
-        .toArray((x) -> new RescaledSubnetLayer[x][]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nullable final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_13_0005 = getCompatibilityLayer();
-      Result temp_13_0004 = temp_13_0005.eval(Result.addRefs(inObj));
+      Result temp_13_0004 = temp_13_0005.eval(RefUtil.addRefs(inObj));
       temp_13_0005.freeRef();
       if (null != inObj)
         ReferenceCounting.freeRefs(inObj);
@@ -128,7 +110,7 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision<Res
     }
     log.warn("Not Implemented: " + getClass().getCanonicalName());
     Layer temp_13_0006 = getCompatibilityLayer();
-    Result temp_13_0003 = temp_13_0006.eval(Result.addRefs(inObj));
+    Result temp_13_0003 = temp_13_0006.eval(RefUtil.addRefs(inObj));
     temp_13_0006.freeRef();
     if (null != inObj)
       ReferenceCounting.freeRefs(inObj);

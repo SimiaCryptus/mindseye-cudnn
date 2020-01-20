@@ -41,14 +41,13 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @SuppressWarnings("serial")
-public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<SoftmaxActivationLayer> {
+public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(SoftmaxActivationLayer.class);
   private SoftmaxAlgorithm algorithm = SoftmaxAlgorithm.ACCURATE;
   private SoftmaxMode mode = SoftmaxMode.INSTANCE;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
   public SoftmaxActivationLayer() {
-
   }
 
   protected SoftmaxActivationLayer(@Nonnull final JsonObject json) {
@@ -62,10 +61,8 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
     return algorithm;
   }
 
-  @Nonnull
-  public SoftmaxActivationLayer setAlgorithm(SoftmaxAlgorithm algorithm) {
+  public void setAlgorithm(SoftmaxAlgorithm algorithm) {
     this.algorithm = algorithm;
-    return this.addRef();
   }
 
   @Nonnull
@@ -80,10 +77,8 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
     return mode;
   }
 
-  @Nonnull
-  public SoftmaxActivationLayer setMode(SoftmaxMode mode) {
+  public void setMode(SoftmaxMode mode) {
     this.mode = mode;
-    return this.addRef();
   }
 
   @Override
@@ -93,9 +88,8 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
 
   @Nonnull
   @Override
-  public SoftmaxActivationLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   @Nonnull
@@ -105,29 +99,11 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  SoftmaxActivationLayer[] addRefs(@Nullable SoftmaxActivationLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SoftmaxActivationLayer::addRef)
-        .toArray((x) -> new SoftmaxActivationLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SoftmaxActivationLayer[][] addRefs(@Nullable SoftmaxActivationLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SoftmaxActivationLayer::addRefs)
-        .toArray((x) -> new SoftmaxActivationLayer[x][]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_23_0006 = getCompatibilityLayer();
-      Result temp_23_0005 = temp_23_0006.eval(Result.addRefs(inObj));
+      Result temp_23_0005 = temp_23_0006.eval(RefUtil.addRefs(inObj));
       temp_23_0006.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_23_0005;
@@ -144,8 +120,9 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
         @Nullable
         CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision,
             MemoryType.Device, false);
-        final CudaTensor outputTensor;
+        CudaTensor outputTensor = null;
         if (1 == inputData.currentRefCount() && 1 == inputTensor.currentRefCount()) {
+          RefUtil.freeRef(outputTensor);
           outputTensor = inputTensor.addRef();
         } else {
           @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
@@ -153,6 +130,7 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
               inputSize[1] * inputSize[0], inputSize[0], 1);
           @Nonnull final CudaMemory outputData = gpu.allocate(precision.size * 1l * inputDims * length,
               MemoryType.Managed.ifEnabled(), true);
+          RefUtil.freeRef(outputTensor);
           outputTensor = new CudaTensor(outputData,
               outputDescriptor, precision);
         }
@@ -165,9 +143,9 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
               inputTensor.descriptor.getPtr(), inputMemory.getPtr(), precision.getPointer(0.0),
               outputTensor.descriptor.getPtr(), outputMemory.getPtr()));
           assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-          RefUtil.freeRef(inputMemory.dirty());
+          inputMemory.dirty();
           inputMemory.freeRef();
-          RefUtil.freeRef(outputMemory.dirty());
+          outputMemory.dirty();
           outputMemory.freeRef();
           inputTensor.freeRef();
           return outputTensor;
@@ -177,125 +155,109 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision<
         }
       }, inputData.addRef()), inputData.addRef());
       try {
-        try {
-          try {
-            return new Result(
-                new CudaTensorList(outPtr == null ? null : outPtr.addRef(), length, outputSize, precision),
-                new Result.Accumulator() {
-                  {
-                  }
+        Result.Accumulator accumulator = new Result.Accumulator() {
 
-                  @Override
-                  public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
-                    if (inputResult.isAlive()) {
-                      final TensorList data = CudaSystem
-                          .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                                @Nullable
-                                CudaTensor inputTensor;
-                                synchronized (gpu) {
-                                  inputTensor = gpu.getTensor(inputData.addRef(), precision,
-                                      MemoryType.Device, true);
-                                }
-                                @Nullable
-                                CudaTensor deltaTensor;
-                                synchronized (gpu) {
-                                  deltaTensor = gpu.getTensor(delta == null ? null : delta.addRef(), precision,
-                                      MemoryType.Device, true);
-                                }
-                                assert outPtr != null;
-                                CudaTensor localOut = outPtr.getDense(gpu);
-                                CudaTensor passbackTensor;
-                                assert delta != null;
-                                passbackTensor = new CudaTensor(
-                                    gpu.allocate((long) Tensor.length(inputSize) * length * precision.size,
-                                        MemoryType.Managed.ifEnabled(), false),
-                                    gpu.newTensorDescriptor(precision, delta.length(), inputSize[2], inputSize[1],
-                                        inputSize[0], inputSize[2] * inputSize[1] * inputSize[0],
-                                        inputSize[1] * inputSize[0], inputSize[0], 1),
-                                    precision);
+          @Override
+          public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
+            if (inputResult.isAlive()) {
+              final TensorList data = CudaSystem
+                  .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
+                        @Nullable
+                        CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision,
+                            MemoryType.Device, true);
+                        @Nullable
+                        CudaTensor deltaTensor = gpu.getTensor(delta == null ? null : delta.addRef(), precision,
+                            MemoryType.Device, true);
+                        assert outPtr != null;
+                        CudaTensor localOut = outPtr.getDense(gpu);
+                        assert delta != null;
+                        CudaTensor passbackTensor = new CudaTensor(
+                            gpu.allocate((long) Tensor.length(inputSize) * length * precision.size,
+                                MemoryType.Managed.ifEnabled(), false),
+                            gpu.newTensorDescriptor(precision, delta.length(), inputSize[2], inputSize[1],
+                                inputSize[0], inputSize[2] * inputSize[1] * inputSize[0],
+                                inputSize[1] * inputSize[0], inputSize[0], 1),
+                            precision);
 
-                                try {
-                                  CudaMemory localOutMemory = localOut.getMemory(gpu);
-                                  CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
-                                  CudaMemory inputMemory = inputTensor.getMemory(gpu);
-                                  if (null != inputMemory)
-                                    inputMemory.freeRef();
-                                  CudaMemory passbackMemory = passbackTensor.getMemory(gpu);
+                        try {
+                          CudaMemory localOutMemory = localOut.getMemory(gpu);
+                          CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
+                          CudaMemory inputMemory = inputTensor.getMemory(gpu);
+                          if (null != inputMemory)
+                            inputMemory.freeRef();
+                          CudaMemory passbackMemory = passbackTensor.getMemory(gpu);
 
-                                  assert passbackMemory != null;
-                                  assert deltaTensorMemory != null;
-                                  assert localOutMemory != null;
-                                  CudaSystem.handle(gpu.cudnnSoftmaxBackward(algorithm.code, mode.code,
-                                      precision.getPointer(1.0), localOut.descriptor.getPtr(), localOutMemory.getPtr(),
-                                      deltaTensor.descriptor.getPtr(), deltaTensorMemory.getPtr(),
-                                      precision.getPointer(0.0), passbackTensor.descriptor.getPtr(),
-                                      passbackMemory.getPtr()));
-                                  RefUtil.freeRef(localOutMemory.dirty());
-                                  localOutMemory.freeRef();
-                                  RefUtil.freeRef(deltaTensorMemory.dirty());
-                                  deltaTensorMemory.freeRef();
-                                  RefUtil.freeRef(passbackMemory.dirty());
-                                  passbackMemory.freeRef();
-                                } catch (@Nonnull final Throwable e) {
-                                  throw new ComponentException("Error apply " + RefArrays.toString(inputSize), e);
-                                } finally {
-                                }
-                                localOut.freeRef();
-                                deltaTensor.freeRef();
-                                inputTensor.freeRef();
-                                CudaTensorList temp_23_0004 = new CudaTensorList(
-                                    passbackTensor.addRef(), length, inputSize, precision);
-                                passbackTensor.freeRef();
-                                return temp_23_0004;
-                              }, inputData.addRef(), delta == null ? null : delta.addRef(),
-                              outPtr == null ? null : outPtr.addRef()), delta == null ? null : delta.addRef());
-                      inputResult.accumulate(buffer == null ? null : buffer.addRef(),
-                          data == null ? null : data.addRef());
-                      if (null != data)
-                        data.freeRef();
-                    }
-                    if (null != delta)
-                      delta.freeRef();
-                    if (null != buffer)
-                      buffer.freeRef();
-                  }
-
-                  public @SuppressWarnings("unused")
-                  void _free() {
-                  }
-                }) {
-
-              {
-              }
-
-              @Override
-              public boolean isAlive() {
-                return inputResult.isAlive() || !isFrozen();
-              }
-
-              @Override
-              public final void accumulate(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
-                Result.Accumulator temp_23_0007 = getAccumulator();
-                assert temp_23_0007 != null;
-                temp_23_0007.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
-                temp_23_0007.freeRef();
-                if (null != delta)
-                  delta.freeRef();
-                if (null != buffer)
-                  buffer.freeRef();
-              }
-
-              public void _free() {
-              }
-            };
-          } finally {
-            if (null != outPtr)
-              outPtr.freeRef();
+                          assert passbackMemory != null;
+                          assert deltaTensorMemory != null;
+                          assert localOutMemory != null;
+                          CudaSystem.handle(gpu.cudnnSoftmaxBackward(algorithm.code, mode.code,
+                              precision.getPointer(1.0), localOut.descriptor.getPtr(), localOutMemory.getPtr(),
+                              deltaTensor.descriptor.getPtr(), deltaTensorMemory.getPtr(),
+                              precision.getPointer(0.0), passbackTensor.descriptor.getPtr(),
+                              passbackMemory.getPtr()));
+                          localOutMemory.dirty();
+                          localOutMemory.freeRef();
+                          deltaTensorMemory.dirty();
+                          deltaTensorMemory.freeRef();
+                          passbackMemory.dirty();
+                          passbackMemory.freeRef();
+                        } catch (@Nonnull final Throwable e) {
+                          throw new ComponentException("Error apply " + RefArrays.toString(inputSize), e);
+                        } finally {
+                        }
+                        localOut.freeRef();
+                        deltaTensor.freeRef();
+                        inputTensor.freeRef();
+                        CudaTensorList temp_23_0004 = new CudaTensorList(
+                            passbackTensor.addRef(), length, inputSize, precision);
+                        passbackTensor.freeRef();
+                        return temp_23_0004;
+                      }, inputData.addRef(), delta == null ? null : delta.addRef(),
+                      outPtr == null ? null : outPtr.addRef()), delta == null ? null : delta.addRef());
+              inputResult.accumulate(buffer == null ? null : buffer.addRef(),
+                  data == null ? null : data.addRef());
+              if (null != data)
+                data.freeRef();
+            }
+            if (null != delta)
+              delta.freeRef();
+            if (null != buffer)
+              buffer.freeRef();
           }
-        } finally {
-          inputData.freeRef();
-        }
+
+          public @SuppressWarnings("unused")
+          void _free() {
+          }
+        };
+        return new Result(
+            new CudaTensorList(outPtr == null ? null : outPtr.addRef(), length, outputSize, precision),
+            accumulator) {
+
+          public @SuppressWarnings("unused")
+          void _free() {
+          }
+
+          @Override
+          public boolean isAlive() {
+            return inputResult.isAlive() || !isFrozen();
+          }
+
+          @Override
+          public final void accumulate(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
+            Result.Accumulator temp_23_0007 = getAccumulator();
+            assert temp_23_0007 != null;
+            temp_23_0007.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
+            temp_23_0007.freeRef();
+            if (null != delta)
+              delta.freeRef();
+            if (null != buffer)
+              buffer.freeRef();
+          }
+        };
       } finally {
+        if (null != outPtr)
+          outPtr.freeRef();
+        inputData.freeRef();
         inputResult.freeRef();
       }
     } catch (@Nonnull final Throwable e) {

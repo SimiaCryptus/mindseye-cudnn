@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,24 +35,6 @@ public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
 
   public GateBiasLayerTest(final Precision precision) {
     this.precision = precision;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  GateBiasLayerTest[] addRefs(@Nullable GateBiasLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayerTest::addRef)
-        .toArray((x) -> new GateBiasLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  GateBiasLayerTest[][] addRefs(@Nullable GateBiasLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(GateBiasLayerTest::addRefs)
-        .toArray((x) -> new GateBiasLayerTest[x][]);
   }
 
   @Nonnull
@@ -70,7 +53,8 @@ public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     GateBiasLayer temp_74_0002 = new GateBiasLayer();
-    GateBiasLayer temp_74_0001 = temp_74_0002.setPrecision(precision);
+    temp_74_0002.setPrecision(precision);
+    GateBiasLayer temp_74_0001 = RefUtil.addRef(temp_74_0002);
     temp_74_0002.freeRef();
     return temp_74_0001;
   }
@@ -89,14 +73,6 @@ public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
   public static class Double extends GateBiasLayerTest {
     public Double() {
       super(Precision.Double);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Double[] addRefs(@Nullable Double[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -121,14 +97,6 @@ public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Float[] addRefs(@Nullable Float[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -139,6 +107,5 @@ public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
     Float addRef() {
       return (Float) super.addRef();
     }
-
   }
 }

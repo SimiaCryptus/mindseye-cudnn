@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,31 +48,16 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getReferenceLayer() {
     BandReducerLayer temp_72_0002 = new BandReducerLayer();
-    BandReducerLayer temp_72_0005 = temp_72_0002.setMode(PoolingLayer.PoolingMode.Avg);
-    BandReducerLayer temp_72_0006 = temp_72_0005.setAlpha(alpha);
-    BandReducerLayer temp_72_0001 = temp_72_0006.setPrecision(precision);
+    temp_72_0002.setMode(PoolingLayer.PoolingMode.Avg);
+    BandReducerLayer temp_72_0005 = temp_72_0002.addRef();
+    temp_72_0005.setAlpha(alpha);
+    BandReducerLayer temp_72_0006 = temp_72_0005.addRef();
+    temp_72_0006.setPrecision(precision);
+    BandReducerLayer temp_72_0001 = RefUtil.addRef(temp_72_0006);
     temp_72_0006.freeRef();
     temp_72_0005.freeRef();
     temp_72_0002.freeRef();
     return temp_72_0001;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  BandAvgReducerLayerTest[] addRefs(@Nullable BandAvgReducerLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(BandAvgReducerLayerTest::addRef)
-        .toArray((x) -> new BandAvgReducerLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  BandAvgReducerLayerTest[][] addRefs(@Nullable BandAvgReducerLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(BandAvgReducerLayerTest::addRefs)
-        .toArray((x) -> new BandAvgReducerLayerTest[x][]);
   }
 
   @Nonnull
@@ -84,8 +70,10 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     BandAvgReducerLayer temp_72_0004 = new BandAvgReducerLayer();
-    BandAvgReducerLayer temp_72_0007 = temp_72_0004.setAlpha(alpha);
-    BandAvgReducerLayer temp_72_0003 = temp_72_0007.setPrecision(precision);
+    temp_72_0004.setAlpha(alpha);
+    BandAvgReducerLayer temp_72_0007 = temp_72_0004.addRef();
+    temp_72_0007.setPrecision(precision);
+    BandAvgReducerLayer temp_72_0003 = RefUtil.addRef(temp_72_0007);
     temp_72_0007.freeRef();
     temp_72_0004.freeRef();
     return temp_72_0003;
@@ -113,14 +101,6 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
       super(Precision.Double, 1.0, 8, 1200);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Double[] addRefs(@Nullable Double[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -138,14 +118,6 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
       super(Precision.Double, -5.0, 8, 1200);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Negative[] addRefs(@Nullable Negative[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Negative::addRef).toArray((x) -> new Negative[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -161,14 +133,6 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
   public static class Asymmetric extends BandAvgReducerLayerTest {
     public Asymmetric() {
       super(Precision.Double, 1.0, 4, 1200);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Asymmetric[] addRefs(@Nullable Asymmetric[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Asymmetric::addRef).toArray((x) -> new Asymmetric[x]);
     }
 
     @Nonnull
@@ -193,7 +157,6 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
     Asymmetric addRef() {
       return (Asymmetric) super.addRef();
     }
-
   }
 
   public static class Float extends BandAvgReducerLayerTest {
@@ -204,14 +167,6 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
     @Override
     public SingleDerivativeTester getDerivativeTester() {
       return new SingleDerivativeTester(1e-2, 1e-3);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Float[] addRefs(@Nullable Float[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
     public @SuppressWarnings("unused")

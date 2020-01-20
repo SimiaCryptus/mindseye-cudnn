@@ -38,7 +38,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 
 @SuppressWarnings("serial")
-public class SumReducerLayer extends LayerBase implements MultiPrecision<SumReducerLayer> {
+public class SumReducerLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
@@ -63,9 +63,8 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision<SumRedu
 
   @Nonnull
   @Override
-  public SumReducerLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   @Nonnull
@@ -75,29 +74,11 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision<SumRedu
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  SumReducerLayer[] addRefs(@Nullable SumReducerLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SumReducerLayer::addRef)
-        .toArray((x) -> new SumReducerLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SumReducerLayer[][] addRefs(@Nullable SumReducerLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SumReducerLayer::addRefs)
-        .toArray((x) -> new SumReducerLayer[x][]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nullable final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_39_0007 = getCompatibilityLayer();
-      Result temp_39_0005 = temp_39_0007.eval(Result.addRefs(inObj));
+      Result temp_39_0005 = temp_39_0007.eval(RefUtil.addRefs(inObj));
       temp_39_0007.freeRef();
       if (null != inObj)
         ReferenceCounting.freeRefs(inObj);
@@ -133,10 +114,10 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision<SumRedu
       indexPtr.freeRef();
       reduceTensorDescriptor.freeRef();
       inputTensor.freeRef();
-      RefUtil.freeRef(inputMemory.dirty());
+      inputMemory.dirty();
       inputMemory.freeRef();
-      RefUtil.freeRef(outputMemory.dirty());
-      RefUtil.freeRef(workspacePtr.dirty());
+      outputMemory.dirty();
+      workspacePtr.dirty();
       workspacePtr.freeRef();
       CudaTensorList temp_39_0002 = new CudaTensorList(new CudaTensor(outputMemory,
           outputDescriptor, precision), length, new int[]{1, 1, 1}, precision);
@@ -145,41 +126,31 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision<SumRedu
 
     inputData.freeRef();
     try {
-      try {
-        return new Result(result, new Result.Accumulator() {
-          {
-          }
+      return new Result(result, new Result.Accumulator() {
 
-          @Override
-          public void accept(@Nullable DeltaSet<UUID> ctx, @Nonnull TensorList delta) {
-            TensorList passback = new TensorArray(
-                RefIntStream.range(0, length).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
-                  Tensor tensor = delta.get(i);
-                  Tensor temp_39_0006 = new Tensor(inputSize);
-                  Tensor temp_39_0004 = temp_39_0006.setAll(tensor.get(0));
-                  temp_39_0006.freeRef();
-                  tensor.freeRef();
-                  return temp_39_0004;
-                }, delta.addRef())).toArray(i -> new Tensor[i]));
-            delta.freeRef();
-            input.accumulate(ctx == null ? null : ctx.addRef(), passback.addRef());
-            if (null != ctx)
-              ctx.freeRef();
-            passback.freeRef();
-          }
+        @Override
+        public void accept(@Nullable DeltaSet<UUID> ctx, @Nonnull TensorList delta) {
+          TensorList passback = new TensorArray(
+              RefIntStream.range(0, length).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
+                Tensor tensor = delta.get(i);
+                Tensor temp_39_0006 = new Tensor(inputSize);
+                temp_39_0006.setAll(tensor.get(0));
+                Tensor temp_39_0004 = temp_39_0006.addRef();
+                temp_39_0006.freeRef();
+                tensor.freeRef();
+                return temp_39_0004;
+              }, delta.addRef())).toArray(i -> new Tensor[i]));
+          delta.freeRef();
+          input.accumulate(ctx == null ? null : ctx.addRef(), passback.addRef());
+          if (null != ctx)
+            ctx.freeRef();
+          passback.freeRef();
+        }
 
-          public @SuppressWarnings("unused")
-          void _free() {
-          }
-        }) {
-          public void _free() {
-            super._free();
-          }
-        };
-      } finally {
-        if (null != result)
-          result.freeRef();
-      }
+        public @SuppressWarnings("unused")
+        void _free() {
+        }
+      });
     } finally {
       input.freeRef();
     }

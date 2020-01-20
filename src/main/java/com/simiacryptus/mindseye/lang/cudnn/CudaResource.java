@@ -19,12 +19,12 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
+import com.simiacryptus.ref.lang.RefUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.function.ToIntFunction;
 
 public class CudaResource<T> extends CudaResourceBase<T> {
@@ -44,23 +44,6 @@ public class CudaResource<T> extends CudaResourceBase<T> {
     return deviceId;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudaResource[] addRefs(@Nullable CudaResource[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaResource::addRef).toArray((x) -> new CudaResource[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudaResource[][] addRefs(@Nullable CudaResource[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaResource::addRefs)
-        .toArray((x) -> new CudaResource[x][]);
-  }
-
   public void release() {
     try {
       if (isActiveObj()) {
@@ -75,10 +58,10 @@ public class CudaResource<T> extends CudaResourceBase<T> {
 
   public void _free() {
     CudnnHandle threadHandle = CudaSystem.getThreadHandle();
-    if (null != threadHandle)
+    if (null != threadHandle) {
       threadHandle.cleanupNative.add(this);
-    else
-      release();
+      threadHandle.freeRef();
+    } else release();
   }
 
   @Nonnull

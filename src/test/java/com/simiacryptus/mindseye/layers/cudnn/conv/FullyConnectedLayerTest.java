@@ -26,6 +26,7 @@ import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.BatchingTester;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
 import com.simiacryptus.notebook.NotebookOutput;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,11 +45,13 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
   public FullyConnectedLayerTest(@Nonnull int[] inputDims, @Nonnull int[] outputDims, int batchBands) {
     this.inputDim = inputDims;
     FullyConnectedLayer temp_11_0003 = new FullyConnectedLayer(inputDims, outputDims);
-    FullyConnectedLayer temp_11_0001 = temp_11_0003.setWeightsLog(-2);
+    temp_11_0003.setWeightsLog(-2);
+    FullyConnectedLayer temp_11_0001 = temp_11_0003.addRef();
     temp_11_0003.freeRef();
     this.fullyConnectedLayer = temp_11_0001.addRef();
     temp_11_0001.freeRef();
-    FullyConnectedLayer temp_11_0004 = this.fullyConnectedLayer.setBatchBands(batchBands);
+    this.fullyConnectedLayer.setBatchBands(batchBands);
+    FullyConnectedLayer temp_11_0004 = this.fullyConnectedLayer.addRef();
     Layer temp_11_0002 = temp_11_0004.explode();
     temp_11_0004.freeRef();
     this.layer = temp_11_0002.addRef();
@@ -81,15 +84,6 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayerTest::addRef)
         .toArray((x) -> new FullyConnectedLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  FullyConnectedLayerTest[][] addRefs(@Nullable FullyConnectedLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(FullyConnectedLayerTest::addRefs)
-        .toArray((x) -> new FullyConnectedLayerTest[x][]);
   }
 
   @Nonnull
@@ -130,14 +124,6 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
       super(new int[]{2}, new int[]{2}, 512);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(@Nullable Basic[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -162,7 +148,7 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
     public ComponentTest<ToleranceStatistics> getBatchingTester() {
       if (!validateBatchExecution)
         return null;
-      return (new BatchingTester(1e-2, true) {
+      BatchingTester batchingTester = (new BatchingTester(1e-2, true) {
         @Override
         public double getRandom() {
           return random();
@@ -171,7 +157,9 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
         public @SuppressWarnings("unused")
         void _free() {
         }
-      }).setBatchSize(5);
+      });
+      batchingTester.setBatchSize(5);
+      return batchingTester;
     }
 
     @Nullable
@@ -195,14 +183,6 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
       return null;
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    BigTests[] addRefs(@Nullable BigTests[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(BigTests::addRef).toArray((x) -> new BigTests[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -220,14 +200,6 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
       super(new int[]{25088}, new int[]{4096}, 25088 / 2);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Big_VGG[] addRefs(@Nullable Big_VGG[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Big_VGG::addRef).toArray((x) -> new Big_VGG[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -238,20 +210,11 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
     Big_VGG addRef() {
       return (Big_VGG) super.addRef();
     }
-
   }
 
   public static class Big1 extends BigTests {
     public Big1() {
       super(new int[]{2 * 1024}, new int[]{2 * 1024}, 512);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Big1[] addRefs(@Nullable Big1[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Big1::addRef).toArray((x) -> new Big1[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -264,7 +227,6 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
     Big1 addRef() {
       return (Big1) super.addRef();
     }
-
   }
 
 }

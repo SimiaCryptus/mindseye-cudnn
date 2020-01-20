@@ -21,29 +21,33 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.network.DAGNetwork;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface MultiPrecision<T> {
+public interface MultiPrecision {
   @Nullable
   Precision getPrecision();
 
-  static <T extends LayerBase> T setPrecision(final T network, final Precision precision) {
-    if (network instanceof DAGNetwork) {
-      ((DAGNetwork) network).visitLayers(layer -> {
-        if (layer instanceof MultiPrecision) {
-          ((MultiPrecision) layer).setPrecision(precision);
-        }
-        if (null != layer)
-          layer.freeRef();
-      });
-    } else if (network instanceof MultiPrecision) {
-      ((MultiPrecision) network).setPrecision(precision);
+  static void setPrecision(final LayerBase network, final Precision precision) {
+    try {
+      if (network instanceof DAGNetwork) {
+        ((DAGNetwork) network).visitLayers(layer -> {
+          if (layer instanceof MultiPrecision) {
+            ((MultiPrecision) layer).setPrecision(precision);
+          }
+          if (null != layer)
+            layer.freeRef();
+        });
+      } else if (network instanceof MultiPrecision) {
+        ((MultiPrecision) network).setPrecision(precision);
+      }
+    } finally {
+      network.freeRef();
     }
-    return network;
   }
 
-  @Nonnull
-  T setPrecision(Precision precision);
+  void setPrecision(Precision precision);
+
 }

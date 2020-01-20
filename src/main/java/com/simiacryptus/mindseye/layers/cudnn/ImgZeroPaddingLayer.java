@@ -27,6 +27,7 @@ import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -39,7 +40,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<ImgZeroPaddingLayer> {
+public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgZeroPaddingLayer.class);
   @Nonnull
   public StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
@@ -71,9 +72,8 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<Img
 
   @Nonnull
   @Override
-  public ImgZeroPaddingLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   @Nonnull
@@ -92,19 +92,10 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<Img
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  ImgZeroPaddingLayer[][] addRefs(@Nullable ImgZeroPaddingLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgZeroPaddingLayer::addRefs)
-        .toArray((x) -> new ImgZeroPaddingLayer[x][]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     if (sizeX == 0 && sizeY == 0) {
-      Result temp_22_0002 = inObj[0];
+      Result temp_22_0002 = inObj[0].addRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_22_0002;
     }
@@ -114,10 +105,11 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision<Img
     int[] dimensions = temp_22_0004.getDimensions();
     temp_22_0004.freeRef();
     ImgCropLayer temp_22_0003 = new ImgCropLayer(dimensions[0] + 2 * this.sizeX, dimensions[1] + 2 * this.sizeY);
+    temp_22_0003.setPrecision(precision);
     @Nonnull
-    ImgCropLayer imgCropLayer = temp_22_0003.setPrecision(precision);
+    ImgCropLayer imgCropLayer = RefUtil.addRef(temp_22_0003);
     temp_22_0003.freeRef();
-    Result temp_22_0001 = imgCropLayer.eval(Result.addRefs(inObj));
+    Result temp_22_0001 = imgCropLayer.eval(RefUtil.addRefs(inObj));
     ReferenceCounting.freeRefs(inObj);
     imgCropLayer.freeRef();
     return temp_22_0001;

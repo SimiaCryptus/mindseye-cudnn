@@ -48,8 +48,10 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
     PipelineNetwork network = new PipelineNetwork();
     LinearActivationLayer temp_65_0001 = new LinearActivationLayer();
     NthPowerActivationLayer temp_65_0002 = new NthPowerActivationLayer();
+    temp_65_0001.setScale(alpha);
+    temp_65_0002.setPower(2);
     RefUtil
-        .freeRef(network.add(temp_65_0001.setScale(alpha), network.add(temp_65_0002.setPower(2), network.getInput(0))));
+        .freeRef(network.add(temp_65_0001.addRef(), network.add(temp_65_0002.addRef(), network.getInput(0))));
     temp_65_0002.freeRef();
     temp_65_0001.freeRef();
     return network;
@@ -63,15 +65,6 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayerTest::addRef)
         .toArray((x) -> new SquareActivationLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SquareActivationLayerTest[][] addRefs(@Nullable SquareActivationLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayerTest::addRefs)
-        .toArray((x) -> new SquareActivationLayerTest[x][]);
   }
 
   @Nonnull
@@ -90,8 +83,10 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     SquareActivationLayer temp_65_0004 = new SquareActivationLayer();
-    SquareActivationLayer temp_65_0005 = temp_65_0004.setPrecision(precision);
-    SquareActivationLayer temp_65_0003 = temp_65_0005.setAlpha(alpha);
+    temp_65_0004.setPrecision(precision);
+    SquareActivationLayer temp_65_0005 = RefUtil.addRef(temp_65_0004);
+    temp_65_0005.setAlpha(alpha);
+    SquareActivationLayer temp_65_0003 = temp_65_0005.addRef();
     temp_65_0005.freeRef();
     temp_65_0004.freeRef();
     return temp_65_0003;
@@ -113,14 +108,6 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
       super(Precision.Double, 1.0);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Double[] addRefs(@Nullable Double[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -136,14 +123,6 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
   public static class Negative extends SquareActivationLayerTest {
     public Negative() {
       super(Precision.Double, -1.0);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Negative[] addRefs(@Nullable Negative[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Negative::addRef).toArray((x) -> new Negative[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -168,14 +147,6 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Float[] addRefs(@Nullable Float[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -186,6 +157,5 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
     Float addRef() {
       return (Float) super.addRef();
     }
-
   }
 }

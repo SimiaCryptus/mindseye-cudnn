@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 
 import static jcuda.runtime.cudaMemcpyKind.cudaMemcpyDeviceToHost;
@@ -111,21 +110,6 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     return CudaMemory.METRICS.computeIfAbsent(deviceId, device -> new DeviceMetrics());
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudaMemory[] addRefs(@Nullable CudaMemory[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRef).toArray((x) -> new CudaMemory[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudaMemory[][] addRefs(@Nullable CudaMemory[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaMemory::addRefs).toArray((x) -> new CudaMemory[x][]);
-  }
 
   private static void logLoad() {
     RefSet<Map.Entry<Integer, DeviceMetrics>> temp_35_0005 = METRICS.entrySet();
@@ -140,8 +124,6 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
       return temp_35_0003;
     }));
     logger.debug(RefString.format("Current Load: %s", temp_35_0006));
-    if (null != temp_35_0006)
-      temp_35_0006.freeRef();
     temp_35_0005.freeRef();
   }
 
@@ -160,9 +142,10 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
         }
         break;
       case Double:
-        read(precision, tensor.getData()).freeRef();
+        read(precision, tensor.getData(), 0);
         break;
       default:
+        tensor.freeRef();
         throw new IllegalStateException();
     }
     return tensor;
@@ -191,36 +174,29 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     }
   }
 
-  @Nonnull
-  public CudaMemory read(@Nonnull final Precision precision, @Nonnull final double[] destination) {
-    return read(precision, destination, 0);
-  }
-
-  @Nonnull
-  public CudaMemory read(@Nonnull final Precision precision, @Nonnull final double[] destination, int offset) {
-    if (0 == destination.length)
-      return this.addRef();
-    if (size < (long) (offset + destination.length) * precision.size) {
-      throw new IllegalArgumentException(
-          RefString.format("%d < %d + %d", size, (long) destination.length * precision.size, offset));
-    }
-    if (precision == Precision.Float) {
-      @Nonnull
-      float[] data = new float[destination.length];
-      read(Precision.Float, data, offset);
-      for (int i = 0; i < destination.length; i++) {
-        destination[i] = data[i];
+  public void read(@Nonnull Precision precision, @Nonnull double[] destination, int offset) {
+    if (0 != destination.length) {
+      if (size < (long) (offset + destination.length) * precision.size) {
+        throw new IllegalArgumentException(
+            RefString.format("%d < %d + %d", size, (long) destination.length * precision.size, offset));
       }
-    } else {
-      synchronize();
-      CudaSystem.run(gpu -> {
-        CudaSystem.cudaMemcpy(precision.getPointer(destination),
-            getPtr().withByteOffset((long) offset * precision.size), (long) destination.length * precision.size,
-            cudaMemcpyKind.cudaMemcpyDeviceToHost);
-      });
-      CudaMemory.getGpuStats(deviceId).memoryReads.addAndGet((long) destination.length * precision.size);
+      if (precision == Precision.Float) {
+        @Nonnull
+        float[] data = new float[destination.length];
+        read(Precision.Float, data, offset);
+        for (int i = 0; i < destination.length; i++) {
+          destination[i] = data[i];
+        }
+      } else {
+        synchronize();
+        CudaSystem.run(gpu -> {
+          CudaSystem.cudaMemcpy(precision.getPointer(destination),
+              getPtr().withByteOffset((long) offset * precision.size), (long) destination.length * precision.size,
+              cudaMemcpyKind.cudaMemcpyDeviceToHost);
+        });
+        CudaMemory.getGpuStats(deviceId).memoryReads.addAndGet((long) destination.length * precision.size);
+      }
     }
-    return this.addRef();
   }
 
   @Nonnull
@@ -236,7 +212,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     if (precision == Precision.Double) {
       @Nonnull
       double[] data = new double[destination.length];
-      RefUtil.freeRef(read(Precision.Double, data, offset));
+      read(Precision.Double, data, offset);
       for (int i = 0; i < destination.length; i++) {
         destination[i] = (float) data[i];
       }
@@ -250,11 +226,11 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
 
   @Nonnull
   public CudaMemory write(@Nonnull final Precision precision, @Nonnull final double[] data) {
-    return write(precision, data, 0);
+    write(precision, data, 0);
+    return this.addRef();
   }
 
-  @Nonnull
-  public CudaMemory write(@Nonnull final Precision precision, @Nonnull final double[] data, long offset) {
+  public void write(@Nonnull Precision precision, @Nonnull double[] data, long offset) {
     assert getType() == MemoryType.Managed || CudaDevice.isThreadDeviceId(getDeviceId());
     if (size < ((offset + data.length) * precision.size))
       throw new IllegalArgumentException(
@@ -262,22 +238,20 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     CudaSystem.cudaMemcpy(getPtr().withByteOffset(offset * precision.size), precision.getPointer(data),
         (long) data.length * precision.size, cudaMemcpyKind.cudaMemcpyHostToDevice);
     CudaMemory.getGpuStats(deviceId).memoryWrites.addAndGet((long) data.length * precision.size);
-    return this.addRef();
   }
 
   @Nonnull
   public CudaMemory write(@Nonnull final Precision precision, @Nonnull final float[] data) {
-    return write(precision, data, 0);
+    write(precision, data, 0);
+    return this.addRef();
   }
 
-  @Nonnull
-  public CudaMemory write(@Nonnull final Precision precision, @Nonnull final float[] data, int offset) {
+  public void write(@Nonnull Precision precision, @Nonnull float[] data, int offset) {
     if (size < (offset + data.length) * precision.size)
       throw new IllegalArgumentException(RefString.format("%d != %d * %d", size, data.length, precision.size));
     CudaSystem.cudaMemcpy(getPtr().withByteOffset(offset * precision.size), precision.getPointer(data),
         (long) data.length * precision.size, cudaMemcpyKind.cudaMemcpyHostToDevice);
     CudaMemory.getGpuStats(deviceId).memoryWrites.addAndGet((long) data.length * precision.size);
-    return this.addRef();
   }
 
   @Nonnull
@@ -303,12 +277,10 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     }
   }
 
-  @Nonnull
-  public CudaMemory dirty() {
+  public void dirty() {
     assert type == MemoryType.Managed || CudaDevice.isThreadDeviceId(getDeviceId()) : getDeviceId() + " != "
         + CudaSystem.getThreadDeviceId();
     writtenAt = RefSystem.nanoTime();
-    return this.addRef();
   }
 
   public void synchronize() {
@@ -321,9 +293,10 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     if (ptr.getByteOffset() != 0)
       return;
     CudnnHandle threadHandle = CudaSystem.getThreadHandle();
-    if (null != threadHandle)
+    if (null != threadHandle) {
       threadHandle.cleanupNative.add(this);
-    else
+      threadHandle.freeRef();
+    } else
       release();
   }
 

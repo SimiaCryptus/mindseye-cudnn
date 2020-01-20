@@ -24,6 +24,7 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.mindseye.test.unit.TrainingTester;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,7 +39,6 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
     this.precision = precision;
     this.testingBatchSize = 1;
     this.validateBatchExecution = false;
-
   }
 
   @Nullable
@@ -55,28 +55,10 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
         return new MeanSqLossLayer();
       }
     };
-    ComponentTest<TrainingTester.ComponentResult> temp_68_0001 = isTestTraining() ? temp_68_0002.setBatches(1) : null;
+    temp_68_0002.setBatches(1);
+    ComponentTest<TrainingTester.ComponentResult> temp_68_0001 = isTestTraining() ? temp_68_0002.addRef() : null;
     temp_68_0002.freeRef();
     return temp_68_0001;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgBandDynamicBiasLayerTest[] addRefs(@Nullable ImgBandDynamicBiasLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgBandDynamicBiasLayerTest::addRef)
-        .toArray((x) -> new ImgBandDynamicBiasLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgBandDynamicBiasLayerTest[][] addRefs(
-      @Nullable ImgBandDynamicBiasLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgBandDynamicBiasLayerTest::addRefs)
-        .toArray((x) -> new ImgBandDynamicBiasLayerTest[x][]);
   }
 
   @Nonnull
@@ -89,7 +71,8 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     ImgBandDynamicBiasLayer temp_68_0004 = new ImgBandDynamicBiasLayer();
-    ImgBandDynamicBiasLayer temp_68_0003 = temp_68_0004.setPrecision(precision);
+    temp_68_0004.setPrecision(precision);
+    ImgBandDynamicBiasLayer temp_68_0003 = RefUtil.addRef(temp_68_0004);
     temp_68_0004.freeRef();
     return temp_68_0003;
   }
@@ -116,14 +99,6 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
       super(Precision.Double);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Double[] addRefs(@Nullable Double[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -144,14 +119,6 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
     @Override
     public SingleDerivativeTester getDerivativeTester() {
       return new SingleDerivativeTester(1e-2, 1e-3);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Float[] addRefs(@Nullable Float[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
     public @SuppressWarnings("unused")

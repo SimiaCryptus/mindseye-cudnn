@@ -58,8 +58,10 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     this.inputBands = inputBands;
     this.outputBands = outputBands;
     ConvolutionLayer temp_12_0002 = new ConvolutionLayer(radius, radius, inputBands, outputBands);
-    ConvolutionLayer temp_12_0004 = temp_12_0002.setPrecision(precision);
-    ConvolutionLayer temp_12_0005 = temp_12_0004.setBatchBands(batchBands);
+    temp_12_0002.setPrecision(precision);
+    ConvolutionLayer temp_12_0004 = RefUtil.addRef(temp_12_0002);
+    temp_12_0004.setBatchBands(batchBands);
+    ConvolutionLayer temp_12_0005 = temp_12_0004.addRef();
     ConvolutionLayer temp_12_0001 = temp_12_0005.setStrideXY(stride, stride);
     temp_12_0005.freeRef();
     temp_12_0004.freeRef();
@@ -70,9 +72,9 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     Random random = getRandom();
     Tensor temp_12_0006 = convolutionLayer.getKernel();
     assert temp_12_0006 != null;
-    RefUtil.freeRef(temp_12_0006.set(() -> {
+    temp_12_0006.set(() -> {
       return random(random);
-    }));
+    });
     temp_12_0006.freeRef();
     this.smallSize = smallSize;
     this.largeSize = largeSize;
@@ -90,24 +92,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
   @Override
   protected Class<?> getTargetClass() {
     return ConvolutionLayer.class;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ConvolutionLayerTest[] addRefs(@Nullable ConvolutionLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayerTest::addRef)
-        .toArray((x) -> new ConvolutionLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ConvolutionLayerTest[][] addRefs(@Nullable ConvolutionLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayerTest::addRefs)
-        .toArray((x) -> new ConvolutionLayerTest[x][]);
   }
 
   @Override
@@ -135,10 +119,10 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     @Nullable
     Tensor testData = temp_12_0003.map(x -> random());
     temp_12_0003.freeRef();
-    RefUtil.freeRef(explodedNetwork.write(testData.addRef()));
+    explodedNetwork.write(testData.addRef());
     Tensor echo = explodedNetwork.read();
     explodedNetwork.freeRef();
-    if (!testData.equals(echo == null ? null : echo.addRef())) {
+    if (!testData.equals(echo)) {
       Tensor minus = testData.minus(echo == null ? null : echo.addRef());
       print(minus.coordStream(false)
           .filter(RefUtil.wrapInterface((Predicate<? super Coordinate>) x -> minus.get(x) != 0,
@@ -197,14 +181,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
       super(1, 3, 6, Precision.Double, 16, 1, 3, 600);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    BandExpand[] addRefs(@Nullable BandExpand[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(BandExpand::addRef).toArray((x) -> new BandExpand[x]);
-    }
-
     @Nonnull
     @Override
     public int[][] getSmallDims(Random random) {
@@ -227,21 +203,12 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     BandExpand addRef() {
       return (BandExpand) super.addRef();
     }
-
   }
 
   public static class BandLimit extends ConvolutionLayerTest {
 
     public BandLimit() {
       super(1, 3, 2, Precision.Double, 16, 1, 3, 600);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    BandLimit[] addRefs(@Nullable BandLimit[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(BandLimit::addRef).toArray((x) -> new BandLimit[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -254,21 +221,12 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     BandLimit addRef() {
       return (BandLimit) super.addRef();
     }
-
   }
 
   public static class SqGrid extends ConvolutionLayerTest {
 
     public SqGrid() {
       super(3, 4, 4, Precision.Double, 2, 1, 3, 600);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    SqGrid[] addRefs(@Nullable SqGrid[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(SqGrid::addRef).toArray((x) -> new SqGrid[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -281,7 +239,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     SqGrid addRef() {
       return (SqGrid) super.addRef();
     }
-
   }
 
   //  /**
@@ -329,7 +286,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     IrregularGrid addRef() {
       return (IrregularGrid) super.addRef();
     }
-
   }
 
   public static class BandReduceTest extends ConvolutionLayerTest {
@@ -357,21 +313,12 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     BandReduceTest addRef() {
       return (BandReduceTest) super.addRef();
     }
-
   }
 
   public static class Double extends ConvolutionLayerTest {
 
     public Double() {
       super(3, 4, 4, Precision.Double, 16, 1, 3, 600);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Double[] addRefs(@Nullable Double[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -384,7 +331,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     Double addRef() {
       return (Double) super.addRef();
     }
-
   }
 
   public static class NoPadding extends ConvolutionLayerTest {
@@ -392,14 +338,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
       super(3, 3, 3, Precision.Double, 16, 1, 3, 600);
       assert convolutionLayer != null;
       RefUtil.freeRef(convolutionLayer.setPaddingXY(0, 0));
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    NoPadding[] addRefs(@Nullable NoPadding[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(NoPadding::addRef).toArray((x) -> new NoPadding[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -412,20 +350,11 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     NoPadding addRef() {
       return (NoPadding) super.addRef();
     }
-
   }
 
   public static class Float extends ConvolutionLayerTest {
     public Float() {
       super(1, 2, 2, Precision.Float, 16, 1, 3, 600);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Float[] addRefs(@Nullable Float[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -510,14 +439,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
       super(1, size, size, Precision.Float, size);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Big1[] addRefs(@Nullable Big1[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Big1::addRef).toArray((x) -> new Big1[x]);
-    }
-
     @Nonnull
     @Override
     public int[][] getLargeDims(final Random random) {
@@ -541,14 +462,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     protected VeryBigTest(final int radius, final int inputBands, final int outputBands, final Precision precision,
                           final int batchBands) {
       super(radius, inputBands, outputBands, precision, batchBands);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    VeryBigTest[] addRefs(@Nullable VeryBigTest[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(VeryBigTest::addRef).toArray((x) -> new VeryBigTest[x]);
     }
 
     @Nonnull
@@ -587,7 +500,7 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     public ComponentTest<ToleranceStatistics> getBatchingTester() {
       if (!validateBatchExecution)
         return null;
-      return (new BatchingTester(1e-2, true) {
+      BatchingTester batchingTester = (new BatchingTester(1e-2, true) {
         @Override
         public double getRandom() {
           return random();
@@ -596,7 +509,9 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
         public @SuppressWarnings("unused")
         void _free() {
         }
-      }).setBatchSize(5);
+      });
+      batchingTester.setBatchSize(5);
+      return batchingTester;
     }
 
     @Nullable
@@ -619,14 +534,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     @Override
     public Layer getReferenceLayer() {
       return null;
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Big[] addRefs(@Nullable Big[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Big::addRef).toArray((x) -> new Big[x]);
     }
 
     public @SuppressWarnings("unused")

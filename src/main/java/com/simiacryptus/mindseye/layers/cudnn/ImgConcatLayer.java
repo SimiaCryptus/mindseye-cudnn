@@ -38,7 +38,7 @@ import java.util.function.IntConsumer;
 import java.util.function.IntUnaryOperator;
 
 @SuppressWarnings("serial")
-public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConcatLayer> {
+public class ImgConcatLayer extends LayerBase implements MultiPrecision {
 
   private int maxBands = -1;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
@@ -63,10 +63,8 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
     return maxBands;
   }
 
-  @Nonnull
-  public ImgConcatLayer setMaxBands(final int maxBands) {
+  public void setMaxBands(int maxBands) {
     this.maxBands = maxBands;
-    return this.addRef();
   }
 
   @Override
@@ -76,19 +74,16 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
 
   @Nonnull
   @Override
-  public ImgConcatLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   public boolean isParallel() {
     return parallel;
   }
 
-  @Nonnull
-  public ImgConcatLayer setParallel(boolean parallel) {
+  public void setParallel(boolean parallel) {
     this.parallel = parallel;
-    return this.addRef();
   }
 
   @Nonnull
@@ -112,29 +107,11 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  ImgConcatLayer[] addRefs(@Nullable ImgConcatLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgConcatLayer::addRef)
-        .toArray((x) -> new ImgConcatLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgConcatLayer[][] addRefs(@Nullable ImgConcatLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgConcatLayer::addRefs)
-        .toArray((x) -> new ImgConcatLayer[x][]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_31_0012 = getCompatibilityLayer();
-      Result temp_31_0009 = temp_31_0012.eval(Result.addRefs(inObj));
+      Result temp_31_0009 = temp_31_0012.eval(RefUtil.addRefs(inObj));
       temp_31_0012.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_31_0009;
@@ -149,7 +126,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
     TensorList temp_31_0014 = inObj[0].getData();
     final int length = temp_31_0014.length();
     temp_31_0014.freeRef();
-    assert RefArrays.stream(Result.addRefs(inObj)).allMatch(x -> {
+    assert RefArrays.stream(RefUtil.addRefs(inObj)).allMatch(x -> {
       TensorList temp_31_0015 = x.getData();
       @Nonnull
       int[] d = temp_31_0015.getDimensions();
@@ -161,7 +138,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
       x.freeRef();
       return temp_31_0002;
     });
-    outputDimensions[2] = RefArrays.stream(Result.addRefs(inObj)).mapToInt(x -> {
+    outputDimensions[2] = RefArrays.stream(RefUtil.addRefs(inObj)).mapToInt(x -> {
       TensorList temp_31_0017 = x.getData();
       int temp_31_0003 = temp_31_0017.getDimensions()[2];
       temp_31_0017.freeRef();
@@ -189,7 +166,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
             int dimension = data.getDimensions()[2];
             data.freeRef();
             return dimension;
-          }, Result.addRefs(inObj))).sum();
+          }, RefUtil.addRefs(inObj))).sum();
           if (maxBands > 0)
             bandOffset = Math.min(bandOffset, maxBands);
           int inputBands = inputDimensions[2];
@@ -223,22 +200,22 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
             inputDescriptor.freeRef();
             outputDescriptor.freeRef();
             assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-            RefUtil.freeRef(cudaInputMemory.dirty());
+            cudaInputMemory.dirty();
             cudaInputMemory.freeRef();
-            RefUtil.freeRef(cudaOutput.dirty());
+            cudaOutput.dirty();
           }
           input.freeRef();
-        }, Result.addRefs(inObj), cudaOutput.addRef()));
+        }, RefUtil.addRefs(inObj), cudaOutput.addRef()));
         CudaDevice.CudaTensorDescriptor outDesc = gpu.newTensorDescriptor(precision, length, outputDimensions[2],
             outputDimensions[1], outputDimensions[0]);
         CudaTensorList temp_31_0004 = new CudaTensorList(new CudaTensor(cudaOutput,
             outDesc.addRef(), precision), length, outputDimensions, precision);
         outDesc.freeRef();
         return temp_31_0004;
-      }, Result.addRefs(inObj)), RefArrays.stream(Result.addRefs(inObj)).map(Result::getData).toArray()),
+      }, RefUtil.addRefs(inObj)), RefArrays.stream(RefUtil.addRefs(inObj)).map(Result::getData).toArray()),
           new Result.Accumulator() {
             {
-              Result.addRefs(inObj);
+              RefUtil.addRefs(inObj);
             }
 
             @Override
@@ -275,7 +252,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
                       int dimension = data.getDimensions()[2];
                       data.freeRef();
                       return dimension;
-                    }, Result.addRefs(inObj))).sum();
+                    }, RefUtil.addRefs(inObj))).sum();
                     int inputBands = maxBands <= 0 ? inputDimentions[2]
                         : Math.min(inputDimentions[2], maxBands - bandOffset);
                     if (inputBands > 0 && input.isAlive()) {
@@ -283,13 +260,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
                       assert inputBands <= outputDimensions[2];
                       final TensorList passbackTensorList = CudaSystem
                           .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                            final CudaTensor result;
-                            synchronized (gpu) {
-                              result = gpu.getTensor(delta.addRef(), precision, MemoryType.Device,
-                                  true);
-                            }
-                            @Nullable final CudaTensor cudaDelta = result.addRef();
-                            result.freeRef();
+                            @Nullable final CudaTensor cudaDelta = gpu.getTensor(delta.addRef(), precision, MemoryType.Device, true);
                             CudaMemory cudaDeltaMemory = cudaDelta.getMemory(gpu);
                             if (inputDimentions[2] == inputBands) {
                               @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision,
@@ -339,8 +310,8 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
                                   passbackTransferDescriptor.getPtr(), cudaBackprop.getPtr());
                               deltaViewDescriptor.freeRef();
                               passbackTransferDescriptor.freeRef();
-                              RefUtil.freeRef(cudaBackprop.dirty());
-                              RefUtil.freeRef(cudaDeltaMemory.dirty());
+                              cudaBackprop.dirty();
+                              cudaDeltaMemory.dirty();
                               cudaDelta.freeRef();
                               cudaDeltaMemory.freeRef();
                               CudaTensorList temp_31_0006 = new CudaTensorList(
@@ -357,7 +328,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
                     }
                     //assert passbackTensorList.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(v->Double.isFinite(v));
                     input.freeRef();
-                  }, delta.addRef(), Result.addRefs(inObj),
+                  }, delta.addRef(), RefUtil.addRefs(inObj),
                   buffer == null ? null : buffer.addRef()));
               delta.freeRef();
               if (null != buffer)
@@ -371,12 +342,12 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
           }) {
 
         {
-          Result.addRefs(inObj);
+          RefUtil.addRefs(inObj);
         }
 
         @Override
         public boolean isAlive() {
-          return RefArrays.stream(Result.addRefs(inObj)).anyMatch(x -> {
+          return RefArrays.stream(RefUtil.addRefs(inObj)).anyMatch(x -> {
             boolean temp_31_0007 = x.isAlive();
             x.freeRef();
             return temp_31_0007;
@@ -385,6 +356,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision<ImgConca
 
         public void _free() {
           ReferenceCounting.freeRefs(inObj);
+          super._free();
         }
       };
     } finally {

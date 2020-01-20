@@ -42,7 +42,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 
 @SuppressWarnings("serial")
-public class NProductLayer extends LayerBase implements MultiPrecision<NProductLayer> {
+public class NProductLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
 
@@ -66,9 +66,8 @@ public class NProductLayer extends LayerBase implements MultiPrecision<NProductL
 
   @Nonnull
   @Override
-  public NProductLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   @Nonnull
@@ -78,29 +77,11 @@ public class NProductLayer extends LayerBase implements MultiPrecision<NProductL
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  NProductLayer[] addRefs(@Nullable NProductLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(NProductLayer::addRef)
-        .toArray((x) -> new NProductLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  NProductLayer[][] addRefs(@Nullable NProductLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(NProductLayer::addRefs)
-        .toArray((x) -> new NProductLayer[x][]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_36_0010 = getCompatibilityLayer();
-      Result temp_36_0008 = temp_36_0010.eval(Result.addRefs(inObj));
+      Result temp_36_0008 = temp_36_0010.eval(RefUtil.addRefs(inObj));
       temp_36_0010.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_36_0008;
@@ -138,7 +119,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision<NProductL
         @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
             dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
             dimensions[1] * dimensions[0], dimensions[0], 1);
-        TensorList temp_36_0002 = RefUtil.get(RefArrays.stream(Result.addRefs(inObj)).map(x -> {
+        TensorList temp_36_0002 = RefUtil.get(RefArrays.stream(RefUtil.addRefs(inObj)).map(x -> {
           TensorList temp_36_0003 = x.getData();
           x.freeRef();
           return temp_36_0003;
@@ -160,11 +141,11 @@ public class NProductLayer extends LayerBase implements MultiPrecision<NProductL
               rPtrMemory.getPtr(), precision.getPointer(0.0), outputDescriptor.getPtr(), outputPtr.getPtr()));
           rPtr.freeRef();
           lPtr.freeRef();
-          RefUtil.freeRef(lPtrMemory.dirty());
+          lPtrMemory.dirty();
           lPtrMemory.freeRef();
-          RefUtil.freeRef(rPtrMemory.dirty());
+          rPtrMemory.dirty();
           rPtrMemory.freeRef();
-          RefUtil.freeRef(outputPtr.dirty());
+          outputPtr.dirty();
           CudaTensorList temp_36_0004 = new CudaTensorList(
               new CudaTensor(outputPtr.addRef(),
                   outputDescriptor.addRef(), precision),
@@ -173,10 +154,10 @@ public class NProductLayer extends LayerBase implements MultiPrecision<NProductL
           return temp_36_0004;
         }, opDescriptor, outputDescriptor)));
         return temp_36_0002;
-      }, Result.addRefs(inObj)), RefArrays.stream(Result.addRefs(inObj)).map(Result::getData).toArray()),
+      }, RefUtil.addRefs(inObj)), RefArrays.stream(RefUtil.addRefs(inObj)).map(Result::getData).toArray()),
           new Result.Accumulator() {
             {
-              Result.addRefs(inObj);
+              RefUtil.addRefs(inObj);
             }
 
             @Override
@@ -189,7 +170,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision<NProductL
                   TensorList data = RefUtil.get(RefIntStream.range(0, inObj.length)
                       .mapToObj(RefUtil.wrapInterface((IntFunction<TensorList>) i -> {
                         return i == _index ? delta.addRef() : inObj[i].getData();
-                      }, Result.addRefs(inObj), delta.addRef())).reduce((l, r) -> {
+                      }, RefUtil.addRefs(inObj), delta.addRef())).reduce((l, r) -> {
                         CudaTensorList temp_36_0005 = CudaSystem
                             .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
                                   @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
@@ -215,11 +196,11 @@ public class NProductLayer extends LayerBase implements MultiPrecision<NProductL
                                   rPtr.freeRef();
                                   lPtr.freeRef();
                                   opDescriptor.freeRef();
-                                  RefUtil.freeRef(lPtrMemory.dirty());
+                                  lPtrMemory.dirty();
                                   lPtrMemory.freeRef();
-                                  RefUtil.freeRef(rPtrMemory.dirty());
+                                  rPtrMemory.dirty();
                                   rPtrMemory.freeRef();
-                                  RefUtil.freeRef(outputPtr.dirty());
+                                  outputPtr.dirty();
                                   CudaTensorList temp_36_0006 = new CudaTensorList(
                                       new CudaTensor(outputPtr.addRef(),
                                           outputDescriptor.addRef(), precision),
@@ -250,7 +231,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision<NProductL
           }) {
 
         {
-          Result.addRefs(inObj);
+          RefUtil.addRefs(inObj);
         }
 
         @Override
@@ -276,8 +257,8 @@ public class NProductLayer extends LayerBase implements MultiPrecision<NProductL
 
         public void _free() {
           ReferenceCounting.freeRefs(inObj);
+          super._free();
         }
-
       };
     } finally {
       ReferenceCounting.freeRefs(inObj);

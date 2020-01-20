@@ -33,13 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
 @SuppressWarnings("serial")
-public class GramianLayer extends LayerBase implements MultiPrecision<GramianLayer> {
+public class GramianLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(GramianLayer.class);
 
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
@@ -62,10 +61,8 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
     return alpha;
   }
 
-  @Nonnull
-  public GramianLayer setAlpha(final double alpha) {
+  public void setAlpha(double alpha) {
     this.alpha = alpha;
-    return this.addRef();
   }
 
   @Override
@@ -75,32 +72,14 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
 
   @Nonnull
   @Override
-  public GramianLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   @Nonnull
   @SuppressWarnings("unused")
   public static GramianLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new GramianLayer(json, rs);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  GramianLayer[] addRefs(@Nullable GramianLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(GramianLayer::addRef).toArray((x) -> new GramianLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  GramianLayer[][] addRefs(@Nullable GramianLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(GramianLayer::addRefs)
-        .toArray((x) -> new GramianLayer[x][]);
   }
 
   @Nullable
@@ -122,97 +101,90 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
           return temp_43_0002;
         }, inputData.addRef()), inputData.addRef());
     try {
-      try {
-        try {
-          return new Result(tensorList, new Result.Accumulator() {
-            {
-              Result.addRefs(inObj);
-              inputData.addRef();
-            }
-
-            @Override
-            public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
-              @Nonnull final int[] outputDimensions = {1, 1, inputDimensions[2] * inputDimensions[2]};
-              if (!RefArrays.equals(delta.getDimensions(), outputDimensions)) {
-                if (null != buffer)
-                  buffer.freeRef();
-                AssertionError temp_43_0009 = new AssertionError(
-                    RefArrays.toString(delta.getDimensions()) + " != " + RefArrays.toString(outputDimensions));
-                delta.freeRef();
-                throw temp_43_0009;
-              }
-              if (inObj[0].isAlive()) {
-                final TensorList passbackTensorList = CudaSystem
-                    .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                          @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(),
-                              precision, MemoryType.Device, true);
-                          CudaTensor deltaTensor = gpu.getTensor(delta.addRef(), precision,
-                              MemoryType.Device, true);
-                          CudaTensorList temp_43_0004 = GramianLayer.this.getFeedback(gpu,
-                              inputTensor.addRef(),
-                              deltaTensor.addRef());
-                          deltaTensor.freeRef();
-                          inputTensor.freeRef();
-                          return temp_43_0004;
-                        }, delta.addRef(), inputData.addRef()),
-                        delta.addRef());
-                inObj[0].accumulate(buffer == null ? null : buffer.addRef(),
-                    passbackTensorList == null ? null : passbackTensorList.addRef());
-                if (null != passbackTensorList)
-                  passbackTensorList.freeRef();
-              }
-              delta.freeRef();
-              if (null != buffer)
-                buffer.freeRef();
-            }
-
-            public @SuppressWarnings("unused")
-            void _free() {
-              ReferenceCounting.freeRefs(inObj);
-              inputData.freeRef();
-            }
-          }) {
-
-            {
-              Result.addRefs(inObj);
-            }
-
-            @Override
-            public boolean isAlive() {
-              return RefArrays.stream(Result.addRefs(inObj)).anyMatch(x -> {
-                boolean temp_43_0005 = x.isAlive();
-                x.freeRef();
-                return temp_43_0005;
-              });
-            }
-
-            @Override
-            public final void accumulate(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
-              Result.Accumulator temp_43_0010 = getAccumulator();
-              assert temp_43_0010 != null;
-              temp_43_0010.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
-              temp_43_0010.freeRef();
-              if (null != delta)
-                delta.freeRef();
-              if (null != buffer)
-                buffer.freeRef();
-            }
-
-            public void _free() {
-              ReferenceCounting.freeRefs(inObj);
-            }
-          };
-        } finally {
-          ReferenceCounting.freeRefs(inObj);
+      Result.Accumulator accumulator = new Result.Accumulator() {
+        {
+          RefUtil.addRefs(inObj);
+          inputData.addRef();
         }
-      } finally {
-        if (null != tensorList)
-          tensorList.freeRef();
-      }
+
+        @Override
+        public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
+          @Nonnull final int[] outputDimensions = {1, 1, inputDimensions[2] * inputDimensions[2]};
+          if (!RefArrays.equals(delta.getDimensions(), outputDimensions)) {
+            if (null != buffer)
+              buffer.freeRef();
+            AssertionError temp_43_0009 = new AssertionError(
+                RefArrays.toString(delta.getDimensions()) + " != " + RefArrays.toString(outputDimensions));
+            delta.freeRef();
+            throw temp_43_0009;
+          }
+          if (inObj[0].isAlive()) {
+            final TensorList passbackTensorList = CudaSystem
+                .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
+                      @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(),
+                          precision, MemoryType.Device, true);
+                      CudaTensor deltaTensor = gpu.getTensor(delta.addRef(), precision,
+                          MemoryType.Device, true);
+                      CudaTensorList temp_43_0004 = GramianLayer.this.getFeedback(gpu,
+                          inputTensor.addRef(),
+                          deltaTensor.addRef());
+                      deltaTensor.freeRef();
+                      inputTensor.freeRef();
+                      return temp_43_0004;
+                    }, delta.addRef(), inputData.addRef()),
+                    delta.addRef());
+            inObj[0].accumulate(buffer == null ? null : buffer.addRef(),
+                passbackTensorList == null ? null : passbackTensorList.addRef());
+            if (null != passbackTensorList)
+              passbackTensorList.freeRef();
+          }
+          delta.freeRef();
+          if (null != buffer)
+            buffer.freeRef();
+        }
+
+        public @SuppressWarnings("unused")
+        void _free() {
+          ReferenceCounting.freeRefs(inObj);
+          inputData.freeRef();
+        }
+      };
+      return new Result(tensorList, accumulator) {
+
+        {
+          RefUtil.addRefs(inObj);
+        }
+
+        @Override
+        public boolean isAlive() {
+          return RefArrays.stream(RefUtil.addRefs(inObj)).anyMatch(x -> {
+            boolean temp_43_0005 = x.isAlive();
+            x.freeRef();
+            return temp_43_0005;
+          });
+        }
+
+        @Override
+        public final void accumulate(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
+          Result.Accumulator temp_43_0010 = getAccumulator();
+          assert temp_43_0010 != null;
+          temp_43_0010.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
+          temp_43_0010.freeRef();
+          if (null != delta)
+            delta.freeRef();
+          if (null != buffer)
+            buffer.freeRef();
+        }
+
+        public void _free() {
+          ReferenceCounting.freeRefs(inObj);
+          super._free();
+        }
+      };
     } finally {
+      ReferenceCounting.freeRefs(inObj);
       inputData.freeRef();
     }
-
   }
 
   @Nonnull
@@ -272,25 +244,25 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
           CudaSystem.handle(gpu.cudnnOpTensor(multiplyDescriptor.getPtr(), precision.getPointer(1.0),
               inputTensor.descriptor.getPtr(), inputMemory.getPtr(), precision.getPointer(1.0), viewDescriptor1.getPtr(),
               deltaView1.getPtr(), precision.getPointer(0.0), bufferDescriptor.getPtr(), bufferMemory.getPtr()));
-          RefUtil.freeRef(inputMemory.dirty());
-          RefUtil.freeRef(deltaView1.dirty());
+          inputMemory.dirty();
+          deltaView1.dirty();
           deltaView1.freeRef();
-          RefUtil.freeRef(bufferMemory.dirty());
+          bufferMemory.dirty();
           CudaMemory deltaView2 = deltaMemory.withByteOffset(band * precision.size);
           CudaSystem.handle(gpu.cudnnOpTensor(multiplyDescriptor.getPtr(), precision.getPointer(1.0),
               inputTensor.descriptor.getPtr(), inputMemory.getPtr(), precision.getPointer(1.0), viewDescriptor2.getPtr(),
               deltaView2.getPtr(), precision.getPointer(1.0), bufferDescriptor.getPtr(), bufferMemory.getPtr()));
-          RefUtil.freeRef(inputMemory.dirty());
-          RefUtil.freeRef(deltaView2.dirty());
+          inputMemory.dirty();
+          deltaView2.dirty();
           deltaView2.freeRef();
-          RefUtil.freeRef(bufferMemory.dirty());
+          bufferMemory.dirty();
           CudaMemory outputViewMem = outputMemory.withByteOffset(bandDescriptor.cStride * band * precision.size);
           gpu.cudnnReduceTensor(reduceAddDescriptor.getPtr(), indexPtr.getPtr(), indexPtr.size, workspacePtr.getPtr(),
               workspacePtr.size, precision.getPointer(alpha / pixels), bufferDescriptor.getPtr(), bufferMemory.getPtr(),
               precision.getPointer(0.0), bandDescriptor.getPtr(), outputViewMem.getPtr());
-          RefUtil.freeRef(outputViewMem.dirty());
+          outputViewMem.dirty();
           outputViewMem.freeRef();
-          RefUtil.freeRef(bufferMemory.dirty());
+          bufferMemory.dirty();
         }, workspacePtr, bufferDescriptor,
         inputTensor.addRef(), bufferMemory.addRef(),
         viewDescriptor1, bandDescriptor,
@@ -364,17 +336,17 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
               gpu.cudnnOpTensor(multiplyDescriptor.getPtr(), precision.getPointer(1.0), inputTensor.descriptor.getPtr(),
                   inputMemory.getPtr(), precision.getPointer(1.0), inputViewDescriptor.getPtr(), inputView.getPtr(),
                   precision.getPointer(0.0), bufferDescriptor.getPtr(), bufferMemory.getPtr()));
-          RefUtil.freeRef(bufferMemory.dirty());
-          RefUtil.freeRef(inputView.dirty());
+          bufferMemory.dirty();
+          inputView.dirty();
           inputView.freeRef();
-          RefUtil.freeRef(inputMemory.dirty());
+          inputMemory.dirty();
           CudaMemory outputView = outputMemory.withByteOffset(band * precision.size * bands);
           CudaSystem.handle(gpu.cudnnReduceTensor(reduceAddDescriptor.getPtr(), indexPtr.getPtr(), indexPtr.size,
               workspacePtr.getPtr(), workspacePtr.size, precision.getPointer(alpha / pixels), bufferDescriptor.getPtr(),
               bufferMemory.getPtr(), precision.getPointer(0.0), outputViewDescriptor.getPtr(), outputView.getPtr()));
-          RefUtil.freeRef(outputView.dirty());
+          outputView.dirty();
           outputView.freeRef();
-          RefUtil.freeRef(bufferMemory.dirty());
+          bufferMemory.dirty();
         }, outputMemory.addRef(), bufferDescriptor,
         indexPtr, inputViewDescriptor,
         inputMemory.addRef(),
@@ -385,10 +357,10 @@ public class GramianLayer extends LayerBase implements MultiPrecision<GramianLay
 
     inputTensor.freeRef();
     reduceAddDescriptor.freeRef();
-    RefUtil.freeRef(outputMemory.dirty());
-    RefUtil.freeRef(bufferMemory.dirty());
+    outputMemory.dirty();
+    bufferMemory.dirty();
     bufferMemory.freeRef();
-    RefUtil.freeRef(inputMemory.dirty());
+    inputMemory.dirty();
 
     inputMemory.freeRef();
     CudaTensorList temp_43_0007 = new CudaTensorList(new CudaTensor(outputMemory.addRef(),

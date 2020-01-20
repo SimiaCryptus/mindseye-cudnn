@@ -22,29 +22,12 @@ package com.simiacryptus.mindseye.lang.cudnn;
 import jcuda.runtime.cudaStream_t;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public class CudaStream extends CudaResource<cudaStream_t> {
   CudaStream(cudaStream_t stream) {
     super(stream, CudaSystem::cudaStreamDestroy, CudaSystem.getThreadDeviceId());
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudaStream[] addRefs(@Nullable CudaStream[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaStream::addRef).toArray((x) -> new CudaStream[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudaStream[][] addRefs(@Nullable CudaStream[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaStream::addRefs).toArray((x) -> new CudaStream[x][]);
-  }
 
   public void sync() {
     CudaSystem.cudaStreamSynchronize(getPtr());

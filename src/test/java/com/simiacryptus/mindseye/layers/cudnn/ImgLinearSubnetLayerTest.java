@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,24 +47,6 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgLinearSubnetLayerTest[] addRefs(@Nullable ImgLinearSubnetLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRef)
-        .toArray((x) -> new ImgLinearSubnetLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgLinearSubnetLayerTest[][] addRefs(@Nullable ImgLinearSubnetLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayerTest::addRefs)
-        .toArray((x) -> new ImgLinearSubnetLayerTest[x][]);
-  }
-
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -80,9 +63,15 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     ImgLinearSubnetLayer temp_67_0002 = new ImgLinearSubnetLayer();
-    ImgLinearSubnetLayer temp_67_0003 = temp_67_0002.add(0, 1, layer1 == null ? null : layer1.addRef());
-    ImgLinearSubnetLayer temp_67_0004 = temp_67_0003.add(1, 2, layer2 == null ? null : layer2.addRef());
-    ImgLinearSubnetLayer temp_67_0001 = temp_67_0004.add(2, 3, layer3 == null ? null : layer3.addRef());
+    final Layer layer5 = layer1 == null ? null : layer1.addRef();
+    temp_67_0002.add(0, 1, layer5);
+    ImgLinearSubnetLayer temp_67_0003 = temp_67_0002.addRef();
+    final Layer layer4 = layer2 == null ? null : layer2.addRef();
+    temp_67_0003.add(1, 2, layer4);
+    ImgLinearSubnetLayer temp_67_0004 = temp_67_0003.addRef();
+    final Layer layer = layer3 == null ? null : layer3.addRef();
+    temp_67_0004.add(2, 3, layer);
+    ImgLinearSubnetLayer temp_67_0001 = temp_67_0004.addRef();
     temp_67_0004.freeRef();
     temp_67_0003.freeRef();
     temp_67_0002.freeRef();
@@ -108,14 +97,6 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
 
   public static class Basic extends ImgLinearSubnetLayerTest {
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(@Nullable Basic[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -126,7 +107,6 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
     Basic addRef() {
       return (Basic) super.addRef();
     }
-
   }
 
 }

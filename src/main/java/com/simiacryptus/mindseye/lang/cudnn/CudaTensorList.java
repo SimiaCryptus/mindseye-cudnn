@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.lang.cudnn;
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.lang.UncheckedSupplier;
 import com.simiacryptus.mindseye.lang.*;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.*;
@@ -147,24 +148,6 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     return temp_07_0010;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudaTensorList[] addRefs(@Nullable CudaTensorList[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaTensorList::addRef)
-        .toArray((x) -> new CudaTensorList[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudaTensorList[][] addRefs(@Nullable CudaTensorList[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudaTensorList::addRefs)
-        .toArray((x) -> new CudaTensorList[x][]);
-  }
-
   @Override
   public TensorList addAndFree(@Nonnull final TensorList right) {
     assertAlive();
@@ -272,6 +255,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
 
   @Override
   @Nonnull
+  @RefAware
   public Tensor get(final int i) {
     assertAlive();
     if (heapCopy != null)
@@ -284,7 +268,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
         if (gpuCopy.isDense()) {
           CudaMemory memory = gpuCopy.getMemory(gpu.addRef());
           assert memory != null;
-          RefUtil.freeRef(memory.read(gpuCopy.getPrecision(), t.getData(), i * Tensor.length(getDimensions())));
+          memory.read(gpuCopy.getPrecision(), t.getData(), i * Tensor.length(getDimensions()));
           memory.freeRef();
         } else {
           gpuCopy.read(gpu.addRef(), i, t.addRef(), false);
@@ -293,10 +277,12 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
       }, gpuCopy.addRef(), gpu));
       CudaTensorList.logger.debug(RefString.format("Read %s bytes in %.4f from Tensor %s, GPU at %s, created by %s",
           gpuCopy.size(), timedResult.seconds(),
-          Integer.toHexString(RefSystem.identityHashCode(timedResult.result)),
+          Integer.toHexString(RefSystem.identityHashCode(timedResult.getResult())),
           Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
           Util.toString(createdBy).replaceAll("\n", "\n\t")));
-      return timedResult.result;
+      Tensor result = timedResult.getResult();
+      timedResult.freeRef();
+      return result;
     }, gpuCopy), this.addRef());
   }
 
@@ -344,10 +330,10 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
       throw new IllegalStateException();
     }
     temp_07_0024.freeRef();
-    CudaTensor ptr;
+    CudaTensor ptr = null;
     synchronized (this) {
+      RefUtil.freeRef(ptr);
       ptr = this.gpuCopy.addRef();
-      CudaTensor temp_07_0002 = null;
       if (null != this.gpuCopy)
         this.gpuCopy.freeRef();
       this.gpuCopy = null;
@@ -400,47 +386,34 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
 
   @Nullable
   private TensorArray heapCopy(final boolean avoidAllocations) {
-    TensorArray heapCopy = this.heapCopy.addRef();
     if (heapCopy.isFinalized()) {
       assertAlive();
       TensorArray copy = toHeap(avoidAllocations);
-      final TensorArray prev;
       synchronized (this) {
-        heapCopy = this.heapCopy.addRef();
-        if (copy == heapCopy) {
-          prev = null;
-        } else if (heapCopy.isFinalized()) {
-          prev = this.heapCopy.addRef();
-          TensorArray temp_07_0006 = copy == null ? null : copy.addRef();
+        if (copy != heapCopy && heapCopy.isFinalized()) {
           if (null != this.heapCopy)
             this.heapCopy.freeRef();
-          this.heapCopy = temp_07_0006 == null ? null : temp_07_0006.addRef();
-          if (null != temp_07_0006)
-            temp_07_0006.freeRef();
-          heapCopy = copy == null ? null : copy.addRef();
+          this.heapCopy = copy;
         } else {
-          prev = null;
+          if (null != copy)
+            copy.freeRef();
         }
       }
-      if (null != prev)
-        prev.freeRef();
-      if (null != copy)
-        copy.freeRef();
     }
-    return heapCopy;
+    return this.heapCopy.addRef();
   }
 
   @Nullable
   private TensorArray toHeap(final boolean avoidAllocations) {
     CudaTensor gpuCopy = this.gpuCopy.addRef();
     if (!gpuCopy.tryAddRef()) {
+      gpuCopy.freeRef();
       if (null == heapCopy) {
-        gpuCopy.freeRef();
         throw new IllegalStateException("No data");
       } else if (heapCopy.isFinalized()) {
         throw new IllegalStateException("Local data has been freed");
       } else {
-        return heapCopy == null ? null : heapCopy.addRef();
+        return heapCopy.addRef();
       }
     }
     int length = getLength();
@@ -464,16 +437,18 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
                     gpuCopy.read(gpu, i, output[i].addRef(), avoidAllocations);
                     assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
                   }
-                  return new TensorArray(Tensor.addRefs(output));
-                }, Tensor.addRefs(output), gpuCopy.addRef()), this.addRef()),
-            Tensor.addRefs(output), gpuCopy.addRef()));
+                  return new TensorArray(RefUtil.addRefs(output));
+                }, RefUtil.addRefs(output), gpuCopy.addRef()), this.addRef()),
+            RefUtil.addRefs(output), gpuCopy.addRef()));
     ReferenceCounting.freeRefs(output);
+    TensorArray result = timedResult.getResult();
     CudaTensorList.logger.debug(RefString.format("Read %s bytes in %.4f from Tensor %s on GPU at %s, created by %s",
         gpuCopy.size(), timedResult.seconds(),
-        Integer.toHexString(RefSystem.identityHashCode(timedResult.result)),
+        Integer.toHexString(RefSystem.identityHashCode(result.addRef())),
         Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
         Util.toString(createdBy).replaceAll("\n", "\n\t")));
+    timedResult.freeRef();
     gpuCopy.freeRef();
-    return timedResult.result;
+    return result;
   }
 }

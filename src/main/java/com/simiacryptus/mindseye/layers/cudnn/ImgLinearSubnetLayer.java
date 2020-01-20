@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 @SuppressWarnings("serial")
-public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<ImgLinearSubnetLayer> {
+public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
 
   private static final Logger logger = LoggerFactory.getLogger(ImgLinearSubnetLayer.class);
   private final RefList<SubnetLeg> legs = new RefArrayList<>();
@@ -75,9 +75,8 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
 
   @Nonnull
   @Override
-  public ImgLinearSubnetLayer setPrecision(Precision precision) {
+  public void setPrecision(Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   public boolean isParallel() {
@@ -94,33 +93,13 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
     return new ImgLinearSubnetLayer(json, rs);
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgLinearSubnetLayer[] addRefs(@Nullable ImgLinearSubnetLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRef)
-        .toArray((x) -> new ImgLinearSubnetLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgLinearSubnetLayer[][] addRefs(@Nullable ImgLinearSubnetLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgLinearSubnetLayer::addRefs)
-        .toArray((x) -> new ImgLinearSubnetLayer[x][]);
-  }
-
-  @Nonnull
-  public ImgLinearSubnetLayer add(final int from, final int to, @Nullable final Layer layer) {
-    RefList<ImgLinearSubnetLayer.SubnetLeg> temp_06_0010 = getLegs();
+  public void add(int from, int to, @Nullable Layer layer) {
+    RefList<SubnetLeg> temp_06_0010 = getLegs();
     assert temp_06_0010 != null;
     temp_06_0010.add(new SubnetLeg(layer == null ? null : layer.addRef(), from, to));
     temp_06_0010.freeRef();
     if (null != layer)
       layer.freeRef();
-    return this.addRef();
   }
 
   @Nullable
@@ -150,9 +129,8 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
     }, inputData.addRef()));
     inputData.freeRef();
     AtomicInteger counter = new AtomicInteger(0);
-    Result[] legResults;
-    legResults = legs.stream()
-        .map(RefUtil.wrapInterface((Function<? super ImgLinearSubnetLayer.SubnetLeg, ? extends Result>) leg -> {
+    Result[] legResults = legs.stream()
+        .map(RefUtil.wrapInterface((Function<? super SubnetLeg, ? extends Result>) leg -> {
           ImgBandSelectLayer imgBandSelectLayer = new ImgBandSelectLayer(leg.fromBand, leg.toBand);
           Result temp_06_0011 = imgBandSelectLayer.eval(input.addRef());
           assert temp_06_0011 != null;
@@ -160,7 +138,7 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
           temp_06_0011.freeRef();
           imgBandSelectLayer.freeRef();
           assert leg.inner != null;
-          Result temp_06_0006 = leg.inner.eval(new Result(legData, new Result.Accumulator() {
+          Result.Accumulator accumulator = new Result.Accumulator() {
             {
             }
 
@@ -187,9 +165,9 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
                           passbackBuffer.getPtr().withByteOffset(byteOffset));
                       deltaTensor.freeRef();
                       viewDescriptor.freeRef();
-                      RefUtil.freeRef(errorPtrMemory.dirty());
+                      errorPtrMemory.dirty();
                       errorPtrMemory.freeRef();
-                      RefUtil.freeRef(passbackBuffer.dirty());
+                      passbackBuffer.dirty();
                       passbackBuffer.freeRef();
                     }, passback.addRef(), delta.addRef(),
                     leg.addRef()), passback.addRef());
@@ -207,18 +185,9 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
             public @SuppressWarnings("unused")
             void _free() {
             }
-          }) {
-            public void _free() {
-              super._free();
-            }
-          });
-          legData.freeRef();
+          };
+          Result temp_06_0006 = leg.inner.eval(new Result(legData, accumulator));
           leg.freeRef();
-          //
-          //
-          //
-          //
-          //assert error.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(Double::isFinite);
           return temp_06_0006;
         }, passback == null ? null : passback.addRef(), input.addRef()))
         .toArray(i -> new Result[i]);
@@ -226,11 +195,13 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
       passback.freeRef();
     input.freeRef();
     SumInputsLayer temp_06_0009 = new SumInputsLayer();
-    SumInputsLayer temp_06_0012 = temp_06_0009.setParallel(parallel);
-    SumInputsLayer sumInputsLayer = temp_06_0012.setPrecision(precision);
+    temp_06_0009.setParallel(parallel);
+    SumInputsLayer temp_06_0012 = temp_06_0009.addRef();
+    temp_06_0012.setPrecision(precision);
+    SumInputsLayer sumInputsLayer = RefUtil.addRef(temp_06_0012);
     temp_06_0012.freeRef();
     temp_06_0009.freeRef();
-    Result temp_06_0005 = sumInputsLayer.eval(Result.addRefs(legResults));
+    Result temp_06_0005 = sumInputsLayer.eval(RefUtil.addRefs(legResults));
     sumInputsLayer.freeRef();
     ReferenceCounting.freeRefs(legResults);
     return temp_06_0005;
@@ -260,17 +231,16 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
 
   @Nonnull
   @Override
-  public Layer setFrozen(final boolean frozen) {
+  public void setFrozen(final boolean frozen) {
     legs.stream().map(x -> {
       Layer temp_06_0008 = x.inner;
       x.freeRef();
       return temp_06_0008;
     }).forEach(x -> {
       assert x != null;
-      RefUtil.freeRef(x.setFrozen(frozen));
+      x.setFrozen(frozen);
       x.freeRef();
     });
-    return super.setFrozen(frozen);
   }
 
   public void _free() {
@@ -312,14 +282,6 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
       temp_06_0002.freeRef();
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    SubnetLeg[] addRefs(@Nullable SubnetLeg[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(SubnetLeg::addRef).toArray((x) -> new SubnetLeg[x]);
-    }
-
     @Nonnull
     public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
       @Nonnull final JsonObject json = new JsonObject();
@@ -342,6 +304,5 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision<Im
     SubnetLeg addRef() {
       return (SubnetLeg) super.addRef();
     }
-
   }
 }

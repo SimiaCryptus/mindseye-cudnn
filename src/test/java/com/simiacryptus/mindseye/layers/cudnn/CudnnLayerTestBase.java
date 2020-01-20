@@ -23,6 +23,7 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSystem;
 import com.simiacryptus.mindseye.layers.LayerTestBase;
 import com.simiacryptus.notebook.NotebookOutput;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,24 +33,6 @@ import java.io.PrintStream;
 import java.util.Arrays;
 
 public abstract class CudnnLayerTestBase extends LayerTestBase {
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudnnLayerTestBase[] addRefs(@Nullable CudnnLayerTestBase[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudnnLayerTestBase::addRef)
-        .toArray((x) -> new CudnnLayerTestBase[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CudnnLayerTestBase[][] addRefs(@Nullable CudnnLayerTestBase[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CudnnLayerTestBase::addRefs)
-        .toArray((x) -> new CudnnLayerTestBase[x][]);
-  }
 
   @Override
   public void run(@Nonnull NotebookOutput log) {

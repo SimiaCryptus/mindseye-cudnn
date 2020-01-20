@@ -62,24 +62,6 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     return new SingleDerivativeTester(1e-2, 1e-4);
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ActivationLayerTest[] addRefs(@Nullable ActivationLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ActivationLayerTest::addRef)
-        .toArray((x) -> new ActivationLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ActivationLayerTest[][] addRefs(@Nullable ActivationLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ActivationLayerTest::addRefs)
-        .toArray((x) -> new ActivationLayerTest[x][]);
-  }
-
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -90,7 +72,8 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     ActivationLayer temp_21_0003 = new ActivationLayer(mode);
-    ActivationLayer temp_21_0002 = temp_21_0003.setPrecision(precision);
+    temp_21_0003.setPrecision(precision);
+    ActivationLayer temp_21_0002 = RefUtil.addRef(temp_21_0003);
     temp_21_0003.freeRef();
     return temp_21_0002;
   }
@@ -137,7 +120,6 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     }, plotData == null ? null : plotData.addRef()));
     if (null != plotData)
       plotData.freeRef();
-
   }
 
   public @SuppressWarnings("unused")
@@ -159,14 +141,6 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     @Override
     public Layer getReferenceLayer() {
       return new ReLuActivationLayer();
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    ReLu_Double[] addRefs(@Nullable ReLu_Double[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(ReLu_Double::addRef).toArray((x) -> new ReLu_Double[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -191,14 +165,6 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
       return new ReLuActivationLayer();
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    ReLu_Float[] addRefs(@Nullable ReLu_Float[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(ReLu_Float::addRef).toArray((x) -> new ReLu_Float[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -219,7 +185,8 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     @Override
     public Layer getReferenceLayer() {
       SigmoidActivationLayer temp_21_0005 = new SigmoidActivationLayer();
-      SigmoidActivationLayer temp_21_0004 = temp_21_0005.setBalanced(false);
+      temp_21_0005.setBalanced(false);
+      SigmoidActivationLayer temp_21_0004 = temp_21_0005.addRef();
       temp_21_0005.freeRef();
       return temp_21_0004;
     }
@@ -253,7 +220,8 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     @Override
     public Layer getReferenceLayer() {
       SigmoidActivationLayer temp_21_0007 = new SigmoidActivationLayer();
-      SigmoidActivationLayer temp_21_0006 = temp_21_0007.setBalanced(false);
+      temp_21_0007.setBalanced(false);
+      SigmoidActivationLayer temp_21_0006 = temp_21_0007.addRef();
       temp_21_0007.freeRef();
       return temp_21_0006;
     }

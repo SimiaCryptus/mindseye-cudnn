@@ -29,7 +29,6 @@ import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -71,21 +70,6 @@ public class ValueLayer extends LayerBase {
     return new ValueLayer(json, rs);
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ValueLayer[] addRefs(@Nullable ValueLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef).toArray((x) -> new ValueLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ValueLayer[][] addRefs(@Nullable ValueLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs).toArray((x) -> new ValueLayer[x][]);
-  }
 
   @Nullable
   public CudaTensorList toDevice(@Nullable final Tensor data, @Nonnull final Precision precision) {
@@ -125,16 +109,7 @@ public class ValueLayer extends LayerBase {
       public @SuppressWarnings("unused")
       void _free() {
       }
-    }) {
-
-      @Override
-      public boolean isAlive() {
-        return false;
-      }
-
-      public void _free() {
-      }
-    };
+    });
   }
 
   @Nonnull

@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,15 +46,6 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
         .toArray((x) -> new ImgBandBiasLayerTest[x]);
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgBandBiasLayerTest[][] addRefs(@Nullable ImgBandBiasLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgBandBiasLayerTest::addRefs)
-        .toArray((x) -> new ImgBandBiasLayerTest[x][]);
-  }
-
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -64,8 +56,10 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
     ImgBandBiasLayer temp_55_0002 = new ImgBandBiasLayer(3);
-    ImgBandBiasLayer temp_55_0003 = temp_55_0002.setPrecision(precision);
-    ImgBandBiasLayer temp_55_0001 = temp_55_0003.addWeights(this::random);
+    temp_55_0002.setPrecision(precision);
+    ImgBandBiasLayer temp_55_0003 = RefUtil.addRef(temp_55_0002);
+    temp_55_0003.addWeights(this::random);
+    ImgBandBiasLayer temp_55_0001 = temp_55_0003.addRef();
     temp_55_0003.freeRef();
     temp_55_0002.freeRef();
     return temp_55_0001;
@@ -93,14 +87,6 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
       super(Precision.Double);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Double[] addRefs(@Nullable Double[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Double::addRef).toArray((x) -> new Double[x]);
-    }
-
     public @SuppressWarnings("unused")
     void _free() {
     }
@@ -121,14 +107,6 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
     @Override
     public SingleDerivativeTester getDerivativeTester() {
       return new SingleDerivativeTester(1e-2, 1e-3);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Float[] addRefs(@Nullable Float[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Float::addRef).toArray((x) -> new Float[x]);
     }
 
     public @SuppressWarnings("unused")

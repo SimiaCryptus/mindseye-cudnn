@@ -43,7 +43,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.IntToDoubleFunction;
 
 @SuppressWarnings("serial")
-public class ConvolutionLayer extends LayerBase implements MultiPrecision<ConvolutionLayer>, Explodable {
+public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explodable {
 
   @Nullable
   private final Tensor kernel;
@@ -71,27 +71,21 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     Tensor temp_04_0001 = new Tensor(width, height, inputBands * outputBands);
     this.kernel = temp_04_0001.addRef();
     temp_04_0001.freeRef();
-    Tensor temp_04_0011 = getKernel();
-    assert temp_04_0011 != null;
-    if (temp_04_0011.getDimensions().length != 3)
+    Tensor kernel = getKernel();
+    assert kernel != null;
+    int[] kernelDimensions = kernel.getDimensions();
+    kernel.freeRef();
+    if (kernelDimensions.length != 3)
       throw new IllegalArgumentException();
-    temp_04_0011.freeRef();
-    Tensor temp_04_0012 = getKernel();
-    if (temp_04_0012.getDimensions()[0] <= 0)
+    if (kernelDimensions[0] <= 0)
       throw new IllegalArgumentException();
-    temp_04_0012.freeRef();
-    Tensor temp_04_0013 = getKernel();
-    if (temp_04_0013.getDimensions()[1] <= 0)
+    if (kernelDimensions[1] <= 0)
       throw new IllegalArgumentException();
-    temp_04_0013.freeRef();
-    Tensor temp_04_0014 = getKernel();
-    if (temp_04_0014.getDimensions()[2] <= 0)
+    if (kernelDimensions[2] <= 0)
       throw new IllegalArgumentException();
-    temp_04_0014.freeRef();
     this.inputBands = inputBands;
     this.outputBands = outputBands;
-    int batchBands = (int) Math.sqrt(CudaSettings.INSTANCE().getMaxFilterElements() / (width * height));
-    RefUtil.freeRef(setBatchBands(batchBands));
+    setBatchBands((int) Math.sqrt(CudaSettings.INSTANCE().getMaxFilterElements() / (width * height)));
   }
 
   protected ConvolutionLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
@@ -104,15 +98,17 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     assert temp_04_0015 != null;
     assert temp_04_0015.isValid();
     temp_04_0015.freeRef();
-    RefUtil.freeRef(this.setBatchBands(json.get("batchBands").getAsInt()));
-    RefUtil.freeRef(this.setStrideX(json.get("strideX").getAsInt()));
-    RefUtil.freeRef(this.setStrideY(json.get("strideY").getAsInt()));
+    setBatchBands(json.get("batchBands").getAsInt());
+    setStrideX(json.get("strideX").getAsInt());
+    setStrideY(json.get("strideY").getAsInt());
     JsonElement paddingX = json.get("paddingX");
-    if (null != paddingX && paddingX.isJsonPrimitive())
-      this.setPaddingX((paddingX.getAsInt())).freeRef();
+    if (null != paddingX && paddingX.isJsonPrimitive()) {
+      setPaddingX(paddingX.getAsInt());
+    }
     JsonElement paddingY = json.get("paddingY");
-    if (null != paddingY && paddingY.isJsonPrimitive())
-      this.setPaddingY((paddingY.getAsInt())).freeRef();
+    if (null != paddingY && paddingY.isJsonPrimitive()) {
+      setPaddingY(paddingY.getAsInt());
+    }
     this.precision = Precision.valueOf(json.get("precision").getAsString());
     this.inputBands = json.get("inputBands").getAsInt();
     this.outputBands = json.get("outputBands").getAsInt();
@@ -122,10 +118,8 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     return batchBands;
   }
 
-  @Nonnull
-  public ConvolutionLayer setBatchBands(int batchBands) {
+  public void setBatchBands(int batchBands) {
     this.batchBands = batchBands;
-    return this.addRef();
   }
 
   @Nonnull
@@ -149,7 +143,9 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
       batchBands = Math.max(inputBands, outputBands);
     }
     ExplodedConvolutionGrid temp_04_0010 = new ExplodedConvolutionGrid(getConvolutionParams(), batchBands);
-    ExplodedConvolutionGrid temp_04_0009 = temp_04_0010.write(kernel == null ? null : kernel.addRef());
+    Tensor filter = kernel == null ? null : kernel.addRef();
+    temp_04_0010.write(filter);
+    ExplodedConvolutionGrid temp_04_0009 = temp_04_0010.addRef();
     temp_04_0010.freeRef();
     //    if (batchBands > outputBands * 2) {
     //      batchBands = outputBands;
@@ -181,10 +177,8 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     return paddingX;
   }
 
-  @Nonnull
-  public ConvolutionLayer setPaddingX(Integer paddingX) {
+  public void setPaddingX(Integer paddingX) {
     this.paddingX = paddingX;
-    return this.addRef();
   }
 
   @Nullable
@@ -192,10 +186,8 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     return paddingY;
   }
 
-  @Nonnull
-  public ConvolutionLayer setPaddingY(Integer paddingY) {
+  public void setPaddingY(Integer paddingY) {
     this.paddingY = paddingY;
-    return this.addRef();
   }
 
   @Override
@@ -205,53 +197,30 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
 
   @Nonnull
   @Override
-  public ConvolutionLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   public int getStrideX() {
     return strideX;
   }
 
-  @Nonnull
-  public ConvolutionLayer setStrideX(int strideX) {
+  public void setStrideX(int strideX) {
     this.strideX = strideX;
-    return this.addRef();
   }
 
   public int getStrideY() {
     return strideY;
   }
 
-  @Nonnull
-  public ConvolutionLayer setStrideY(int strideY) {
+  public void setStrideY(int strideY) {
     this.strideY = strideY;
-    return this.addRef();
   }
 
   @Nonnull
   @SuppressWarnings("unused")
   public static ConvolutionLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ConvolutionLayer(json, rs);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ConvolutionLayer[] addRefs(@Nullable ConvolutionLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayer::addRef)
-        .toArray((x) -> new ConvolutionLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ConvolutionLayer[][] addRefs(@Nullable ConvolutionLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ConvolutionLayer::addRefs)
-        .toArray((x) -> new ConvolutionLayer[x][]);
   }
 
   @Nonnull
@@ -261,7 +230,7 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     ExplodedConvolutionGrid explodedNetwork = getExplodedNetwork();
     @Nonnull
     Layer network = explodedNetwork.getNetwork();
-    RefUtil.freeRef(network.setName(getName() + "+"));
+    network.setName(getName() + "+");
     explodedNetwork.freeRef();
     return network;
   }
@@ -285,7 +254,7 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     if (!CudaSystem.isEnabled()) {
       kernel.freeRef();
       Layer temp_04_0019 = getCompatibilityLayer();
-      Result temp_04_0008 = temp_04_0019.eval(Result.addRefs(inObj));
+      Result temp_04_0008 = temp_04_0019.eval(RefUtil.addRefs(inObj));
       temp_04_0019.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_04_0008;
@@ -294,11 +263,10 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     ExplodedConvolutionGrid grid = getExplodedNetwork();
     @Nonnull
     PipelineNetwork network = grid.getNetwork();
-    final Result result;
     if (isFrozen()) {
-      RefUtil.freeRef(network.freeze());
+      network.freeze();
     }
-    result = network.eval(Result.addRefs(inObj));
+    final Result result = network.eval(RefUtil.addRefs(inObj));
     network.freeRef();
     assert result != null;
     final TensorList resultData = result.getData();
@@ -310,73 +278,50 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
     assert outputBands == resultData.getDimensions()[2];
     final ConvolutionLayer convolutionLayer = ConvolutionLayer.this.addRef();
     try {
-      try {
-        try {
-          try {
-            try {
-              return new Result(resultData, new Result.Accumulator() {
-                {
-                }
-
-                @Override
-                public void accept(@Nullable DeltaSet<UUID> deltaSet, @Nullable TensorList delta) {
-                  result.accumulate(deltaSet == null ? null : deltaSet.addRef(), delta == null ? null : delta.addRef());
-                  if (null != delta)
-                    delta.freeRef();
-                  if (!ConvolutionLayer.this.isFrozen()) {
-                    Tensor read = grid.read(deltaSet == null ? null : deltaSet.addRef(), true);
-                    assert deltaSet != null;
-                    Delta<UUID> temp_04_0021 = deltaSet.get(convolutionLayer.getId(), kernel.getData());
-                    assert temp_04_0021 != null;
-                    RefUtil.freeRef(temp_04_0021.addInPlace(read.getData()));
-                    temp_04_0021.freeRef();
-                    read.freeRef();
-                  }
-                  if (null != deltaSet)
-                    deltaSet.freeRef();
-                }
-
-                public @SuppressWarnings("unused")
-                void _free() {
-                }
-              }) {
-
-                {
-                }
-
-                @Override
-                public boolean isAlive() {
-                  return result.isAlive();
-                }
-
-                @Override
-                public void accumulate(@Nullable final DeltaSet<UUID> buffer, @Nullable final TensorList delta) {
-                  Result.Accumulator temp_04_0022 = getAccumulator();
-                  assert temp_04_0022 != null;
-                  temp_04_0022.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
-                  temp_04_0022.freeRef();
-                  if (null != delta)
-                    delta.freeRef();
-                  if (null != buffer)
-                    buffer.freeRef();
-                }
-
-                public void _free() {
-                }
-              };
-            } finally {
-              convolutionLayer.freeRef();
-            }
-          } finally {
-            resultData.freeRef();
-          }
-        } finally {
-          result.freeRef();
+      Result.Accumulator accumulator = new Result.Accumulator() {
+        {
         }
-      } finally {
-        grid.freeRef();
-      }
+
+        @Override
+        public void accept(@Nullable DeltaSet<UUID> deltaSet, @Nullable TensorList delta) {
+          result.accumulate(deltaSet == null ? null : deltaSet.addRef(), delta == null ? null : delta.addRef());
+          if (null != delta)
+            delta.freeRef();
+          if (!ConvolutionLayer.this.isFrozen()) {
+            Tensor read = grid.read(deltaSet == null ? null : deltaSet.addRef(), true);
+            assert deltaSet != null;
+            Delta<UUID> temp_04_0021 = deltaSet.get(convolutionLayer.getId(), kernel.getData());
+            assert temp_04_0021 != null;
+            temp_04_0021.addInPlace(read.getData());
+            temp_04_0021.freeRef();
+            read.freeRef();
+          }
+          if (null != deltaSet)
+            deltaSet.freeRef();
+        }
+
+        public @SuppressWarnings("unused")
+        void _free() {
+        }
+      };
+      return new Result(resultData, accumulator) {
+
+        {
+        }
+
+        @Override
+        public boolean isAlive() {
+          return result.isAlive();
+        }
+
+        public @SuppressWarnings("unused")
+        void _free() {
+        }
+      };
     } finally {
+      convolutionLayer.freeRef();
+      result.freeRef();
+      grid.freeRef();
       kernel.freeRef();
     }
   }
@@ -402,25 +347,22 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
 
   @Nonnull
   public ConvolutionLayer set(@Nonnull final DoubleSupplier f) {
-    return set(i -> f.getAsDouble());
+    set(i -> f.getAsDouble());
+    return this.addRef();
   }
 
-  @Nonnull
-  public ConvolutionLayer set(@Nonnull final Tensor tensor) {
+  public void set(@Nonnull Tensor tensor) {
     Tensor temp_04_0024 = getKernel();
     assert temp_04_0024 != null;
     temp_04_0024.set(tensor);
     temp_04_0024.freeRef();
-    return this.addRef();
   }
 
-  @Nonnull
-  public ConvolutionLayer set(@Nonnull final IntToDoubleFunction f) {
+  public void set(@Nonnull IntToDoubleFunction f) {
     Tensor temp_04_0025 = getKernel();
     assert temp_04_0025 != null;
-    RefUtil.freeRef(temp_04_0025.set(f));
+    temp_04_0025.set(f);
     temp_04_0025.freeRef();
-    return this.addRef();
   }
 
   @Nonnull
@@ -435,16 +377,20 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision<Convol
 
   @Nonnull
   public ConvolutionLayer setStrideXY(int x, int y) {
-    ConvolutionLayer temp_04_0029 = setStrideX(x);
-    ConvolutionLayer temp_04_0028 = temp_04_0029.setStrideY(y);
+    setStrideX(x);
+    ConvolutionLayer temp_04_0029 = this.addRef();
+    temp_04_0029.setStrideY(y);
+    ConvolutionLayer temp_04_0028 = temp_04_0029.addRef();
     temp_04_0029.freeRef();
     return temp_04_0028;
   }
 
   @Nonnull
   public ConvolutionLayer setPaddingXY(Integer x, Integer y) {
-    ConvolutionLayer temp_04_0031 = setPaddingX(x);
-    ConvolutionLayer temp_04_0030 = temp_04_0031.setPaddingY(y);
+    setPaddingX(x);
+    ConvolutionLayer temp_04_0031 = this.addRef();
+    temp_04_0031.setPaddingY(y);
+    ConvolutionLayer temp_04_0030 = temp_04_0031.addRef();
     temp_04_0031.freeRef();
     return temp_04_0030;
   }

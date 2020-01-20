@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,24 +36,6 @@ public abstract class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return com.simiacryptus.mindseye.layers.java.ImgZeroPaddingLayer.class;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgZeroPaddingLayerTest[] addRefs(@Nullable ImgZeroPaddingLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgZeroPaddingLayerTest::addRef)
-        .toArray((x) -> new ImgZeroPaddingLayerTest[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgZeroPaddingLayerTest[][] addRefs(@Nullable ImgZeroPaddingLayerTest[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgZeroPaddingLayerTest::addRefs)
-        .toArray((x) -> new ImgZeroPaddingLayerTest[x][]);
   }
 
   @Nonnull
@@ -85,14 +68,6 @@ public abstract class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
   }
 
   public static class Basic extends ImgZeroPaddingLayerTest {
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Basic[] addRefs(@Nullable Basic[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Basic::addRef).toArray((x) -> new Basic[x]);
-    }
 
     public @SuppressWarnings("unused")
     void _free() {

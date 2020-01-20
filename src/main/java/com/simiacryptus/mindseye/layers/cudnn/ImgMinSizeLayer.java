@@ -27,6 +27,7 @@ import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -39,7 +40,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class ImgMinSizeLayer extends LayerBase implements MultiPrecision<ImgMinSizeLayer> {
+public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgMinSizeLayer.class);
 
   private int sizeX;
@@ -68,33 +69,14 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision<ImgMinS
 
   @Nonnull
   @Override
-  public ImgMinSizeLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgMinSizeLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgMinSizeLayer(json, rs);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgMinSizeLayer[] addRefs(@Nullable ImgMinSizeLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgMinSizeLayer::addRef)
-        .toArray((x) -> new ImgMinSizeLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgMinSizeLayer[][] addRefs(@Nullable ImgMinSizeLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgMinSizeLayer::addRefs)
-        .toArray((x) -> new ImgMinSizeLayer[x][]);
   }
 
   @Nullable
@@ -122,10 +104,11 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision<ImgMinS
 
     in0.freeRef();
     ImgCropLayer temp_45_0002 = new ImgCropLayer(ouputWidth, outputHeight);
+    temp_45_0002.setPrecision(precision);
     @Nonnull
-    ImgCropLayer imgCropLayer = temp_45_0002.setPrecision(precision);
+    ImgCropLayer imgCropLayer = RefUtil.addRef(temp_45_0002);
     temp_45_0002.freeRef();
-    Result temp_45_0001 = imgCropLayer.eval(Result.addRefs(inObj));
+    Result temp_45_0001 = imgCropLayer.eval(RefUtil.addRefs(inObj));
     ReferenceCounting.freeRefs(inObj);
     imgCropLayer.freeRef();
     return temp_45_0001;

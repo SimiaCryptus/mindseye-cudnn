@@ -27,6 +27,7 @@ import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -39,7 +40,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<ImgModulusPaddingLayer> {
+public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusPaddingLayer.class);
 
   private int sizeX;
@@ -88,9 +89,8 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
 
   @Nonnull
   @Override
-  public ImgModulusPaddingLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   public boolean getRoundUp() {
@@ -98,33 +98,14 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
   }
 
   @Nonnull
-  public ImgModulusPaddingLayer setRoundUp(boolean roundUp) {
+  public void setRoundUp(boolean roundUp) {
     this.roundUp = roundUp;
-    return this.addRef();
   }
 
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgModulusPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgModulusPaddingLayer(json, rs);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgModulusPaddingLayer[] addRefs(@Nullable ImgModulusPaddingLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayer::addRef)
-        .toArray((x) -> new ImgModulusPaddingLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgModulusPaddingLayer[][] addRefs(@Nullable ImgModulusPaddingLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgModulusPaddingLayer::addRefs)
-        .toArray((x) -> new ImgModulusPaddingLayer[x][]);
   }
 
   @Nullable
@@ -162,19 +143,21 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision<
     assert outputHeight > 0;
     if (ouputWidth == inputWidth) {
       if (outputHeight == inputHeight) {
-        Result temp_44_0002 = inObj[0];
+        Result temp_44_0002 = inObj[0].addRef();
         ReferenceCounting.freeRefs(inObj);
         return temp_44_0002;
       }
     }
 
     ImgCropLayer temp_44_0003 = new ImgCropLayer(ouputWidth, outputHeight);
-    ImgCropLayer temp_44_0005 = temp_44_0003.setPrecision(precision);
+    temp_44_0003.setPrecision(precision);
+    ImgCropLayer temp_44_0005 = RefUtil.addRef(temp_44_0003);
+    temp_44_0005.setRoundUp(roundUp);
     @Nonnull
-    ImgCropLayer imgCropLayer = temp_44_0005.setRoundUp(roundUp);
+    ImgCropLayer imgCropLayer = temp_44_0005.addRef();
     temp_44_0005.freeRef();
     temp_44_0003.freeRef();
-    Result temp_44_0001 = imgCropLayer.eval(Result.addRefs(inObj));
+    Result temp_44_0001 = imgCropLayer.eval(RefUtil.addRefs(inObj));
     ReferenceCounting.freeRefs(inObj);
     imgCropLayer.freeRef();
     return temp_44_0001;

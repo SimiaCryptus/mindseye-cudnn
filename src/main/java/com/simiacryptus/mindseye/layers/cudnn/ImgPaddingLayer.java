@@ -40,7 +40,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @SuppressWarnings("serial")
-public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPaddingLayer> {
+public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgPaddingLayer.class);
   private ImgCropLayer.Alignment verticalAlign = Alignment.Center;
   private Alignment horizontalAlign = Alignment.Center;
@@ -64,8 +64,8 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
     roundUp = json.get("roundUp").getAsBoolean();
-    RefUtil.freeRef(setVerticalAlign(Alignment.valueOf(json.get("verticalAlign").getAsString())));
-    RefUtil.freeRef(setHorizontalAlign(Alignment.valueOf(json.get("horizontalAlign").getAsString())));
+    setVerticalAlign(Alignment.valueOf(json.get("verticalAlign").getAsString()));
+    setHorizontalAlign(Alignment.valueOf(json.get("horizontalAlign").getAsString()));
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     assert 0 < sizeX;
     assert 0 < sizeY;
@@ -80,10 +80,8 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
     return horizontalAlign;
   }
 
-  @Nonnull
-  public ImgPaddingLayer setHorizontalAlign(Alignment horizontalAlign) {
+  public void setHorizontalAlign(Alignment horizontalAlign) {
     this.horizontalAlign = horizontalAlign;
-    return this.addRef();
   }
 
   @Override
@@ -93,29 +91,24 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
 
   @Nonnull
   @Override
-  public ImgPaddingLayer setPrecision(final Precision precision) {
+  public void setPrecision(final Precision precision) {
     this.precision = precision;
-    return this.addRef();
   }
 
   public Alignment getVerticalAlign() {
     return verticalAlign;
   }
 
-  @Nonnull
-  public ImgPaddingLayer setVerticalAlign(Alignment verticalAlign) {
+  public void setVerticalAlign(Alignment verticalAlign) {
     this.verticalAlign = verticalAlign;
-    return this.addRef();
   }
 
   public boolean isRoundUp() {
     return roundUp;
   }
 
-  @Nonnull
-  public ImgPaddingLayer setRoundUp(boolean roundUp) {
+  public void setRoundUp(boolean roundUp) {
     this.roundUp = roundUp;
-    return this.addRef();
   }
 
   @Nonnull
@@ -262,22 +255,32 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
     assert input_offset >= 0 : input_offset;
     assert output_offset >= 0 : output_offset;
     ImgPaddingLayer.CopyParams temp_05_0017 = new CopyParams(gpu.addRef());
-    ImgPaddingLayer.CopyParams temp_05_0018 = temp_05_0017.setLength(length);
-    ImgPaddingLayer.CopyParams temp_05_0019 = temp_05_0018.setPrecision(precision);
-    ImgPaddingLayer.CopyParams temp_05_0020 = temp_05_0019
-        .setOutput_memory(output_memory == null ? null : output_memory.addRef());
-    ImgPaddingLayer.CopyParams temp_05_0021 = temp_05_0020.setInput_memory(input.getMemory(gpu.addRef()));
-    ImgPaddingLayer.CopyParams temp_05_0022 = temp_05_0021.setInput_offset(input_offset);
-    ImgPaddingLayer.CopyParams temp_05_0023 = temp_05_0022.setOutput_offset(output_offset);
-    ImgPaddingLayer.CopyParams temp_05_0024 = temp_05_0023
-        .setInput_view_descriptor(gpu.newTensorDescriptor(precision, length, view_channels, view_height, view_width,
-            input.descriptor.nStride, input.descriptor.cStride, input_hStride, input_wStride));
-    ImgPaddingLayer.CopyParams temp_05_0012 = temp_05_0024
-        .setOutput_view_descriptor(gpu.newTensorDescriptor(precision, length, view_channels, view_height, view_width, //
-            output_channels * output_height * output_width, //
-            output_height * output_width, //
-            output_hStride, //
-            output_wStride));
+    temp_05_0017.setLength(length);
+    ImgPaddingLayer.CopyParams temp_05_0018 = temp_05_0017.addRef();
+    temp_05_0018.setPrecision(precision);
+    ImgPaddingLayer.CopyParams temp_05_0019 = temp_05_0018.addRef();
+    CudaMemory output_memory1 = output_memory == null ? null : output_memory.addRef();
+    temp_05_0019.setOutput_memory(output_memory1);
+    ImgPaddingLayer.CopyParams temp_05_0020 = temp_05_0019.addRef();
+    temp_05_0020.setInput_memory(input.getMemory(gpu.addRef()));
+    ImgPaddingLayer.CopyParams temp_05_0021 = temp_05_0020.addRef();
+    temp_05_0021.setInput_offset(input_offset);
+    ImgPaddingLayer.CopyParams temp_05_0022 = temp_05_0021.addRef();
+    temp_05_0022.setOutput_offset(output_offset);
+    ImgPaddingLayer.CopyParams temp_05_0023 = temp_05_0022.addRef();
+    temp_05_0023.setInput_view_descriptor(gpu.newTensorDescriptor(precision, length, view_channels, view_height, view_width,
+          input.descriptor.nStride, input.descriptor.cStride, input_hStride, input_wStride));
+    ImgPaddingLayer.CopyParams temp_05_0024 = temp_05_0023.addRef();
+    temp_05_0024.setOutput_view_descriptor(gpu.newTensorDescriptor(precision, length, view_channels, view_height, view_width, //
+          output_channels * output_height * output_width, //
+          output_height * output_width, //
+          output_hStride, //
+          output_wStride));
+    //
+    //
+    //
+    //
+    ImgPaddingLayer.CopyParams temp_05_0012 = temp_05_0024.addRef();
     temp_05_0024.freeRef();
     temp_05_0023.freeRef();
     temp_05_0022.freeRef();
@@ -302,15 +305,6 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
         .toArray((x) -> new ImgPaddingLayer[x]);
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgPaddingLayer[][] addRefs(@Nullable ImgPaddingLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayer::addRefs)
-        .toArray((x) -> new ImgPaddingLayer[x][]);
-  }
-
   public int half(int i, Alignment alignment) {
     if (alignment == Alignment.Left)
       return 0;
@@ -329,7 +323,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
       Layer temp_05_0025 = getCompatibilityLayer();
-      Result temp_05_0013 = temp_05_0025.eval(Result.addRefs(inObj));
+      Result temp_05_0013 = temp_05_0025.eval(RefUtil.addRefs(inObj));
       temp_05_0025.freeRef();
       ReferenceCounting.freeRefs(inObj);
       return temp_05_0013;
@@ -379,98 +373,92 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
     int[] output_dimensions = outputData.getDimensions();
     int output_length = outputData.length();
     try {
-      try {
-        try {
-          return new Result(outputData, new Result.Accumulator() {
-            {
-            }
-
-            @Override
-            public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
-              if (!RefArrays.equals(delta.getDimensions(), output_dimensions)) {
-                if (null != buffer)
-                  buffer.freeRef();
-                AssertionError temp_05_0015 = new AssertionError(
-                    RefArrays.toString(delta.getDimensions()) + " != " + RefArrays.toString(output_dimensions));
-                delta.freeRef();
-                throw temp_05_0015;
-              }
-              if (delta.length() != output_length) {
-                if (null != buffer)
-                  buffer.freeRef();
-                AssertionError temp_05_0016 = new AssertionError(delta.length() + " != " + output_length);
-                delta.freeRef();
-                throw temp_05_0016;
-              }
-              assert delta.length() == length;
-
-              if (input.isAlive()) {
-                final TensorList passbackTensorList = CudaSystem
-                    .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                      @Nullable final CudaTensor errorPtr = gpu.getTensor(delta.addRef(), precision,
-                          MemoryType.Device, false);
-                      CudaTensor backpropTensor = ImgPaddingLayer.this.copy_condense(gpu,
-                          errorPtr.addRef(), dimOut, dimIn, length,
-                          dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1]);
-                      errorPtr.freeRef();
-                      CudaTensorList temp_05_0008 = new CudaTensorList(
-                          backpropTensor == null ? null : backpropTensor.addRef(), length, dimIn, precision);
-                      if (null != backpropTensor)
-                        backpropTensor.freeRef();
-                      return temp_05_0008;
-                    }, delta.addRef()), delta.addRef());
-                input.accumulate(buffer == null ? null : buffer.addRef(),
-                    passbackTensorList == null ? null : passbackTensorList.addRef());
-                if (null != passbackTensorList)
-                  passbackTensorList.freeRef();
-              }
-              delta.freeRef();
-              if (null != buffer)
-                buffer.freeRef();
-
-            }
-
-            public @SuppressWarnings("unused")
-            void _free() {
-            }
-          }) {
-
-            {
-              Result.addRefs(inObj);
-            }
-
-            @Override
-            public boolean isAlive() {
-              return RefArrays.stream(Result.addRefs(inObj)).anyMatch(x -> {
-                boolean temp_05_0009 = x.isAlive();
-                x.freeRef();
-                return temp_05_0009;
-              });
-            }
-
-            @Override
-            public void accumulate(@Nullable final DeltaSet<UUID> buffer, @Nullable final TensorList delta) {
-              Result.Accumulator temp_05_0026 = getAccumulator();
-              assert temp_05_0026 != null;
-              temp_05_0026.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
-              temp_05_0026.freeRef();
-              if (null != delta)
-                delta.freeRef();
-              if (null != buffer)
-                buffer.freeRef();
-            }
-
-            public void _free() {
-              ReferenceCounting.freeRefs(inObj);
-            }
-          };
-        } finally {
-          ReferenceCounting.freeRefs(inObj);
+      Result.Accumulator accumulator = new Result.Accumulator() {
+        {
         }
-      } finally {
-        outputData.freeRef();
-      }
+
+        @Override
+        public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
+          if (!RefArrays.equals(delta.getDimensions(), output_dimensions)) {
+            if (null != buffer)
+              buffer.freeRef();
+            AssertionError temp_05_0015 = new AssertionError(
+                RefArrays.toString(delta.getDimensions()) + " != " + RefArrays.toString(output_dimensions));
+            delta.freeRef();
+            throw temp_05_0015;
+          }
+          if (delta.length() != output_length) {
+            if (null != buffer)
+              buffer.freeRef();
+            AssertionError temp_05_0016 = new AssertionError(delta.length() + " != " + output_length);
+            delta.freeRef();
+            throw temp_05_0016;
+          }
+          assert delta.length() == length;
+
+          if (input.isAlive()) {
+            final TensorList passbackTensorList = CudaSystem
+                .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
+                  @Nullable final CudaTensor errorPtr = gpu.getTensor(delta.addRef(), precision,
+                      MemoryType.Device, false);
+                  CudaTensor backpropTensor = ImgPaddingLayer.this.copy_condense(gpu,
+                      errorPtr.addRef(), dimOut, dimIn, length,
+                      dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1]);
+                  errorPtr.freeRef();
+                  CudaTensorList temp_05_0008 = new CudaTensorList(
+                      backpropTensor == null ? null : backpropTensor.addRef(), length, dimIn, precision);
+                  if (null != backpropTensor)
+                    backpropTensor.freeRef();
+                  return temp_05_0008;
+                }, delta.addRef()), delta.addRef());
+            input.accumulate(buffer == null ? null : buffer.addRef(),
+                passbackTensorList == null ? null : passbackTensorList.addRef());
+            if (null != passbackTensorList)
+              passbackTensorList.freeRef();
+          }
+          delta.freeRef();
+          if (null != buffer)
+            buffer.freeRef();
+        }
+
+        public @SuppressWarnings("unused")
+        void _free() {
+        }
+      };
+      return new Result(outputData, accumulator) {
+
+        {
+          RefUtil.addRefs(inObj);
+        }
+
+        @Override
+        public boolean isAlive() {
+          return RefArrays.stream(RefUtil.addRefs(inObj)).anyMatch(x -> {
+            boolean temp_05_0009 = x.isAlive();
+            x.freeRef();
+            return temp_05_0009;
+          });
+        }
+
+        @Override
+        public void accumulate(@Nullable final DeltaSet<UUID> buffer, @Nullable final TensorList delta) {
+          Result.Accumulator temp_05_0026 = getAccumulator();
+          assert temp_05_0026 != null;
+          temp_05_0026.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
+          temp_05_0026.freeRef();
+          if (null != delta)
+            delta.freeRef();
+          if (null != buffer)
+            buffer.freeRef();
+        }
+
+        public void _free() {
+          ReferenceCounting.freeRefs(inObj);
+          super._free();
+        }
+      };
     } finally {
+      ReferenceCounting.freeRefs(inObj);
       input.freeRef();
     }
   }
@@ -661,8 +649,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
       this.gpu = gpu;
     }
 
-    @Nonnull
-    public CopyParams setInput_memory(@Nullable CudaMemory input_memory) {
+    public void setInput_memory(@Nullable CudaMemory input_memory) {
       CudaMemory temp_05_0001 = input_memory == null ? null : input_memory.addRef();
       if (null != this.input_memory)
         this.input_memory.freeRef();
@@ -671,17 +658,13 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
         temp_05_0001.freeRef();
       if (null != input_memory)
         input_memory.freeRef();
-      return this.addRef();
     }
 
-    @Nonnull
-    public CopyParams setInput_offset(int input_offset) {
+    public void setInput_offset(int input_offset) {
       this.input_offset = input_offset;
-      return this.addRef();
     }
 
-    @Nonnull
-    public CopyParams setInput_view_descriptor(@Nullable CudaDevice.CudaTensorDescriptor input_view_descriptor) {
+    public void setInput_view_descriptor(@Nullable CudaDevice.CudaTensorDescriptor input_view_descriptor) {
       CudaDevice.CudaTensorDescriptor temp_05_0002 = input_view_descriptor == null ? null
           : input_view_descriptor.addRef();
       if (null != this.input_view_descriptor)
@@ -691,17 +674,13 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
         temp_05_0002.freeRef();
       if (null != input_view_descriptor)
         input_view_descriptor.freeRef();
-      return this.addRef();
     }
 
-    @Nonnull
-    public CopyParams setLength(int length) {
+    public void setLength(int length) {
       this.length = length;
-      return this.addRef();
     }
 
-    @Nonnull
-    public CopyParams setOutput_memory(@Nullable CudaMemory output_memory) {
+    public void setOutput_memory(@Nullable CudaMemory output_memory) {
       CudaMemory temp_05_0003 = output_memory == null ? null : output_memory.addRef();
       if (null != this.output_memory)
         this.output_memory.freeRef();
@@ -710,17 +689,13 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
         temp_05_0003.freeRef();
       if (null != output_memory)
         output_memory.freeRef();
-      return this.addRef();
     }
 
-    @Nonnull
-    public CopyParams setOutput_offset(int output_offset) {
+    public void setOutput_offset(int output_offset) {
       this.output_offset = output_offset;
-      return this.addRef();
     }
 
-    @Nonnull
-    public CopyParams setOutput_view_descriptor(@Nullable CudaDevice.CudaTensorDescriptor output_view_descriptor) {
+    public void setOutput_view_descriptor(@Nullable CudaDevice.CudaTensorDescriptor output_view_descriptor) {
       CudaDevice.CudaTensorDescriptor temp_05_0004 = output_view_descriptor == null ? null
           : output_view_descriptor.addRef();
       if (null != this.output_view_descriptor)
@@ -730,21 +705,10 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
         temp_05_0004.freeRef();
       if (null != output_view_descriptor)
         output_view_descriptor.freeRef();
-      return this.addRef();
     }
 
-    @Nonnull
-    public CopyParams setPrecision(Precision precision) {
+    public void setPrecision(Precision precision) {
       this.precision = precision;
-      return this.addRef();
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    CopyParams[] addRefs(@Nullable CopyParams[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(CopyParams::addRef).toArray((x) -> new CopyParams[x]);
     }
 
     public void set() {
@@ -762,8 +726,8 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
       output_with_offset.freeRef();
       input_view_descriptor.freeRef();
       assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-      RefUtil.freeRef(input_memory.dirty());
-      RefUtil.freeRef(output_memory.dirty());
+      input_memory.dirty();
+      output_memory.dirty();
     }
 
     public void add() {
@@ -781,8 +745,8 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision<ImgPadd
       input_with_offset.freeRef();
       input_view_descriptor.freeRef();
       assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-      RefUtil.freeRef(input_memory.dirty());
-      RefUtil.freeRef(output_memory.dirty());
+      input_memory.dirty();
+      output_memory.dirty();
     }
 
     public void _free() {

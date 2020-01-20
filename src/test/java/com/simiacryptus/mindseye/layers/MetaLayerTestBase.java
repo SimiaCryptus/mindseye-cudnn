@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.layers;
 import com.simiacryptus.mindseye.layers.java.LayerTestBase;
 import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,24 +39,6 @@ public abstract class MetaLayerTestBase extends LayerTestBase {
   public ComponentTest<ToleranceStatistics> getDerivativeTester() {
     return null;
     //return new BatchDerivativeTester(1e-3, 1e-4, 10);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  MetaLayerTestBase[] addRefs(@Nullable MetaLayerTestBase[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(MetaLayerTestBase::addRef)
-        .toArray((x) -> new MetaLayerTestBase[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  MetaLayerTestBase[][] addRefs(@Nullable MetaLayerTestBase[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(MetaLayerTestBase::addRefs)
-        .toArray((x) -> new MetaLayerTestBase[x][]);
   }
 
   public @SuppressWarnings("unused")

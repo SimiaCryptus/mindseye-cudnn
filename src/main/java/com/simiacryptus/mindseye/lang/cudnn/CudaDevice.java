@@ -362,6 +362,7 @@ public class CudaDevice extends CudaSystem {
         CudaMemory.logger.warn(RefString.format(
             "Low GPU Memory while allocating %s bytes; %s freed in %.4fs resulting in %s total (triggered by %s)", size,
             freedMemory, timedResult.seconds(), metrics.usedMemory.get(), e.getMessage()));
+        timedResult.freeRef();
       }
       assert pointer != null;
       return pointer;
@@ -423,5 +424,9 @@ public class CudaDevice extends CudaSystem {
     CudaTensorDescriptor addRef() {
       return (CudaTensorDescriptor) super.addRef();
     }
+  }
+
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 }
