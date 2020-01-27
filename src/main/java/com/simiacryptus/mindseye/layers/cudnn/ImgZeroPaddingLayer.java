@@ -28,7 +28,6 @@ import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
@@ -96,7 +95,7 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
   public Result eval(@Nonnull final Result... inObj) {
     if (sizeX == 0 && sizeY == 0) {
       Result temp_22_0002 = inObj[0].addRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_22_0002;
     }
     assert inObj.length == 1;
@@ -110,7 +109,7 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
     ImgCropLayer imgCropLayer = RefUtil.addRef(temp_22_0003);
     temp_22_0003.freeRef();
     Result temp_22_0001 = imgCropLayer.eval(RefUtil.addRefs(inObj));
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     imgCropLayer.freeRef();
     return temp_22_0001;
   }
@@ -132,8 +131,7 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override

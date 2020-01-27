@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 
@@ -96,7 +95,7 @@ public class ValueLayer extends LayerBase {
   @Override
   public Result eval(@Nonnull final Result... array) {
     assert 0 == array.length;
-    ReferenceCounting.freeRefs(array);
+    RefUtil.freeRefs(array);
     return new Result(tensorList.addRef(), new Result.Accumulator() {
       @Override
       public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data) {
@@ -107,8 +106,7 @@ public class ValueLayer extends LayerBase {
       }
 
       public @SuppressWarnings("unused")
-      void _free() {
-      }
+      void _free() { super._free(); }
     });
   }
 
@@ -133,6 +131,7 @@ public class ValueLayer extends LayerBase {
   }
 
   public void _free() {
+    super._free();
     tensorList.freeRef();
   }
 

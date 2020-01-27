@@ -26,7 +26,6 @@ import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
@@ -133,7 +131,7 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     if (inObj.length != 1) {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw new IllegalArgumentException();
     }
     TensorList temp_42_0003 = inObj[0].getData();
@@ -147,7 +145,7 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
     temp_42_0004.freeRef();
     temp_42_0002.freeRef();
     Result temp_42_0001 = paddingLayer.eval(RefUtil.addRefs(inObj));
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     paddingLayer.freeRef();
     return temp_42_0001;
   }
@@ -172,8 +170,7 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override

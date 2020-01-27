@@ -46,8 +46,7 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
   public ComponentTest<TrainingTester.ComponentResult> getTrainingTester() {
     TrainingTester temp_68_0002 = new TrainingTester() {
       public @SuppressWarnings("unused")
-      void _free() {
-      }
+      void _free() { super._free(); }
 
       @Nonnull
       @Override
@@ -84,8 +83,7 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override
@@ -100,8 +98,7 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -122,8 +119,7 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override

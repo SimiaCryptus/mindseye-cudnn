@@ -34,8 +34,7 @@ public class CudaStream extends CudaResource<cudaStream_t> {
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override

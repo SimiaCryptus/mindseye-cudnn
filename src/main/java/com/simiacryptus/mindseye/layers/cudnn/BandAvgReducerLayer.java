@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefSystem;
@@ -31,7 +30,6 @@ import jcuda.jcudnn.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -90,12 +88,12 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision {
       Result temp_32_0004 = temp_32_0005.eval(RefUtil.addRefs(inObj));
       temp_32_0005.freeRef();
       if (null != inObj)
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
       return temp_32_0004;
     }
     assert inObj != null;
     final Result input = inObj[0].addRef();
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     TensorList inputData = input.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     int length = inputData.length();
@@ -143,6 +141,9 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision {
     int pixels = inputSize[0] * inputSize[1];
     try {
       Result.Accumulator accumulator = new Result.Accumulator() {
+        {
+          input.addRef();
+        }
 
         @Override
         public void accept(@Nullable DeltaSet<UUID> ctx, @Nonnull TensorList delta) {
@@ -168,6 +169,8 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision {
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          input.freeRef();
         }
       };
       return new Result(result, accumulator);
@@ -193,6 +196,7 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

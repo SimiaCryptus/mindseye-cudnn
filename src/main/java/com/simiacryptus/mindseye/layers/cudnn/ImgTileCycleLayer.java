@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -163,7 +161,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
       Layer temp_49_0011 = getCompatibilityLayer();
       Result temp_49_0007 = temp_49_0011.eval(RefUtil.addRefs(inObj));
       temp_49_0011.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_49_0007;
     }
     assert 1 == inObj.length;
@@ -189,6 +187,8 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
     try {
       Result.Accumulator accumulator = new Result.Accumulator() {
         {
+          outputData.addRef();
+          input.addRef();
         }
 
         @Override
@@ -231,6 +231,9 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          outputData.freeRef();
+          input.freeRef();
         }
       };
       return new Result(outputData, accumulator) {
@@ -249,12 +252,12 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          RefUtil.freeRefs(inObj);
           super._free();
         }
       };
     } finally {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       input.freeRef();
     }
   }
@@ -275,6 +278,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

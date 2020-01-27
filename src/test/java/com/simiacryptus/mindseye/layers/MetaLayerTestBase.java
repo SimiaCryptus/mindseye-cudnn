@@ -43,6 +43,7 @@ public abstract class MetaLayerTestBase extends LayerTestBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

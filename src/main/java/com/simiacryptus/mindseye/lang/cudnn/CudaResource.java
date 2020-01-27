@@ -57,6 +57,7 @@ public class CudaResource<T> extends CudaResourceBase<T> {
   }
 
   public void _free() {
+    super._free();
     CudnnHandle threadHandle = CudaSystem.getThreadHandle();
     if (null != threadHandle) {
       threadHandle.cleanupNative.add(this);

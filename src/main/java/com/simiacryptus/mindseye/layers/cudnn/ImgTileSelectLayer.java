@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefString;
@@ -252,7 +251,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
       Layer temp_24_0013 = getCompatibilityLayer();
       Result temp_24_0009 = temp_24_0013.eval(RefUtil.addRefs(inObj));
       temp_24_0013.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_24_0009;
     }
     assert 1 == inObj.length;
@@ -265,7 +264,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     int[] dimIn = inputData.getDimensions();
     if (dimIn[0] == sizeY && dimIn[1] == sizeX) {
       inputData.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return input;
     }
     @Nonnull final int[] dimOut = getViewDimensions(dimIn, new int[]{sizeX, sizeY, dimIn[2]},
@@ -286,6 +285,8 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     try {
       return new Result(outputData, new Result.Accumulator() {
         {
+          input.addRef();
+          imgTileSelectLayer.addRef();
         }
 
         @Override
@@ -327,6 +328,9 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          input.freeRef();
+          imgTileSelectLayer.freeRef();
         }
       }) {
 
@@ -344,12 +348,12 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          RefUtil.freeRefs(inObj);
           super._free();
         }
       };
     } finally {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       imgTileSelectLayer.freeRef();
       input.freeRef();
     }
@@ -381,6 +385,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

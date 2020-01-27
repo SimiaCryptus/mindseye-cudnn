@@ -26,7 +26,6 @@ import com.simiacryptus.mindseye.layers.java.LinearActivationLayer;
 import com.simiacryptus.mindseye.layers.java.SumInputsLayer;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.util.Util;
@@ -35,7 +34,6 @@ import jcuda.jcudnn.cudnnOpTensorOp;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -124,24 +122,24 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
   public Result eval(@Nonnull final Result... inObj) {
     if (inObj.length == 1) {
       if (rightFactor != 1) {
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
         throw new IllegalStateException();
       }
       if (leftFactor != 1) {
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
         throw new IllegalStateException();
       }
       Result temp_51_0007 = inObj[0].addRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_51_0007;
     }
     if (inObj.length > 2) {
       if (rightFactor != 1) {
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
         throw new IllegalStateException();
       }
       if (leftFactor != 1) {
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
         throw new IllegalStateException();
       }
       Result temp_51_0008 = RefUtil.get(RefArrays.stream(RefUtil.addRefs(inObj)).reduce((a, b) -> {
@@ -151,7 +149,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
         a.freeRef();
         return temp_51_0001;
       }));
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_51_0008;
     }
     assert (inObj.length == 2);
@@ -161,7 +159,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
     if (3 < leftDimensions.length) {
       leftData.freeRef();
       rightData.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(leftDimensions));
     }
     @Nonnull final int[] dimensions = {leftDimensions.length < 1 ? 0 : leftDimensions[0],
@@ -170,7 +168,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
     if (length != rightData.length()) {
       leftData.freeRef();
       rightData.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw new IllegalArgumentException();
     }
     for (int i = 1; i < inObj.length; i++) {
@@ -286,7 +284,8 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
 
         public @SuppressWarnings("unused")
         void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          super._free();
+          RefUtil.freeRefs(inObj);
         }
       };
       CudaTensorList data = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
@@ -341,7 +340,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          RefUtil.freeRefs(inObj);
           super._free();
         }
       };
@@ -370,6 +369,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

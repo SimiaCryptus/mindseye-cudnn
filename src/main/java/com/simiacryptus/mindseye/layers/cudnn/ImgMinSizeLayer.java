@@ -28,7 +28,6 @@ import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
@@ -36,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
@@ -97,7 +95,7 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
     assert outputHeight > 0;
     if (ouputWidth == inputWidth) {
       if (outputHeight == inputHeight) {
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
         return in0;
       }
     }
@@ -109,7 +107,7 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
     ImgCropLayer imgCropLayer = RefUtil.addRef(temp_45_0002);
     temp_45_0002.freeRef();
     Result temp_45_0001 = imgCropLayer.eval(RefUtil.addRefs(inObj));
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     imgCropLayer.freeRef();
     return temp_45_0001;
   }
@@ -131,8 +129,7 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override

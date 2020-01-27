@@ -92,6 +92,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
     if (null != layer)
       layer.freeRef();
   }
@@ -109,8 +110,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -128,8 +128,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -151,8 +150,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -168,8 +166,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -186,8 +183,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -243,8 +239,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -262,8 +257,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -283,8 +277,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -300,8 +293,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -329,8 +321,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
         }
 
         public @SuppressWarnings("unused")
-        void _free() {
-        }
+        void _free() { super._free(); }
       });
       batchingTester.setBatchSize(5);
       return batchingTester;
@@ -362,8 +353,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override

@@ -23,14 +23,12 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -113,7 +111,7 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
       Layer temp_46_0010 = getCompatibilityLayer();
       Result temp_46_0006 = temp_46_0010.eval(RefUtil.addRefs(inObj));
       temp_46_0010.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_46_0006;
     }
     final TensorList inputData = in0.getData();
@@ -147,6 +145,7 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
       }, inputData.addRef()), inputData.addRef()),
           new Result.Accumulator() {
             {
+              in0.addRef();
             }
 
             @Override
@@ -213,6 +212,8 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
 
             public @SuppressWarnings("unused")
             void _free() {
+              super._free();
+              in0.freeRef();
             }
           }) {
 
@@ -242,12 +243,12 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          RefUtil.freeRefs(inObj);
           super._free();
         }
       };
     } finally {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       inputData.freeRef();
       in0.freeRef();
     }
@@ -271,6 +272,7 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

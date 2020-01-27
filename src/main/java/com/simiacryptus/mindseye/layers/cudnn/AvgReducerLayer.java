@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -90,12 +89,12 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision {
       Result temp_48_0004 = temp_48_0007.eval(RefUtil.addRefs(inObj));
       temp_48_0007.freeRef();
       if (null != inObj)
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
       return temp_48_0004;
     }
     assert inObj != null;
     final Result input = inObj[0].addRef();
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     final TensorList inputData = input.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     int length = inputData.length();
@@ -137,6 +136,7 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision {
     try {
       Result.Accumulator accumulator = new Result.Accumulator() {
         {
+          input.addRef();
         }
 
         @Override
@@ -159,6 +159,8 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision {
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          input.freeRef();
         }
       };
       return new Result(result, accumulator);
@@ -183,6 +185,7 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

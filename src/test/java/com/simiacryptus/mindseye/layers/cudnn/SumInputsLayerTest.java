@@ -88,8 +88,7 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override
@@ -104,8 +103,7 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -168,8 +166,7 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -195,8 +192,7 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -212,8 +208,7 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -234,8 +229,7 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -274,8 +268,7 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override

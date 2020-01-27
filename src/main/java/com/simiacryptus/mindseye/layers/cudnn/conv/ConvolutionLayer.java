@@ -29,14 +29,12 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.Explodable;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.DoubleSupplier;
@@ -256,7 +254,7 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
       Layer temp_04_0019 = getCompatibilityLayer();
       Result temp_04_0008 = temp_04_0019.eval(RefUtil.addRefs(inObj));
       temp_04_0019.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_04_0008;
     }
     @Nonnull
@@ -273,13 +271,17 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     TensorList temp_04_0020 = inObj[0].getData();
     assert temp_04_0020.length() == resultData.length();
     temp_04_0020.freeRef();
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     assert 3 == resultData.getDimensions().length;
     assert outputBands == resultData.getDimensions()[2];
     final ConvolutionLayer convolutionLayer = ConvolutionLayer.this.addRef();
     try {
       Result.Accumulator accumulator = new Result.Accumulator() {
         {
+          kernel.addRef();
+          convolutionLayer.addRef();
+          grid.addRef();
+          result.addRef();
         }
 
         @Override
@@ -302,11 +304,17 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          kernel.freeRef();
+          convolutionLayer.freeRef();
+          grid.freeRef();
+          result.freeRef();
         }
       };
       return new Result(resultData, accumulator) {
 
         {
+          result.addRef();
         }
 
         @Override
@@ -316,6 +324,8 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          result.freeRef();
         }
       };
     } finally {

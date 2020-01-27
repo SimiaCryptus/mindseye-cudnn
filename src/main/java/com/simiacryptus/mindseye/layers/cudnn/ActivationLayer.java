@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ReLuActivationLayer;
 import com.simiacryptus.mindseye.layers.java.SigmoidActivationLayer;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefStream;
@@ -38,7 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -119,12 +117,12 @@ public class ActivationLayer extends LayerBase implements MultiPrecision {
       Layer temp_50_0008 = getCompatibilityLayer();
       Result temp_50_0005 = temp_50_0008.eval(RefUtil.addRefs(inObj));
       temp_50_0008.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_50_0005;
     }
     //assert Arrays.stream(inObj).flatMapToDouble(input->input.data.stream().flatMapToDouble(x-> Arrays.stream(x.getData()))).allMatch(v->Double.isFinite(v));
     final Result inputResult = inObj[0].addRef();
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     final TensorList inputData = inputResult.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     @Nonnull final int[] outputSize = inputSize;
@@ -181,6 +179,9 @@ public class ActivationLayer extends LayerBase implements MultiPrecision {
                 new CudaTensorList(outPtr == null ? null : outPtr.addRef(), length, outputSize, precision),
                 new Result.Accumulator() {
                   {
+                    inputData.addRef();
+                    outPtr.addRef();
+                    inputResult.addRef();
                   }
 
                   @Override
@@ -264,6 +265,10 @@ public class ActivationLayer extends LayerBase implements MultiPrecision {
 
                   public @SuppressWarnings("unused")
                   void _free() {
+                    super._free();
+                    inputData.freeRef();
+                    outPtr.freeRef();
+                    inputResult.freeRef();
                   }
                 }) {
 
@@ -289,6 +294,8 @@ public class ActivationLayer extends LayerBase implements MultiPrecision {
 
               public @SuppressWarnings("unused")
               void _free() {
+                super._free();
+                inputResult.freeRef();
               }
             };
           } finally {
@@ -324,6 +331,7 @@ public class ActivationLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

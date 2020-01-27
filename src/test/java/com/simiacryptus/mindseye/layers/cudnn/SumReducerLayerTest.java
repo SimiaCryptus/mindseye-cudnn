@@ -60,8 +60,7 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override
@@ -76,8 +75,7 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -105,8 +103,7 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -127,8 +124,7 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override

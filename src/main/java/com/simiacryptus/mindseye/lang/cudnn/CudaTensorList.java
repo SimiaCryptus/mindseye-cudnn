@@ -24,7 +24,6 @@ import com.simiacryptus.lang.UncheckedSupplier;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.Util;
 import org.slf4j.Logger;
@@ -32,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
@@ -194,12 +192,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
       assert length() == right.length();
       TensorArray temp_07_0017 = new TensorArray(
           RefIntStream.range(0, length()).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
-            Tensor a = get(i);
-            Tensor b = right.get(i);
-            Tensor temp_07_0012 = a.addAndFree(b.addRef());
-            b.freeRef();
-            a.freeRef();
-            return temp_07_0012;
+            return Tensor.add(get(i), right.get(i));
           }, right.addRef())).toArray(i -> new Tensor[i]));
       return temp_07_0017;
     } finally {
@@ -240,12 +233,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
       assert length() == right.length();
       TensorArray temp_07_0020 = new TensorArray(
           RefIntStream.range(0, length()).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
-            Tensor a = get(i);
-            Tensor b = right.get(i);
-            Tensor temp_07_0014 = a.addAndFree(b.addRef());
-            b.freeRef();
-            a.freeRef();
-            return temp_07_0014;
+            return Tensor.add(get(i), right.get(i));
           }, right.addRef())).toArray(i -> new Tensor[i]));
       return temp_07_0020;
     } finally {
@@ -358,6 +346,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
   }
 
   public void _free() {
+    super._free();
     synchronized (this) {
       if (null != gpuCopy) {
         if (null != gpuCopy) {
@@ -440,7 +429,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
                   return new TensorArray(RefUtil.addRefs(output));
                 }, RefUtil.addRefs(output), gpuCopy.addRef()), this.addRef()),
             RefUtil.addRefs(output), gpuCopy.addRef()));
-    ReferenceCounting.freeRefs(output);
+    RefUtil.freeRefs(output);
     TensorArray result = timedResult.getResult();
     CudaTensorList.logger.debug(RefString.format("Read %s bytes in %.4f from Tensor %s on GPU at %s, created by %s",
         gpuCopy.size(), timedResult.seconds(),

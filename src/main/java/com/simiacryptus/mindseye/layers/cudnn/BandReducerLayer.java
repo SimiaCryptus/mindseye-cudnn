@@ -27,13 +27,11 @@ import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.cudnn.PoolingLayer.PoolingMode;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
@@ -101,7 +99,7 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision {
       Result temp_27_0002 = temp_27_0004.eval(RefUtil.addRefs(inObj));
       temp_27_0004.freeRef();
       if (null != inObj)
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
       return temp_27_0002;
     }
     assert inObj != null;
@@ -140,7 +138,7 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision {
     temp_27_0005.freeRef();
     temp_27_0003.freeRef();
     Result temp_27_0001 = impl.eval(RefUtil.addRefs(inObj));
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     impl.freeRef();
     return temp_27_0001;
   }
@@ -162,8 +160,7 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision {
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override

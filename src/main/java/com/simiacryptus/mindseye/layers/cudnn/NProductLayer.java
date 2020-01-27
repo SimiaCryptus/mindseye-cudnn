@@ -24,7 +24,6 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ProductInputsLayer;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -34,7 +33,6 @@ import jcuda.jcudnn.cudnnOpTensorOp;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BinaryOperator;
@@ -83,12 +81,12 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
       Layer temp_36_0010 = getCompatibilityLayer();
       Result temp_36_0008 = temp_36_0010.eval(RefUtil.addRefs(inObj));
       temp_36_0010.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_36_0008;
     }
     if (inObj.length <= 1) {
       IllegalArgumentException temp_36_0009 = new IllegalArgumentException("inObj.length=" + inObj.length);
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw temp_36_0009;
     }
     TensorList temp_36_0011 = inObj[0].getData();
@@ -98,7 +96,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
     final int length = temp_36_0012.length();
     temp_36_0012.freeRef();
     if (3 != dimensions.length) {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
     }
     for (int i = 1; i < inObj.length; i++) {
@@ -107,7 +105,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
         IllegalArgumentException temp_36_0001 = new IllegalArgumentException(
             RefArrays.toString(dimensions) + " != " + RefArrays.toString(data.getDimensions()));
         data.freeRef();
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
         throw temp_36_0001;
       }
       data.freeRef();
@@ -226,7 +224,8 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
 
             public @SuppressWarnings("unused")
             void _free() {
-              ReferenceCounting.freeRefs(inObj);
+              super._free();
+              RefUtil.freeRefs(inObj);
             }
           }) {
 
@@ -256,12 +255,12 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          RefUtil.freeRefs(inObj);
           super._free();
         }
       };
     } finally {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
     }
   }
 
@@ -281,8 +280,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override

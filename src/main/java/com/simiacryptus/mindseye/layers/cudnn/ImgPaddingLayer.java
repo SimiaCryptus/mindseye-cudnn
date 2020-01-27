@@ -24,7 +24,6 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -269,13 +268,13 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     temp_05_0022.setOutput_offset(output_offset);
     ImgPaddingLayer.CopyParams temp_05_0023 = temp_05_0022.addRef();
     temp_05_0023.setInput_view_descriptor(gpu.newTensorDescriptor(precision, length, view_channels, view_height, view_width,
-          input.descriptor.nStride, input.descriptor.cStride, input_hStride, input_wStride));
+        input.descriptor.nStride, input.descriptor.cStride, input_hStride, input_wStride));
     ImgPaddingLayer.CopyParams temp_05_0024 = temp_05_0023.addRef();
     temp_05_0024.setOutput_view_descriptor(gpu.newTensorDescriptor(precision, length, view_channels, view_height, view_width, //
-          output_channels * output_height * output_width, //
-          output_height * output_width, //
-          output_hStride, //
-          output_wStride));
+        output_channels * output_height * output_width, //
+        output_height * output_width, //
+        output_hStride, //
+        output_wStride));
     //
     //
     //
@@ -325,7 +324,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
       Layer temp_05_0025 = getCompatibilityLayer();
       Result temp_05_0013 = temp_05_0025.eval(RefUtil.addRefs(inObj));
       temp_05_0025.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_05_0013;
     }
     assert 1 == inObj.length;
@@ -337,7 +336,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     int[] dimIn = inputData.getDimensions();
     if (dimIn[0] == sizeX && dimIn[1] == sizeY) {
       inputData.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return input;
     }
     @Nonnull final int[] dimOut = RefArrays.copyOf(dimIn, 3);
@@ -375,6 +374,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     try {
       Result.Accumulator accumulator = new Result.Accumulator() {
         {
+          input.addRef();
         }
 
         @Override
@@ -423,6 +423,8 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          input.freeRef();
         }
       };
       return new Result(outputData, accumulator) {
@@ -453,12 +455,12 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          RefUtil.freeRefs(inObj);
           super._free();
         }
       };
     } finally {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       input.freeRef();
     }
   }
@@ -621,6 +623,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

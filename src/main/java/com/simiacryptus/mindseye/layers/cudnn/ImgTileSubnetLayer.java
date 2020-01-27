@@ -24,14 +24,12 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.WrapperLayer;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -122,7 +120,7 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
       assert temp_03_0006 != null;
       Result temp_03_0004 = temp_03_0006.eval(RefUtil.addRefs(inObj));
       temp_03_0006.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_03_0004;
     }
     int[] tileDimensions = {width, height, bands};
@@ -149,6 +147,8 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
             .eval(new Result(new CudaTensorList(tile == null ? null : tile.addRef(), length, tileDimensions, precision),
                 new Result.Accumulator() {
                   {
+                    input.addRef();
+                    passback.addRef();
                   }
 
                   @Override
@@ -170,6 +170,9 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
 
                   public @SuppressWarnings("unused")
                   void _free() {
+                    super._free();
+                    input.freeRef();
+                    passback.freeRef();
                   }
                 }));
         temp_03_0007.freeRef();
@@ -189,16 +192,17 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
     temp_03_0009.freeRef();
     temp_03_0008.freeRef();
     temp_03_0005.freeRef();
-    ReferenceCounting.freeRefs(tileResults);
+    RefUtil.freeRefs(tileResults);
     input.freeRef();
     inputData.freeRef();
     if (null != passback)
       passback.freeRef();
     try {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       assert result != null;
       return new Result(result.getData(), new Result.Accumulator() {
         {
+          result.addRef();
         }
 
         @Override
@@ -212,6 +216,8 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          result.freeRef();
         }
       }) {
 
@@ -229,6 +235,7 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
         }
       };
     } finally {

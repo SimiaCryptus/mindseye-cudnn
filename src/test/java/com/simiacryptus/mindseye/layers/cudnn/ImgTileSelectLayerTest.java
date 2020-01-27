@@ -58,8 +58,7 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
   public abstract ImgTileSelectLayer getLayer(final int[][] inputSize, Random random);
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override
@@ -81,8 +80,7 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -105,8 +103,7 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -129,8 +126,7 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -153,8 +149,7 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override

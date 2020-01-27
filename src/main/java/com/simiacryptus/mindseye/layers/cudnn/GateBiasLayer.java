@@ -24,14 +24,12 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ProductInputsLayer;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -78,12 +76,12 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision {
       Layer temp_52_0010 = getCompatibilityLayer();
       Result temp_52_0007 = temp_52_0010.eval(RefUtil.addRefs(inObj));
       temp_52_0010.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_52_0007;
     }
     if (inObj.length != 2) {
       IllegalArgumentException temp_52_0008 = new IllegalArgumentException("inObj.length=" + inObj.length);
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw temp_52_0008;
     }
     Result left = inObj[0].addRef();
@@ -98,7 +96,7 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision {
       right.freeRef();
       leftData.freeRef();
       rightData.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(leftDimensions));
     }
     try {
@@ -141,6 +139,9 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision {
           }, leftData.addRef(), rightData.addRef()),
           leftData.addRef()), new Result.Accumulator() {
         {
+          rightData.addRef();
+          right.addRef();
+          left.addRef();
         }
 
         @Override
@@ -211,6 +212,10 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision {
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          rightData.freeRef();
+          right.freeRef();
+          left.freeRef();
         }
       }) {
 
@@ -240,12 +245,12 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          RefUtil.freeRefs(inObj);
           super._free();
         }
       };
     } finally {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       rightData.freeRef();
       leftData.freeRef();
       right.freeRef();
@@ -270,6 +275,7 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

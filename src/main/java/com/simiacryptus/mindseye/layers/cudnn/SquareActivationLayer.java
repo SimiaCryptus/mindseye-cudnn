@@ -24,7 +24,6 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ProductInputsLayer;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.cudnnOpTensorDescriptor;
@@ -98,12 +97,12 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
       Layer temp_38_0008 = getCompatibilityLayer();
       Result temp_38_0005 = temp_38_0008.eval(RefUtil.addRefs(inObj));
       temp_38_0008.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_38_0005;
     }
     if (inObj.length != 1) {
       IllegalArgumentException temp_38_0006 = new IllegalArgumentException("inObj.length=" + inObj.length);
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw temp_38_0006;
     }
     Result input = inObj[0].addRef();
@@ -113,7 +112,7 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
     if (3 != dimensions.length) {
       input.freeRef();
       inputData.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
     }
     try {
@@ -150,6 +149,7 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
       }, inputData.addRef()), inputData.addRef()),
           new Result.Accumulator() {
             {
+              input.addRef();
             }
 
             @Override
@@ -205,6 +205,8 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
 
             public @SuppressWarnings("unused")
             void _free() {
+              super._free();
+              input.freeRef();
             }
           }) {
 
@@ -234,12 +236,12 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          RefUtil.freeRefs(inObj);
           super._free();
         }
       };
     } finally {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       inputData.freeRef();
       input.freeRef();
     }
@@ -263,6 +265,7 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

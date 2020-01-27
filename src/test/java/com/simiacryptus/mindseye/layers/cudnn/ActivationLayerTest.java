@@ -30,7 +30,6 @@ import com.simiacryptus.mindseye.test.SimpleEval;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefCollectors;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -104,7 +103,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
           assert derivative != null;
           assert temp_21_0008 != null;
           double[] temp_21_0001 = new double[]{x, temp_21_0008.get(0), derivative[0].get(0)};
-          ReferenceCounting.freeRefs(derivative);
+          RefUtil.freeRefs(derivative);
           temp_21_0008.freeRef();
           eval.freeRef();
           return temp_21_0001;
@@ -123,8 +122,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override
@@ -144,8 +142,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -166,8 +163,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -201,8 +197,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -236,8 +231,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override

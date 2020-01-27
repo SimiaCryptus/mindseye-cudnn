@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
 
@@ -52,7 +51,7 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
         TensorList temp_41_0002 = array[0].getData();
         Tensor input = temp_41_0002.get(0);
         temp_41_0002.freeRef();
-        ReferenceCounting.freeRefs(array);
+        RefUtil.freeRefs(array);
         int[] inputDimensions = input.getDimensions();
         int inBands = inputDimensions[2];
         Tensor output = new Tensor(1, 1, inBands * inBands);
@@ -79,8 +78,7 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
               }
 
               public @SuppressWarnings("unused")
-              void _free() {
-              }
+              void _free() { super._free(); }
             });
         output.freeRef();
         return temp_41_0001;
@@ -99,8 +97,7 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
       }
 
       public @SuppressWarnings("unused")
-      void _free() {
-      }
+      void _free() { super._free(); }
     };
   }
 
@@ -144,8 +141,7 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override
@@ -166,8 +162,7 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -189,8 +184,7 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override

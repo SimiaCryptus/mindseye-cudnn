@@ -80,6 +80,7 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
     if (null != layer3)
       layer3.freeRef();
     if (null != layer2)
@@ -98,8 +99,7 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
   public static class Basic extends ImgLinearSubnetLayerTest {
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override

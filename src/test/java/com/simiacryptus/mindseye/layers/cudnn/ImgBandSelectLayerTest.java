@@ -26,7 +26,6 @@ import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Random;
 
 public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
@@ -100,6 +99,7 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
     layer.freeRef();
   }
 
@@ -117,6 +117,7 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 
     public @SuppressWarnings("unused")
     void _free() {
+      super._free();
     }
 
     @Nonnull
@@ -134,6 +135,7 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 
     public @SuppressWarnings("unused")
     void _free() {
+      super._free();
     }
 
     @Nonnull

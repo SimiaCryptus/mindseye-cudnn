@@ -26,7 +26,6 @@ import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
 import com.simiacryptus.mindseye.layers.java.AvgPoolingLayer;
 import com.simiacryptus.mindseye.layers.java.MaxPoolingLayer;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefString;
@@ -204,7 +203,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
       Layer temp_37_0013 = getCompatibilityLayer();
       Result temp_37_0007 = temp_37_0013.eval(RefUtil.addRefs(inObj));
       temp_37_0013.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_37_0007;
     }
     TensorList temp_37_0014 = inObj[0].getData();
@@ -293,7 +292,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
           }
         }, inputData.addRef(), RefUtil.addRefs(inObj)),
         inputData.addRef());
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     try {
       try {
         try {
@@ -301,6 +300,9 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
           final boolean finalInputAlive = finalInput.isAlive();
           Result.Accumulator accumulator = new Result.Accumulator() {
             {
+              finalInput.addRef();
+              outputData.addRef();
+              inputData.addRef();
             }
 
             @Override
@@ -368,6 +370,10 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
 
             public @SuppressWarnings("unused")
             void _free() {
+              super._free();
+              finalInput.freeRef();
+              outputData.freeRef();
+              inputData.freeRef();
             }
           };
           finalInput.freeRef();
@@ -380,6 +386,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
 
             public @SuppressWarnings("unused")
             void _free() {
+              super._free();
             }
           };
         } finally {
@@ -433,6 +440,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

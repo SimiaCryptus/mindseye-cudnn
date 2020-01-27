@@ -24,7 +24,6 @@ import com.google.gson.JsonPrimitive;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.cudnnLRNDescriptor;
@@ -71,10 +70,8 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
     JsonPrimitive precision = json.getAsJsonPrimitive("precision");
     if (null != precision) {
       setPrecision(Precision.valueOf(precision.getAsString()));
-      RefUtil.freeRef(RefUtil.addRef(this));
     } else {
       setPrecision(CudaSettings.INSTANCE().defaultPrecision);
-      RefUtil.freeRef(RefUtil.addRef(this));
     }
     assert 0 < getWidth();
     assert 0 < getAlpha();
@@ -142,11 +139,11 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
       Layer temp_47_0008 = getCompatibilityLayer();
       Result temp_47_0007 = temp_47_0008.eval(RefUtil.addRefs(inObj));
       temp_47_0008.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_47_0007;
     }
     final Result input = inObj[0].addRef();
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     final TensorList inputData = input.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     final int length = inputData.length();
@@ -192,6 +189,12 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
           try {
             assert getPrecision() != null;
             Result.Accumulator accumulator = new Result.Accumulator() {
+              {
+                outputData.addRef();
+                input.addRef();
+                inputData.addRef();
+                lrnLayer.addRef();
+              }
 
               @Override
               public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList error) {
@@ -255,12 +258,21 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
 
               public @SuppressWarnings("unused")
               void _free() {
+                super._free();
+                outputData.freeRef();
+                input.freeRef();
+                inputData.freeRef();
+                lrnLayer.freeRef();
               }
             };
             return new Result(
                 new CudaTensorList(outputData == null ? null : outputData.addRef(), length,
                     new int[]{outputSize[3], outputSize[2], outputSize[1]}, getPrecision()),
                 accumulator) {
+              {
+                input.addRef();
+              }
+
               @Override
               public boolean isAlive() {
                 return input.isAlive() || !isFrozen();
@@ -268,6 +280,8 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
 
               public @SuppressWarnings("unused")
               void _free() {
+                super._free();
+                input.freeRef();
               }
             };
           } finally {
@@ -306,6 +320,7 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

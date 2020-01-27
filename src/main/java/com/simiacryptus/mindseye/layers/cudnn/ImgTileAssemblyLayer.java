@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
 import org.slf4j.Logger;
@@ -107,12 +106,12 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
       Layer temp_09_0017 = getCompatibilityLayer();
       Result temp_09_0012 = temp_09_0017.eval(RefUtil.addRefs(inObj));
       temp_09_0017.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_09_0012;
     }
     if (1 == inObj.length) {
       Result temp_09_0013 = inObj[0].addRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_09_0013;
     }
     TensorList temp_09_0018 = inObj[0].getData();
@@ -236,7 +235,8 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
 
         public @SuppressWarnings("unused")
         void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          super._free();
+          RefUtil.freeRefs(inObj);
           imgTileAssemblyLayer.freeRef();
           outputData.freeRef();
         }
@@ -257,12 +257,12 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          RefUtil.freeRefs(inObj);
           super._free();
         }
       };
     } finally {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       imgTileAssemblyLayer.freeRef();
     }
   }
@@ -421,8 +421,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override
@@ -454,7 +453,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
       totalHeight += rowHeight;
       totalWidth = Math.max(totalWidth, positionX);
     }
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     return new int[]{totalWidth, totalHeight, bands};
   }
 
@@ -489,13 +488,14 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
       this.tileDimensions = tileDimensions;
       Result[] temp_09_0002 = RefUtil.addRefs(inObj);
       this.inObj = RefUtil.addRefs(temp_09_0002);
-      ReferenceCounting.freeRefs(temp_09_0002);
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(temp_09_0002);
+      RefUtil.freeRefs(inObj);
     }
 
     public @SuppressWarnings("unused")
     void _free() {
-      ReferenceCounting.freeRefs(inObj);
+      super._free();
+      RefUtil.freeRefs(inObj);
       if (null != gpu) gpu.freeRef();
       outputBuffer.freeRef();
     }
@@ -527,8 +527,8 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
                            final int positionX, final int totalHeight, final int inputIndex) {
       Result[] temp_09_0003 = RefUtil.addRefs(inObj);
       this.inObj = RefUtil.addRefs(temp_09_0003);
-      ReferenceCounting.freeRefs(temp_09_0003);
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(temp_09_0003);
+      RefUtil.freeRefs(inObj);
       DeltaSet<UUID> temp_09_0004 = buffer.addRef();
       this.buffer = temp_09_0004.addRef();
       temp_09_0004.freeRef();
@@ -556,9 +556,10 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
 
     public @SuppressWarnings("unused")
     void _free() {
+      super._free();
       error.freeRef();
       buffer.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
     }
 
     @Nonnull

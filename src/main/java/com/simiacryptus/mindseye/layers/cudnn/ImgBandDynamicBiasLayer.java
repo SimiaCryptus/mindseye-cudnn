@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.cudnnOpTensorDescriptor;
@@ -31,7 +30,6 @@ import jcuda.jcudnn.cudnnOpTensorOp;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -78,12 +76,12 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
       Layer temp_33_0010 = getCompatibilityLayer();
       Result temp_33_0007 = temp_33_0010.eval(RefUtil.addRefs(inObj));
       temp_33_0010.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_33_0007;
     }
     if (inObj.length != 2) {
       IllegalArgumentException temp_33_0008 = new IllegalArgumentException("inObj.length=" + inObj.length);
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw temp_33_0008;
     }
     Result input = inObj[0].addRef();
@@ -94,7 +92,7 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
       biasinput.freeRef();
       IllegalArgumentException temp_33_0003 = new IllegalArgumentException("Input lengths: " + biasData.length());
       biasData.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw temp_33_0003;
     }
     Tensor bias = biasData.get(0);
@@ -107,21 +105,21 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
       biasinput.freeRef();
       bias.freeRef();
       inputData.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(inputDimensions));
     }
     if (0 == Tensor.length(inputData.getDimensions())) {
       biasinput.freeRef();
       bias.freeRef();
       inputData.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return input;
     }
     if (0 == bias.length()) {
       biasinput.freeRef();
       bias.freeRef();
       inputData.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return input;
     }
     try {
@@ -169,6 +167,9 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
           }, bias.addRef(), inputData.addRef()),
           inputData.addRef()), new Result.Accumulator() {
         {
+          biasinput.addRef();
+          bias.addRef();
+          input.addRef();
         }
 
         @Override
@@ -219,6 +220,10 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          biasinput.freeRef();
+          bias.freeRef();
+          input.freeRef();
         }
       }) {
 
@@ -248,12 +253,12 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
         }
 
         public void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          RefUtil.freeRefs(inObj);
           super._free();
         }
       };
     } finally {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       inputData.freeRef();
       bias.freeRef();
       biasinput.freeRef();

@@ -24,7 +24,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrayList;
 import com.simiacryptus.ref.wrappers.RefConsumer;
@@ -35,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -107,7 +105,7 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
   public Result eval(@Nonnull final Result... inObj) {
     assert 1 == inObj.length;
     Result input = inObj[0].addRef();
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     TensorList inputData = input.getData();
     @Nonnull final int[] inputDims = inputData.getDimensions();
     assert 3 == inputDims.length;
@@ -140,6 +138,10 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
           assert leg.inner != null;
           Result.Accumulator accumulator = new Result.Accumulator() {
             {
+              passback.addRef();
+              input.addRef();
+              leg.addRef();
+              legs.addRef();
             }
 
             @Override
@@ -184,6 +186,11 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
 
             public @SuppressWarnings("unused")
             void _free() {
+              super._free();
+              passback.freeRef();
+              input.freeRef();
+              leg.freeRef();
+              legs.freeRef();
             }
           };
           Result temp_06_0006 = leg.inner.eval(new Result(legData, accumulator));
@@ -203,7 +210,7 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
     temp_06_0009.freeRef();
     Result temp_06_0005 = sumInputsLayer.eval(RefUtil.addRefs(legResults));
     sumInputsLayer.freeRef();
-    ReferenceCounting.freeRefs(legResults);
+    RefUtil.freeRefs(legResults);
     return temp_06_0005;
   }
 

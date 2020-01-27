@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ImgPixelSoftmaxLayer;
 import com.simiacryptus.mindseye.layers.java.SoftmaxLayer;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.cudnnSoftmaxAlgorithm;
@@ -35,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -105,11 +103,11 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision 
       Layer temp_23_0006 = getCompatibilityLayer();
       Result temp_23_0005 = temp_23_0006.eval(RefUtil.addRefs(inObj));
       temp_23_0006.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_23_0005;
     }
     final Result inputResult = inObj[0].addRef();
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     final TensorList inputData = inputResult.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     @Nonnull final int[] outputSize = inputSize;
@@ -156,6 +154,11 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision 
       }, inputData.addRef()), inputData.addRef());
       try {
         Result.Accumulator accumulator = new Result.Accumulator() {
+          {
+            inputData.addRef();
+            outPtr.addRef();
+            inputResult.addRef();
+          }
 
           @Override
           public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
@@ -227,14 +230,24 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision 
 
           public @SuppressWarnings("unused")
           void _free() {
+            super._free();
+            inputData.freeRef();
+            outPtr.freeRef();
+            inputResult.freeRef();
           }
         };
         return new Result(
             new CudaTensorList(outPtr == null ? null : outPtr.addRef(), length, outputSize, precision),
             accumulator) {
 
+          {
+            inputResult.addRef();
+          }
+
           public @SuppressWarnings("unused")
           void _free() {
+            super._free();
+            inputResult.freeRef();
           }
 
           @Override
@@ -283,6 +296,7 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision 
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

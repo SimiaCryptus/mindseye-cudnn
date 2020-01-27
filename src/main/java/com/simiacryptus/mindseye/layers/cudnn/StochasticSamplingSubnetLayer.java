@@ -35,14 +35,12 @@ import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefSystem;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.LongFunction;
@@ -108,7 +106,7 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
     SumInputsLayer sumInputsLayer = RefUtil.addRef(temp_28_0008);
     temp_28_0008.freeRef();
     Result temp_28_0001 = gateNetwork.eval(sumInputsLayer.eval(RefUtil.addRefs(samples)));
-    ReferenceCounting.freeRefs(samples);
+    RefUtil.freeRefs(samples);
     sumInputsLayer.freeRef();
     gateNetwork.freeRef();
     return temp_28_0001;
@@ -122,7 +120,7 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
       assert temp_28_0009 != null;
       Result temp_28_0005 = temp_28_0009.eval(RefUtil.addRefs(inObj));
       temp_28_0009.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_28_0005;
     }
     Result[] counting = RefArrays.stream(RefUtil.addRefs(inObj)).map(r -> {
@@ -131,7 +129,7 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
         r.freeRef();
       return temp_28_0002;
     }).toArray(i -> new Result[i]);
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     Result temp_28_0003 = average(
         RefArrays.stream(getSeeds()).mapToObj(RefUtil.wrapInterface((LongFunction<? extends Result>) seed -> {
           Layer inner = getInner();
@@ -161,7 +159,7 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
           inner.freeRef();
           return temp_28_0004;
         }, RefUtil.addRefs(counting))).toArray(i -> new Result[i]), precision);
-    ReferenceCounting.freeRefs(counting);
+    RefUtil.freeRefs(counting);
     return temp_28_0003;
   }
 
@@ -187,8 +185,7 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override

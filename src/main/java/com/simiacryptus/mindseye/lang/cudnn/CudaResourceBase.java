@@ -50,7 +50,9 @@ public abstract class CudaResourceBase<T> extends ReferenceCountingBase implemen
 
   public abstract void release();
 
-  public abstract void _free();
+  public void _free() {
+    super._free();
+  }
 
   @Nonnull
   public @Override

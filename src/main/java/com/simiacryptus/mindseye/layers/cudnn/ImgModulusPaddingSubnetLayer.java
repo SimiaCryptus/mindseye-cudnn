@@ -29,7 +29,6 @@ import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.WrapperLayer;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
@@ -37,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
@@ -135,7 +133,7 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     if (ouputWidth == inputWidth) {
       if (outputHeight == inputHeight) {
         Result temp_34_0002 = inObj[0].addRef();
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
         return temp_34_0002;
       }
     }
@@ -151,7 +149,7 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     ImgCropLayer imgCropLayer2 = RefUtil.addRef(temp_34_0004);
     temp_34_0004.freeRef();
     Result temp_34_0001 = imgCropLayer2.eval(super.eval(imgCropLayer1.eval(RefUtil.addRefs(inObj))).addRef());
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     imgCropLayer2.freeRef();
     imgCropLayer1.freeRef();
     return temp_34_0001;
@@ -176,8 +174,7 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override

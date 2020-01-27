@@ -140,15 +140,14 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
         for (int i = 0; i < length; i++) {
           doubles[i] = data[i];
         }
-        break;
+        return tensor;
       case Double:
         read(precision, tensor.getData(), 0);
-        break;
+        return tensor;
       default:
         tensor.freeRef();
         throw new IllegalStateException();
     }
-    return tensor;
   }
 
   @Nonnull
@@ -269,8 +268,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
         public void release() {
         }
 
-        public void _free() {
-        }
+        public void _free() { super._free(); }
       };
     } finally {
       baseMemorySegment.freeRef();
@@ -289,6 +287,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
   }
 
   public void _free() {
+    super._free();
     assert ptr != null;
     if (ptr.getByteOffset() != 0)
       return;

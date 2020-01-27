@@ -26,7 +26,6 @@ import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.InnerNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -89,7 +88,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
   public static PipelineNetwork combine(@Nonnull PipelineNetwork... networks) {
     if (1 == networks.length) {
       PipelineNetwork temp_29_0004 = networks[0].addRef();
-      ReferenceCounting.freeRefs(networks);
+      RefUtil.freeRefs(networks);
       return temp_29_0004;
     }
     RefArrays.stream(RefUtil.addRefs(networks)).forEach(ReferenceCountingBase::assertAlive);
@@ -101,7 +100,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
           network.freeRef();
           return temp_29_0001;
         }, pipelineNetwork.addRef())).toArray(i -> new DAGNode[i])));
-    ReferenceCounting.freeRefs(networks);
+    RefUtil.freeRefs(networks);
     return pipelineNetwork;
   }
 
@@ -121,7 +120,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
     @Nonnull final int[] dimensions = temp_29_0008.getDimensions();
     temp_29_0008.freeRef();
     if (3 != dimensions.length) {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
     }
     for (int i = 1; i < inObj.length; i++) {
@@ -133,7 +132,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
         IllegalArgumentException temp_29_0006 = new IllegalArgumentException(
             RefArrays.toString(dimensions) + " != " + RefArrays.toString(temp_29_0010.getDimensions()));
         temp_29_0010.freeRef();
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
         throw temp_29_0006;
       }
     }
@@ -141,7 +140,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
       Layer temp_29_0011 = getCompatibilityLayer();
       Result temp_29_0007 = temp_29_0011.eval(RefUtil.addRefs(inObj));
       temp_29_0011.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_29_0007;
     }
     RefStream<TensorList> tensorListStream = RefArrays.stream(RefUtil.addRefs(inObj)).map(x -> {
@@ -185,7 +184,8 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
 
         public @SuppressWarnings("unused")
         void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          super._free();
+          RefUtil.freeRefs(inObj);
         }
       }) {
 
@@ -203,12 +203,12 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          RefUtil.freeRefs(inObj);
           super._free();
         }
       };
     } finally {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
     }
   }
 
@@ -228,8 +228,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override

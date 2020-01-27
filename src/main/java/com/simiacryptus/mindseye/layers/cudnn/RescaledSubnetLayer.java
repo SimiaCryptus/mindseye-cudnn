@@ -29,7 +29,6 @@ import com.simiacryptus.mindseye.lang.cudnn.CudaSystem;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
@@ -37,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
@@ -105,7 +103,7 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
       Result temp_13_0004 = temp_13_0005.eval(RefUtil.addRefs(inObj));
       temp_13_0005.freeRef();
       if (null != inObj)
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
       return temp_13_0004;
     }
     log.warn("Not Implemented: " + getClass().getCanonicalName());
@@ -113,7 +111,7 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
     Result temp_13_0003 = temp_13_0006.eval(RefUtil.addRefs(inObj));
     temp_13_0006.freeRef();
     if (null != inObj)
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
     return temp_13_0003;
   }
 
@@ -136,6 +134,7 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
     if (null != layer)
       layer.freeRef();
     layer = null;

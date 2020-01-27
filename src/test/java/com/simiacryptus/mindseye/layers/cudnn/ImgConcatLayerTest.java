@@ -92,8 +92,7 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
   }
 
   public @SuppressWarnings("unused")
-  void _free() {
-  }
+  void _free() { super._free(); }
 
   @Nonnull
   public @Override
@@ -140,8 +139,7 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -183,8 +181,7 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -200,8 +197,7 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -230,8 +226,7 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
         }
 
         public @SuppressWarnings("unused")
-        void _free() {
-        }
+        void _free() { super._free(); }
       });
       batchingTester.setBatchSize(5);
       return batchingTester;
@@ -252,8 +247,7 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override
@@ -270,8 +264,7 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     }
 
     public @SuppressWarnings("unused")
-    void _free() {
-    }
+    void _free() { super._free(); }
 
     @Nonnull
     public @Override

@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefString;
@@ -299,7 +298,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
       Layer temp_30_0015 = getCompatibilityLayer();
       Result temp_30_0009 = temp_30_0015.eval(RefUtil.addRefs(inObj));
       temp_30_0015.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_30_0009;
     }
     assert 1 == inObj.length;
@@ -311,7 +310,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
     int[] dimIn = inputData.getDimensions();
     if (dimIn[0] == sizeX && dimIn[1] == sizeY) {
       inputData.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return input;
     }
     @Nonnull final int[] dimOut = RefArrays.copyOf(dimIn, 3);
@@ -339,6 +338,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
     try {
       return new Result(outputData, new Result.Accumulator() {
         {
+          input.addRef();
         }
 
         @Override
@@ -388,6 +388,8 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          input.freeRef();
         }
       }) {
 
@@ -417,12 +419,12 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          RefUtil.freeRefs(inObj);
           super._free();
         }
       };
     } finally {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       input.freeRef();
     }
   }
@@ -449,6 +451,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.*;
 import jcuda.jcudnn.*;
 import org.slf4j.Logger;
@@ -33,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.DoubleSupplier;
@@ -233,7 +231,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
       RefUtil.freeRef(input);
       input = inObj[0].addRef();
     }
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     assert input != null;
     final TensorList inputData = input.getData();
     @Nonnull final int[] inputDims = inputData.getDimensions();
@@ -252,6 +250,9 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
       final boolean finalInputAlive = finalInput.isAlive();
       Result.Accumulator accumulator = new Result.Accumulator() {
         {
+          inputData.addRef();
+          simpleConvolutionLayer.addRef();
+          finalInput.addRef();
         }
 
         @Override
@@ -353,6 +354,10 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          inputData.freeRef();
+          simpleConvolutionLayer.freeRef();
+          finalInput.freeRef();
         }
       };
       finalInput.freeRef();
@@ -368,6 +373,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
         }
 
       };

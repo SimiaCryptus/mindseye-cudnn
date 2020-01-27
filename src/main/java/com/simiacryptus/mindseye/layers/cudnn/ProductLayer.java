@@ -24,7 +24,6 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ProductInputsLayer;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefString;
@@ -93,12 +92,12 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
       Layer temp_26_0013 = getCompatibilityLayer();
       Result temp_26_0009 = temp_26_0013.eval(RefUtil.addRefs(inObj));
       temp_26_0013.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       return temp_26_0009;
     }
     if (inObj.length != 2) {
       IllegalArgumentException temp_26_0010 = new IllegalArgumentException("inObj.length=" + inObj.length);
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw temp_26_0010;
     }
     Result left = inObj[0].addRef();
@@ -113,7 +112,7 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
       right.freeRef();
       leftData.freeRef();
       rightData.freeRef();
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(leftDimensions));
     }
     if (leftDimensions[0] != rightDimensions[0] && leftDimensions[0] != 1 && 1 != rightDimensions[0] || rightDimensions.length > 1 && leftDimensions[1] != rightDimensions[1] && leftDimensions[1] != 1 && 1 != rightDimensions[1] || rightDimensions.length > 2 && leftDimensions[2] != rightDimensions[2] && leftDimensions[2] != 1 && 1 != rightDimensions[2]) {
@@ -124,14 +123,14 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
         leftData.freeRef();
         rightData.freeRef();
         Result temp_26_0011 = inObj[0].addRef();
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
         return temp_26_0011;
       } else {
         left.freeRef();
         right.freeRef();
         leftData.freeRef();
         rightData.freeRef();
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
         throw new IllegalArgumentException(RefString.format("leftDimensions=%s;rightDimensions=%s",
             RefArrays.toString(leftDimensions), RefArrays.toString(rightDimensions)));
       }
@@ -176,6 +175,9 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
           }, leftData.addRef(), rightData.addRef()),
           leftData.addRef()), new Result.Accumulator() {
         {
+          rightData.addRef();
+          left.addRef();
+          right.addRef();
         }
 
         @Override
@@ -320,6 +322,10 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          rightData.freeRef();
+          left.freeRef();
+          right.freeRef();
         }
       }) {
 
@@ -349,12 +355,12 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          ReferenceCounting.freeRefs(inObj);
+          RefUtil.freeRefs(inObj);
           super._free();
         }
       };
     } finally {
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
       rightData.freeRef();
       leftData.freeRef();
       right.freeRef();
@@ -380,6 +386,7 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

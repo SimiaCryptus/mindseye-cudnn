@@ -30,7 +30,6 @@ import com.simiacryptus.mindseye.layers.java.FullyConnectedReferenceLayer;
 import com.simiacryptus.mindseye.layers.java.ReshapeLayer;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.util.FastRandom;
@@ -41,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
 
@@ -167,13 +165,13 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
       Result temp_15_0005 = temp_15_0011.eval(RefUtil.addRefs(inObj));
       temp_15_0011.freeRef();
       if (null != inObj)
-        ReferenceCounting.freeRefs(inObj);
+        RefUtil.freeRefs(inObj);
       return temp_15_0005;
     }
     Layer explode = explode();
     Result temp_15_0004 = explode.eval(RefUtil.addRefs(inObj));
     if (null != inObj)
-      ReferenceCounting.freeRefs(inObj);
+      RefUtil.freeRefs(inObj);
     explode.freeRef();
     return temp_15_0004;
   }
