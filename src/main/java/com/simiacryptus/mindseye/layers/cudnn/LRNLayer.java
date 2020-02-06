@@ -139,11 +139,11 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
       Layer temp_47_0008 = getCompatibilityLayer();
       Result temp_47_0007 = temp_47_0008.eval(RefUtil.addRefs(inObj));
       temp_47_0008.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_47_0007;
     }
     final Result input = inObj[0].addRef();
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     final TensorList inputData = input.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     final int length = inputData.length();

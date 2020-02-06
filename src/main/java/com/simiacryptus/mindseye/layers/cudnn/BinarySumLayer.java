@@ -122,24 +122,24 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
   public Result eval(@Nonnull final Result... inObj) {
     if (inObj.length == 1) {
       if (rightFactor != 1) {
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
         throw new IllegalStateException();
       }
       if (leftFactor != 1) {
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
         throw new IllegalStateException();
       }
       Result temp_51_0007 = inObj[0].addRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_51_0007;
     }
     if (inObj.length > 2) {
       if (rightFactor != 1) {
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
         throw new IllegalStateException();
       }
       if (leftFactor != 1) {
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
         throw new IllegalStateException();
       }
       Result temp_51_0008 = RefUtil.get(RefArrays.stream(RefUtil.addRefs(inObj)).reduce((a, b) -> {
@@ -149,17 +149,17 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
         a.freeRef();
         return temp_51_0001;
       }));
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_51_0008;
     }
-    assert (inObj.length == 2);
+    assert inObj.length == 2;
     final TensorList leftData = inObj[0].getData();
     final TensorList rightData = inObj[1].getData();
     int[] leftDimensions = leftData.getDimensions();
     if (3 < leftDimensions.length) {
       leftData.freeRef();
       rightData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(leftDimensions));
     }
     @Nonnull final int[] dimensions = {leftDimensions.length < 1 ? 0 : leftDimensions[0],
@@ -168,7 +168,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
     if (length != rightData.length()) {
       leftData.freeRef();
       rightData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw new IllegalArgumentException();
     }
     for (int i = 1; i < inObj.length; i++) {
@@ -178,7 +178,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
       if (Tensor.length(dimensions) != Tensor.length(dimensions1)) {
         leftData.freeRef();
         rightData.freeRef();
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
         throw new IllegalArgumentException(
             RefArrays.toString(dimensions) + " != " + RefArrays.toString(dimensions1));
       }
@@ -285,7 +285,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
         public @SuppressWarnings("unused")
         void _free() {
           super._free();
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
         }
       };
       CudaTensorList data = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
@@ -340,12 +340,12 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       rightData.freeRef();
       leftData.freeRef();
     }

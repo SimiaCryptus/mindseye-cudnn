@@ -19,7 +19,7 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
-import com.simiacryptus.mindseye.lang.RegisteredObjectBase;
+import com.simiacryptus.mindseye.lang.ObjectRegistry;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayer;
 import com.simiacryptus.ref.lang.RefUtil;
@@ -95,7 +95,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
   }
 
   public static double evictMemory(final int deviceId) {
-    double bytes = RegisteredObjectBase.getLivingInstances(SimpleConvolutionLayer.class).mapToLong(x -> {
+    double bytes = ObjectRegistry.getLivingInstances(SimpleConvolutionLayer.class).mapToLong(x -> {
       long temp_35_0001 = x.evictDeviceData(deviceId);
       x.freeRef();
       return temp_35_0001;
@@ -231,7 +231,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
 
   public void write(@Nonnull Precision precision, @Nonnull double[] data, long offset) {
     assert getType() == MemoryType.Managed || CudaDevice.isThreadDeviceId(getDeviceId());
-    if (size < ((offset + data.length) * precision.size))
+    if (size < (offset + data.length) * precision.size)
       throw new IllegalArgumentException(
           RefString.format("%d != (%d + %d) * %d", size, offset, data.length, precision.size));
     CudaSystem.cudaMemcpy(getPtr().withByteOffset(offset * precision.size), precision.getPointer(data),

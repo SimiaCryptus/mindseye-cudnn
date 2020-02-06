@@ -213,16 +213,20 @@ public class CudnnHandle extends CudaDevice {
           cudaTensorList.freeRef();
           return temp_53_0003;
         } else {
-          String msg = RefString.format(
-              "Incompatible precision types %s != %s for Tensor %s in GPU at %s, created by %s", precision,
-              cudaTensorList.getPrecision(),
-              Integer.toHexString(RefSystem.identityHashCode(cudaTensorList.addRef())),
-              Util.toString(Util.getStackTrace()).replaceAll("\n", ", "),
-              Util.toString(cudaTensorList.createdBy).replaceAll("\n", ", "));
           if (CudaSettings.INSTANCE().verbose) {
-            CudaTensorList.logger.warn(msg);
+            CudaTensorList.logger.warn(RefString.format(
+                "Incompatible precision types %s != %s for Tensor %s in GPU at %s, created by %s", precision,
+                cudaTensorList.getPrecision(),
+                Integer.toHexString(RefSystem.identityHashCode(cudaTensorList.addRef())),
+                Util.toString(Util.getStackTrace()).replaceAll("\n", ", "),
+                Util.toString(cudaTensorList.createdBy).replaceAll("\n", ", ")));
           } else {
-            CudaTensorList.logger.debug(msg);
+            if(CudaTensorList.logger.isDebugEnabled()) CudaTensorList.logger.debug(RefString.format(
+                "Incompatible precision types %s != %s for Tensor %s in GPU at %s, created by %s", precision,
+                cudaTensorList.getPrecision(),
+                Integer.toHexString(RefSystem.identityHashCode(cudaTensorList.addRef())),
+                Util.toString(Util.getStackTrace()).replaceAll("\n", ", "),
+                Util.toString(cudaTensorList.createdBy).replaceAll("\n", ", ")));
           }
         }
         cudaTensorList.freeRef();
@@ -759,7 +763,7 @@ public class CudnnHandle extends CudaDevice {
     cudnnSetReduceTensorDescriptor(reduceTensorDesc, reduceTensorOp, reduceTensorCompType, reduceTensorNanOpt,
         reduceTensorIndices, reduceTensorIndicesType);
     return new CudaResource<cudnnReduceTensorDescriptor>(reduceTensorDesc,
-        CudnnHandle::cudnnDestroyReduceTensorDescriptor, getDeviceId());
+        obj -> cudnnDestroyReduceTensorDescriptor(obj), getDeviceId());
   }
 
   @Nonnull
@@ -782,7 +786,7 @@ public class CudnnHandle extends CudaDevice {
     } else {
       if (CudaSettings.INSTANCE().isSyncBeforeFree())
         synchronize(RefSystem.nanoTime(), deviceId);
-      objsToFree.stream().forEach(CudaResourceBase::release);
+      objsToFree.stream().forEach(cudaResourceBase -> cudaResourceBase.release());
       super.cleanup();
     }
     objsToFree.freeRef();
@@ -802,7 +806,7 @@ public class CudnnHandle extends CudaDevice {
     cleanupPool.submit(() -> {
       if (CudaSettings.INSTANCE().isSyncBeforeFree())
         synchronize(RefSystem.nanoTime(), deviceId);
-      objsToFree.stream().forEach(CudaResourceBase::release);
+      objsToFree.stream().forEach(cudaResourceBase -> cudaResourceBase.release());
       objsToFree.freeRef();
       super.cleanup();
     });

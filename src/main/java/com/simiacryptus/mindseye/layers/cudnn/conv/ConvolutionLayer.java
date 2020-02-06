@@ -254,7 +254,7 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
       Layer temp_04_0019 = getCompatibilityLayer();
       Result temp_04_0008 = temp_04_0019.eval(RefUtil.addRefs(inObj));
       temp_04_0019.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_04_0008;
     }
     @Nonnull
@@ -271,7 +271,7 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     TensorList temp_04_0020 = inObj[0].getData();
     assert temp_04_0020.length() == resultData.length();
     temp_04_0020.freeRef();
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     assert 3 == resultData.getDimensions().length;
     assert outputBands == resultData.getDimensions()[2];
     final ConvolutionLayer convolutionLayer = ConvolutionLayer.this.addRef();

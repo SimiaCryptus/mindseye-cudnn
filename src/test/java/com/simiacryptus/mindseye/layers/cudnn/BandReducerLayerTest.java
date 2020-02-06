@@ -39,15 +39,6 @@ public abstract class BandReducerLayerTest extends CudnnLayerTestBase {
     this.alpha = alpha;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  BandReducerLayerTest[] addRefs(@Nullable BandReducerLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(BandReducerLayerTest::addRef)
-        .toArray((x) -> new BandReducerLayerTest[x]);
-  }
-
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -73,45 +64,15 @@ public abstract class BandReducerLayerTest extends CudnnLayerTestBase {
     return new int[][]{{32, 32, 3}};
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  BandReducerLayerTest addRef() {
-    return (BandReducerLayerTest) super.addRef();
-  }
-
   public static class Double extends BandReducerLayerTest {
     public Double() {
       super(Precision.Double, 1.0);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
-      return (Double) super.addRef();
     }
   }
 
   public static class Negative extends BandReducerLayerTest {
     public Negative() {
       super(Precision.Double, -5.0);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Negative addRef() {
-      return (Negative) super.addRef();
     }
   }
 
@@ -131,16 +92,6 @@ public abstract class BandReducerLayerTest extends CudnnLayerTestBase {
     public int[][] getLargeDims(Random random) {
       return new int[][]{{200, 100, 3}};
     }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Asymmetric addRef() {
-      return (Asymmetric) super.addRef();
-    }
   }
 
   public static class Float extends BandReducerLayerTest {
@@ -153,14 +104,5 @@ public abstract class BandReducerLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
-      return (Float) super.addRef();
-    }
   }
 }

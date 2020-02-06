@@ -40,10 +40,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 class ExplodedConvolutionGrid extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(ExplodedConvolutionGrid.class);
@@ -55,7 +53,7 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
 
   public ExplodedConvolutionGrid(@Nonnull ConvolutionParams convolutionParams, int maxBandBatch) {
     this.convolutionParams = convolutionParams;
-    int bandWidth = (maxBandBatch == 0) ? convolutionParams.inputBands : maxBandBatch;
+    int bandWidth = maxBandBatch == 0 ? convolutionParams.inputBands : maxBandBatch;
     int rows = (int) Math.ceil((double) convolutionParams.inputBands / bandWidth);
     RefList<ExplodedConvolutionLeg> temp_08_0001 = RefIntStream.range(0, rows).map(x -> x * bandWidth)
         .mapToObj(fromBand -> {
@@ -74,7 +72,7 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     assertAlive();
     @Nonnull
     PipelineNetwork network = new PipelineNetwork(1);
-    add(network.getInput(0));
+    add(network.getInput(0), network.addRef());
     return network;
   }
 
@@ -140,14 +138,13 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     return temp_08_0004;
   }
 
-  public void add(@Nonnull DAGNode input) {
+  public void add(@Nonnull DAGNode input, DAGNetwork network) {
     assertAlive();
-    DAGNetwork network = input.getNetwork();
     int defaultPaddingX = 0;
     int defaultPaddingY = 0;
     boolean customPaddingX = this.convolutionParams.paddingX != null && convolutionParams.paddingX != defaultPaddingX;
     boolean customPaddingY = this.convolutionParams.paddingY != null && convolutionParams.paddingY != defaultPaddingY;
-    DAGNode paddedInput = null;
+    final DAGNode paddedInput;
     if (customPaddingX || customPaddingY) {
       int x;
       if (this.convolutionParams.paddingX < -defaultPaddingX) {
@@ -166,50 +163,35 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
         y = 0;
       }
       ImgZeroPaddingLayer temp_08_0005 = new ImgZeroPaddingLayer(x, y);
-      assert network != null;
       temp_08_0005.setPrecision(convolutionParams.precision);
-      RefUtil.freeRef(paddedInput);
-      paddedInput = network.add(RefUtil.addRef(temp_08_0005),
-          input.addRef());
-      temp_08_0005.freeRef();
+      paddedInput = network.add(temp_08_0005, input.addRef());
     } else {
-      RefUtil.freeRef(paddedInput);
       paddedInput = input.addRef();
     }
     input.freeRef();
-    InnerNode output = null;
+    final InnerNode output;
     if (subLayers.size() == 1) {
       ExplodedConvolutionLeg temp_08_0010 = subLayers.get(0);
-      RefUtil.freeRef(output);
-      output = (InnerNode) temp_08_0010.add(paddedInput.addRef());
+      output = (InnerNode) temp_08_0010.add(paddedInput, network.addRef());
       temp_08_0010.freeRef();
     } else {
       ImgLinearSubnetLayer linearSubnetLayer = new ImgLinearSubnetLayer();
       subLayers.forEach(RefUtil.wrapInterface((Consumer<? super ExplodedConvolutionLeg>) leg -> {
         PipelineNetwork subnet = new PipelineNetwork();
-        RefUtil.freeRef(leg.add(subnet.getHead()));
-        linearSubnetLayer.add(leg.fromBand, leg.toBand, subnet.addRef());
-        subnet.freeRef();
+        RefUtil.freeRef(leg.add(subnet.getHead(), subnet.addRef()));
+        linearSubnetLayer.add(leg.fromBand, leg.toBand, subnet);
         leg.freeRef();
       }, linearSubnetLayer.addRef()));
       boolean isParallel = CudaSettings.INSTANCE().isConv_para_1();
       linearSubnetLayer.setPrecision(convolutionParams.precision);
-      ImgLinearSubnetLayer temp_08_0011 = RefUtil.addRef(linearSubnetLayer);
-      temp_08_0011.setParallel(isParallel);
-      temp_08_0011.freeRef();
+      linearSubnetLayer.setParallel(isParallel);
       assert network != null;
-      InnerNode temp_08_0012 = network.add(linearSubnetLayer.addRef(),
-          paddedInput.addRef());
-      temp_08_0012.setParallel(isParallel);
-      RefUtil.freeRef(output);
-      output = temp_08_0012.addRef();
-      temp_08_0012.freeRef();
-      linearSubnetLayer.freeRef();
+      output = network.add(linearSubnetLayer, paddedInput);
+      output.setParallel(isParallel);
     }
-    paddedInput.freeRef();
     if (customPaddingX || customPaddingY) {
-      int x = !customPaddingX ? 0 : (this.convolutionParams.paddingX - defaultPaddingX);
-      int y = !customPaddingY ? 0 : (this.convolutionParams.paddingY - defaultPaddingY);
+      int x = !customPaddingX ? 0 : this.convolutionParams.paddingX - defaultPaddingX;
+      int y = !customPaddingY ? 0 : this.convolutionParams.paddingY - defaultPaddingY;
       if (x > 0)
         x = 0;
       if (y > 0)
@@ -217,13 +199,15 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
       if (x != 0 || y != 0) {
         ImgZeroPaddingLayer temp_08_0006 = new ImgZeroPaddingLayer(x, y);
         temp_08_0006.setPrecision(convolutionParams.precision);
-        RefUtil.freeRef(network.add(RefUtil.addRef(temp_08_0006),
-            output == null ? null : output.addRef()));
-        temp_08_0006.freeRef();
+        RefUtil.freeRef(network.add(temp_08_0006, output));
+      } else {
+        if (null != output)
+          output.freeRef();
       }
+    } else {
+      if (null != output)
+        output.freeRef();
     }
-    if (null != output)
-      output.freeRef();
     if (null != network)
       network.freeRef();
   }

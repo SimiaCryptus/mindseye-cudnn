@@ -44,15 +44,6 @@ public abstract class SoftmaxLayerTest extends CudnnLayerTestBase {
     //return com.simiacryptus.mindseye.layers.java.SoftmaxLayer.class;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SoftmaxLayerTest[] addRefs(@Nullable SoftmaxLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SoftmaxLayerTest::addRef)
-        .toArray((x) -> new SoftmaxLayerTest[x]);
-  }
-
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -78,30 +69,11 @@ public abstract class SoftmaxLayerTest extends CudnnLayerTestBase {
     return temp_70_0001;
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  SoftmaxLayerTest addRef() {
-    return (SoftmaxLayerTest) super.addRef();
-  }
-
   public static class Basic extends SoftmaxLayerTest {
     public Basic() {
       super(SoftmaxActivationLayer.SoftmaxAlgorithm.ACCURATE, SoftmaxActivationLayer.SoftmaxMode.INSTANCE);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
-      return (Basic) super.addRef();
-    }
   }
 
   public static class Pixel extends SoftmaxLayerTest {
@@ -109,15 +81,6 @@ public abstract class SoftmaxLayerTest extends CudnnLayerTestBase {
       super(SoftmaxActivationLayer.SoftmaxAlgorithm.ACCURATE, SoftmaxActivationLayer.SoftmaxMode.CHANNEL);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Pixel addRef() {
-      return (Pixel) super.addRef();
-    }
   }
 
   public static class PixelLog extends SoftmaxLayerTest {
@@ -125,14 +88,5 @@ public abstract class SoftmaxLayerTest extends CudnnLayerTestBase {
       super(SoftmaxActivationLayer.SoftmaxAlgorithm.LOG, SoftmaxActivationLayer.SoftmaxMode.CHANNEL);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    PixelLog addRef() {
-      return (PixelLog) super.addRef();
-    }
   }
 }

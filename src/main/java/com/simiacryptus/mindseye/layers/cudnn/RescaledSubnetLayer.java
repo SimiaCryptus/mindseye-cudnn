@@ -103,7 +103,7 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
       Result temp_13_0004 = temp_13_0005.eval(RefUtil.addRefs(inObj));
       temp_13_0005.freeRef();
       if (null != inObj)
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
       return temp_13_0004;
     }
     log.warn("Not Implemented: " + getClass().getCanonicalName());
@@ -111,7 +111,7 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
     Result temp_13_0003 = temp_13_0006.eval(RefUtil.addRefs(inObj));
     temp_13_0006.freeRef();
     if (null != inObj)
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
     return temp_13_0003;
   }
 

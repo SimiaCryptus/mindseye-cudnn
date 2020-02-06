@@ -86,8 +86,8 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
   SquareActivationLayer[] addRefs(@Nullable SquareActivationLayer[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayer::addRef)
-        .toArray((x) -> new SquareActivationLayer[x]);
+    return Arrays.stream(array).filter(x -> x != null).map(squareActivationLayer -> squareActivationLayer.addRef())
+        .toArray(x -> new SquareActivationLayer[x]);
   }
 
   @Nullable
@@ -97,12 +97,12 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
       Layer temp_38_0008 = getCompatibilityLayer();
       Result temp_38_0005 = temp_38_0008.eval(RefUtil.addRefs(inObj));
       temp_38_0008.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_38_0005;
     }
     if (inObj.length != 1) {
       IllegalArgumentException temp_38_0006 = new IllegalArgumentException("inObj.length=" + inObj.length);
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw temp_38_0006;
     }
     Result input = inObj[0].addRef();
@@ -112,7 +112,7 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
     if (3 != dimensions.length) {
       input.freeRef();
       inputData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
     }
     try {
@@ -236,12 +236,12 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       inputData.freeRef();
       input.freeRef();
     }

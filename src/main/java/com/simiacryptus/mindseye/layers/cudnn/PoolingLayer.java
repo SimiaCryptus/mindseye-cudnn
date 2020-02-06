@@ -203,7 +203,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
       Layer temp_37_0013 = getCompatibilityLayer();
       Result temp_37_0007 = temp_37_0013.eval(RefUtil.addRefs(inObj));
       temp_37_0013.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_37_0007;
     }
     TensorList temp_37_0014 = inObj[0].getData();
@@ -212,8 +212,8 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
     temp_37_0014.freeRef();
     int correctionX = correct(rawInputDims[0], strideX, windowX);
     int correctionY = correct(rawInputDims[1], strideY, windowY);
-    int paddingX = Math.max(0, PoolingLayer.this.paddingX - ((correctionX + 1) / 2));
-    int paddingY = Math.max(0, PoolingLayer.this.paddingY - ((correctionY + 1) / 2));
+    int paddingX = Math.max(0, PoolingLayer.this.paddingX - (correctionX + 1) / 2);
+    int paddingY = Math.max(0, PoolingLayer.this.paddingY - (correctionY + 1) / 2);
     assert paddingX >= 0;
     assert paddingY >= 0;
     assert correctionX >= 0;
@@ -292,7 +292,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
           }
         }, inputData.addRef(), RefUtil.addRefs(inObj)),
         inputData.addRef());
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     try {
       try {
         try {

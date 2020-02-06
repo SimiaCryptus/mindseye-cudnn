@@ -41,15 +41,6 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgPaddingLayerTest[] addRefs(@Nullable ImgPaddingLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayerTest::addRef)
-        .toArray((x) -> new ImgPaddingLayerTest[x]);
-  }
-
   @Nonnull
   @Override
   public abstract int[][] getSmallDims(Random random);
@@ -57,16 +48,6 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public abstract Layer getLayer(final int[][] inputSize, Random random);
-
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ImgPaddingLayerTest addRef() {
-    return (ImgPaddingLayerTest) super.addRef();
-  }
 
   public static class Center extends ImgPaddingLayerTest {
 
@@ -82,15 +63,6 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
       return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Center addRef() {
-      return (Center) super.addRef();
-    }
   }
 
   public static class Left extends ImgPaddingLayerTest {
@@ -111,15 +83,6 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
       return temp_63_0001;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Left addRef() {
-      return (Left) super.addRef();
-    }
   }
 
   public static class Right extends ImgPaddingLayerTest {
@@ -140,15 +103,6 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
       return temp_63_0003;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Right addRef() {
-      return (Right) super.addRef();
-    }
   }
 
   public static class Top extends ImgPaddingLayerTest {
@@ -169,15 +123,6 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
       return temp_63_0005;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Top addRef() {
-      return (Top) super.addRef();
-    }
   }
 
   public static class Bottom extends ImgPaddingLayerTest {
@@ -198,15 +143,6 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
       return temp_63_0007;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Bottom addRef() {
-      return (Bottom) super.addRef();
-    }
   }
 
 }

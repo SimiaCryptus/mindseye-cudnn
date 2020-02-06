@@ -120,7 +120,7 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
       assert temp_03_0006 != null;
       Result temp_03_0004 = temp_03_0006.eval(RefUtil.addRefs(inObj));
       temp_03_0006.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_03_0004;
     }
     int[] tileDimensions = {width, height, bands};
@@ -188,17 +188,17 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
     temp_03_0008.setPrecision(precision);
     ImgTileAssemblyLayer temp_03_0009 = RefUtil.addRef(temp_03_0008);
     Result result = temp_03_0009.eval(
-        RefArrays.stream(RefUtil.addRefs(tileResults)).flatMap(RefArrays::stream).<Result>toArray(i -> new Result[i]));
+        RefArrays.stream(RefUtil.addRefs(tileResults)).flatMap(array -> RefArrays.stream(array)).<Result>toArray(i -> new Result[i]));
     temp_03_0009.freeRef();
     temp_03_0008.freeRef();
     temp_03_0005.freeRef();
-    RefUtil.freeRefs(tileResults);
+    RefUtil.freeRef(tileResults);
     input.freeRef();
     inputData.freeRef();
     if (null != passback)
       passback.freeRef();
     try {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       assert result != null;
       return new Result(result.getData(), new Result.Accumulator() {
         {

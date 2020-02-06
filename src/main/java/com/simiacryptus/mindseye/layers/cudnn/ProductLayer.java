@@ -92,12 +92,12 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
       Layer temp_26_0013 = getCompatibilityLayer();
       Result temp_26_0009 = temp_26_0013.eval(RefUtil.addRefs(inObj));
       temp_26_0013.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_26_0009;
     }
     if (inObj.length != 2) {
       IllegalArgumentException temp_26_0010 = new IllegalArgumentException("inObj.length=" + inObj.length);
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw temp_26_0010;
     }
     Result left = inObj[0].addRef();
@@ -112,7 +112,7 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
       right.freeRef();
       leftData.freeRef();
       rightData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(leftDimensions));
     }
     if (leftDimensions[0] != rightDimensions[0] && leftDimensions[0] != 1 && 1 != rightDimensions[0] || rightDimensions.length > 1 && leftDimensions[1] != rightDimensions[1] && leftDimensions[1] != 1 && 1 != rightDimensions[1] || rightDimensions.length > 2 && leftDimensions[2] != rightDimensions[2] && leftDimensions[2] != 1 && 1 != rightDimensions[2]) {
@@ -123,14 +123,14 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
         leftData.freeRef();
         rightData.freeRef();
         Result temp_26_0011 = inObj[0].addRef();
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
         return temp_26_0011;
       } else {
         left.freeRef();
         right.freeRef();
         leftData.freeRef();
         rightData.freeRef();
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
         throw new IllegalArgumentException(RefString.format("leftDimensions=%s;rightDimensions=%s",
             RefArrays.toString(leftDimensions), RefArrays.toString(rightDimensions)));
       }
@@ -355,12 +355,12 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       rightData.freeRef();
       leftData.freeRef();
       right.freeRef();

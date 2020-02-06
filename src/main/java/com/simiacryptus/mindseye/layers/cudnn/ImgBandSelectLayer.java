@@ -111,7 +111,7 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
       Layer temp_46_0010 = getCompatibilityLayer();
       Result temp_46_0006 = temp_46_0010.eval(RefUtil.addRefs(inObj));
       temp_46_0010.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_46_0006;
     }
     final TensorList inputData = in0.getData();
@@ -119,7 +119,7 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
     final int length = inputData.length();
     @Nonnull final int[] outputDimensions = RefArrays.copyOf(inputDimensions, 3);
     outputDimensions[2] = getTo() - getFrom();
-    long size = (length * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size);
+    long size = length * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size;
     try {
       return new Result(CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
         @Nullable final CudaTensor cudaInput = gpu.getTensor(inputData.addRef(), precision,
@@ -179,8 +179,8 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
                       //assert error.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(Double::isFinite);
                       @Nullable final CudaTensor errorPtr = gpu.getTensor(delta.addRef(), precision,
                           MemoryType.Device, false);
-                      long size1 = (length * inputDimensions[2] * inputDimensions[1] * inputDimensions[0]
-                          * precision.size);
+                      long size1 = length * inputDimensions[2] * inputDimensions[1] * inputDimensions[0]
+                          * precision.size;
                       @Nonnull final CudaMemory passbackBuffer = gpu.allocate(size1, MemoryType.Managed.ifEnabled(), false);
                       CudaMemory errorPtrMemory = errorPtr.getMemory(gpu);
                       assert errorPtrMemory != null;
@@ -243,12 +243,12 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       inputData.freeRef();
       in0.freeRef();
     }

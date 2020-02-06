@@ -23,6 +23,7 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.RefUtil;
+import org.junit.After;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -97,52 +98,22 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
     return new int[][]{{largeSize, largeSize, inputBands}};
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
-    super._free();
-    layer.freeRef();
-  }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ImgBandSelectLayerTest addRef() {
-    return (ImgBandSelectLayerTest) super.addRef();
+  @After
+  public void cleanup() {
+    super.cleanup();
+    if (null != layer)
+      layer.freeRef();
   }
 
   public static class Double extends ImgBandSelectLayerTest {
     public Double() {
       super(Precision.Double, 5, 2, 4);
     }
-
-    public @SuppressWarnings("unused")
-    void _free() {
-      super._free();
-    }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
-      return (Double) super.addRef();
-    }
   }
 
   public static class Float extends ImgBandSelectLayerTest {
     public Float() {
       super(Precision.Float, 2, 0, 1);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() {
-      super._free();
-    }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
-      return (Float) super.addRef();
     }
   }
 

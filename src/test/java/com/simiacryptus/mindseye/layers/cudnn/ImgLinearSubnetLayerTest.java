@@ -21,6 +21,7 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.ref.lang.RefUtil;
+import org.junit.After;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -78,9 +79,9 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
     return temp_67_0001;
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
-    super._free();
+  @After
+  public void cleanup() {
+    super.cleanup();
     if (null != layer3)
       layer3.freeRef();
     if (null != layer2)
@@ -89,24 +90,7 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
       layer1.freeRef();
   }
 
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ImgLinearSubnetLayerTest addRef() {
-    return (ImgLinearSubnetLayerTest) super.addRef();
-  }
-
   public static class Basic extends ImgLinearSubnetLayerTest {
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
-      return (Basic) super.addRef();
-    }
   }
 
 }

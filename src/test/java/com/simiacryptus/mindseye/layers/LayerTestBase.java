@@ -39,7 +39,7 @@ public abstract class LayerTestBase extends StandardLayerTests {
 
   @Test(timeout = 15 * 60 * 1000)
   public void test() throws Throwable {
-    run(this::run);
+    run(log -> run(log));
   }
 
   @Before
@@ -52,16 +52,6 @@ public abstract class LayerTestBase extends StandardLayerTests {
   public void cleanup() {
     RefSystem.gc();
     //GpuController.remove();
-  }
-
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  LayerTestBase addRef() {
-    return (LayerTestBase) super.addRef();
   }
 
 }

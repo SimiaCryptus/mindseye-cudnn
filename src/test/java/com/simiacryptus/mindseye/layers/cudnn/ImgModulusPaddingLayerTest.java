@@ -61,29 +61,9 @@ public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
     return new ImgModulusPaddingLayer(modulus, modulus, offset, offset);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ImgModulusPaddingLayerTest addRef() {
-    return (ImgModulusPaddingLayerTest) super.addRef();
-  }
-
   public static class Basic extends ImgModulusPaddingLayerTest {
     public Basic() {
       super(2, 3, 0);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
-      return (Basic) super.addRef();
     }
   }
 

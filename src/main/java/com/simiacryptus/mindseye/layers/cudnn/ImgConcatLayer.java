@@ -111,7 +111,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
       Layer temp_31_0012 = getCompatibilityLayer();
       Result temp_31_0009 = temp_31_0012.eval(RefUtil.addRefs(inObj));
       temp_31_0012.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_31_0009;
     }
     TensorList temp_31_0013 = inObj[0].getData();
@@ -148,8 +148,8 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
     }
     try {
       return new Result(CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-        final long outputSize = ((long) length * outputDimensions[2] * outputDimensions[1] * outputDimensions[0]
-            * precision.size);
+        final long outputSize = (long) length * outputDimensions[2] * outputDimensions[1] * outputDimensions[0]
+            * precision.size;
         @Nonnull final CudaMemory cudaOutput = gpu.allocate(outputSize, MemoryType.Managed.ifEnabled(), true);
         RefIntStream stream = RefIntStream.range(0, inObj.length);
         //if (!CoreSettings.INSTANCE.isConservative() && parallel) stream = stream.parallel();
@@ -210,7 +210,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
             outDesc.addRef(), precision), length, outputDimensions, precision);
         outDesc.freeRef();
         return temp_31_0004;
-      }, RefUtil.addRefs(inObj)), RefArrays.stream(RefUtil.addRefs(inObj)).map(Result::getData).toArray()),
+      }, RefUtil.addRefs(inObj)), RefArrays.stream(RefUtil.addRefs(inObj)).map(result -> result.getData()).toArray()),
           new Result.Accumulator() {
             {
               RefUtil.addRefs(inObj);
@@ -336,7 +336,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
             public @SuppressWarnings("unused")
             void _free() {
               super._free();
-              RefUtil.freeRefs(inObj);
+              RefUtil.freeRef(inObj);
             }
           }) {
 
@@ -354,12 +354,12 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
     }
   }
 

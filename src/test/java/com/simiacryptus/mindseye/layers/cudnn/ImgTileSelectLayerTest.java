@@ -57,16 +57,6 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
   @Override
   public abstract ImgTileSelectLayer getLayer(final int[][] inputSize, Random random);
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ImgTileSelectLayerTest addRef() {
-    return (ImgTileSelectLayerTest) super.addRef();
-  }
-
   public static class UL extends ImgTileSelectLayerTest {
 
     @Nonnull
@@ -79,15 +69,6 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
       return temp_58_0001;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    UL addRef() {
-      return (UL) super.addRef();
-    }
   }
 
   public static class LL extends ImgTileSelectLayerTest {
@@ -100,16 +81,6 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
       ImgTileSelectLayer temp_58_0003 = RefUtil.addRef(temp_58_0004);
       temp_58_0004.freeRef();
       return temp_58_0003;
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    LL addRef() {
-      return (LL) super.addRef();
     }
   }
 
@@ -125,15 +96,6 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
       return temp_58_0005;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    UR addRef() {
-      return (UR) super.addRef();
-    }
   }
 
   public static class LR extends ImgTileSelectLayerTest {
@@ -148,15 +110,6 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
       return temp_58_0007;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    LR addRef() {
-      return (LR) super.addRef();
-    }
   }
 
 }

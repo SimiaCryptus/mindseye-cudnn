@@ -117,23 +117,23 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision {
     int inputHeight = dimensions[1];
 
     int sizeX = Math.abs(this.sizeX);
-    int paddingX = sizeX - ((inputWidth - offsetX) % sizeX);
+    int paddingX = sizeX - (inputWidth - offsetX) % sizeX;
     while (paddingX < 0)
       paddingX += sizeX;
     while (paddingX >= sizeX)
       paddingX -= sizeX;
-    if (this.sizeX < 0 && (paddingX + inputWidth) > sizeX)
+    if (this.sizeX < 0 && paddingX + inputWidth > sizeX)
       paddingX -= sizeX;
     while (paddingX > 0)
       paddingX -= sizeX;
 
     int sizeY = Math.abs(this.sizeY);
-    int paddingY = sizeY - ((inputHeight - offsetY) % sizeY);
+    int paddingY = sizeY - (inputHeight - offsetY) % sizeY;
     while (paddingY < 0)
       paddingY += sizeY;
     while (paddingY >= sizeY)
       paddingY -= sizeY;
-    if (this.sizeY < 0 && (paddingY + inputHeight) > sizeY)
+    if (this.sizeY < 0 && paddingY + inputHeight > sizeY)
       paddingY -= sizeY;
     while (paddingY > 0)
       paddingY -= sizeY;
@@ -145,7 +145,7 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision {
     if (ouputWidth == inputWidth) {
       if (outputHeight == inputHeight) {
         Result temp_40_0002 = inObj[0].addRef();
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
         return temp_40_0002;
       }
     }
@@ -159,7 +159,7 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision {
     temp_40_0005.freeRef();
     temp_40_0003.freeRef();
     Result temp_40_0001 = imgCropLayer.eval(RefUtil.addRefs(inObj));
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     imgCropLayer.freeRef();
     return temp_40_0001;
   }

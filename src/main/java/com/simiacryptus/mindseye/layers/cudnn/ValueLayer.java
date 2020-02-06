@@ -95,7 +95,7 @@ public class ValueLayer extends LayerBase {
   @Override
   public Result eval(@Nonnull final Result... array) {
     assert 0 == array.length;
-    RefUtil.freeRefs(array);
+    RefUtil.freeRef(array);
     return new Result(tensorList.addRef(), new Result.Accumulator() {
       @Override
       public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data) {

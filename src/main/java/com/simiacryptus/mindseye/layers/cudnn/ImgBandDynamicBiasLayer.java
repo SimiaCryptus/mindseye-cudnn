@@ -76,12 +76,12 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
       Layer temp_33_0010 = getCompatibilityLayer();
       Result temp_33_0007 = temp_33_0010.eval(RefUtil.addRefs(inObj));
       temp_33_0010.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_33_0007;
     }
     if (inObj.length != 2) {
       IllegalArgumentException temp_33_0008 = new IllegalArgumentException("inObj.length=" + inObj.length);
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw temp_33_0008;
     }
     Result input = inObj[0].addRef();
@@ -92,7 +92,7 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
       biasinput.freeRef();
       IllegalArgumentException temp_33_0003 = new IllegalArgumentException("Input lengths: " + biasData.length());
       biasData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw temp_33_0003;
     }
     Tensor bias = biasData.get(0);
@@ -105,21 +105,21 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
       biasinput.freeRef();
       bias.freeRef();
       inputData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(inputDimensions));
     }
     if (0 == Tensor.length(inputData.getDimensions())) {
       biasinput.freeRef();
       bias.freeRef();
       inputData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return input;
     }
     if (0 == bias.length()) {
       biasinput.freeRef();
       bias.freeRef();
       inputData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return input;
     }
     try {
@@ -253,12 +253,12 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       inputData.freeRef();
       bias.freeRef();
       biasinput.freeRef();

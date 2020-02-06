@@ -298,7 +298,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
       Layer temp_30_0015 = getCompatibilityLayer();
       Result temp_30_0009 = temp_30_0015.eval(RefUtil.addRefs(inObj));
       temp_30_0015.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_30_0009;
     }
     assert 1 == inObj.length;
@@ -310,7 +310,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
     int[] dimIn = inputData.getDimensions();
     if (dimIn[0] == sizeX && dimIn[1] == sizeY) {
       inputData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return input;
     }
     @Nonnull final int[] dimOut = RefArrays.copyOf(dimIn, 3);
@@ -419,12 +419,12 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       input.freeRef();
     }
   }

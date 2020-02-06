@@ -60,14 +60,4 @@ public class LRNLayerTest extends CudnnLayerTestBase {
     return new int[][]{{largeSize, largeSize, 1}};
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  LRNLayerTest addRef() {
-    return (LRNLayerTest) super.addRef();
-  }
-
 }

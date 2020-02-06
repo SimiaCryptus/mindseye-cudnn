@@ -37,15 +37,6 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
     this.precision = precision;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  PoolingLayerTest[] addRefs(@Nullable PoolingLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(PoolingLayerTest::addRef)
-        .toArray((x) -> new PoolingLayerTest[x]);
-  }
-
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
@@ -66,16 +57,6 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
   @Override
   public int[][] getLargeDims(Random random) {
     return new int[][]{{800, 800, 16}};
-  }
-
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  PoolingLayerTest addRef() {
-    return (PoolingLayerTest) super.addRef();
   }
 
   public static class Repro extends PoolingLayerTest {
@@ -111,15 +92,6 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
       return temp_60_0003;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Repro addRef() {
-      return (Repro) super.addRef();
-    }
   }
 
   public static class Double extends PoolingLayerTest {
@@ -127,15 +99,6 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
       super(Precision.Double);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
-      return (Double) super.addRef();
-    }
   }
 
   public static class Asymmetric extends PoolingLayerTest {
@@ -156,15 +119,6 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
       return temp_60_0005;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Asymmetric addRef() {
-      return (Asymmetric) super.addRef();
-    }
   }
 
   public static class Float extends PoolingLayerTest {
@@ -177,14 +131,5 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
-      return (Float) super.addRef();
-    }
   }
 }

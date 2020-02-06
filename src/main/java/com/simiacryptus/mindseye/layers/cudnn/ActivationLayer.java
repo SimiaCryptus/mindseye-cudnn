@@ -117,12 +117,12 @@ public class ActivationLayer extends LayerBase implements MultiPrecision {
       Layer temp_50_0008 = getCompatibilityLayer();
       Result temp_50_0005 = temp_50_0008.eval(RefUtil.addRefs(inObj));
       temp_50_0008.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_50_0005;
     }
     //assert Arrays.stream(inObj).flatMapToDouble(input->input.data.stream().flatMapToDouble(x-> Arrays.stream(x.getData()))).allMatch(v->Double.isFinite(v));
     final Result inputResult = inObj[0].addRef();
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     final TensorList inputData = inputResult.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     @Nonnull final int[] outputSize = inputSize;

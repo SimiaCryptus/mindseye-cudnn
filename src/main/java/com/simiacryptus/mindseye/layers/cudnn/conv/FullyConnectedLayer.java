@@ -165,13 +165,13 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
       Result temp_15_0005 = temp_15_0011.eval(RefUtil.addRefs(inObj));
       temp_15_0011.freeRef();
       if (null != inObj)
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
       return temp_15_0005;
     }
     Layer explode = explode();
     Result temp_15_0004 = explode.eval(RefUtil.addRefs(inObj));
     if (null != inObj)
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
     explode.freeRef();
     return temp_15_0004;
   }
@@ -200,7 +200,7 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
     @Nonnull
     ExplodedConvolutionGrid grid = convolutionLayer.getExplodedNetwork();
     convolutionLayer.freeRef();
-    grid.add(network.getHead());
+    grid.add(network.getHead(), network.addRef());
     grid.freeRef();
     RefUtil.freeRef(network.add(new ReshapeLayer(outputDims)));
     network.setName(getName());

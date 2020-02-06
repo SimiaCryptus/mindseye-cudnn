@@ -41,8 +41,7 @@ import java.util.Map;
 @SuppressWarnings("serial")
 public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgZeroPaddingLayer.class);
-  @Nonnull
-  public StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
+//  public StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private int sizeX;
   private int sizeY;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
@@ -86,8 +85,8 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
   ImgZeroPaddingLayer[] addRefs(@Nullable ImgZeroPaddingLayer[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgZeroPaddingLayer::addRef)
-        .toArray((x) -> new ImgZeroPaddingLayer[x]);
+    return Arrays.stream(array).filter(x -> x != null).map(imgZeroPaddingLayer -> imgZeroPaddingLayer.addRef())
+        .toArray(x -> new ImgZeroPaddingLayer[x]);
   }
 
   @Nullable
@@ -95,7 +94,7 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
   public Result eval(@Nonnull final Result... inObj) {
     if (sizeX == 0 && sizeY == 0) {
       Result temp_22_0002 = inObj[0].addRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_22_0002;
     }
     assert inObj.length == 1;
@@ -109,7 +108,7 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
     ImgCropLayer imgCropLayer = RefUtil.addRef(temp_22_0003);
     temp_22_0003.freeRef();
     Result temp_22_0001 = imgCropLayer.eval(RefUtil.addRefs(inObj));
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     imgCropLayer.freeRef();
     return temp_22_0001;
   }

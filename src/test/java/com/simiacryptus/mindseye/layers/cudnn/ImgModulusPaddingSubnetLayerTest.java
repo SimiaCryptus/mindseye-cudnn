@@ -62,30 +62,11 @@ public abstract class ImgModulusPaddingSubnetLayerTest extends CudnnLayerTestBas
         new ActivationLayer(ActivationLayer.Mode.RELU));
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ImgModulusPaddingSubnetLayerTest addRef() {
-    return (ImgModulusPaddingSubnetLayerTest) super.addRef();
-  }
-
   public static class Basic extends ImgModulusPaddingSubnetLayerTest {
     public Basic() {
       super(2, 3, 0);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
-      return (Basic) super.addRef();
-    }
   }
 
 }

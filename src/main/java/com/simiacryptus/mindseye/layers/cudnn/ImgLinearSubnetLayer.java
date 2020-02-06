@@ -105,7 +105,7 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
   public Result eval(@Nonnull final Result... inObj) {
     assert 1 == inObj.length;
     Result input = inObj[0].addRef();
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     TensorList inputData = input.getData();
     @Nonnull final int[] inputDims = inputData.getDimensions();
     assert 3 == inputDims.length;
@@ -210,7 +210,7 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
     temp_06_0009.freeRef();
     Result temp_06_0005 = sumInputsLayer.eval(RefUtil.addRefs(legResults));
     sumInputsLayer.freeRef();
-    RefUtil.freeRefs(legResults);
+    RefUtil.freeRef(legResults);
     return temp_06_0005;
   }
 
@@ -225,7 +225,7 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
       JsonObject temp_06_0007 = x.getJson(resources, dataSerializer);
       x.freeRef();
       return temp_06_0007;
-    }).forEach(jsonArray::add);
+    }).forEach(element -> jsonArray.add(element));
     json.add("legs", jsonArray);
     return json;
   }

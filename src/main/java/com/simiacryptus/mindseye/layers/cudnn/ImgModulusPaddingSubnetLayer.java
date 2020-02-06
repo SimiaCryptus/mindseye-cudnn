@@ -109,21 +109,21 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     int inputHeight = dimensions[1];
 
     int sizeX = Math.abs(this.sizeX);
-    int paddingX = sizeX - ((inputWidth - offsetX) % sizeX);
+    int paddingX = sizeX - (inputWidth - offsetX) % sizeX;
     while (paddingX < 0)
       paddingX += sizeX;
     while (paddingX >= sizeX)
       paddingX -= sizeX;
-    if (this.sizeX < 0 && (paddingX + inputWidth) > sizeX)
+    if (this.sizeX < 0 && paddingX + inputWidth > sizeX)
       paddingX -= sizeX;
 
     int sizeY = Math.abs(this.sizeY);
-    int paddingY = sizeY - ((inputHeight - offsetY) % sizeY);
+    int paddingY = sizeY - (inputHeight - offsetY) % sizeY;
     while (paddingY < 0)
       paddingY += sizeY;
     while (paddingY >= sizeY)
       paddingY -= sizeY;
-    if (this.sizeY < 0 && (paddingY + inputHeight) > sizeY)
+    if (this.sizeY < 0 && paddingY + inputHeight > sizeY)
       paddingY -= sizeY;
 
     int ouputWidth = inputWidth + paddingX;
@@ -133,7 +133,7 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     if (ouputWidth == inputWidth) {
       if (outputHeight == inputHeight) {
         Result temp_34_0002 = inObj[0].addRef();
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
         return temp_34_0002;
       }
     }
@@ -149,7 +149,7 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     ImgCropLayer imgCropLayer2 = RefUtil.addRef(temp_34_0004);
     temp_34_0004.freeRef();
     Result temp_34_0001 = imgCropLayer2.eval(super.eval(imgCropLayer1.eval(RefUtil.addRefs(inObj))).addRef());
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     imgCropLayer2.freeRef();
     imgCropLayer1.freeRef();
     return temp_34_0001;

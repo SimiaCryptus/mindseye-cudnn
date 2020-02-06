@@ -99,7 +99,7 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision {
       Result temp_27_0002 = temp_27_0004.eval(RefUtil.addRefs(inObj));
       temp_27_0004.freeRef();
       if (null != inObj)
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
       return temp_27_0002;
     }
     assert inObj != null;
@@ -138,7 +138,7 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision {
     temp_27_0005.freeRef();
     temp_27_0003.freeRef();
     Result temp_27_0001 = impl.eval(RefUtil.addRefs(inObj));
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     impl.freeRef();
     return temp_27_0001;
   }

@@ -58,15 +58,6 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
     //return new NthPowerActivationLayer().setPower(2);
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SquareActivationLayerTest[] addRefs(@Nullable SquareActivationLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SquareActivationLayerTest::addRef)
-        .toArray((x) -> new SquareActivationLayerTest[x]);
-  }
-
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -92,30 +83,11 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
     return temp_65_0003;
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  SquareActivationLayerTest addRef() {
-    return (SquareActivationLayerTest) super.addRef();
-  }
-
   public static class Double extends SquareActivationLayerTest {
     public Double() {
       super(Precision.Double, 1.0);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
-      return (Double) super.addRef();
-    }
   }
 
   public static class Negative extends SquareActivationLayerTest {
@@ -123,15 +95,6 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
       super(Precision.Double, -1.0);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Negative addRef() {
-      return (Negative) super.addRef();
-    }
   }
 
   public static class Float extends SquareActivationLayerTest {
@@ -144,14 +107,5 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
-      return (Float) super.addRef();
-    }
   }
 }

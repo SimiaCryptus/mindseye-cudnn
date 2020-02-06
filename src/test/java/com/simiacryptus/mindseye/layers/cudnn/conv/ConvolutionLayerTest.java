@@ -33,6 +33,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefAssert;
 import com.simiacryptus.ref.wrappers.RefStream;
 import com.simiacryptus.ref.wrappers.RefSystem;
+import org.junit.After;
 import org.junit.Test;
 
 import javax.annotation.Nonnull;
@@ -157,18 +158,11 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     return new int[][]{{largeSize, largeSize, inputBands}};
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
-    super._free();
+  @After
+  public void cleanup() {
+    super.cleanup();
     if (null != convolutionLayer)
       convolutionLayer.freeRef();
-  }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ConvolutionLayerTest addRef() {
-    return (ConvolutionLayerTest) super.addRef();
   }
 
   private void print(@Nonnull final RefStream<CharSequence> stream) {
@@ -194,15 +188,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
       return getSmallDims(random);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    BandExpand addRef() {
-      return (BandExpand) super.addRef();
-    }
   }
 
   public static class BandLimit extends ConvolutionLayerTest {
@@ -210,32 +195,12 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     public BandLimit() {
       super(1, 3, 2, Precision.Double, 16, 1, 3, 600);
     }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    BandLimit addRef() {
-      return (BandLimit) super.addRef();
-    }
   }
 
   public static class SqGrid extends ConvolutionLayerTest {
 
     public SqGrid() {
       super(3, 4, 4, Precision.Double, 2, 1, 3, 600);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    SqGrid addRef() {
-      return (SqGrid) super.addRef();
     }
   }
 
@@ -264,25 +229,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     public IrregularGrid() {
       super(3, 5, 3, Precision.Double, 2, 1, 3, 600);
     }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    IrregularGrid[] addRefs(@Nullable IrregularGrid[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(IrregularGrid::addRef)
-          .toArray((x) -> new IrregularGrid[x]);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    IrregularGrid addRef() {
-      return (IrregularGrid) super.addRef();
-    }
   }
 
   public static class BandReduceTest extends ConvolutionLayerTest {
@@ -290,41 +236,12 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     public BandReduceTest() {
       super(3, 6, 3, Precision.Double, 16, 1, 3, 600);
     }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    BandReduceTest[] addRefs(@Nullable BandReduceTest[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(BandReduceTest::addRef)
-          .toArray((x) -> new BandReduceTest[x]);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    BandReduceTest addRef() {
-      return (BandReduceTest) super.addRef();
-    }
   }
 
   public static class Double extends ConvolutionLayerTest {
 
     public Double() {
       super(3, 4, 4, Precision.Double, 16, 1, 3, 600);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
-      return (Double) super.addRef();
     }
   }
 
@@ -335,30 +252,11 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
       RefUtil.freeRef(convolutionLayer.setPaddingXY(0, 0));
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    NoPadding addRef() {
-      return (NoPadding) super.addRef();
-    }
   }
 
   public static class Float extends ConvolutionLayerTest {
     public Float() {
       super(1, 2, 2, Precision.Float, 16, 1, 3, 600);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
-      return (Float) super.addRef();
     }
   }
 
@@ -368,24 +266,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
       super(3, 7, 5, Precision.Double, 16, 1, 3, 600);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    IrregularTest[] addRefs(@Nullable IrregularTest[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(IrregularTest::addRef)
-          .toArray((x) -> new IrregularTest[x]);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    IrregularTest addRef() {
-      return (IrregularTest) super.addRef();
-    }
   }
 
   public static class IrregularTest_Float extends ConvolutionLayerTest {
@@ -401,24 +281,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-1, 1e-4);
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    IrregularTest_Float[] addRefs(@Nullable IrregularTest_Float[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(IrregularTest_Float::addRef)
-          .toArray((x) -> new IrregularTest_Float[x]);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    IrregularTest_Float addRef() {
-      return (IrregularTest_Float) super.addRef();
-    }
   }
 
   public static class Big1 extends VeryBigTest {
@@ -436,15 +298,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
       return new int[][]{{256, 128, inputBands}};
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Big1 addRef() {
-      return (Big1) super.addRef();
-    }
   }
 
   public abstract static class VeryBigTest extends Big {
@@ -466,15 +319,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
       return new int[][]{{100, 100, inputBands}};
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    VeryBigTest addRef() {
-      return (VeryBigTest) super.addRef();
-    }
   }
 
   public abstract static class Big extends ConvolutionLayerTest {
@@ -489,7 +333,7 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     public ComponentTest<ToleranceStatistics> getBatchingTester() {
       if (!validateBatchExecution)
         return null;
-      BatchingTester batchingTester = (new BatchingTester(1e-2, true) {
+      BatchingTester batchingTester = new BatchingTester(1e-2, true) {
         @Override
         public double getRandom() {
           return random();
@@ -497,7 +341,7 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
         public @SuppressWarnings("unused")
         void _free() { super._free(); }
-      });
+      };
       batchingTester.setBatchSize(5);
       return batchingTester;
     }
@@ -522,16 +366,6 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     @Override
     public Layer getReferenceLayer() {
       return null;
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Big addRef() {
-      return (Big) super.addRef();
     }
   }
 

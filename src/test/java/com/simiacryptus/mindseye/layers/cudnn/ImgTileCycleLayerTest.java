@@ -56,16 +56,6 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
     return new ImgTileCycleLayer();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ImgTileCycleLayerTest addRef() {
-    return (ImgTileCycleLayerTest) super.addRef();
-  }
-
   public static class OneThird extends ImgTileCycleLayerTest {
 
     @Nonnull
@@ -81,27 +71,9 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
       return temp_71_0001;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    OneThird addRef() {
-      return (OneThird) super.addRef();
-    }
   }
 
   public static class Basic extends ImgTileCycleLayerTest {
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
-      return (Basic) super.addRef();
-    }
   }
 }

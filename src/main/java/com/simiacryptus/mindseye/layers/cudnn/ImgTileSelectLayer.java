@@ -154,9 +154,9 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
       sourceOffset += Math.abs(positionX);
     }
     if (positionY < 0) {
-      destinationOffset += outputDimensions[0] * Math.abs((positionY));
+      destinationOffset += outputDimensions[0] * Math.abs(positionY);
     } else {
-      sourceOffset += inputTensor.descriptor.hStride * (Math.abs(positionY));
+      sourceOffset += inputTensor.descriptor.hStride * Math.abs(positionY);
     }
     assert sourceOffset >= 0;
     assert destinationOffset >= 0;
@@ -240,8 +240,8 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
   ImgTileSelectLayer[] addRefs(@Nullable ImgTileSelectLayer[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileSelectLayer::addRef)
-        .toArray((x) -> new ImgTileSelectLayer[x]);
+    return Arrays.stream(array).filter(x -> x != null).map(imgTileSelectLayer -> imgTileSelectLayer.addRef())
+        .toArray(x -> new ImgTileSelectLayer[x]);
   }
 
   @Nullable
@@ -251,7 +251,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
       Layer temp_24_0013 = getCompatibilityLayer();
       Result temp_24_0009 = temp_24_0013.eval(RefUtil.addRefs(inObj));
       temp_24_0013.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_24_0009;
     }
     assert 1 == inObj.length;
@@ -264,7 +264,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     int[] dimIn = inputData.getDimensions();
     if (dimIn[0] == sizeY && dimIn[1] == sizeX) {
       inputData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return input;
     }
     @Nonnull final int[] dimOut = getViewDimensions(dimIn, new int[]{sizeX, sizeY, dimIn[2]},
@@ -348,12 +348,12 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       imgTileSelectLayer.freeRef();
       input.freeRef();
     }

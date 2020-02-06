@@ -88,12 +88,12 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision {
       Result temp_32_0004 = temp_32_0005.eval(RefUtil.addRefs(inObj));
       temp_32_0005.freeRef();
       if (null != inObj)
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
       return temp_32_0004;
     }
     assert inObj != null;
     final Result input = inObj[0].addRef();
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     TensorList inputData = input.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     int length = inputData.length();

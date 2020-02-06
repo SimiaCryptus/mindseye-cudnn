@@ -76,12 +76,12 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision {
       Layer temp_52_0010 = getCompatibilityLayer();
       Result temp_52_0007 = temp_52_0010.eval(RefUtil.addRefs(inObj));
       temp_52_0010.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_52_0007;
     }
     if (inObj.length != 2) {
       IllegalArgumentException temp_52_0008 = new IllegalArgumentException("inObj.length=" + inObj.length);
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw temp_52_0008;
     }
     Result left = inObj[0].addRef();
@@ -96,7 +96,7 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision {
       right.freeRef();
       leftData.freeRef();
       rightData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(leftDimensions));
     }
     try {
@@ -245,12 +245,12 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       rightData.freeRef();
       leftData.freeRef();
       right.freeRef();

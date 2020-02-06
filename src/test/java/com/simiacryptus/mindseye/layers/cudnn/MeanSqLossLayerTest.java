@@ -52,27 +52,7 @@ public abstract class MeanSqLossLayerTest extends CudnnLayerTestBase {
     return new int[][]{{1200, 1200, 3}, {1200, 1200, 3}};
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  MeanSqLossLayerTest addRef() {
-    return (MeanSqLossLayerTest) super.addRef();
-  }
-
   public static class Basic extends MeanSqLossLayerTest {
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
-      return (Basic) super.addRef();
-    }
   }
 
   public static class Asymetric extends MeanSqLossLayerTest {
@@ -87,16 +67,6 @@ public abstract class MeanSqLossLayerTest extends CudnnLayerTestBase {
     @Override
     public int[][] getLargeDims(Random random) {
       return new int[][]{{200, 300, 100}, {200, 300, 100}};
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Asymetric addRef() {
-      return (Asymetric) super.addRef();
     }
   }
 

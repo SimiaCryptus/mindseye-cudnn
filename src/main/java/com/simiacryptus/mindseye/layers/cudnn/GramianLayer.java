@@ -145,7 +145,7 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
         public @SuppressWarnings("unused")
         void _free() {
           super._free();
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           inputData.freeRef();
         }
       };
@@ -177,12 +177,12 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       inputData.freeRef();
     }
   }

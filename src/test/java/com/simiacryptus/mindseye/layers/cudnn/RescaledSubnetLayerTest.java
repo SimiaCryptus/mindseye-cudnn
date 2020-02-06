@@ -70,19 +70,6 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
     return new RescaledSubnetLayer(2, convolutionLayer.set(() -> this.random()));
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
-    super._free();
-    convolutionLayer.freeRef();
-  }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  RescaledSubnetLayerTest addRef() {
-    return (RescaledSubnetLayerTest) super.addRef();
-  }
-
   public static class Basic extends RescaledSubnetLayerTest {
 
     @Override
@@ -92,17 +79,6 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
       super.test();
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
-      super._free();
-    }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
-      return (Basic) super.addRef();
-    }
   }
 
 }

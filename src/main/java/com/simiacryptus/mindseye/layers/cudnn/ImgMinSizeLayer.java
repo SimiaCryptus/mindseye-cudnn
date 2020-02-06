@@ -95,7 +95,7 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
     assert outputHeight > 0;
     if (ouputWidth == inputWidth) {
       if (outputHeight == inputHeight) {
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
         return in0;
       }
     }
@@ -107,7 +107,7 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
     ImgCropLayer imgCropLayer = RefUtil.addRef(temp_45_0002);
     temp_45_0002.freeRef();
     Result temp_45_0001 = imgCropLayer.eval(RefUtil.addRefs(inObj));
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     imgCropLayer.freeRef();
     return temp_45_0001;
   }

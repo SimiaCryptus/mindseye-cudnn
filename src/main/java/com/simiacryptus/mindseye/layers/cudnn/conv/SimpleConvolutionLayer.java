@@ -71,6 +71,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     setPaddingX(json.get("paddingX").getAsInt());
     setPaddingY(json.get("paddingY").getAsInt());
     precision = Precision.valueOf(json.get("precision").getAsString());
+    ObjectRegistry.register(this);
   }
 
   protected SimpleConvolutionLayer(@Nonnull final Tensor kernel) {
@@ -102,6 +103,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     kernel.freeRef();
     setPaddingX((int) Math.ceil((kernelSize[0] - 1) / 2.0));
     setPaddingY((int) Math.ceil((kernelSize[1] - 1) / 2.0));
+    ObjectRegistry.register(this);
   }
 
   public SimpleConvolutionLayer(int width, int height, int inputBands, int outputBands) {
@@ -197,8 +199,8 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     int correctionX = correct(rawInputDims[0], strideX, kernelDimensions[0]);
     int correctionY = correct(rawInputDims[1], strideY, kernelDimensions[1]);
     final SimpleConvolutionLayer simpleConvolutionLayer = SimpleConvolutionLayer.this.addRef();
-    int paddingX = Math.max(0, simpleConvolutionLayer.paddingX - ((correctionX + 1) / 2));
-    int paddingY = Math.max(0, simpleConvolutionLayer.paddingY - ((correctionY + 1) / 2));
+    int paddingX = Math.max(0, simpleConvolutionLayer.paddingX - (correctionX + 1) / 2);
+    int paddingY = Math.max(0, simpleConvolutionLayer.paddingY - (correctionY + 1) / 2);
     if (correctionX >= kernelDimensions[0])
       correctionX -= kernelDimensions[0];
     if (correctionY >= kernelDimensions[1])
@@ -231,7 +233,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
       RefUtil.freeRef(input);
       input = inObj[0].addRef();
     }
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     assert input != null;
     final TensorList inputData = input.getData();
     @Nonnull final int[] inputDims = inputData.getDimensions();
@@ -349,7 +351,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
               buffer.addRef());
           delta.freeRef();
           buffer.freeRef();
-          RefStream.of(learnFn, backpropFn).forEach(Runnable::run);
+          RefStream.of(learnFn, backpropFn).forEach(runnable -> runnable.run());
         }
 
         public @SuppressWarnings("unused")
@@ -711,7 +713,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
   }
 
   private int correct(int dim, int modulus, int offset) {
-    int adj = modulus - ((dim - offset) % modulus);
+    int adj = modulus - (dim - offset) % modulus;
     while (adj < 0)
       adj += modulus;
     while (adj >= modulus)
@@ -757,7 +759,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     assert gpuFilters != null;
     RefSet<Integer> temp_16_0028 = gpuFilters.keySet();
     RefList<Integer> temp_16_0029 = temp_16_0028.stream().collect(RefCollectors.toList());
-    temp_16_0029.stream().forEach(gpuFilters::remove);
+    temp_16_0029.stream().forEach(key -> gpuFilters.remove(key));
     temp_16_0029.freeRef();
     temp_16_0028.freeRef();
   }

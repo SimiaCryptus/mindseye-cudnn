@@ -91,29 +91,10 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     return RefArrays.stream(bandSeq).mapToObj(x -> new int[]{largeSize, largeSize, x}).toArray(i -> new int[i][]);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ImgConcatLayerTest addRef() {
-    return (ImgConcatLayerTest) super.addRef();
-  }
-
   public static class BandLimitTest extends ImgConcatLayerTest {
 
     public BandLimitTest() {
       super(Precision.Double, 2, 1, 8, 1200);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    BandLimitTest[] addRefs(@Nullable BandLimitTest[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(BandLimitTest::addRef)
-          .toArray((x) -> new BandLimitTest[x]);
     }
 
     @Nonnull
@@ -138,30 +119,12 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
       return temp_62_0003;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    BandLimitTest addRef() {
-      return (BandLimitTest) super.addRef();
-    }
   }
 
   public static class BandConcatLimitTest extends ImgConcatLayerTest {
 
     public BandConcatLimitTest() {
       super(Precision.Double, new int[]{2, 3, 4}, 2, 1200);
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    BandConcatLimitTest[] addRefs(@Nullable BandConcatLimitTest[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(BandConcatLimitTest::addRef)
-          .toArray((x) -> new BandConcatLimitTest[x]);
     }
 
     @Nonnull
@@ -180,15 +143,6 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
       return temp_62_0005;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    BandConcatLimitTest addRef() {
-      return (BandConcatLimitTest) super.addRef();
-    }
   }
 
   public static class Double extends ImgConcatLayerTest {
@@ -196,15 +150,6 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
       super(Precision.Double, 2, 1, 8, 1200);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
-      return (Double) super.addRef();
-    }
   }
 
   public abstract static class Big extends ImgConcatLayerTest {
@@ -219,7 +164,7 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     public ComponentTest<ToleranceStatistics> getBatchingTester() {
       if (!validateBatchExecution)
         return null;
-      BatchingTester batchingTester = (new BatchingTester(1e-2, true) {
+      BatchingTester batchingTester = new BatchingTester(1e-2, true) {
         @Override
         public double getRandom() {
           return random();
@@ -227,7 +172,7 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
 
         public @SuppressWarnings("unused")
         void _free() { super._free(); }
-      });
+      };
       batchingTester.setBatchSize(5);
       return batchingTester;
     }
@@ -246,15 +191,6 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
       return null;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Big addRef() {
-      return (Big) super.addRef();
-    }
   }
 
   public static class Float extends ImgConcatLayerTest {
@@ -263,15 +199,6 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
       tolerance = 1e-2;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
-      return (Float) super.addRef();
-    }
   }
 
 }

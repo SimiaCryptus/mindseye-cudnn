@@ -103,7 +103,7 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
           assert derivative != null;
           assert temp_21_0008 != null;
           double[] temp_21_0001 = new double[]{x, temp_21_0008.get(0), derivative[0].get(0)};
-          RefUtil.freeRefs(derivative);
+          RefUtil.freeRef(derivative);
           temp_21_0008.freeRef();
           eval.freeRef();
           return temp_21_0001;
@@ -121,16 +121,6 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
       plotData.freeRef();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ActivationLayerTest addRef() {
-    return (ActivationLayerTest) super.addRef();
-  }
-
   public static class ReLu_Double extends ActivationLayerTest {
     public ReLu_Double() {
       super(ActivationLayer.Mode.RELU, Precision.Double, 2, 800);
@@ -141,15 +131,6 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
       return new ReLuActivationLayer();
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    ReLu_Double addRef() {
-      return (ReLu_Double) super.addRef();
-    }
   }
 
   public static class ReLu_Float extends ActivationLayerTest {
@@ -162,15 +143,6 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
       return new ReLuActivationLayer();
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    ReLu_Float addRef() {
-      return (ReLu_Float) super.addRef();
-    }
   }
 
   public static class Sigmoid_Double extends ActivationLayerTest {
@@ -187,24 +159,6 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
       return temp_21_0004;
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Sigmoid_Double[] addRefs(@Nullable Sigmoid_Double[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Sigmoid_Double::addRef)
-          .toArray((x) -> new Sigmoid_Double[x]);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Sigmoid_Double addRef() {
-      return (Sigmoid_Double) super.addRef();
-    }
   }
 
   public static class Sigmoid_Float extends ActivationLayerTest {
@@ -221,24 +175,6 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
       return temp_21_0006;
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Sigmoid_Float[] addRefs(@Nullable Sigmoid_Float[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Sigmoid_Float::addRef)
-          .toArray((x) -> new Sigmoid_Float[x]);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Sigmoid_Float addRef() {
-      return (Sigmoid_Float) super.addRef();
-    }
   }
 
 }

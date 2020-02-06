@@ -59,30 +59,11 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
     return temp_54_0001;
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  NProductLayerTest addRef() {
-    return (NProductLayerTest) super.addRef();
-  }
-
   public static class Double extends NProductLayerTest {
     public Double() {
       super(Precision.Double);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
-      return (Double) super.addRef();
-    }
   }
 
   public static class Double3 extends NProductLayerTest {
@@ -101,16 +82,6 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
     public int[][] getLargeDims(final Random random) {
       return new int[][]{{1200, 1200, 3}, {1200, 1200, 3}, {1200, 1200, 3}};
     }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double3 addRef() {
-      return (Double3) super.addRef();
-    }
   }
 
   public static class Float extends NProductLayerTest {
@@ -123,14 +94,5 @@ public abstract class NProductLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
-      return (Float) super.addRef();
-    }
   }
 }

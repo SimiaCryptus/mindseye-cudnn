@@ -81,12 +81,12 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
       Layer temp_36_0010 = getCompatibilityLayer();
       Result temp_36_0008 = temp_36_0010.eval(RefUtil.addRefs(inObj));
       temp_36_0010.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_36_0008;
     }
     if (inObj.length <= 1) {
       IllegalArgumentException temp_36_0009 = new IllegalArgumentException("inObj.length=" + inObj.length);
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw temp_36_0009;
     }
     TensorList temp_36_0011 = inObj[0].getData();
@@ -96,7 +96,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
     final int length = temp_36_0012.length();
     temp_36_0012.freeRef();
     if (3 != dimensions.length) {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
     }
     for (int i = 1; i < inObj.length; i++) {
@@ -105,7 +105,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
         IllegalArgumentException temp_36_0001 = new IllegalArgumentException(
             RefArrays.toString(dimensions) + " != " + RefArrays.toString(data.getDimensions()));
         data.freeRef();
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
         throw temp_36_0001;
       }
       data.freeRef();
@@ -152,7 +152,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
           return temp_36_0004;
         }, opDescriptor, outputDescriptor)));
         return temp_36_0002;
-      }, RefUtil.addRefs(inObj)), RefArrays.stream(RefUtil.addRefs(inObj)).map(Result::getData).toArray()),
+      }, RefUtil.addRefs(inObj)), RefArrays.stream(RefUtil.addRefs(inObj)).map(result -> result.getData()).toArray()),
           new Result.Accumulator() {
             {
               RefUtil.addRefs(inObj);
@@ -225,7 +225,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
             public @SuppressWarnings("unused")
             void _free() {
               super._free();
-              RefUtil.freeRefs(inObj);
+              RefUtil.freeRef(inObj);
             }
           }) {
 
@@ -255,12 +255,12 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
     }
   }
 

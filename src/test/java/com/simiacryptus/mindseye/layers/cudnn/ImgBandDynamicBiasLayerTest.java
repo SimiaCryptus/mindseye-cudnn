@@ -82,29 +82,9 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
     return new int[][]{{1200, 1200, 3}, {1, 1, 3}};
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ImgBandDynamicBiasLayerTest addRef() {
-    return (ImgBandDynamicBiasLayerTest) super.addRef();
-  }
-
   public static class Double extends ImgBandDynamicBiasLayerTest {
     public Double() {
       super(Precision.Double);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
-      return (Double) super.addRef();
     }
   }
 
@@ -116,16 +96,6 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
     @Override
     public SingleDerivativeTester getDerivativeTester() {
       return new SingleDerivativeTester(1e-2, 1e-3);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
-      return (Float) super.addRef();
     }
   }
 }

@@ -161,7 +161,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
       Layer temp_49_0011 = getCompatibilityLayer();
       Result temp_49_0007 = temp_49_0011.eval(RefUtil.addRefs(inObj));
       temp_49_0011.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_49_0007;
     }
     assert 1 == inObj.length;
@@ -252,12 +252,12 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       input.freeRef();
     }
   }

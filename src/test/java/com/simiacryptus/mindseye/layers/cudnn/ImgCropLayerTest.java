@@ -38,15 +38,6 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgCropLayerTest[] addRefs(@Nullable ImgCropLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgCropLayerTest::addRef)
-        .toArray((x) -> new ImgCropLayerTest[x]);
-  }
-
   @Nonnull
   @Override
   public abstract int[][] getSmallDims(Random random);
@@ -54,16 +45,6 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public abstract Layer getLayer(final int[][] inputSize, Random random);
-
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ImgCropLayerTest addRef() {
-    return (ImgCropLayerTest) super.addRef();
-  }
 
   public static class Center extends ImgCropLayerTest {
     @Override
@@ -83,15 +64,6 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
       return new ImgCropLayer(2, 2);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Center addRef() {
-      return (Center) super.addRef();
-    }
   }
 
   public static class Left extends ImgCropLayerTest {
@@ -112,15 +84,6 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
       return temp_57_0001;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Left addRef() {
-      return (Left) super.addRef();
-    }
   }
 
   public static class Right extends ImgCropLayerTest {
@@ -141,15 +104,6 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
       return temp_57_0003;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Right addRef() {
-      return (Right) super.addRef();
-    }
   }
 
   public static class Top extends ImgCropLayerTest {
@@ -170,15 +124,6 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
       return temp_57_0005;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Top addRef() {
-      return (Top) super.addRef();
-    }
   }
 
   public static class Bottom extends ImgCropLayerTest {
@@ -197,16 +142,6 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
       ImgCropLayer temp_57_0007 = temp_57_0008.addRef();
       temp_57_0008.freeRef();
       return temp_57_0007;
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Bottom addRef() {
-      return (Bottom) super.addRef();
     }
   }
 

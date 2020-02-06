@@ -51,7 +51,7 @@ public class ConvolutionParams {
   public String toString() {
     return "{" + "inputBands=" + inputBands + ", outputBands=" + outputBands + ", filterDimensions="
         + RefArrays.toString(masterFilterDimensions) + ", precision=" + precision
-        + (strideX == 1 ? "" : (", strideX=" + strideX)) + (strideY == 1 ? "" : (", strideY=" + strideY))
+        + (strideX == 1 ? "" : ", strideX=" + strideX) + (strideY == 1 ? "" : ", strideY=" + strideY)
         + ", paddingX=" + paddingX + ", paddingY=" + paddingY + '}';
   }
 }

@@ -230,7 +230,7 @@ public class CudaSystem extends ReferenceCountingBase {
       RefUtil.freeRef(x);
       return temp_25_0002;
     }).collect(RefCollectors.toList());
-    list.stream().map(map::remove).forEach(RefUtil::freeRef);
+    list.stream().map(key -> map.remove(key)).forEach(value -> RefUtil.freeRef(value));
     list.freeRef();
     temp_25_0004.freeRef();
     return map;
@@ -529,7 +529,7 @@ public class CudaSystem extends ReferenceCountingBase {
         .toArray(i -> new StackTraceElement[i]), ", ");
     @Nonnull final CharSequence paramString;
     if (null == args) paramString = "";
-    else paramString = RefArrays.stream(args).map(CudaSystem::renderToLog).reduce((a, b) -> a + ", " + b).orElse("");
+    else paramString = RefArrays.stream(args).map(obj -> renderToLog(obj)).reduce((a, b) -> a + ", " + b).orElse("");
     final String message = RefString.format("%.6f @ %s(%d): %s(%s) = %s via [%s]",
         (RefSystem.nanoTime() - CudaSystem.start) / 1e9, Thread.currentThread().getName(),
         getThreadDeviceId(), method, paramString, result, callstack);
@@ -541,7 +541,7 @@ public class CudaSystem extends ReferenceCountingBase {
 
   public static boolean isThreadDeviceId(int deviceId) {
     Integer integer = getThreadDeviceId();
-    return integer != null && (deviceId == integer);
+    return integer != null && deviceId == integer;
   }
 
   public static void withDevice(int deviceId, @Nonnull @RefAware final RefConsumer<CudnnHandle> fn) {
@@ -603,7 +603,7 @@ public class CudaSystem extends ReferenceCountingBase {
       if (threadlocal != null) {
         assert isThreadDeviceId(threadlocal.getDeviceId());
         fn.accept(threadlocal.addRef());
-        RefUtil.freeRefs(hints);
+        RefUtil.freeRef(hints);
       } else {
         int device = chooseDevice(hints);
         ResourcePool<CudnnHandle> temp_25_0009 = getPool(device);
@@ -632,7 +632,7 @@ public class CudaSystem extends ReferenceCountingBase {
     try {
       if (threadLocal != null) {
         assert CudaDevice.isThreadDeviceId(threadLocal.getDeviceId());
-        RefUtil.freeRefs(hints);
+        RefUtil.freeRef(hints);
         return fn.apply(threadLocal.addRef());
       } else {
         int device = chooseDevice(hints);
@@ -715,7 +715,7 @@ public class CudaSystem extends ReferenceCountingBase {
       val = 0L;
     if (val < time) {
       final Long finalVal = val;
-      CharSequence caller = !CudaSettings.INSTANCE().isProfileMemoryIO() ? "" : Util.getCaller();
+      CharSequence caller = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getCaller() : "";
       withDevice(device, gpu -> {
         TimedResult<Long> timedResult = TimedResult.time(() -> cudaDeviceSynchronize());
         long result = timedResult.getResult();

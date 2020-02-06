@@ -37,15 +37,6 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
     this.precision = precision;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ImgBandBiasLayerTest[] addRefs(@Nullable ImgBandBiasLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgBandBiasLayerTest::addRef)
-        .toArray((x) -> new ImgBandBiasLayerTest[x]);
-  }
-
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -58,7 +49,7 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
     ImgBandBiasLayer temp_55_0002 = new ImgBandBiasLayer(3);
     temp_55_0002.setPrecision(precision);
     ImgBandBiasLayer temp_55_0003 = RefUtil.addRef(temp_55_0002);
-    temp_55_0003.addWeights(this::random);
+    temp_55_0003.addWeights(() -> random());
     ImgBandBiasLayer temp_55_0001 = temp_55_0003.addRef();
     temp_55_0003.freeRef();
     temp_55_0002.freeRef();
@@ -71,30 +62,11 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
     return new int[][]{{1200, 1200, 3}};
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ImgBandBiasLayerTest addRef() {
-    return (ImgBandBiasLayerTest) super.addRef();
-  }
-
   public static class Double extends ImgBandBiasLayerTest {
     public Double() {
       super(Precision.Double);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
-      return (Double) super.addRef();
-    }
   }
 
   public static class Float extends ImgBandBiasLayerTest {
@@ -105,16 +77,6 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
     @Override
     public SingleDerivativeTester getDerivativeTester() {
       return new SingleDerivativeTester(1e-2, 1e-3);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
-      return (Float) super.addRef();
     }
   }
 }

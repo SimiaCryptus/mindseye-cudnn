@@ -300,8 +300,8 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
   ImgPaddingLayer[] addRefs(@Nullable ImgPaddingLayer[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgPaddingLayer::addRef)
-        .toArray((x) -> new ImgPaddingLayer[x]);
+    return Arrays.stream(array).filter(x -> x != null).map(imgPaddingLayer -> imgPaddingLayer.addRef())
+        .toArray(x -> new ImgPaddingLayer[x]);
   }
 
   public int half(int i, Alignment alignment) {
@@ -324,7 +324,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
       Layer temp_05_0025 = getCompatibilityLayer();
       Result temp_05_0013 = temp_05_0025.eval(RefUtil.addRefs(inObj));
       temp_05_0025.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_05_0013;
     }
     assert 1 == inObj.length;
@@ -336,7 +336,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     int[] dimIn = inputData.getDimensions();
     if (dimIn[0] == sizeX && dimIn[1] == sizeY) {
       inputData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return input;
     }
     @Nonnull final int[] dimOut = RefArrays.copyOf(dimIn, 3);
@@ -455,12 +455,12 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       input.freeRef();
     }
   }

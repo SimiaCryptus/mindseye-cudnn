@@ -55,15 +55,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     return com.simiacryptus.mindseye.layers.java.SumInputsLayer.class;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SumInputsLayerTest[] addRefs(@Nullable SumInputsLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SumInputsLayerTest::addRef)
-        .toArray((x) -> new SumInputsLayerTest[x]);
-  }
-
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -87,30 +78,11 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
         .toArray(i -> new int[i][]);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  SumInputsLayerTest addRef() {
-    return (SumInputsLayerTest) super.addRef();
-  }
-
   public static class Double_List extends SumInputsLayerTest {
     public Double_List() {
       super(Precision.Double, 1, 5, 1200);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double_List addRef() {
-      return (Double_List) super.addRef();
-    }
   }
 
   public static class OnePlusOne extends CudnnLayerTestBase {
@@ -165,15 +137,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
       return new int[][]{{1200, 800, 1}};
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    OnePlusOne addRef() {
-      return (OnePlusOne) super.addRef();
-    }
   }
 
   public static class Big_Double_Add extends Big {
@@ -182,24 +145,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
       testingBatchSize = 2;
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Big_Double_Add[] addRefs(@Nullable Big_Double_Add[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Big_Double_Add::addRef)
-          .toArray((x) -> new Big_Double_Add[x]);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Big_Double_Add addRef() {
-      return (Big_Double_Add) super.addRef();
-    }
   }
 
   public static class Double_Add extends SumInputsLayerTest {
@@ -207,15 +152,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
       super(Precision.Double, 1, 2, 1200);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double_Add addRef() {
-      return (Double_Add) super.addRef();
-    }
   }
 
   public static class Float_Add extends SumInputsLayerTest {
@@ -228,15 +164,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Float_Add addRef() {
-      return (Float_Add) super.addRef();
-    }
   }
 
   public abstract static class Big extends SumInputsLayerTest {
@@ -267,15 +194,6 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
       return null;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Big addRef() {
-      return (Big) super.addRef();
-    }
   }
 
 }

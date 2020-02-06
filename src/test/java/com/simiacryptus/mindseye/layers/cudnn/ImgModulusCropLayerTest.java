@@ -69,30 +69,11 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
         ;
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  ImgModulusCropLayerTest addRef() {
-    return (ImgModulusCropLayerTest) super.addRef();
-  }
-
   public static class Basic extends ImgModulusCropLayerTest {
     public Basic() {
       super(2, 7);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
-      return (Basic) super.addRef();
-    }
   }
 
 }

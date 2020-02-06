@@ -59,30 +59,11 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
     return new int[][]{{1200, 1200, 3}};
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  SumReducerLayerTest addRef() {
-    return (SumReducerLayerTest) super.addRef();
-  }
-
   public static class Double extends SumReducerLayerTest {
     public Double() {
       super(Precision.Double);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
-      return (Double) super.addRef();
-    }
   }
 
   public static class Asymmetric extends SumReducerLayerTest {
@@ -102,15 +83,6 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
       return new int[][]{{1000, 600, 3}};
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Asymmetric addRef() {
-      return (Asymmetric) super.addRef();
-    }
   }
 
   public static class Float extends SumReducerLayerTest {
@@ -123,14 +95,5 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
-      return (Float) super.addRef();
-    }
   }
 }

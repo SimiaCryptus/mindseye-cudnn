@@ -26,6 +26,7 @@ import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.*;
 import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.RefUtil;
+import org.junit.After;
 import org.junit.Test;
 
 import javax.annotation.Nonnull;
@@ -90,18 +91,11 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     return new int[][]{{largeSize, largeSize, bands}};
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
-    super._free();
+  @After
+  public void cleanup() {
+    super.cleanup();
     if (null != layer)
       layer.freeRef();
-  }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  SimpleConvolutionLayerTest addRef() {
-    return (SimpleConvolutionLayerTest) super.addRef();
   }
 
   public static class Basic extends SimpleConvolutionLayerTest {
@@ -109,15 +103,6 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
       super(1, 1, Precision.Double, 1);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Basic addRef() {
-      return (Basic) super.addRef();
-    }
   }
 
   public static class Image extends SimpleConvolutionLayerTest {
@@ -127,15 +112,6 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
       smallSize = 5;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Image addRef() {
-      return (Image) super.addRef();
-    }
   }
 
   public static class Image_Float extends SimpleConvolutionLayerTest {
@@ -149,15 +125,6 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
       return new SingleDerivativeTester(1e-2, 1e-3);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Image_Float addRef() {
-      return (Image_Float) super.addRef();
-    }
   }
 
   public static class Matrix extends SimpleConvolutionLayerTest {
@@ -165,15 +132,6 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
       super(3, 1, Precision.Double, 1);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Matrix addRef() {
-      return (Matrix) super.addRef();
-    }
   }
 
   public static class MultiBand extends SimpleConvolutionLayerTest {
@@ -182,15 +140,6 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
       smallSize = 8;
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    MultiBand addRef() {
-      return (MultiBand) super.addRef();
-    }
   }
 
   public abstract static class Bug_Control extends SimpleConvolutionLayerTest {
@@ -238,15 +187,6 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
       //      CudaSystem.apiLog.remove(apiLog);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Bug_Control addRef() {
-      return (Bug_Control) super.addRef();
-    }
   }
 
   public static class PaddingBug extends Image {
@@ -256,15 +196,6 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
       layer.setPaddingXY(0, 0);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    PaddingBug addRef() {
-      return (PaddingBug) super.addRef();
-    }
   }
 
   public static class SpanBug extends Image {
@@ -275,16 +206,6 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
       largeSize = 800;
       smallSize = 5;
     }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    SpanBug addRef() {
-      return (SpanBug) super.addRef();
-    }
   }
 
   public static class Big0 extends Big {
@@ -292,15 +213,6 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
       super(1, 2048, Precision.Double);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Big0 addRef() {
-      return (Big0) super.addRef();
-    }
   }
 
   public abstract static class Big extends SimpleConvolutionLayerTest {
@@ -314,7 +226,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     public ComponentTest<ToleranceStatistics> getBatchingTester() {
       if (!validateBatchExecution)
         return null;
-      BatchingTester batchingTester = (new BatchingTester(1e-2, true) {
+      BatchingTester batchingTester = new BatchingTester(1e-2, true) {
         @Override
         public double getRandom() {
           return random();
@@ -322,7 +234,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
         public @SuppressWarnings("unused")
         void _free() { super._free(); }
-      });
+      };
       batchingTester.setBatchSize(5);
       return batchingTester;
     }
@@ -352,15 +264,6 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
       return new int[][]{{30, 30, bands}};
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Big addRef() {
-      return (Big) super.addRef();
-    }
   }
 
 }

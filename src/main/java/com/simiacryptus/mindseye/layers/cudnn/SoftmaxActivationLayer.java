@@ -103,11 +103,11 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision 
       Layer temp_23_0006 = getCompatibilityLayer();
       Result temp_23_0005 = temp_23_0006.eval(RefUtil.addRefs(inObj));
       temp_23_0006.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_23_0005;
     }
     final Result inputResult = inObj[0].addRef();
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     final TensorList inputData = inputResult.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     @Nonnull final int[] outputSize = inputSize;

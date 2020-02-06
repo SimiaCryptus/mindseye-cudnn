@@ -59,29 +59,9 @@ public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
     return temp_74_0001;
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  GateBiasLayerTest addRef() {
-    return (GateBiasLayerTest) super.addRef();
-  }
-
   public static class Double extends GateBiasLayerTest {
     public Double() {
       super(Precision.Double);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Double addRef() {
-      return (Double) super.addRef();
     }
   }
 
@@ -93,16 +73,6 @@ public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
     @Override
     public SingleDerivativeTester getDerivativeTester() {
       return new SingleDerivativeTester(1e-2, 1e-3);
-    }
-
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Float addRef() {
-      return (Float) super.addRef();
     }
   }
 }

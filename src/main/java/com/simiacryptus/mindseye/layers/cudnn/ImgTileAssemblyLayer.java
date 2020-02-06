@@ -95,8 +95,8 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
   ImgTileAssemblyLayer[] addRefs(@Nullable ImgTileAssemblyLayer[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ImgTileAssemblyLayer::addRef)
-        .toArray((x) -> new ImgTileAssemblyLayer[x]);
+    return Arrays.stream(array).filter(x -> x != null).map(imgTileAssemblyLayer -> imgTileAssemblyLayer.addRef())
+        .toArray(x -> new ImgTileAssemblyLayer[x]);
   }
 
   @Nullable
@@ -106,12 +106,12 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
       Layer temp_09_0017 = getCompatibilityLayer();
       Result temp_09_0012 = temp_09_0017.eval(RefUtil.addRefs(inObj));
       temp_09_0017.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_09_0012;
     }
     if (1 == inObj.length) {
       Result temp_09_0013 = inObj[0].addRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_09_0013;
     }
     TensorList temp_09_0018 = inObj[0].getData();
@@ -157,7 +157,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
           copies.freeRef();
           if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
             stream = stream.parallel();
-          stream.forEach(imgTileAssemblyLayer::copy);
+          stream.forEach(copyParams -> imgTileAssemblyLayer.copy(copyParams));
           RefArrays.stream(RefUtil.addRefs(inObj)).forEach(r -> {
             RefUtil.freeRef(r.getData());
             r.freeRef();
@@ -172,7 +172,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
           ptr.freeRef();
           return temp_09_0007;
         }, imgTileAssemblyLayer.addRef(), RefUtil.addRefs(inObj)),
-        RefArrays.stream(RefUtil.addRefs(inObj)).map(Result::getData).toArray());
+        RefArrays.stream(RefUtil.addRefs(inObj)).map(result -> result.getData()).toArray());
 
     try {
       Result.Accumulator accumulator = new Result.Accumulator() {
@@ -230,13 +230,13 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
           tasks.freeRef();
           if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
             stream = stream.parallel();
-          stream.forEach(imgTileAssemblyLayer::backprop);
+          stream.forEach(backpropParams -> imgTileAssemblyLayer.backprop(backpropParams));
         }
 
         public @SuppressWarnings("unused")
         void _free() {
           super._free();
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           imgTileAssemblyLayer.freeRef();
           outputData.freeRef();
         }
@@ -257,12 +257,12 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       imgTileAssemblyLayer.freeRef();
     }
   }
@@ -370,13 +370,13 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
       sourceOffset += source.descriptor.wStride * Math.abs(positionX);
     }
     if (positionY > 0) {
-      destinationOffset += destinationDimensions[0] * Math.abs((positionY));
+      destinationOffset += destinationDimensions[0] * Math.abs(positionY);
     } else {
-      sourceOffset += source.descriptor.hStride * (Math.abs(positionY));
+      sourceOffset += source.descriptor.hStride * Math.abs(positionY);
     }
     assert sourceOffset >= 0;
     assert destinationOffset >= 0;
-    assert sourceOffset + Tensor.length(viewDim) <= (source.descriptor.nStride * length);
+    assert sourceOffset + Tensor.length(viewDim) <= source.descriptor.nStride * length;
     assert destinationOffset + Tensor.length(viewDim) <= Tensor.length(destinationDimensions);
 
     CudaMemory sourceMemory = source.getMemory(gpu.addRef());
@@ -453,7 +453,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
       totalHeight += rowHeight;
       totalWidth = Math.max(totalWidth, positionX);
     }
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     return new int[]{totalWidth, totalHeight, bands};
   }
 
@@ -488,14 +488,14 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
       this.tileDimensions = tileDimensions;
       Result[] temp_09_0002 = RefUtil.addRefs(inObj);
       this.inObj = RefUtil.addRefs(temp_09_0002);
-      RefUtil.freeRefs(temp_09_0002);
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(temp_09_0002);
+      RefUtil.freeRef(inObj);
     }
 
     public @SuppressWarnings("unused")
     void _free() {
       super._free();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       if (null != gpu) gpu.freeRef();
       outputBuffer.freeRef();
     }
@@ -527,8 +527,8 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
                            final int positionX, final int totalHeight, final int inputIndex) {
       Result[] temp_09_0003 = RefUtil.addRefs(inObj);
       this.inObj = RefUtil.addRefs(temp_09_0003);
-      RefUtil.freeRefs(temp_09_0003);
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(temp_09_0003);
+      RefUtil.freeRef(inObj);
       DeltaSet<UUID> temp_09_0004 = buffer.addRef();
       this.buffer = temp_09_0004.addRef();
       temp_09_0004.freeRef();
@@ -550,8 +550,8 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     BackpropParams[] addRefs(@Nullable BackpropParams[] array) {
       if (array == null)
         return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(BackpropParams::addRef)
-          .toArray((x) -> new BackpropParams[x]);
+      return Arrays.stream(array).filter(x -> x != null).map(backpropParams -> backpropParams.addRef())
+          .toArray(x -> new BackpropParams[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -559,7 +559,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
       super._free();
       error.freeRef();
       buffer.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
     }
 
     @Nonnull

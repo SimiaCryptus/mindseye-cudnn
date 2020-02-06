@@ -24,6 +24,7 @@ import com.simiacryptus.lang.UncheckedSupplier;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.Util;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ import javax.annotation.Nullable;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-public class CudaTensorList extends RegisteredObjectBase implements TensorList, CudaSystem.CudaDeviceResource {
+public class CudaTensorList extends ReferenceCountingBase implements TensorList, CudaSystem.CudaDeviceResource {
   public static final Logger logger = LoggerFactory.getLogger(CudaTensorList.class);
   public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getStackTrace()
       : new StackTraceElement[]{};
@@ -86,7 +87,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
     assert ptr.getPrecision() == precision;
     assert ptr.memory.getPtr() != null;
     ptr.freeRef();
-    register();
+    ObjectRegistry.register(this);
     //assert this.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(v->Double.isFinite(v));
   }
 
@@ -120,12 +121,12 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
 
   public static long evictToHeap(int deviceId) {
     return CudaSystem.withDevice(deviceId, gpu -> {
-      long size = RegisteredObjectBase.getLivingInstances(CudaTensorList.class).filter(x -> {
+      long size = ObjectRegistry.getLivingInstances(CudaTensorList.class).filter(x -> {
         boolean temp_07_0009 = x.gpuCopy != null
             && (x.getDeviceId() == deviceId || deviceId < 0 || x.getDeviceId() < 0);
         x.freeRef();
         return temp_07_0009;
-      }).mapToLong(CudaTensorList::evictToHeap).sum();
+      }).mapToLong(cudaTensorList -> cudaTensorList.evictToHeap()).sum();
       logger.debug(RefString.format("Cleared %s bytes from GpuTensorLists for device %s", size, deviceId));
       return size;
     });
@@ -164,7 +165,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
           @Nonnull final CudaTensorList nativeRight = (CudaTensorList) right.addRef();
           if (nativeRight.getPrecision() == this.getPrecision()) {
             if (nativeRight.heapCopy == null) {
-              assert (nativeRight.gpuCopy != this.gpuCopy);
+              assert nativeRight.gpuCopy != this.gpuCopy;
               int deviceId = this.gpuCopy.memory.getDeviceId();
               TensorList temp_07_0011 = CudaSystem
                   .run(RefUtil.wrapInterface((Function<CudnnHandle, TensorList>) gpu -> {
@@ -263,7 +264,7 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
         }
         return t;
       }, gpuCopy.addRef(), gpu));
-      CudaTensorList.logger.debug(RefString.format("Read %s bytes in %.4f from Tensor %s, GPU at %s, created by %s",
+      if(CudaTensorList.logger.isDebugEnabled()) CudaTensorList.logger.debug(RefString.format("Read %s bytes in %.4f from Tensor %s, GPU at %s, created by %s",
           gpuCopy.size(), timedResult.seconds(),
           Integer.toHexString(RefSystem.identityHashCode(timedResult.getResult())),
           Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
@@ -429,9 +430,9 @@ public class CudaTensorList extends RegisteredObjectBase implements TensorList, 
                   return new TensorArray(RefUtil.addRefs(output));
                 }, RefUtil.addRefs(output), gpuCopy.addRef()), this.addRef()),
             RefUtil.addRefs(output), gpuCopy.addRef()));
-    RefUtil.freeRefs(output);
+    RefUtil.freeRef(output);
     TensorArray result = timedResult.getResult();
-    CudaTensorList.logger.debug(RefString.format("Read %s bytes in %.4f from Tensor %s on GPU at %s, created by %s",
+    if(CudaTensorList.logger.isDebugEnabled()) CudaTensorList.logger.debug(RefString.format("Read %s bytes in %.4f from Tensor %s on GPU at %s, created by %s",
         gpuCopy.size(), timedResult.seconds(),
         Integer.toHexString(RefSystem.identityHashCode(result.addRef())),
         Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),

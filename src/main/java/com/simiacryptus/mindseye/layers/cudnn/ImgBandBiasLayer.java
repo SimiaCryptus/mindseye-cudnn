@@ -116,12 +116,12 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
       Layer temp_17_0012 = getCompatibilityLayer();
       Result temp_17_0009 = temp_17_0012.eval(RefUtil.addRefs(inObj));
       temp_17_0012.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return temp_17_0009;
     }
     if (inObj.length != 1) {
       IllegalArgumentException temp_17_0010 = new IllegalArgumentException("inObj.length=" + inObj.length);
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw temp_17_0010;
     }
     Result input = inObj[0].addRef();
@@ -131,25 +131,25 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
     if (3 != inputDimensions.length) {
       input.freeRef();
       inputData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw new IllegalArgumentException("dimensions=" + RefArrays.toString(inputDimensions));
     }
     assert bias != null;
     if (bias.getDimensions()[2] != inputDimensions[2]) {
       input.freeRef();
       inputData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw new IllegalArgumentException(
           RefString.format("Input dimensions=%s; Bias dimensions=%s", RefArrays.toString(bias.getDimensions())));
     }
     if (0 == Tensor.length(inputData.getDimensions())) {
       inputData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return input;
     }
     if (0 == bias.length()) {
       inputData.freeRef();
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       return input;
     }
     //   assert !right.isAlive();
@@ -289,12 +289,12 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
         }
 
         public void _free() {
-          RefUtil.freeRefs(inObj);
+          RefUtil.freeRef(inObj);
           super._free();
         }
       };
     } finally {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       imgBandBiasLayer.freeRef();
       inputData.freeRef();
       input.freeRef();

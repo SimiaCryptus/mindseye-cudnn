@@ -79,12 +79,12 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision {
       Result temp_39_0005 = temp_39_0007.eval(RefUtil.addRefs(inObj));
       temp_39_0007.freeRef();
       if (null != inObj)
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
       return temp_39_0005;
     }
     assert inObj != null;
     final Result input = inObj[0].addRef();
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     final TensorList inputData = input.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     int length = inputData.length();

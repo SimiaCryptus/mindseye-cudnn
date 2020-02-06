@@ -131,7 +131,7 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     if (inObj.length != 1) {
-      RefUtil.freeRefs(inObj);
+      RefUtil.freeRef(inObj);
       throw new IllegalArgumentException();
     }
     TensorList temp_42_0003 = inObj[0].getData();
@@ -145,7 +145,7 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
     temp_42_0004.freeRef();
     temp_42_0002.freeRef();
     Result temp_42_0001 = paddingLayer.eval(RefUtil.addRefs(inObj));
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     paddingLayer.freeRef();
     return temp_42_0001;
   }

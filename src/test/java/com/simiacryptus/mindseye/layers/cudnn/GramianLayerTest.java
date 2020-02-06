@@ -51,7 +51,7 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
         TensorList temp_41_0002 = array[0].getData();
         Tensor input = temp_41_0002.get(0);
         temp_41_0002.freeRef();
-        RefUtil.freeRefs(array);
+        RefUtil.freeRef(array);
         int[] inputDimensions = input.getDimensions();
         int inBands = inputDimensions[2];
         Tensor output = new Tensor(1, 1, inBands * inBands);
@@ -107,15 +107,6 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
     return GramianLayer.class;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  GramianLayerTest[] addRefs(@Nullable GramianLayerTest[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(GramianLayerTest::addRef)
-        .toArray((x) -> new GramianLayerTest[x]);
-  }
-
   @Nonnull
   @Override
   public int[][] getSmallDims(Random random) {
@@ -140,16 +131,6 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
     super.run(log);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  GramianLayerTest addRef() {
-    return (GramianLayerTest) super.addRef();
-  }
-
   public static class Image extends GramianLayerTest {
     public Image() {
       super();
@@ -161,15 +142,6 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
       return new int[][]{{1000, 1000, 3}};
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Image addRef() {
-      return (Image) super.addRef();
-    }
   }
 
   public static class Deep extends GramianLayerTest {
@@ -183,15 +155,6 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
       return new int[][]{{100, 100, 512}};
     }
 
-    public @SuppressWarnings("unused")
-    void _free() { super._free(); }
-
-    @Nonnull
-    public @Override
-    @SuppressWarnings("unused")
-    Deep addRef() {
-      return (Deep) super.addRef();
-    }
   }
 
 }

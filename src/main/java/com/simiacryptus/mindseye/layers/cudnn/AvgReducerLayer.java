@@ -77,8 +77,8 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision {
   AvgReducerLayer[] addRefs(@Nullable AvgReducerLayer[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(AvgReducerLayer::addRef)
-        .toArray((x) -> new AvgReducerLayer[x]);
+    return Arrays.stream(array).filter(x -> x != null).map(avgReducerLayer -> avgReducerLayer.addRef())
+        .toArray(x -> new AvgReducerLayer[x]);
   }
 
   @Nullable
@@ -89,12 +89,12 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision {
       Result temp_48_0004 = temp_48_0007.eval(RefUtil.addRefs(inObj));
       temp_48_0007.freeRef();
       if (null != inObj)
-        RefUtil.freeRefs(inObj);
+        RefUtil.freeRef(inObj);
       return temp_48_0004;
     }
     assert inObj != null;
     final Result input = inObj[0].addRef();
-    RefUtil.freeRefs(inObj);
+    RefUtil.freeRef(inObj);
     final TensorList inputData = input.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     int length = inputData.length();

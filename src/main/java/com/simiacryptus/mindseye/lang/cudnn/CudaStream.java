@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 
 public class CudaStream extends CudaResource<cudaStream_t> {
   CudaStream(cudaStream_t stream) {
-    super(stream, CudaSystem::cudaStreamDestroy, CudaSystem.getThreadDeviceId());
+    super(stream, stream1 -> CudaSystem.cudaStreamDestroy(stream1), CudaSystem.getThreadDeviceId());
   }
 
 

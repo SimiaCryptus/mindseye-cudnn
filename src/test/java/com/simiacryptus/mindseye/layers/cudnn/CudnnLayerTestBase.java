@@ -42,16 +42,6 @@ public abstract class CudnnLayerTestBase extends LayerTestBase {
     super.run(log);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
-
-  @Nonnull
-  public @Override
-  @SuppressWarnings("unused")
-  CudnnLayerTestBase addRef() {
-    return (CudnnLayerTestBase) super.addRef();
-  }
-
   @Nonnull
   @Override
   protected Layer lossLayer() {
