@@ -26,7 +26,6 @@ import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.lang.TensorArray;
 import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.ref.lang.RefAware;
-import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.Util;
@@ -35,15 +34,18 @@ import jcuda.jcudnn.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class CudnnHandle extends CudaDevice {
-  static final ThreadLocal<CudnnHandle> threadContext = new ThreadLocal<>();
+  static final RefThreadLocal<CudnnHandle> threadContext = new RefThreadLocal<>();
   private static final ExecutorService cleanupPool = Executors.newFixedThreadPool(1,
       new ThreadFactoryBuilder().setDaemon(true).build());
-  public final RefLinkedBlockingQueue<CudaResourceBase> cleanupNative = new RefLinkedBlockingQueue<>();
+  public final LinkedBlockingQueue<CudaResourceBase> cleanupNative = new LinkedBlockingQueue<>();
   @Nullable
   public final cudnnHandle handle;
 
@@ -60,16 +62,23 @@ public class CudnnHandle extends CudaDevice {
   }
 
   public static void forEach(@Nonnull final RefConsumer<? super CudnnHandle> fn) {
-    RefSet<Integer> temp_53_0008 = handlePools.keySet();
-    temp_53_0008.forEach(device -> {
-      ResourcePool<CudnnHandle> temp_53_0009 = getPool(device);
-      temp_53_0009.apply(x -> {
-        x.initThread();
-        fn.accept(x);
+    RefSet<Integer> keys = handlePools.keySet();
+    try {
+      keys.forEach(device -> {
+        ResourcePool<CudnnHandle> pool = getPool(device);
+        try {
+          pool.apply(cudnnHandle -> {
+            cudnnHandle.initThread();
+            fn.accept(cudnnHandle);
+          });
+        } finally {
+          pool.freeRef();
+        }
       });
-      temp_53_0009.freeRef();
-    });
-    temp_53_0008.freeRef();
+    } finally {
+      RefUtil.freeRef(fn);
+      keys.freeRef();
+    }
   }
 
   public static int cudnnDestroyReduceTensorDescriptor(final cudnnReduceTensorDescriptor obj) {
@@ -83,25 +92,69 @@ public class CudnnHandle extends CudaDevice {
 
   @Nonnull
   public @RefAware
-  <T> RefSupplier<T> wrap(@Nonnull @RefAware final RefSupplier<T> fn) {
-    return RefUtil.wrapInterface(() -> {
-      try {
-        return executionThread.submit(() -> {
-          CudnnHandle.threadContext.set(CudnnHandle.this);
-          initThread();
-          assert isThreadDeviceId(deviceId);
-          return fn.get();
-        }).get();
-      } catch (ExecutionException e) {
-        throw new RuntimeException(e.getCause());
-      } catch (RuntimeException e) {
-        throw e;
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      } finally {
-        cleanup();
-      }
-    }, fn);
+  void call(@Nonnull @RefAware final RefConsumer<CudnnHandle> fn) {
+    try {
+      executionThread.submit(() -> {
+        threadContext.set(CudnnHandle.this.addRef());
+        initThread();
+        assert isThreadDeviceId(deviceId);
+        fn.accept(CudnnHandle.this.addRef());
+      }).get();
+    } catch (ExecutionException e) {
+      throw new RuntimeException(e.getCause());
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      RefUtil.freeRef(fn);
+      cleanup();
+    }
+  }
+
+  @Nonnull
+  public @RefAware
+  <T> T call(@Nonnull @RefAware final RefFunction<CudnnHandle, T> fn) {
+    try {
+      return executionThread.submit(() -> {
+        threadContext.set(CudnnHandle.this.addRef());
+        initThread();
+        assert isThreadDeviceId(deviceId);
+        return fn.apply(CudnnHandle.this.addRef());
+      }).get();
+    } catch (ExecutionException e) {
+      throw new RuntimeException(e.getCause());
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      RefUtil.freeRef(fn);
+      cleanup();
+    }
+  }
+
+
+  @Nonnull
+  public @RefAware
+  <T> T call(@Nonnull @RefAware final RefSupplier<T> fn) {
+    try {
+      return executionThread.submit(() -> {
+        threadContext.set(CudnnHandle.this.addRef());
+        initThread();
+        assert isThreadDeviceId(deviceId);
+        return fn.get();
+      }).get();
+    } catch (ExecutionException e) {
+      throw new RuntimeException(e.getCause());
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      RefUtil.freeRef(fn);
+      cleanup();
+    }
   }
 
   @Nonnull
@@ -130,8 +183,8 @@ public class CudnnHandle extends CudaDevice {
     left.freeRef();
     @Nonnull final CudaMemory outputPtr = allocate((long) outputDescriptor.nStride * precision.size * length,
         MemoryType.Managed.ifEnabled(), true);
-    CudaMemory lPtrMemory = lPtr.getMemory(this);
-    CudaMemory rPtrMemory = rPtr.getMemory(this);
+    CudaMemory lPtrMemory = lPtr.getMemory(this.addRef());
+    CudaMemory rPtrMemory = rPtr.getMemory(this.addRef());
     assert rPtrMemory != null;
     assert lPtrMemory != null;
     cudnnOpTensor(opDescriptor.getPtr(), precision.getPointer(1.0), lPtr.descriptor.getPtr(), lPtrMemory.getPtr(),
@@ -145,9 +198,8 @@ public class CudnnHandle extends CudaDevice {
     rPtr.freeRef();
     lPtr.freeRef();
     opDescriptor.freeRef();
-    CudaTensorList temp_53_0001 = new CudaTensorList(new CudaTensor(outputPtr,
+    return new CudaTensorList(new CudaTensor(outputPtr,
         outputDescriptor, precision), length, dimensions, precision);
-    return temp_53_0001;
   }
 
   @Nonnull
@@ -164,8 +216,8 @@ public class CudnnHandle extends CudaDevice {
     assert lPtr.descriptor.channels == rPtr.descriptor.channels;
     assert lPtr.descriptor.height == rPtr.descriptor.height;
     assert lPtr.descriptor.width == rPtr.descriptor.width;
-    CudaMemory rPtrMemory = rPtr.getMemory(this);
-    CudaMemory lPtrMemory = lPtr.getMemory(this);
+    CudaMemory rPtrMemory = rPtr.getMemory(this.addRef());
+    CudaMemory lPtrMemory = lPtr.getMemory(this.addRef());
     assert CudaDevice.isThreadDeviceId(getDeviceId());
     assert lPtrMemory != null;
     assert rPtrMemory != null;
@@ -196,7 +248,7 @@ public class CudnnHandle extends CudaDevice {
         int width = newDims.length < 1 ? 1 : newDims[0];
         CudaTensorDescriptor descriptor = newTensorDescriptor(precision, reshapedTensor.descriptor.batchCount, channels,
             height, width, channels * height * width, height * width, width, 1);
-        CudaMemory tensorMemory = reshapedTensor.getMemory(this, memoryType);
+        CudaMemory tensorMemory = reshapedTensor.getMemory(this.addRef(), memoryType);
         reshapedTensor.freeRef();
         CudaTensor temp_53_0002 = new CudaTensor(tensorMemory == null ? null : tensorMemory.addRef(),
             descriptor.addRef(), precision);
@@ -221,7 +273,7 @@ public class CudnnHandle extends CudaDevice {
                 Util.toString(Util.getStackTrace()).replaceAll("\n", ", "),
                 Util.toString(cudaTensorList.createdBy).replaceAll("\n", ", ")));
           } else {
-            if(CudaTensorList.logger.isDebugEnabled()) CudaTensorList.logger.debug(RefString.format(
+            if (CudaTensorList.logger.isDebugEnabled()) CudaTensorList.logger.debug(RefString.format(
                 "Incompatible precision types %s != %s for Tensor %s in GPU at %s, created by %s", precision,
                 cudaTensorList.getPrecision(),
                 Integer.toHexString(RefSystem.identityHashCode(cudaTensorList.addRef())),
@@ -242,22 +294,30 @@ public class CudnnHandle extends CudaDevice {
       @Nonnull final CudaMemory ptr = this.allocate((long) elementLength * listLength * precision.size, memoryType, true);
       for (int i = 0; i < listLength; i++) {
         Tensor tensor = data.get(i);
-        assert RefArrays.equals(tensor.getDimensions(),
-            data.getDimensions()) : RefArrays.toString(tensor.getDimensions()) + " != "
-            + RefArrays.toString(data.getDimensions());
-        double[] tensorData = tensor.getData();
-        tensor.freeRef();
-        ptr.write(precision, tensorData, (long) i * elementLength);
+        try {
+          assert RefArrays.equals(tensor.getDimensions(),
+              data.getDimensions()) : RefArrays.toString(tensor.getDimensions()) + " != "
+              + RefArrays.toString(data.getDimensions());
+          ptr.write(precision, tensor.getData(), (long) i * elementLength);
+        } finally {
+          tensor.freeRef();
+        }
       }
       int[] inputSize = data.getDimensions();
       final int channels = inputSize.length < 3 ? 1 : inputSize[2];
       final int height = inputSize.length < 2 ? 1 : inputSize[1];
       final int width = inputSize.length < 1 ? 1 : inputSize[0];
-      @Nonnull final CudaDevice.CudaTensorDescriptor descriptor = newTensorDescriptor(precision, data.length(), channels, height,
-          width, channels * height * width, height * width, width, 1);
-      CudaTensor temp_53_0004 = new CudaTensor(ptr, descriptor,
-          precision);
-      return temp_53_0004;
+      return new CudaTensor(ptr, newTensorDescriptor(
+          precision,
+          data.length(),
+          channels,
+          height,
+          width,
+          channels * height * width,
+          height * width,
+          width,
+          1
+      ), precision);
     } finally {
       data.freeRef();
     }
@@ -272,8 +332,8 @@ public class CudnnHandle extends CudaDevice {
     synchronized (data) {
       RefUtil.freeRef(gpuCopy);
       RefUtil.freeRef(heapCopy);
-      gpuCopy = data.gpuCopy.addRef();
-      heapCopy = data.heapCopy.addRef();
+      gpuCopy = data.cudaTensor.addRef();
+      heapCopy = null == data.heapCopy ? null : data.heapCopy.addRef();
     }
     CudaTensor result = null;
     if (gpuCopy.isFinalized() && !heapCopy.isFinalized()) {
@@ -289,12 +349,12 @@ public class CudnnHandle extends CudaDevice {
       result = dense1;
     }
     synchronized (data) {
-      if (result != data.gpuCopy) {
-        data.gpuCopy = result.addRef();
+      if (result != data.cudaTensor) {
+        data.cudaTensor = result.addRef();
       }
     }
     gpuCopy.freeRef();
-    heapCopy.freeRef();
+    if (null != heapCopy) heapCopy.freeRef();
     data.freeRef();
     return result;
   }
@@ -308,7 +368,7 @@ public class CudnnHandle extends CudaDevice {
     int length = left.length();
     assert length == right.length();
     if (left.currentRefCount() == 1 && left instanceof CudaTensorList) {
-      CudaTensor leftGpu = ((CudaTensorList) left).gpuCopy.addRef();
+      CudaTensor leftGpu = ((CudaTensorList) left).cudaTensor.addRef();
       if (leftGpu.memory.getDeviceId() == getDeviceId()) {
         leftGpu.freeRef();
         CudaTensorList temp_53_0006 = addInPlace(((CudaTensorList) left).addRef(),
@@ -320,7 +380,7 @@ public class CudnnHandle extends CudaDevice {
       leftGpu.freeRef();
     }
     if (right.currentRefCount() == 1 && right instanceof CudaTensorList) {
-      CudaTensor rightGpu = ((CudaTensorList) right).gpuCopy.addRef();
+      CudaTensor rightGpu = ((CudaTensorList) right).cudaTensor.addRef();
       if (rightGpu.memory.getDeviceId() == getDeviceId()) {
         rightGpu.freeRef();
         CudaTensorList temp_53_0007 = addInPlace(((CudaTensorList) right).addRef(),
@@ -345,8 +405,8 @@ public class CudnnHandle extends CudaDevice {
     assert lPtr.descriptor.height == rPtr.descriptor.height;
     assert lPtr.descriptor.width == rPtr.descriptor.width;
     @Nonnull final CudaMemory outputPtr = allocate(outputDescriptor.nStride * length * precision.size, MemoryType.Device, true);
-    CudaMemory lPtrMemory = lPtr.getMemory(this);
-    CudaMemory rPtrMemory = rPtr.getMemory(this);
+    CudaMemory lPtrMemory = lPtr.getMemory(addRef());
+    CudaMemory rPtrMemory = rPtr.getMemory(addRef());
     assert CudaDevice.isThreadDeviceId(getDeviceId());
     assert rPtrMemory != null;
     assert lPtrMemory != null;
@@ -361,9 +421,9 @@ public class CudnnHandle extends CudaDevice {
     rPtrMemory.dirty();
     rPtrMemory.freeRef();
     outputPtr.dirty();
-    CudaTensorList temp_53_0005 = new CudaTensorList(new CudaTensor(outputPtr,
-        outputDescriptor, precision), length, dimensions, precision);
-    return temp_53_0005;
+    return new CudaTensorList(
+        new CudaTensor(outputPtr, outputDescriptor, precision),
+        length, dimensions, precision);
   }
 
   public int cudnnActivationForward(final cudnnActivationDescriptor activationDesc, final CudaPointer alpha,
@@ -373,7 +433,7 @@ public class CudnnHandle extends CudaDevice {
     long startTime = RefSystem.nanoTime();
     final int result = JCudnn.cudnnActivationForward(this.handle, activationDesc, alpha, xDesc, x, beta, yDesc, y);
     cudnnActivationForward_execution.accept((RefSystem.nanoTime() - startTime) / 1e9);
-    log("cudnnActivationForward", result, new Object[]{this, activationDesc, alpha, xDesc, x, beta, yDesc, y});
+    log("cudnnActivationForward", result, new Object[]{this.addRef(), activationDesc, alpha, xDesc, x, beta, yDesc, y});
     return result;
   }
 
@@ -773,42 +833,34 @@ public class CudnnHandle extends CudaDevice {
   }
 
   @Override
-  protected void cleanup() {
-    RefArrayList<CudaResourceBase> objsToFree = new RefArrayList<>();
-    cleanupNative.drainTo(objsToFree.addRef());
-    if (objsToFree.isEmpty()) {
-      objsToFree.freeRef();
-      return;
-    }
-
-    if (CudaMemory.METRICS.get(deviceId).load() < CudaSettings.INSTANCE().asyncFreeLoadThreshold) {
-      cleanupAsync(objsToFree.addRef());
-    } else {
-      if (CudaSettings.INSTANCE().isSyncBeforeFree())
-        synchronize(RefSystem.nanoTime(), deviceId);
-      objsToFree.stream().forEach(cudaResourceBase -> cudaResourceBase.release());
-      super.cleanup();
-    }
-    objsToFree.freeRef();
-  }
-
-  @Override
   public void _free() {
-    cleanupNative.freeRef();
+    super._free();
     final int result = JCudnn.cudnnDestroy(handle);
     log("cudnnDestroy", result, new Object[]{handle});
     CudaSystem.handle(result);
-    super._free();
   }
 
-  @RefIgnore
-  private void cleanupAsync(RefArrayList<CudaResourceBase> objsToFree) {
-    cleanupPool.submit(() -> {
-      if (CudaSettings.INSTANCE().isSyncBeforeFree())
-        synchronize(RefSystem.nanoTime(), deviceId);
-      objsToFree.stream().forEach(cudaResourceBase -> cudaResourceBase.release());
-      objsToFree.freeRef();
-      super.cleanup();
-    });
+  protected void cleanup() {
+    ArrayList<CudaResourceBase> objsToFree = new ArrayList<>();
+    cleanupNative.drainTo(objsToFree);
+    if (!objsToFree.isEmpty()) {
+      DeviceMetrics deviceMetrics = CudaMemory.METRICS.get(deviceId);
+      if (deviceMetrics.load() < CudaSettings.INSTANCE().asyncFreeLoadThreshold) {
+        cleanupPool.submit(() -> {
+          freeAll(objsToFree);
+        });
+      } else {
+        freeAll(objsToFree);
+      }
+    }
+
   }
+
+  private void freeAll(List<CudaResourceBase> objsToFree) {
+    if (CudaSettings.INSTANCE().isSyncBeforeFree())
+      synchronize(RefSystem.nanoTime(), deviceId);
+    objsToFree.forEach(CudaResourceBase::release);
+    threadContext.set(null);
+  }
+
 }

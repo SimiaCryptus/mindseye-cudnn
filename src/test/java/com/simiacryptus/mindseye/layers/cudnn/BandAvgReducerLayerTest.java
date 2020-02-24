@@ -22,11 +22,9 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
-import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Random;
 
 public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
@@ -47,17 +45,11 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
   @Nullable
   @Override
   public Layer getReferenceLayer() {
-    BandReducerLayer temp_72_0002 = new BandReducerLayer();
-    temp_72_0002.setMode(PoolingLayer.PoolingMode.Avg);
-    BandReducerLayer temp_72_0005 = temp_72_0002.addRef();
-    temp_72_0005.setAlpha(alpha);
-    BandReducerLayer temp_72_0006 = temp_72_0005.addRef();
-    temp_72_0006.setPrecision(precision);
-    BandReducerLayer temp_72_0001 = RefUtil.addRef(temp_72_0006);
-    temp_72_0006.freeRef();
-    temp_72_0005.freeRef();
-    temp_72_0002.freeRef();
-    return temp_72_0001;
+    BandReducerLayer bandReducerLayer = new BandReducerLayer();
+    bandReducerLayer.setMode(PoolingLayer.PoolingMode.Avg);
+    bandReducerLayer.setAlpha(alpha);
+    bandReducerLayer.setPrecision(precision);
+    return bandReducerLayer;
   }
 
   @Nonnull
@@ -69,14 +61,10 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    BandAvgReducerLayer temp_72_0004 = new BandAvgReducerLayer();
-    temp_72_0004.setAlpha(alpha);
-    BandAvgReducerLayer temp_72_0007 = temp_72_0004.addRef();
-    temp_72_0007.setPrecision(precision);
-    BandAvgReducerLayer temp_72_0003 = RefUtil.addRef(temp_72_0007);
-    temp_72_0007.freeRef();
-    temp_72_0004.freeRef();
-    return temp_72_0003;
+    BandAvgReducerLayer bandAvgReducerLayer = new BandAvgReducerLayer();
+    bandAvgReducerLayer.setAlpha(alpha);
+    bandAvgReducerLayer.setPrecision(precision);
+    return bandAvgReducerLayer;
   }
 
   @Nonnull

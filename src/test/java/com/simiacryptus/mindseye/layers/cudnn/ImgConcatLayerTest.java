@@ -24,13 +24,11 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.BatchingTester;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Random;
 
 public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
@@ -66,11 +64,9 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    ImgConcatLayer temp_62_0002 = new ImgConcatLayer();
-    temp_62_0002.setPrecision(precision);
-    ImgConcatLayer temp_62_0001 = RefUtil.addRef(temp_62_0002);
-    temp_62_0002.freeRef();
-    return temp_62_0001;
+    ImgConcatLayer imgConcatLayer = new ImgConcatLayer();
+    imgConcatLayer.setPrecision(precision);
+    return imgConcatLayer;
   }
   //
   //  /**
@@ -112,11 +108,9 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      ImgConcatLayer temp_62_0004 = new ImgConcatLayer();
-      temp_62_0004.setMaxBands(2);
-      ImgConcatLayer temp_62_0003 = temp_62_0004.addRef();
-      temp_62_0004.freeRef();
-      return temp_62_0003;
+      ImgConcatLayer imgConcatLayer = new ImgConcatLayer();
+      imgConcatLayer.setMaxBands(2);
+      return imgConcatLayer;
     }
 
   }
@@ -136,11 +130,9 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      ImgConcatLayer temp_62_0006 = new ImgConcatLayer();
-      temp_62_0006.setMaxBands(8);
-      ImgConcatLayer temp_62_0005 = temp_62_0006.addRef();
-      temp_62_0006.freeRef();
-      return temp_62_0005;
+      ImgConcatLayer imgConcatLayer = new ImgConcatLayer();
+      imgConcatLayer.setMaxBands(8);
+      return imgConcatLayer;
     }
 
   }
@@ -171,7 +163,9 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
         }
 
         public @SuppressWarnings("unused")
-        void _free() { super._free(); }
+        void _free() {
+          super._free();
+        }
       };
       batchingTester.setBatchSize(5);
       return batchingTester;

@@ -20,11 +20,9 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Random;
 
 public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
@@ -50,8 +48,15 @@ public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getLargeDims(final Random random) {
-    return new int[][]{{200, 200, 100}, {100, 200, 100}, {200, 200, 100}, {100, 200, 100}, {200, 100, 100},
-        {100, 100, 100}};
+    int scale = 25;
+    return new int[][]{
+        {2 * scale, 2 * scale, scale},
+        {scale, 2 * scale, scale},
+        {2 * scale, 2 * scale, scale},
+        {scale, 2 * scale, scale},
+        {2 * scale, scale, scale},
+        {scale, scale, scale}
+    };
   }
 
   @Nonnull

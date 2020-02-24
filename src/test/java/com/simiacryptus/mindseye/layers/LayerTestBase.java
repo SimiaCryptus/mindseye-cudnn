@@ -20,15 +20,10 @@
 package com.simiacryptus.mindseye.layers;
 
 import com.simiacryptus.mindseye.test.unit.StandardLayerTests;
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefSystem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public abstract class LayerTestBase extends StandardLayerTests {
 

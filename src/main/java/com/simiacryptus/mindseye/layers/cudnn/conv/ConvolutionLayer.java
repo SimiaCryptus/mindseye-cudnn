@@ -66,9 +66,7 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     assert 0 < height;
     assert 0 < inputBands;
     assert 0 < outputBands;
-    Tensor temp_04_0001 = new Tensor(width, height, inputBands * outputBands);
-    this.kernel = temp_04_0001.addRef();
-    temp_04_0001.freeRef();
+    this.kernel = new Tensor(width, height, inputBands * outputBands);
     Tensor kernel = getKernel();
     assert kernel != null;
     int[] kernelDimensions = kernel.getDimensions();
@@ -88,14 +86,9 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
 
   protected ConvolutionLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
     super(json);
-    Tensor temp_04_0002 = Tensor.fromJson(json.get("filter"), resources);
-    this.kernel = temp_04_0002 == null ? null : temp_04_0002.addRef();
-    if (null != temp_04_0002)
-      temp_04_0002.freeRef();
-    Tensor temp_04_0015 = getKernel();
-    assert temp_04_0015 != null;
-    assert temp_04_0015.isValid();
-    temp_04_0015.freeRef();
+    this.kernel = Tensor.fromJson(json.get("filter"), resources);
+    assert kernel != null;
+    assert kernel.isValid();
     setBatchBands(json.get("batchBands").getAsInt());
     setStrideX(json.get("strideX").getAsInt());
     setStrideY(json.get("strideY").getAsInt());
@@ -140,15 +133,12 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     if (0 == batchBands) {
       batchBands = Math.max(inputBands, outputBands);
     }
-    ExplodedConvolutionGrid temp_04_0010 = new ExplodedConvolutionGrid(getConvolutionParams(), batchBands);
-    Tensor filter = kernel == null ? null : kernel.addRef();
-    temp_04_0010.write(filter);
-    ExplodedConvolutionGrid temp_04_0009 = temp_04_0010.addRef();
-    temp_04_0010.freeRef();
+    ExplodedConvolutionGrid grid = new ExplodedConvolutionGrid(getConvolutionParams(), batchBands);
+    grid.write(kernel.addRef());
     //    if (batchBands > outputBands * 2) {
     //      batchBands = outputBands;
     //    }
-    return temp_04_0009;
+    return grid;
   }
 
   @Nullable
@@ -243,19 +233,16 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     TensorList temp_04_0016 = inObj[0].getData();
     assert 3 == temp_04_0016.getDimensions().length;
     temp_04_0016.freeRef();
-    TensorList temp_04_0017 = inObj[0].getData();
-    TensorList temp_04_0018 = inObj[0].getData();
-    assert inputBands == temp_04_0017.getDimensions()[2] : RefArrays.toString(temp_04_0018.getDimensions()) + "[2] != "
+    TensorList data0 = inObj[0].getData();
+    assert inputBands == data0.getDimensions()[2] : RefArrays.toString(data0.getDimensions()) + "[2] != "
         + inputBands;
-    temp_04_0018.freeRef();
-    temp_04_0017.freeRef();
     if (!CudaSystem.isEnabled()) {
       kernel.freeRef();
-      Layer temp_04_0019 = getCompatibilityLayer();
-      Result temp_04_0008 = temp_04_0019.eval(RefUtil.addRefs(inObj));
-      temp_04_0019.freeRef();
-      RefUtil.freeRef(inObj);
-      return temp_04_0008;
+      Layer compatibilityLayer = getCompatibilityLayer();
+      Result result = compatibilityLayer.eval(inObj);
+      compatibilityLayer.freeRef();
+      data0.freeRef();
+      return result;
     }
     @Nonnull
     ExplodedConvolutionGrid grid = getExplodedNetwork();
@@ -268,72 +255,16 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     network.freeRef();
     assert result != null;
     final TensorList resultData = result.getData();
-    TensorList temp_04_0020 = inObj[0].getData();
-    assert temp_04_0020.length() == resultData.length();
-    temp_04_0020.freeRef();
-    RefUtil.freeRef(inObj);
+    assert data0.length() == resultData.length();
     assert 3 == resultData.getDimensions().length;
     assert outputBands == resultData.getDimensions()[2];
+    data0.freeRef();
+    RefUtil.freeRef(inObj);
+    boolean alive = result.isAlive();
     final ConvolutionLayer convolutionLayer = ConvolutionLayer.this.addRef();
-    try {
-      Result.Accumulator accumulator = new Result.Accumulator() {
-        {
-          kernel.addRef();
-          convolutionLayer.addRef();
-          grid.addRef();
-          result.addRef();
-        }
-
-        @Override
-        public void accept(@Nullable DeltaSet<UUID> deltaSet, @Nullable TensorList delta) {
-          result.accumulate(deltaSet == null ? null : deltaSet.addRef(), delta == null ? null : delta.addRef());
-          if (null != delta)
-            delta.freeRef();
-          if (!ConvolutionLayer.this.isFrozen()) {
-            Tensor read = grid.read(deltaSet == null ? null : deltaSet.addRef(), true);
-            assert deltaSet != null;
-            Delta<UUID> temp_04_0021 = deltaSet.get(convolutionLayer.getId(), kernel.getData());
-            assert temp_04_0021 != null;
-            temp_04_0021.addInPlace(read.getData());
-            temp_04_0021.freeRef();
-            read.freeRef();
-          }
-          if (null != deltaSet)
-            deltaSet.freeRef();
-        }
-
-        public @SuppressWarnings("unused")
-        void _free() {
-          super._free();
-          kernel.freeRef();
-          convolutionLayer.freeRef();
-          grid.freeRef();
-          result.freeRef();
-        }
-      };
-      return new Result(resultData, accumulator) {
-
-        {
-          result.addRef();
-        }
-
-        @Override
-        public boolean isAlive() {
-          return result.isAlive();
-        }
-
-        public @SuppressWarnings("unused")
-        void _free() {
-          super._free();
-          result.freeRef();
-        }
-      };
-    } finally {
-      convolutionLayer.freeRef();
-      result.freeRef();
-      grid.freeRef();
-      kernel.freeRef();
-    }
+    Result.Accumulator accumulator = new Accumulator(kernel, convolutionLayer, grid, isFrozen(), result.getAccumulator());
+    result.freeRef();
+    return new Result(resultData, accumulator, alive);
   }
 
   @Nonnull
@@ -386,23 +317,14 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
   }
 
   @Nonnull
-  public ConvolutionLayer setStrideXY(int x, int y) {
+  public void setStrideXY(int x, int y) {
     setStrideX(x);
-    ConvolutionLayer temp_04_0029 = this.addRef();
-    temp_04_0029.setStrideY(y);
-    ConvolutionLayer temp_04_0028 = temp_04_0029.addRef();
-    temp_04_0029.freeRef();
-    return temp_04_0028;
+    setStrideY(y);
   }
 
-  @Nonnull
-  public ConvolutionLayer setPaddingXY(Integer x, Integer y) {
+  public void setPaddingXY(Integer x, Integer y) {
     setPaddingX(x);
-    ConvolutionLayer temp_04_0031 = this.addRef();
-    temp_04_0031.setPaddingY(y);
-    ConvolutionLayer temp_04_0030 = temp_04_0031.addRef();
-    temp_04_0031.freeRef();
-    return temp_04_0030;
+    setPaddingY(y);
   }
 
   public void _free() {
@@ -416,5 +338,51 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
   @SuppressWarnings("unused")
   ConvolutionLayer addRef() {
     return (ConvolutionLayer) super.addRef();
+  }
+
+  private static class Accumulator extends Result.Accumulator {
+
+    private final Tensor kernel;
+    private final ConvolutionLayer convolutionLayer;
+    private final ExplodedConvolutionGrid grid;
+    private boolean frozen;
+    private Result.Accumulator accumulator;
+
+    public Accumulator(Tensor kernel, ConvolutionLayer convolutionLayer, ExplodedConvolutionGrid grid, boolean frozen, Result.Accumulator accumulator) {
+      this.kernel = kernel;
+      this.convolutionLayer = convolutionLayer;
+      this.grid = grid;
+      this.frozen = frozen;
+      this.accumulator = accumulator;
+    }
+
+    @Override
+    public void accept(@Nullable DeltaSet<UUID> deltaSet, @Nullable TensorList delta) {
+      DeltaSet<UUID> buffer = deltaSet == null ? null : deltaSet.addRef();
+      TensorList delta1 = delta == null ? null : delta.addRef();
+      this.accumulator.accept(buffer, delta1);
+      if (null != delta)
+        delta.freeRef();
+      if (!frozen) {
+        Tensor read = grid.read(deltaSet == null ? null : deltaSet.addRef(), true);
+        assert deltaSet != null;
+        Delta<UUID> uuidDelta = deltaSet.get(convolutionLayer.getId(), kernel.getData());
+        assert uuidDelta != null;
+        uuidDelta.addInPlace(read.getData());
+        uuidDelta.freeRef();
+        read.freeRef();
+      }
+      if (null != deltaSet)
+        deltaSet.freeRef();
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+      super._free();
+      kernel.freeRef();
+      convolutionLayer.freeRef();
+      grid.freeRef();
+      accumulator.freeRef();
+    }
   }
 }

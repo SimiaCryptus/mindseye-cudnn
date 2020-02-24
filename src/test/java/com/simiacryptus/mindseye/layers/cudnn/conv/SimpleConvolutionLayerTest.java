@@ -25,13 +25,13 @@ import com.simiacryptus.mindseye.layers.cudnn.CudnnLayerTestBase;
 import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.*;
 import com.simiacryptus.notebook.NotebookOutput;
+import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import org.junit.After;
 import org.junit.Test;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Random;
 
 public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
@@ -39,6 +39,7 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
   public final int radius;
   public final int bands;
   @Nullable
+  @RefIgnore
   final SimpleConvolutionLayer layer;
   public int largeSize;
   public int smallSize;
@@ -233,7 +234,9 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
         }
 
         public @SuppressWarnings("unused")
-        void _free() { super._free(); }
+        void _free() {
+          super._free();
+        }
       };
       batchingTester.setBatchSize(5);
       return batchingTester;

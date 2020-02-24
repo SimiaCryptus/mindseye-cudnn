@@ -24,15 +24,16 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefFunction;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
 import jcuda.jcudnn.*;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.function.IntFunction;
 
 @SuppressWarnings("serial")
@@ -75,12 +76,10 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision {
   @Override
   public Result eval(@Nullable final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
-      Layer temp_39_0007 = getCompatibilityLayer();
-      Result temp_39_0005 = temp_39_0007.eval(RefUtil.addRefs(inObj));
-      temp_39_0007.freeRef();
-      if (null != inObj)
-        RefUtil.freeRef(inObj);
-      return temp_39_0005;
+      Layer compatibilityLayer = getCompatibilityLayer();
+      Result result = compatibilityLayer.eval(inObj);
+      compatibilityLayer.freeRef();
+      return result;
     }
     assert inObj != null;
     final Result input = inObj[0].addRef();
@@ -88,75 +87,10 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision {
     final TensorList inputData = input.getData();
     @Nonnull final int[] inputSize = inputData.getDimensions();
     int length = inputData.length();
-
-    CudaTensorList result = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-      CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision,
-          MemoryType.Device, false);
-      CudaMemory inputMemory = inputTensor.getMemory(gpu);
-
-      @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, 1, 1, 1);
-      long size = (long) precision.size * outputDescriptor.nStride * length;
-      @Nonnull final CudaMemory outputMemory = gpu.allocate(size, MemoryType.Managed.ifEnabled(), true);
-      CudaResource<cudnnReduceTensorDescriptor> reduceTensorDescriptor = gpu.cudnnCreateReduceTensorDescriptor(
-          cudnnReduceTensorOp.CUDNN_REDUCE_TENSOR_ADD, precision.code, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN,
-          cudnnReduceTensorIndices.CUDNN_REDUCE_TENSOR_NO_INDICES, cudnnIndicesType.CUDNN_32BIT_INDICES);
-
-      assert inputMemory != null;
-      @Nonnull final CudaMemory workspacePtr = gpu.allocate(inputMemory.size, MemoryType.Device, true);
-      @Nonnull final CudaMemory indexPtr = gpu.allocate(12 * length, MemoryType.Device, false);
-
-      //outputPtr.synchronize();
-      gpu.cudnnReduceTensor(reduceTensorDescriptor.getPtr(), indexPtr.getPtr(), indexPtr.size, workspacePtr.getPtr(),
-          workspacePtr.size, precision.getPointer(1.0), inputTensor.descriptor.getPtr(), inputMemory.getPtr(),
-          precision.getPointer(0.0), outputDescriptor.getPtr(), outputMemory.getPtr());
-      indexPtr.freeRef();
-      reduceTensorDescriptor.freeRef();
-      inputTensor.freeRef();
-      inputMemory.dirty();
-      inputMemory.freeRef();
-      outputMemory.dirty();
-      workspacePtr.dirty();
-      workspacePtr.freeRef();
-      CudaTensorList temp_39_0002 = new CudaTensorList(new CudaTensor(outputMemory,
-          outputDescriptor, precision), length, new int[]{1, 1, 1}, precision);
-      return temp_39_0002;
-    }, inputData.addRef()));
-
-    inputData.freeRef();
-    try {
-      return new Result(result, new Result.Accumulator() {
-        {
-          input.addRef();
-        }
-
-        @Override
-        public void accept(@Nullable DeltaSet<UUID> ctx, @Nonnull TensorList delta) {
-          TensorList passback = new TensorArray(
-              RefIntStream.range(0, length).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
-                Tensor tensor = delta.get(i);
-                Tensor temp_39_0006 = new Tensor(inputSize);
-                temp_39_0006.setAll(tensor.get(0));
-                Tensor temp_39_0004 = temp_39_0006.addRef();
-                temp_39_0006.freeRef();
-                tensor.freeRef();
-                return temp_39_0004;
-              }, delta.addRef())).toArray(i -> new Tensor[i]));
-          delta.freeRef();
-          input.accumulate(ctx == null ? null : ctx.addRef(), passback.addRef());
-          if (null != ctx)
-            ctx.freeRef();
-          passback.freeRef();
-        }
-
-        public @SuppressWarnings("unused")
-        void _free() {
-          super._free();
-          input.freeRef();
-        }
-      });
-    } finally {
-      input.freeRef();
-    }
+    CudaTensorList result = fwd(inputData, length);
+    Accumulator accumulator = new Accumulator(length, inputSize, input.getAccumulator());
+    input.freeRef();
+    return new Result(result, accumulator);
   }
 
   @Nonnull
@@ -185,4 +119,69 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision {
     return (SumReducerLayer) super.addRef();
   }
 
+  @NotNull
+  private CudaTensorList fwd(TensorList inputData, int length) {
+    return CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
+      CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision, MemoryType.Device, false);
+      CudaMemory inputMemory = inputTensor.getMemory(gpu.addRef());
+
+      @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, 1, 1, 1);
+      long size = (long) precision.size * outputDescriptor.nStride * length;
+      @Nonnull final CudaMemory outputMemory = gpu.allocate(size, MemoryType.Managed.ifEnabled(), true);
+      CudaResource<cudnnReduceTensorDescriptor> reduceTensorDescriptor = gpu.cudnnCreateReduceTensorDescriptor(
+          cudnnReduceTensorOp.CUDNN_REDUCE_TENSOR_ADD, precision.code, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN,
+          cudnnReduceTensorIndices.CUDNN_REDUCE_TENSOR_NO_INDICES, cudnnIndicesType.CUDNN_32BIT_INDICES);
+
+      assert inputMemory != null;
+      @Nonnull final CudaMemory workspacePtr = gpu.allocate(inputMemory.size, MemoryType.Device, true);
+      @Nonnull final CudaMemory indexPtr = gpu.allocate(12 * length, MemoryType.Device, false);
+
+      //outputPtr.synchronize();
+      gpu.cudnnReduceTensor(reduceTensorDescriptor.getPtr(), indexPtr.getPtr(), indexPtr.size, workspacePtr.getPtr(),
+          workspacePtr.size, precision.getPointer(1.0), inputTensor.descriptor.getPtr(), inputMemory.getPtr(),
+          precision.getPointer(0.0), outputDescriptor.getPtr(), outputMemory.getPtr());
+      gpu.freeRef();
+      indexPtr.freeRef();
+      reduceTensorDescriptor.freeRef();
+      inputTensor.freeRef();
+      inputMemory.dirty();
+      inputMemory.freeRef();
+      outputMemory.dirty();
+      workspacePtr.dirty();
+      workspacePtr.freeRef();
+      return new CudaTensorList(new CudaTensor(outputMemory,
+          outputDescriptor, precision), length, new int[]{1, 1, 1}, precision);
+    }, inputData));
+  }
+
+  private static class Accumulator extends Result.Accumulator {
+
+    private final int length;
+    private final int[] inputSize;
+    private Result.Accumulator accumulator;
+
+    public Accumulator(int length, int[] inputSize, Result.Accumulator accumulator) {
+      this.length = length;
+      this.inputSize = inputSize;
+      this.accumulator = accumulator;
+    }
+
+    @Override
+    public void accept(@Nullable DeltaSet<UUID> ctx, @Nonnull TensorList delta) {
+      this.accumulator.accept(ctx, new TensorArray(
+          RefIntStream.range(0, length).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
+            Tensor d = delta.get(i);
+            Tensor tensor = new Tensor(inputSize);
+            tensor.setAll(d.get(0));
+            d.freeRef();
+            return tensor;
+          }, delta)).toArray(i -> new Tensor[i])));
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+      super._free();
+      accumulator.freeRef();
+    }
+  }
 }

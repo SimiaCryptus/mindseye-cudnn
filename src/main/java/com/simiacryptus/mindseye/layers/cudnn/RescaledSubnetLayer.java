@@ -28,7 +28,6 @@ import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSystem;
 import com.simiacryptus.mindseye.lang.cudnn.MultiPrecision;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
@@ -52,24 +51,17 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
 
   public RescaledSubnetLayer(int scale, @Nullable Layer layer) {
     this.scale = scale;
-    Layer temp_13_0001 = layer == null ? null : layer.addRef();
     if (null != this.layer)
       this.layer.freeRef();
-    this.layer = temp_13_0001 == null ? null : temp_13_0001.addRef();
-    if (null != temp_13_0001)
-      temp_13_0001.freeRef();
-    if (null != layer)
-      layer.freeRef();
+    this.layer = layer;
   }
 
   protected RescaledSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     scale = json.get("scale").getAsInt();
-    Layer temp_13_0002 = Layer.fromJson(json, rs);
     if (null != layer)
       layer.freeRef();
-    layer = temp_13_0002.addRef();
-    temp_13_0002.freeRef();
+    layer = Layer.fromJson(json, rs);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
@@ -99,20 +91,16 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
   @Override
   public Result eval(@Nullable final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
-      Layer temp_13_0005 = getCompatibilityLayer();
-      Result temp_13_0004 = temp_13_0005.eval(RefUtil.addRefs(inObj));
-      temp_13_0005.freeRef();
-      if (null != inObj)
-        RefUtil.freeRef(inObj);
-      return temp_13_0004;
+      Layer compatibilityLayer = getCompatibilityLayer();
+      Result result = compatibilityLayer.eval(inObj);
+      compatibilityLayer.freeRef();
+      return result;
     }
     log.warn("Not Implemented: " + getClass().getCanonicalName());
-    Layer temp_13_0006 = getCompatibilityLayer();
-    Result temp_13_0003 = temp_13_0006.eval(RefUtil.addRefs(inObj));
-    temp_13_0006.freeRef();
-    if (null != inObj)
-      RefUtil.freeRef(inObj);
-    return temp_13_0003;
+    Layer compatibilityLayer = getCompatibilityLayer();
+    Result result = compatibilityLayer.eval(inObj);
+    compatibilityLayer.freeRef();
+    return result;
   }
 
   @Nonnull

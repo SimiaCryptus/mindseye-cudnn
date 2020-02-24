@@ -25,15 +25,14 @@ import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 
 @SuppressWarnings("serial")
 public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
@@ -91,185 +90,38 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  ImgTileAssemblyLayer[] addRefs(@Nullable ImgTileAssemblyLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter(x -> x != null).map(imgTileAssemblyLayer -> imgTileAssemblyLayer.addRef())
-        .toArray(x -> new ImgTileAssemblyLayer[x]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
-      Layer temp_09_0017 = getCompatibilityLayer();
-      Result temp_09_0012 = temp_09_0017.eval(RefUtil.addRefs(inObj));
-      temp_09_0017.freeRef();
-      RefUtil.freeRef(inObj);
-      return temp_09_0012;
+      Layer compatibilityLayer = getCompatibilityLayer();
+      Result result = compatibilityLayer.eval(inObj);
+      compatibilityLayer.freeRef();
+      return result;
     }
     if (1 == inObj.length) {
-      Result temp_09_0013 = inObj[0].addRef();
+      Result result = inObj[0].addRef();
       RefUtil.freeRef(inObj);
-      return temp_09_0013;
+      return result;
     }
-    TensorList temp_09_0018 = inObj[0].getData();
-    int[] inputDimensions = temp_09_0018.getDimensions();
-    temp_09_0018.freeRef();
+    TensorList data0 = inObj[0].getData();
+    int[] inputDimensions = data0.getDimensions();
+    final int length = data0.length();
+    data0.freeRef();
     assert 3 == inputDimensions.length;
-    TensorList temp_09_0019 = inObj[0].getData();
-    final int length = temp_09_0019.length();
-    temp_09_0019.freeRef();
     int[] outputDims = getOutputDims(RefUtil.addRefs(inObj));
-    final ImgTileAssemblyLayer imgTileAssemblyLayer = this.addRef();
-    final TensorList outputData = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-          assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-          assert outputDims[0] > 0;
-          assert outputDims[1] > 0;
-          assert outputDims[2] > 0;
-          @Nonnull final CudaMemory outputBuffer = gpu.allocate(
-              (long) length * outputDims[2] * outputDims[1] * outputDims[0] * precision.size,
-              MemoryType.Managed.ifEnabled(), false);
-          int totalWidth = 0;
-          int totalHeight = 0;
-          int inputIndex = 0;
-          RefList<CopyParams> copies = new RefArrayList<>();
-          for (int row = 0; row < rows; row++) {
-            int positionX = 0;
-            int rowHeight = 0;
-            for (int col = 0; col < columns; col++) {
-              TensorList temp_09_0020 = inObj[inputIndex].getData();
-              int[] tileDimensions = temp_09_0020.getDimensions();
-              temp_09_0020.freeRef();
-              rowHeight = Math.max(rowHeight, tileDimensions[1]);
-              copies.add(new CopyParams(gpu, RefUtil.addRefs(inObj), outputBuffer.addRef(),
-                  length, outputDims, tileDimensions, inputIndex, positionX, totalHeight));
-              positionX += tileDimensions[0];
-              inputIndex += 1;
-              assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-            }
-            totalHeight += rowHeight;
-            totalWidth = Math.max(totalWidth, positionX);
-          }
-          assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-          RefStream<CopyParams> stream = copies.stream();
-          copies.freeRef();
-          if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
-            stream = stream.parallel();
-          stream.forEach(copyParams -> imgTileAssemblyLayer.copy(copyParams));
-          RefArrays.stream(RefUtil.addRefs(inObj)).forEach(r -> {
-            RefUtil.freeRef(r.getData());
-            r.freeRef();
-          });
-          CudaDevice.CudaTensorDescriptor descriptor = gpu.newTensorDescriptor(precision, length, outputDims[2],
-              outputDims[1], outputDims[0]);
-          CudaTensor ptr = new CudaTensor(outputBuffer,
-              descriptor.addRef(), precision);
-          descriptor.freeRef();
-          CudaTensorList temp_09_0007 = new CudaTensorList(ptr.addRef(), length, outputDims,
-              precision);
-          ptr.freeRef();
-          return temp_09_0007;
-        }, imgTileAssemblyLayer.addRef(), RefUtil.addRefs(inObj)),
-        RefArrays.stream(RefUtil.addRefs(inObj)).map(result -> result.getData()).toArray());
-
-    try {
-      Result.Accumulator accumulator = new Result.Accumulator() {
-        {
-          RefUtil.addRefs(inObj);
-          imgTileAssemblyLayer.addRef();
-          outputData.addRef();
-        }
-
-        @Override
-        public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList error) {
-          if (!RefArrays.equals(error.getDimensions(), outputData.getDimensions())) {
-            if (null != buffer)
-              buffer.freeRef();
-            AssertionError temp_09_0015 = new AssertionError(RefArrays.toString(error.getDimensions()) + " != "
-                + RefArrays.toString(outputData.getDimensions()));
-            error.freeRef();
-            throw temp_09_0015;
-          }
-          if (error.length() != outputData.length()) {
-            if (null != buffer)
-              buffer.freeRef();
-            AssertionError temp_09_0016 = new AssertionError(error.length() + " != " + outputData.length());
-            error.freeRef();
-            throw temp_09_0016;
-          }
-          assert error.length() == length;
-          int totalHeight = 0;
-          int inputIndex = 0;
-          RefList<BackpropParams> tasks = new RefArrayList<>();
-          for (int row = 0; row < rows; row++) {
-            int positionX = 0;
-            int rowHeight = 0;
-            for (int col = 0; col < columns; col++) {
-              Result in = inObj[inputIndex].addRef();
-              TensorList temp_09_0021 = in.getData();
-              int[] tileDimensions = temp_09_0021.getDimensions();
-              temp_09_0021.freeRef();
-              in.freeRef();
-              rowHeight = Math.max(rowHeight, tileDimensions[1]);
-              if (inObj[inputIndex].isAlive()) {
-                tasks.add(new BackpropParams(RefUtil.addRefs(inObj), buffer == null ? null : buffer.addRef(),
-                    error.addRef(), outputDims, tileDimensions, length, positionX,
-                    totalHeight, inputIndex));
-              }
-              positionX += tileDimensions[0];
-              inputIndex += 1;
-            }
-            totalHeight += rowHeight;
-          }
-          error.freeRef();
-          if (null != buffer)
-            buffer.freeRef();
-          RefStream<BackpropParams> stream = tasks.stream();
-          tasks.freeRef();
-          if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
-            stream = stream.parallel();
-          stream.forEach(backpropParams -> imgTileAssemblyLayer.backprop(backpropParams));
-        }
-
-        public @SuppressWarnings("unused")
-        void _free() {
-          super._free();
-          RefUtil.freeRef(inObj);
-          imgTileAssemblyLayer.freeRef();
-          outputData.freeRef();
-        }
-      };
-      return new Result(outputData, accumulator) {
-
-        {
-          RefUtil.addRefs(inObj);
-        }
-
-        @Override
-        public boolean isAlive() {
-          return RefArrays.stream(RefUtil.addRefs(inObj)).anyMatch(x -> {
-            boolean temp_09_0009 = x.isAlive();
-            x.freeRef();
-            return temp_09_0009;
-          });
-        }
-
-        public void _free() {
-          RefUtil.freeRef(inObj);
-          super._free();
-        }
-      };
-    } finally {
-      RefUtil.freeRef(inObj);
-      imgTileAssemblyLayer.freeRef();
-    }
+    final TensorList outputData = fwd(length, outputDims, RefUtil.addRefs(inObj));
+    Result.Accumulator accumulator = new Accumulator(this.addRef(), outputData.addRef(), length, outputDims, rows, columns, parallel, RefUtil.addRefs(inObj));
+    boolean isAlive = RefArrays.stream(inObj).anyMatch(x -> {
+      boolean temp_09_0009 = x.isAlive();
+      x.freeRef();
+      return temp_09_0009;
+    });
+    return new Result(outputData, accumulator, isAlive);
   }
 
   public void backprop(@Nonnull final BackpropParams backpropParams) {
     final TensorList passbackTensorList = CudaSystem
-        .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
+        .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
           CudaTensor ptr = copy(gpu, backpropParams.error.addRef(), backpropParams.tileDimensions,
               backpropParams.outputDims, backpropParams.length, -backpropParams.positionX, -backpropParams.totalHeight);
           CudaTensorList temp_09_0010 = new CudaTensorList(ptr == null ? null : ptr.addRef(), backpropParams.length,
@@ -295,28 +147,23 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     @Nonnull final CudaMemory passbackBuffer = gpu.allocate(
         (long) length * tileDimensions[2] * tileDimensions[1] * tileDimensions[0] * precision.size,
         MemoryType.Managed.ifEnabled(), false);
-    copy(gpu.addRef(), length, outputDims, errorPtr.addRef(), tileDimensions,
+    copy(gpu.addRef(), length, outputDims, errorPtr, tileDimensions,
         passbackBuffer.addRef(), positionX, positionY);
-    errorPtr.freeRef();
     CudaDevice.CudaTensorDescriptor descriptor = gpu.newTensorDescriptor(precision, length, tileDimensions[2],
         tileDimensions[1], tileDimensions[0]);
     gpu.freeRef();
-    CudaTensor temp_09_0011 = new CudaTensor(passbackBuffer,
-        descriptor.addRef(), precision);
-    descriptor.freeRef();
-    return temp_09_0011;
+    return new CudaTensor(passbackBuffer, descriptor, precision);
   }
 
   public void copy(@Nonnull final CopyParams copyParams) {
-    CudnnHandle gpu = copyParams.gpu;
+    CudnnHandle gpu = copyParams.gpu.addRef();
     gpu.initThread();
     assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
     @Nullable final CudaTensor inputBuffer = gpu.getTensor(copyParams.inObj[copyParams.inputIndex].getData(), precision,
         MemoryType.Device, false);
-    copy(gpu, copyParams.length, copyParams.tileDimensions, inputBuffer.addRef(),
+    copy(gpu, copyParams.length, copyParams.tileDimensions, inputBuffer,
         copyParams.outputDims, copyParams.outputBuffer.addRef(), copyParams.positionX, copyParams.totalHeight);
     copyParams.freeRef();
-    inputBuffer.freeRef();
   }
 
   public void copy(@Nonnull CudnnHandle gpu, int length, @Nonnull int[] sourceDimensions, @Nonnull CudaTensor source,
@@ -421,13 +268,67 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
   }
 
   public @SuppressWarnings("unused")
-  void _free() { super._free(); }
+  void _free() {
+    super._free();
+  }
 
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
   ImgTileAssemblyLayer addRef() {
     return (ImgTileAssemblyLayer) super.addRef();
+  }
+
+  @NotNull
+  private TensorList fwd(int length, int[] outputDims, @Nonnull Result[] inObj) {
+    return CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
+          assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+          assert outputDims[0] > 0;
+          assert outputDims[1] > 0;
+          assert outputDims[2] > 0;
+          @Nonnull final CudaMemory outputBuffer = gpu.allocate(
+              (long) length * outputDims[2] * outputDims[1] * outputDims[0] * precision.size,
+              MemoryType.Managed.ifEnabled(), false);
+          int totalWidth = 0;
+          int totalHeight = 0;
+          int inputIndex = 0;
+          RefList<CopyParams> copies = new RefArrayList<>();
+          for (int row = 0; row < rows; row++) {
+            int positionX = 0;
+            int rowHeight = 0;
+            for (int col = 0; col < columns; col++) {
+              TensorList temp_09_0020 = inObj[inputIndex].getData();
+              int[] tileDimensions = temp_09_0020.getDimensions();
+              temp_09_0020.freeRef();
+              rowHeight = Math.max(rowHeight, tileDimensions[1]);
+              copies.add(new CopyParams(gpu.addRef(), RefUtil.addRefs(inObj), outputBuffer.addRef(),
+                  length, outputDims, tileDimensions, inputIndex, positionX, totalHeight));
+              positionX += tileDimensions[0];
+              inputIndex += 1;
+              assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+            }
+            totalHeight += rowHeight;
+            totalWidth = Math.max(totalWidth, positionX);
+          }
+          assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+          RefStream<CopyParams> stream = copies.stream();
+          if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+            stream = stream.parallel();
+          stream.forEach(copyParams -> copy(copyParams));
+          copies.freeRef();
+          CudaTensorList cudaTensorList = new CudaTensorList(
+              new CudaTensor(outputBuffer,
+                  gpu.newTensorDescriptor(precision, length, outputDims[2], outputDims[1], outputDims[0]),
+                  precision),
+              length, outputDims, precision);
+          gpu.freeRef();
+          return cudaTensorList;
+        }, RefUtil.addRefs(inObj)),
+        RefArrays.stream(inObj).map(result -> {
+          TensorList data = result.getData();
+          result.freeRef();
+          return data;
+        }).toArray());
   }
 
   @Nonnull
@@ -476,20 +377,12 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
       this.length = length;
       this.outputDims = outputDims;
       this.gpu = gpu;
-      CudaMemory temp_09_0001 = outputBuffer == null ? null : outputBuffer.addRef();
-      this.outputBuffer = temp_09_0001 == null ? null : temp_09_0001.addRef();
-      if (null != temp_09_0001)
-        temp_09_0001.freeRef();
-      if (null != outputBuffer)
-        outputBuffer.freeRef();
+      this.outputBuffer = outputBuffer;
       this.totalHeight = totalHeight;
       this.inputIndex = inputIndex;
       this.positionX = positionX;
       this.tileDimensions = tileDimensions;
-      Result[] temp_09_0002 = RefUtil.addRefs(inObj);
-      this.inObj = RefUtil.addRefs(temp_09_0002);
-      RefUtil.freeRef(temp_09_0002);
-      RefUtil.freeRef(inObj);
+      this.inObj = inObj;
     }
 
     public @SuppressWarnings("unused")
@@ -525,33 +418,15 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     private BackpropParams(@Nonnull final Result[] inObj, @Nonnull final DeltaSet<UUID> buffer,
                            @Nonnull final TensorList error, final int[] outputDims, final int[] tileDimensions, final int length,
                            final int positionX, final int totalHeight, final int inputIndex) {
-      Result[] temp_09_0003 = RefUtil.addRefs(inObj);
-      this.inObj = RefUtil.addRefs(temp_09_0003);
-      RefUtil.freeRef(temp_09_0003);
-      RefUtil.freeRef(inObj);
-      DeltaSet<UUID> temp_09_0004 = buffer.addRef();
-      this.buffer = temp_09_0004.addRef();
-      temp_09_0004.freeRef();
-      buffer.freeRef();
-      TensorList temp_09_0005 = error.addRef();
-      this.error = temp_09_0005.addRef();
-      temp_09_0005.freeRef();
-      error.freeRef();
+      this.inObj = inObj;
+      this.buffer = buffer;
+      this.error = error;
       this.outputDims = outputDims;
       this.tileDimensions = tileDimensions;
       this.length = length;
       this.positionX = positionX;
       this.totalHeight = totalHeight;
       this.inputIndex = inputIndex;
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    BackpropParams[] addRefs(@Nullable BackpropParams[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter(x -> x != null).map(backpropParams -> backpropParams.addRef())
-          .toArray(x -> new BackpropParams[x]);
     }
 
     public @SuppressWarnings("unused")
@@ -567,6 +442,88 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     @SuppressWarnings("unused")
     BackpropParams addRef() {
       return (BackpropParams) super.addRef();
+    }
+  }
+
+  private static class Accumulator extends Result.Accumulator {
+
+    private final ImgTileAssemblyLayer imgTileAssemblyLayer;
+    private final TensorList outputData;
+    private final int length;
+    private final int[] outputDims;
+    private final Result[] inObj;
+    private int rows;
+    private int columns;
+    private boolean parallel;
+
+    public Accumulator(ImgTileAssemblyLayer imgTileAssemblyLayer, TensorList outputData, int length, int[] outputDims, int rows, int columns, boolean parallel, Result... inObj) {
+      this.imgTileAssemblyLayer = imgTileAssemblyLayer;
+      this.outputData = outputData;
+      this.length = length;
+      this.outputDims = outputDims;
+      this.inObj = inObj;
+      this.rows = rows;
+      this.columns = columns;
+      this.parallel = parallel;
+    }
+
+    @Override
+    public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList error) {
+      if (!RefArrays.equals(error.getDimensions(), outputData.getDimensions())) {
+        if (null != buffer)
+          buffer.freeRef();
+        AssertionError temp_09_0015 = new AssertionError(RefArrays.toString(error.getDimensions()) + " != "
+            + RefArrays.toString(outputData.getDimensions()));
+        error.freeRef();
+        throw temp_09_0015;
+      }
+      if (error.length() != outputData.length()) {
+        if (null != buffer)
+          buffer.freeRef();
+        AssertionError temp_09_0016 = new AssertionError(error.length() + " != " + outputData.length());
+        error.freeRef();
+        throw temp_09_0016;
+      }
+      assert error.length() == length;
+      int totalHeight = 0;
+      int inputIndex = 0;
+      RefList<BackpropParams> tasks = new RefArrayList<>();
+      for (int row = 0; row < rows; row++) {
+        int positionX = 0;
+        int rowHeight = 0;
+        for (int col = 0; col < columns; col++) {
+          Result in = inObj[inputIndex].addRef();
+          TensorList temp_09_0021 = in.getData();
+          int[] tileDimensions = temp_09_0021.getDimensions();
+          temp_09_0021.freeRef();
+          in.freeRef();
+          rowHeight = Math.max(rowHeight, tileDimensions[1]);
+          if (inObj[inputIndex].isAlive()) {
+            tasks.add(new BackpropParams(RefUtil.addRefs(inObj), buffer == null ? null : buffer.addRef(),
+                error.addRef(), outputDims, tileDimensions, length, positionX,
+                totalHeight, inputIndex));
+          }
+          positionX += tileDimensions[0];
+          inputIndex += 1;
+        }
+        totalHeight += rowHeight;
+      }
+      error.freeRef();
+      if (null != buffer)
+        buffer.freeRef();
+      RefStream<BackpropParams> stream = tasks.stream();
+      tasks.freeRef();
+      if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+        stream = stream.parallel();
+      stream.forEach(backpropParams -> imgTileAssemblyLayer.backprop(backpropParams));
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+      super._free();
+      RefUtil.freeRef(inObj);
+      imgTileAssemblyLayer.freeRef();
+      outputData.freeRef();
     }
   }
 }

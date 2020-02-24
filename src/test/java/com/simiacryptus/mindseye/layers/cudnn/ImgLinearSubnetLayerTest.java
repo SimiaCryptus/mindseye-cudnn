@@ -20,18 +20,20 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.lang.RefIgnore;
 import org.junit.After;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Random;
 
 public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
 
+  @RefIgnore
   private final Layer layer1 = new ActivationLayer(ActivationLayer.Mode.RELU);
+  @RefIgnore
   private final Layer layer2 = new ActivationLayer(ActivationLayer.Mode.RELU);
+  @RefIgnore
   private final Layer layer3 = new ActivationLayer(ActivationLayer.Mode.RELU);
   private final int smallSize;
   private final int largeSize;

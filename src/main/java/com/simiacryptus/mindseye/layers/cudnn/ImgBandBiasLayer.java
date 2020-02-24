@@ -25,18 +25,19 @@ import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.java.ProductInputsLayer;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefFunction;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefString;
 import com.simiacryptus.util.Util;
 import jcuda.jcudnn.cudnnOpTensorDescriptor;
 import jcuda.jcudnn.cudnnOpTensorOp;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.DoubleSupplier;
-import java.util.function.Function;
 import java.util.function.IntToDoubleFunction;
 
 @SuppressWarnings("serial")
@@ -57,12 +58,9 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
   protected ImgBandBiasLayer(@Nonnull final JsonObject id, final Map<CharSequence, byte[]> rs) {
     super(id);
     this.precision = Precision.valueOf(id.getAsJsonPrimitive("precision").getAsString());
-    Tensor temp_17_0002 = Tensor.fromJson(id.get("bias"), rs);
     if (null != this.bias)
       this.bias.freeRef();
-    this.bias = temp_17_0002 == null ? null : temp_17_0002.addRef();
-    if (null != temp_17_0002)
-      temp_17_0002.freeRef();
+    this.bias = Tensor.fromJson(id.get("bias"), rs);
   }
 
   @Nonnull
@@ -72,14 +70,9 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
   }
 
   public void setBias(@Nullable Tensor bias) {
-    Tensor temp_17_0003 = bias == null ? null : bias.addRef();
     if (null != this.bias)
       this.bias.freeRef();
-    this.bias = temp_17_0003 == null ? null : temp_17_0003.addRef();
-    if (null != temp_17_0003)
-      temp_17_0003.freeRef();
-    if (null != bias)
-      bias.freeRef();
+    this.bias = bias;
   }
 
   @Nonnull
@@ -113,16 +106,15 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
-      Layer temp_17_0012 = getCompatibilityLayer();
-      Result temp_17_0009 = temp_17_0012.eval(RefUtil.addRefs(inObj));
-      temp_17_0012.freeRef();
-      RefUtil.freeRef(inObj);
-      return temp_17_0009;
+      Layer compatibilityLayer = getCompatibilityLayer();
+      Result result = compatibilityLayer.eval(inObj);
+      compatibilityLayer.freeRef();
+      return result;
     }
-    if (inObj.length != 1) {
-      IllegalArgumentException temp_17_0010 = new IllegalArgumentException("inObj.length=" + inObj.length);
+    int inLength = inObj.length;
+    if (inLength != 1) {
       RefUtil.freeRef(inObj);
-      throw temp_17_0010;
+      throw new IllegalArgumentException("inObj.length=" + inLength);
     }
     Result input = inObj[0].addRef();
     final TensorList inputData = input.getData();
@@ -153,152 +145,11 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
       return input;
     }
     //   assert !right.isAlive();
-    final ImgBandBiasLayer imgBandBiasLayer = ImgBandBiasLayer.this.addRef();
-    try {
-      return new Result(CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-        try {
-          @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
-              .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_ADD, precision);
-          @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
-              inputDimensions[2], inputDimensions[1], inputDimensions[0],
-              inputDimensions[2] * inputDimensions[1] * inputDimensions[0],
-              inputDimensions[1] * inputDimensions[0], inputDimensions[0], 1);
-          @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision,
-              MemoryType.Device, true);
-          CudaMemory temp_17_0013 = gpu.allocate(bias.length() * precision.size, MemoryType.Device, true);
-          CudaMemory biasMem = temp_17_0013.write(precision, bias.getData());
-          temp_17_0013.freeRef();
-          int[] biasDim = bias.getDimensions();
-          CudaDevice.CudaTensorDescriptor biasDescriptor = gpu.newTensorDescriptor(precision, 1, biasDim[2],
-              biasDim[1], biasDim[0], biasDim[2] * biasDim[1] * biasDim[0], biasDim[1] * biasDim[0], biasDim[0],
-              1);
-          //assert lPtr.size == rPtr.size;
-          @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
-              MemoryType.Managed.ifEnabled(), true);
-          CudaMemory inputMemory = inputTensor.getMemory(gpu);
-          assert inputMemory != null;
-          CudaSystem.handle(
-              gpu.cudnnOpTensor(opDescriptor.getPtr(), precision.getPointer(1.0), inputTensor.descriptor.getPtr(),
-                  inputMemory.getPtr(), precision.getPointer(1.0), biasDescriptor.getPtr(), biasMem.getPtr(),
-                  precision.getPointer(0.0), outputDescriptor.getPtr(), outputPtr.getPtr()));
-          biasDescriptor.freeRef();
-          inputTensor.freeRef();
-          opDescriptor.freeRef();
-          assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-          inputMemory.dirty();
-          inputMemory.freeRef();
-          biasMem.dirty();
-          biasMem.freeRef();
-          outputPtr.dirty();
-          CudaTensor cudaTensor = new CudaTensor(outputPtr,
-              outputDescriptor, precision);
-          CudaTensorList temp_17_0008 = new CudaTensorList(cudaTensor.addRef(),
-              length, inputDimensions, precision);
-          cudaTensor.freeRef();
-          return temp_17_0008;
-        } catch (Throwable e) {
-          throw new RuntimeException(RefString.format("Error applying bias %s to input %s",
-              RefArrays.toString(bias.getDimensions()), RefArrays.toString(inputDimensions)), e);
-        }
-      }, inputData.addRef()), inputData.addRef()),
-          new Result.Accumulator() {
-            {
-              bias.addRef();
-              imgBandBiasLayer.addRef();
-              input.addRef();
-            }
-
-            @Override
-            public void accept(@Nonnull DeltaSet<UUID> buffer, @Nullable TensorList delta) {
-              if (!ImgBandBiasLayer.this.isFrozen()) {
-                @Nonnull
-                double[] biasDelta = CudaSystem
-                    .run(RefUtil.wrapInterface((Function<CudnnHandle, double[]>) gpu -> {
-                      @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta == null ? null : delta.addRef(),
-                          precision, MemoryType.Device, false);
-
-                      CudaMemory temp_17_0014 = gpu.allocate(bias.length() * precision.size, MemoryType.Device,
-                          true);
-                      CudaMemory biasMem = temp_17_0014.write(precision, bias.getData());
-                      temp_17_0014.freeRef();
-                      int[] biasDim = bias.getDimensions();
-                      CudaDevice.CudaTensorDescriptor biasDescriptor = gpu.newTensorDescriptor(precision, 1,
-                          biasDim[2], biasDim[1], biasDim[0], biasDim[2] * biasDim[1] * biasDim[0],
-                          biasDim[1] * biasDim[0], biasDim[0], 1);
-                      CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu);
-                      assert deltaTensorMemory != null;
-                      gpu.cudnnConvolutionBackwardBias(precision.getPointer(1.0), deltaTensor.descriptor.getPtr(),
-                          deltaTensorMemory.getPtr(), precision.getPointer(0.0), biasDescriptor.getPtr(),
-                          biasMem.getPtr());
-                      deltaTensorMemory.freeRef();
-                      biasDescriptor.freeRef();
-                      deltaTensor.freeRef();
-                      assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-                      biasMem.dirty();
-                      double[] biasV = new double[bias.length()];
-                      biasMem.read(precision, biasV, 0);
-                      biasMem.freeRef();
-                      return biasV;
-                    }, delta == null ? null : delta.addRef()), delta == null ? null : delta.addRef());
-                Delta<UUID> temp_17_0015 = buffer.get(imgBandBiasLayer.getId(),
-                    bias == null ? null : bias.addRef());
-                assert temp_17_0015 != null;
-                temp_17_0015.addInPlace(biasDelta);
-                temp_17_0015.freeRef();
-              }
-              if (input.isAlive()) {
-                input.accumulate(buffer.addRef(), delta == null ? null : delta.addRef());
-              }
-              if (null != delta)
-                delta.freeRef();
-              buffer.freeRef();
-            }
-
-            public @SuppressWarnings("unused")
-            void _free() {
-              super._free();
-              bias.freeRef();
-              imgBandBiasLayer.freeRef();
-              input.freeRef();
-            }
-          }) {
-
-        {
-          RefUtil.addRefs(inObj);
-        }
-
-        @Override
-        public boolean isAlive() {
-          for (@Nonnull final Result element : inObj)
-            if (element.isAlive()) {
-              return true;
-            }
-          return false;
-        }
-
-        @Override
-        public final void accumulate(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
-          Result.Accumulator temp_17_0016 = getAccumulator();
-          assert temp_17_0016 != null;
-          temp_17_0016.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
-          temp_17_0016.freeRef();
-          if (null != delta)
-            delta.freeRef();
-          if (null != buffer)
-            buffer.freeRef();
-        }
-
-        public void _free() {
-          RefUtil.freeRef(inObj);
-          super._free();
-        }
-      };
-    } finally {
-      RefUtil.freeRef(inObj);
-      imgBandBiasLayer.freeRef();
-      inputData.freeRef();
-      input.freeRef();
-    }
+    CudaTensorList data = fwd(inputData, inputDimensions, length);
+    boolean alive = alive(inObj);
+    Accumulator accumulator = new Accumulator(this.getId(), bias.addRef(), precision, isFrozen(), input.getAccumulator(), input.isAlive());
+    input.freeRef();
+    return new Result(data, accumulator, alive);
   }
 
   @Nonnull
@@ -325,9 +176,7 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
 
   public void set(@Nullable Tensor tensor) {
     assert bias != null;
-    bias.set(tensor == null ? null : tensor.addRef());
-    if (null != tensor)
-      tensor.freeRef();
+    bias.set(tensor);
   }
 
   public void _free() {
@@ -343,5 +192,128 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
   @SuppressWarnings("unused")
   ImgBandBiasLayer addRef() {
     return (ImgBandBiasLayer) super.addRef();
+  }
+
+  @NotNull
+  private CudaTensorList fwd(TensorList inputData, int[] inputDimensions, int length) {
+    return CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
+      try {
+        @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
+            .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_ADD, precision);
+        @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+            inputDimensions[2], inputDimensions[1], inputDimensions[0],
+            inputDimensions[2] * inputDimensions[1] * inputDimensions[0],
+            inputDimensions[1] * inputDimensions[0], inputDimensions[0], 1);
+        @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision,
+            MemoryType.Device, true);
+        CudaMemory biasMem = gpu.allocate(bias.length() * precision.size, MemoryType.Device, true);
+        biasMem.write(precision, bias.getData());
+        int[] biasDim = bias.getDimensions();
+        CudaDevice.CudaTensorDescriptor biasDescriptor = gpu.newTensorDescriptor(precision, 1, biasDim[2],
+            biasDim[1], biasDim[0], biasDim[2] * biasDim[1] * biasDim[0], biasDim[1] * biasDim[0], biasDim[0],
+            1);
+        //assert lPtr.size == rPtr.size;
+        @Nonnull final CudaMemory outputPtr = gpu.allocate((long) precision.size * outputDescriptor.nStride * length,
+            MemoryType.Managed.ifEnabled(), true);
+        CudaMemory inputMemory = inputTensor.getMemory(gpu.addRef());
+        assert inputMemory != null;
+        CudaSystem.handle(
+            gpu.cudnnOpTensor(opDescriptor.getPtr(), precision.getPointer(1.0), inputTensor.descriptor.getPtr(),
+                inputMemory.getPtr(), precision.getPointer(1.0), biasDescriptor.getPtr(), biasMem.getPtr(),
+                precision.getPointer(0.0), outputDescriptor.getPtr(), outputPtr.getPtr()));
+        biasDescriptor.freeRef();
+        inputTensor.freeRef();
+        opDescriptor.freeRef();
+        assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+        gpu.freeRef();
+        inputMemory.dirty();
+        inputMemory.freeRef();
+        biasMem.dirty();
+        biasMem.freeRef();
+        outputPtr.dirty();
+        return new CudaTensorList(
+            new CudaTensor(outputPtr, outputDescriptor, precision),
+            length, inputDimensions, precision);
+      } catch (Throwable e) {
+        throw new RuntimeException(RefString.format("Error applying bias %s to input %s",
+            RefArrays.toString(bias.getDimensions()), RefArrays.toString(inputDimensions)), e);
+      }
+    }, inputData.addRef()), inputData);
+  }
+
+  private boolean alive(Result[] inObj) {
+    return Result.anyAlive(inObj);
+  }
+
+  private static class Accumulator extends Result.Accumulator {
+
+    private UUID id;
+    private Tensor bias;
+    private Precision precision;
+    private boolean frozen;
+    private Result.Accumulator accumulator;
+    private boolean alive;
+
+    public Accumulator(UUID id, Tensor bias, Precision precision, boolean frozen, Result.Accumulator accumulator, boolean alive) {
+      this.id = id;
+      this.bias = bias;
+      this.precision = precision;
+      this.frozen = frozen;
+      this.accumulator = accumulator;
+      this.alive = alive;
+    }
+
+    @Override
+    public void accept(@Nonnull DeltaSet<UUID> buffer, @Nullable TensorList delta) {
+      if (!frozen) {
+        @Nonnull
+        double[] biasDelta = CudaSystem
+            .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, double[]>) gpu -> {
+              @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta == null ? null : delta.addRef(),
+                  precision, MemoryType.Device, false);
+
+              CudaMemory biasMem = gpu.allocate(bias.length() * precision.size, MemoryType.Device,
+                  true);
+              biasMem.write(precision, bias.getData());
+              int[] biasDim = bias.getDimensions();
+              CudaDevice.CudaTensorDescriptor biasDescriptor = gpu.newTensorDescriptor(precision, 1,
+                  biasDim[2], biasDim[1], biasDim[0], biasDim[2] * biasDim[1] * biasDim[0],
+                  biasDim[1] * biasDim[0], biasDim[0], 1);
+              CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu.addRef());
+              assert deltaTensorMemory != null;
+              gpu.cudnnConvolutionBackwardBias(precision.getPointer(1.0), deltaTensor.descriptor.getPtr(),
+                  deltaTensorMemory.getPtr(), precision.getPointer(0.0), biasDescriptor.getPtr(),
+                  biasMem.getPtr());
+              deltaTensorMemory.freeRef();
+              biasDescriptor.freeRef();
+              deltaTensor.freeRef();
+              assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+              biasMem.dirty();
+              double[] biasV = new double[bias.length()];
+              biasMem.read(precision, biasV, 0);
+              biasMem.freeRef();
+              gpu.freeRef();
+              return biasV;
+            }, delta == null ? null : delta.addRef()), delta == null ? null : delta.addRef());
+        Delta<UUID> temp_17_0015 = buffer.get(id, bias == null ? null : bias.addRef());
+        assert temp_17_0015 != null;
+        temp_17_0015.addInPlace(biasDelta);
+        temp_17_0015.freeRef();
+      }
+      if (alive) {
+        this.accumulator.accept(buffer, delta);
+      } else {
+        if (null != delta)
+          delta.freeRef();
+        buffer.freeRef();
+      }
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+      super._free();
+      bias.freeRef();
+      accumulator.freeRef();
+    }
   }
 }

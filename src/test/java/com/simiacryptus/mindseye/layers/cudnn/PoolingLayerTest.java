@@ -25,8 +25,6 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Random;
 
 public abstract class PoolingLayerTest extends CudnnLayerTestBase {
@@ -40,11 +38,9 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    PoolingLayer temp_60_0002 = new PoolingLayer();
-    temp_60_0002.setPrecision(precision);
-    PoolingLayer temp_60_0001 = RefUtil.addRef(temp_60_0002);
-    temp_60_0002.freeRef();
-    return temp_60_0001;
+    PoolingLayer poolingLayer = new PoolingLayer();
+    poolingLayer.setPrecision(precision);
+    return poolingLayer;
   }
 
   @Nonnull
@@ -79,17 +75,11 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      PoolingLayer temp_60_0004 = new PoolingLayer();
-      temp_60_0004.setWindowXY(3, 2);
-      PoolingLayer temp_60_0007 = temp_60_0004.addRef();
-      temp_60_0007.setStrideXY(3, 2);
-      PoolingLayer temp_60_0008 = temp_60_0007.addRef();
-      temp_60_0008.setPrecision(precision);
-      PoolingLayer temp_60_0003 = RefUtil.addRef(temp_60_0008);
-      temp_60_0008.freeRef();
-      temp_60_0007.freeRef();
-      temp_60_0004.freeRef();
-      return temp_60_0003;
+      PoolingLayer poolingLayer = new PoolingLayer();
+      poolingLayer.setWindowXY(3, 2);
+      poolingLayer.setStrideXY(3, 2);
+      poolingLayer.setPrecision(precision);
+      return poolingLayer;
     }
 
   }
@@ -109,14 +99,10 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      PoolingLayer temp_60_0006 = new PoolingLayer();
-      temp_60_0006.setPrecision(precision);
-      PoolingLayer temp_60_0009 = RefUtil.addRef(temp_60_0006);
-      temp_60_0009.setWindowY(4);
-      PoolingLayer temp_60_0005 = temp_60_0009.addRef();
-      temp_60_0009.freeRef();
-      temp_60_0006.freeRef();
-      return temp_60_0005;
+      PoolingLayer poolingLayer = new PoolingLayer();
+      poolingLayer.setPrecision(precision);
+      poolingLayer.setWindowY(4);
+      return poolingLayer;
     }
 
   }

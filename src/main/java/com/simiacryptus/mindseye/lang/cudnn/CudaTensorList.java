@@ -23,6 +23,7 @@ import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.lang.UncheckedSupplier;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
@@ -32,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.function.Function;
 import java.util.function.IntFunction;
 
 public class CudaTensorList extends ReferenceCountingBase implements TensorList, CudaSystem.CudaDeviceResource {
@@ -43,59 +43,53 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
   private final int[] dimensions;
   private final int length;
   @Nullable
-  volatile CudaTensor gpuCopy;
+  volatile CudaTensor cudaTensor;
   @Nullable
   volatile TensorArray heapCopy = null;
 
-  public CudaTensorList(@Nullable final CudaTensor ptr, final int length, @Nonnull final int[] dimensions,
+  public CudaTensorList(@Nullable final CudaTensor cudaTensor, final int length, @Nonnull final int[] dimensions,
                         @Nonnull final Precision precision) {
     //assert 1 == ptr.currentRefCount() : ptr.referenceReport(false, false);
-    if (null == ptr) {
+    if (null == cudaTensor) {
       throw new IllegalArgumentException("ptr");
     }
-    if (null == ptr.memory.getPtr()) {
-      ptr.freeRef();
+    if (null == cudaTensor.memory.getPtr()) {
+      cudaTensor.freeRef();
       throw new IllegalArgumentException("ptr.getPtr()");
     }
     if (length <= 0) {
-      ptr.freeRef();
+      cudaTensor.freeRef();
       throw new IllegalArgumentException();
     }
     if (Tensor.length(dimensions) <= 0) {
-      ptr.freeRef();
+      cudaTensor.freeRef();
       throw new IllegalArgumentException();
     }
-    CudaTensor temp_07_0001 = ptr.addRef();
-    if (null != this.gpuCopy)
-      this.gpuCopy.freeRef();
-    this.gpuCopy = temp_07_0001.addRef();
-    temp_07_0001.freeRef();
+    assert cudaTensor.memory.size >= (long) (length - 1) * Tensor.length(dimensions) * precision.size : String
+        .format("%s < %s", cudaTensor.memory.size, (long) length * Tensor.length(dimensions) * precision.size);
+    assert cudaTensor.descriptor.batchCount == length;
+    assert cudaTensor.descriptor.channels == (dimensions.length < 3 ? 1 : dimensions[2]) : RefString.format(
+        "%s != (%d,%d,%d,%d)", RefArrays.toString(dimensions), cudaTensor.descriptor.batchCount, cudaTensor.descriptor.channels,
+        cudaTensor.descriptor.height, cudaTensor.descriptor.width);
+    assert cudaTensor.descriptor.height == (dimensions.length < 2 ? 1 : dimensions[1]) : RefString.format(
+        "%s != (%d,%d,%d,%d)", RefArrays.toString(dimensions), cudaTensor.descriptor.batchCount, cudaTensor.descriptor.channels,
+        cudaTensor.descriptor.height, cudaTensor.descriptor.width);
+    assert cudaTensor.descriptor.width == (dimensions.length < 1 ? 1 : dimensions[0]) : RefString.format("%s != (%d,%d,%d,%d)",
+        RefArrays.toString(dimensions), cudaTensor.descriptor.batchCount, cudaTensor.descriptor.channels, cudaTensor.descriptor.height,
+        cudaTensor.descriptor.width);
+    assert cudaTensor.getPrecision() == precision;
+    assert cudaTensor.memory.getPtr() != null;
+    if (null != this.cudaTensor)
+      this.cudaTensor.freeRef();
+    this.cudaTensor = cudaTensor;
     this.dimensions = RefArrays.copyOf(dimensions, dimensions.length);
     this.length = length;
-    assert ptr.memory.size >= (long) (length - 1) * Tensor.length(dimensions) * precision.size : String
-        .format("%s < %s", ptr.memory.size, (long) length * Tensor.length(dimensions) * precision.size);
-    assert ptr.descriptor.batchCount == length;
-    assert ptr.descriptor.channels == (dimensions.length < 3 ? 1 : dimensions[2]) : RefString.format(
-        "%s != (%d,%d,%d,%d)", RefArrays.toString(dimensions), ptr.descriptor.batchCount, ptr.descriptor.channels,
-        ptr.descriptor.height, ptr.descriptor.width);
-    assert ptr.descriptor.height == (dimensions.length < 2 ? 1 : dimensions[1]) : RefString.format(
-        "%s != (%d,%d,%d,%d)", RefArrays.toString(dimensions), ptr.descriptor.batchCount, ptr.descriptor.channels,
-        ptr.descriptor.height, ptr.descriptor.width);
-    assert ptr.descriptor.width == (dimensions.length < 1 ? 1 : dimensions[0]) : RefString.format("%s != (%d,%d,%d,%d)",
-        RefArrays.toString(dimensions), ptr.descriptor.batchCount, ptr.descriptor.channels, ptr.descriptor.height,
-        ptr.descriptor.width);
-    assert ptr.getPrecision() == precision;
-    assert ptr.memory.getPtr() != null;
-    ptr.freeRef();
-    ObjectRegistry.register(this);
+    ObjectRegistry.register(this.addRef());
     //assert this.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(v->Double.isFinite(v));
   }
 
   public int getDeviceId() {
-    CudaTensor gpuCopy = this.gpuCopy.addRef();
-    int temp_07_0007 = gpuCopy.memory.getDeviceId();
-    gpuCopy.freeRef();
-    return temp_07_0007;
+    return null==cudaTensor?-1:cudaTensor.getDeviceId();
   }
 
   @Nonnull
@@ -113,20 +107,34 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
    */
   @Nonnull
   public Precision getPrecision() {
-    CudaTensor gpuCopy = this.gpuCopy.addRef();
-    Precision temp_07_0008 = gpuCopy.getPrecision();
-    gpuCopy.freeRef();
-    return temp_07_0008;
+    return null == cudaTensor? null : cudaTensor.getPrecision();
+  }
+
+  private synchronized void setHeapCopy(TensorArray toHeap) {
+    if (toHeap != heapCopy && !hasHeapCopy()) {
+      if (hasHeapCopy()) {
+        this.heapCopy.freeRef();
+      }
+      this.heapCopy = toHeap;
+    } else if (null != toHeap) {
+      toHeap.freeRef();
+    }
   }
 
   public static long evictToHeap(int deviceId) {
     return CudaSystem.withDevice(deviceId, gpu -> {
-      long size = ObjectRegistry.getLivingInstances(CudaTensorList.class).filter(x -> {
-        boolean temp_07_0009 = x.gpuCopy != null
-            && (x.getDeviceId() == deviceId || deviceId < 0 || x.getDeviceId() < 0);
-        x.freeRef();
-        return temp_07_0009;
-      }).mapToLong(cudaTensorList -> cudaTensorList.evictToHeap()).sum();
+      long size = ObjectRegistry.getLivingInstances(CudaTensorList.class).filter(cudaTensorList -> {
+        int tensorDevice = cudaTensorList.getDeviceId();
+        boolean inDevice = cudaTensorList.cudaTensor != null
+            && (tensorDevice == deviceId || deviceId < 0 || tensorDevice < 0);
+        cudaTensorList.freeRef();
+        return inDevice;
+      }).mapToLong(cudaTensorList -> {
+        long toHeap = cudaTensorList.evictToHeap();
+        cudaTensorList.freeRef();
+        return toHeap;
+      }).sum();
+      gpu.freeRef();
       logger.debug(RefString.format("Cleared %s bytes from GpuTensorLists for device %s", size, deviceId));
       return size;
     });
@@ -135,16 +143,9 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
   @Nonnull
   public static CudaTensorList create(@Nullable final CudaMemory ptr, @Nullable CudaDevice.CudaTensorDescriptor descriptor,
                                       final int length, @Nonnull final int[] dimensions, @Nonnull final Precision precision) {
-    CudaTensor cudaTensor = new CudaTensor(ptr == null ? null : ptr.addRef(),
-        descriptor == null ? null : descriptor.addRef(), precision);
-    if (null != descriptor)
-      descriptor.freeRef();
-    if (null != ptr)
-      ptr.freeRef();
-    CudaTensorList temp_07_0010 = new CudaTensorList(cudaTensor.addRef(), length,
-        dimensions, precision);
-    cudaTensor.freeRef();
-    return temp_07_0010;
+    return new CudaTensorList(
+        new CudaTensor(ptr, descriptor, precision),
+        length, dimensions, precision);
   }
 
   @Override
@@ -153,8 +154,7 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
     right.assertAlive();
     try {
       if (right instanceof ReshapedTensorList) {
-        TensorList temp_07_0018 = addAndFree(((ReshapedTensorList) right).getInner());
-        return temp_07_0018;
+        return addAndFree(((ReshapedTensorList) right).getInner());
       }
       if (1 < currentRefCount()) {
         return add(right.addRef());
@@ -165,20 +165,23 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
           @Nonnull final CudaTensorList nativeRight = (CudaTensorList) right.addRef();
           if (nativeRight.getPrecision() == this.getPrecision()) {
             if (nativeRight.heapCopy == null) {
-              assert nativeRight.gpuCopy != this.gpuCopy;
-              int deviceId = this.gpuCopy.memory.getDeviceId();
-              TensorList temp_07_0011 = CudaSystem
-                  .run(RefUtil.wrapInterface((Function<CudnnHandle, TensorList>) gpu -> {
-                        if (gpu.getDeviceId() == deviceId) {
-                          return gpu.addInPlace(this.addRef(), nativeRight.addRef());
-                        } else {
-                          assertAlive();
-                          right.assertAlive();
-                          return add(right.addRef());
+              assert nativeRight.cudaTensor != this.cudaTensor;
+              int deviceId = this.cudaTensor.getDeviceId();
+              return CudaSystem
+                  .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, TensorList>) gpu -> {
+                        try {
+                          if (gpu.getDeviceId() == deviceId) {
+                            return gpu.addInPlace(this.addRef(), nativeRight.addRef());
+                          } else {
+                            assertAlive();
+                            right.assertAlive();
+                            return add(right.addRef());
+                          }
+                        } finally {
+                          gpu.freeRef();
                         }
                       }, nativeRight, right.addRef()), this.addRef(),
                       right.addRef());
-              return temp_07_0011;
             }
           }
           nativeRight.freeRef();
@@ -191,11 +194,10 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
         throw new IllegalArgumentException();
       }
       assert length() == right.length();
-      TensorArray temp_07_0017 = new TensorArray(
+      return new TensorArray(
           RefIntStream.range(0, length()).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
             return Tensor.add(get(i), right.get(i));
           }, right.addRef())).toArray(i -> new Tensor[i]));
-      return temp_07_0017;
     } finally {
       right.freeRef();
     }
@@ -215,11 +217,12 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
           @Nonnull final CudaTensorList nativeRight = (CudaTensorList) right.addRef();
           if (nativeRight.getPrecision() == this.getPrecision()) {
             if (nativeRight.heapCopy == null) {
-              CudaTensorList temp_07_0013 = CudaSystem
-                  .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                    return gpu.add(this.addRef(), nativeRight.addRef());
+              return CudaSystem
+                  .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
+                    CudaTensorList add = gpu.add(this.addRef(), nativeRight.addRef());
+                    gpu.freeRef();
+                    return add;
                   }, nativeRight), this.addRef());
-              return temp_07_0013;
             }
           }
           nativeRight.freeRef();
@@ -232,11 +235,10 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
         throw new IllegalArgumentException();
       }
       assert length() == right.length();
-      TensorArray temp_07_0020 = new TensorArray(
+      return new TensorArray(
           RefIntStream.range(0, length()).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
             return Tensor.add(get(i), right.get(i));
           }, right.addRef())).toArray(i -> new Tensor[i]));
-      return temp_07_0020;
     } finally {
       right.freeRef();
     }
@@ -249,30 +251,33 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
     assertAlive();
     if (heapCopy != null)
       return heapCopy.get(i);
-    CudaTensor gpuCopy = this.gpuCopy.addRef();
-    return CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, Tensor>) gpu -> {
+    CudaTensor cudaTensor = this.cudaTensor.addRef();
+    return CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, Tensor>) gpu -> {
       TimedResult<Tensor> timedResult = TimedResult.time(RefUtil.wrapInterface((UncheckedSupplier<Tensor>) () -> {
         assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
         Tensor t = new Tensor(getDimensions());
-        if (gpuCopy.isDense()) {
-          CudaMemory memory = gpuCopy.getMemory(gpu.addRef());
+        if (cudaTensor.isDense()) {
+          CudaMemory memory = cudaTensor.getMemory(gpu.addRef());
           assert memory != null;
-          memory.read(gpuCopy.getPrecision(), t.getData(), i * Tensor.length(getDimensions()));
+          memory.read(cudaTensor.getPrecision(), t.getData(), i * Tensor.length(getDimensions()));
           memory.freeRef();
         } else {
-          gpuCopy.read(gpu.addRef(), i, t.addRef(), false);
+          cudaTensor.read(gpu.addRef(), i, t.addRef(), false);
         }
         return t;
-      }, gpuCopy.addRef(), gpu));
-      if(CudaTensorList.logger.isDebugEnabled()) CudaTensorList.logger.debug(RefString.format("Read %s bytes in %.4f from Tensor %s, GPU at %s, created by %s",
-          gpuCopy.size(), timedResult.seconds(),
-          Integer.toHexString(RefSystem.identityHashCode(timedResult.getResult())),
-          Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
-          Util.toString(createdBy).replaceAll("\n", "\n\t")));
+      }, cudaTensor.addRef(), gpu));
       Tensor result = timedResult.getResult();
+      if (CudaTensorList.logger.isDebugEnabled()) CudaTensorList.logger.debug(RefString.format(
+          "Read %s bytes in %.4f from Tensor %s, GPU at %s, created by %s",
+          cudaTensor.size(),
+          timedResult.seconds(),
+          Integer.toHexString(RefSystem.identityHashCode(RefUtil.addRef(result))),
+          Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
+          Util.toString(createdBy).replaceAll("\n", "\n\t")
+      ));
       timedResult.freeRef();
       return result;
-    }, gpuCopy), this.addRef());
+    }, cudaTensor), this.addRef());
   }
 
   @Override
@@ -283,11 +288,11 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
   @Nonnull
   @Override
   public RefStream<Tensor> stream() {
-    TensorArray temp_07_0023 = heapCopy();
-    assert temp_07_0023 != null;
-    RefStream<Tensor> temp_07_0022 = temp_07_0023.stream();
-    temp_07_0023.freeRef();
-    return temp_07_0022;
+    TensorArray heapCopy = heapCopy();
+    assert heapCopy != null;
+    RefStream<Tensor> stream = heapCopy.stream();
+    heapCopy.freeRef();
+    return stream;
   }
 
   @Override
@@ -295,53 +300,44 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
     return CudaSystem.run(gpu -> {
       CudaTensor ptr = gpu.getTensor(this.addRef(), MemoryType.Device, false);
       assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-      CudaMemory cudaMemory = ptr.getMemory(gpu, MemoryType.Device);
-      assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+      CudaMemory cudaMemory = ptr.getMemory(gpu.addRef(), MemoryType.Device);
       assert cudaMemory != null;
       CudaMemory copyPtr = cudaMemory.copy(gpu, MemoryType.Managed.ifEnabled());
       cudaMemory.freeRef();
-      CudaTensor cudaTensor = new CudaTensor(copyPtr.addRef(), ptr.descriptor.addRef(),
-          getPrecision());
+      Precision precision = getPrecision();
+      CudaTensor cudaTensor = new CudaTensor(copyPtr, ptr.descriptor.addRef(), precision);
       ptr.freeRef();
-      copyPtr.freeRef();
-      CudaTensorList temp_07_0016 = new CudaTensorList(cudaTensor.addRef(), getLength(),
-          getDimensions(), getPrecision());
-      cudaTensor.freeRef();
-      return temp_07_0016;
+      return new CudaTensorList(cudaTensor, getLength(), getDimensions(), precision);
     }, this.addRef());
   }
 
+  @RefIgnore
   public long evictToHeap() {
     if (isFinalized())
       return 0;
-    TensorArray temp_07_0024 = heapCopy(true);
-    if (null == temp_07_0024) {
+    TensorArray heapCopy = heapCopy(true);
+    if (null == heapCopy) {
       throw new IllegalStateException();
     }
-    temp_07_0024.freeRef();
-    CudaTensor ptr = null;
+    heapCopy.freeRef();
+    final CudaTensor ptr;
     synchronized (this) {
-      RefUtil.freeRef(ptr);
-      ptr = this.gpuCopy.addRef();
-      if (null != this.gpuCopy)
-        this.gpuCopy.freeRef();
-      this.gpuCopy = null;
+      ptr = this.cudaTensor;
+      this.cudaTensor = null;
     }
     if (!ptr.isFinalized()) {
       long elements = getElements();
       assert 0 < length;
       assert 0 < elements : RefArrays.toString(dimensions);
+      long size = elements * ptr.getPrecision().size;
       ptr.freeRef();
-      return elements * getPrecision().size;
+      return size;
     } else {
       synchronized (this) {
-        CudaTensor temp_07_0003 = ptr.addRef();
-        if (null != this.gpuCopy)
-          this.gpuCopy.freeRef();
-        this.gpuCopy = temp_07_0003.addRef();
-        temp_07_0003.freeRef();
+        if (null != this.cudaTensor)
+          this.cudaTensor.freeRef();
+        this.cudaTensor = ptr;
       }
-      ptr.freeRef();
       return 0;
     }
   }
@@ -349,10 +345,10 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
   public void _free() {
     super._free();
     synchronized (this) {
-      if (null != gpuCopy) {
-        if (null != gpuCopy) {
-          gpuCopy.freeRef();
-          gpuCopy = null;
+      if (null != cudaTensor) {
+        if (null != cudaTensor) {
+          cudaTensor.freeRef();
+          cudaTensor = null;
         }
       }
       if (null != heapCopy) {
@@ -376,28 +372,23 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
 
   @Nullable
   private TensorArray heapCopy(final boolean avoidAllocations) {
-    if (heapCopy.isFinalized()) {
-      assertAlive();
-      TensorArray copy = toHeap(avoidAllocations);
-      synchronized (this) {
-        if (copy != heapCopy && heapCopy.isFinalized()) {
-          if (null != this.heapCopy)
-            this.heapCopy.freeRef();
-          this.heapCopy = copy;
-        } else {
-          if (null != copy)
-            copy.freeRef();
-        }
-      }
+    if (!hasHeapCopy()) {
+      setHeapCopy(toHeap(avoidAllocations));
     }
     return this.heapCopy.addRef();
   }
 
+  private boolean hasHeapCopy() {
+    return null != heapCopy && !heapCopy.isFinalized();
+  }
+
   @Nullable
+  @RefIgnore
   private TensorArray toHeap(final boolean avoidAllocations) {
-    CudaTensor gpuCopy = this.gpuCopy.addRef();
-    if (!gpuCopy.tryAddRef()) {
-      gpuCopy.freeRef();
+    assertAlive();
+    if (cudaTensor.tryAddRef()) {
+      return toHeap(avoidAllocations, cudaTensor);
+    } else {
       if (null == heapCopy) {
         throw new IllegalStateException("No data");
       } else if (heapCopy.isFinalized()) {
@@ -406,39 +397,45 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
         return heapCopy.addRef();
       }
     }
-    int length = getLength();
-    if (0 >= length) {
+  }
+
+  private TensorArray toHeap(boolean avoidAllocations, CudaTensor gpuCopy) {
+    try {
+      int length = getLength();
+      if (0 >= length) {
+        throw new IllegalStateException();
+      }
+      final Tensor[] output = RefIntStream.range(0, length)
+          .mapToObj(dataIndex -> new Tensor(getDimensions()))
+          .toArray(i -> new Tensor[i]);
+      TimedResult<TensorArray> timedResult = TimedResult
+          .time(RefUtil.wrapInterface((UncheckedSupplier<TensorArray>) () -> CudaDevice
+              .run(gpu -> {
+                    assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+                    //        assert getPrecision() == gpuCopy.getPrecision();
+                    //        assert getPrecision() == gpuCopy.descriptor.dataType;
+                    for (int i = 0; i < length; i++) {
+                      gpuCopy.read(gpu.addRef(), i, output[i].addRef(), avoidAllocations);
+                    }
+                    gpu.freeRef();
+                    return new TensorArray(RefUtil.addRefs(output));
+                  }, this.addRef()
+              ), output));
+      TensorArray result = timedResult.getResult();
+      if (CudaTensorList.logger.isDebugEnabled()) {
+        CudaTensorList.logger.debug(RefString.format(
+            "Read %s bytes in %.4f from Tensor %s on GPU at %s, created by %s",
+            gpuCopy.size(),
+            timedResult.seconds(),
+            Integer.toHexString(RefSystem.identityHashCode(result.addRef())),
+            Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
+            Util.toString(createdBy).replaceAll("\n", "\n\t"))
+        );
+      }
+      timedResult.freeRef();
+      return result;
+    } finally {
       gpuCopy.freeRef();
-      throw new IllegalStateException();
     }
-    final Tensor[] output = RefIntStream.range(0, length).mapToObj(dataIndex -> new Tensor(getDimensions()))
-        .toArray(i -> new Tensor[i]);
-    TimedResult<TensorArray> timedResult = TimedResult
-        .time(RefUtil.wrapInterface((UncheckedSupplier<TensorArray>) () -> CudaDevice
-                .run(RefUtil.wrapInterface((Function<CudnnHandle, TensorArray>) gpu -> {
-                  assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-                  assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-                  //        assert getPrecision() == gpuCopy.getPrecision();
-                  //        assert getPrecision() == gpuCopy.descriptor.dataType;
-                  assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-                  assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-                  for (int i = 0; i < length; i++) {
-                    assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-                    gpuCopy.read(gpu, i, output[i].addRef(), avoidAllocations);
-                    assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-                  }
-                  return new TensorArray(RefUtil.addRefs(output));
-                }, RefUtil.addRefs(output), gpuCopy.addRef()), this.addRef()),
-            RefUtil.addRefs(output), gpuCopy.addRef()));
-    RefUtil.freeRef(output);
-    TensorArray result = timedResult.getResult();
-    if(CudaTensorList.logger.isDebugEnabled()) CudaTensorList.logger.debug(RefString.format("Read %s bytes in %.4f from Tensor %s on GPU at %s, created by %s",
-        gpuCopy.size(), timedResult.seconds(),
-        Integer.toHexString(RefSystem.identityHashCode(result.addRef())),
-        Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
-        Util.toString(createdBy).replaceAll("\n", "\n\t")));
-    timedResult.freeRef();
-    gpuCopy.freeRef();
-    return result;
   }
 }

@@ -24,17 +24,17 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefFunction;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefString;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 
 @SuppressWarnings("serial")
 public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
@@ -99,20 +99,19 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
   public static CudaTensor copy(@Nonnull final CudnnHandle gpu, @Nonnull final TensorList input, @Nonnull final int[] inputDimensions,
                                 @Nonnull final int[] outputDimensions, @Nonnull Precision precision, final int positionX, final int positionY,
                                 final boolean dirty) {
-    @Nonnull final CudaMemory outputPtr = gpu.allocate(
-        (long) input.length() * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size,
-        MemoryType.Managed.ifEnabled(), dirty);
-    CudaTensor temp_24_0001 = copy(gpu, input, inputDimensions, outputDimensions, positionX,
-        positionY, precision, outputPtr);
-    return temp_24_0001;
+    return copy(gpu, input, inputDimensions, outputDimensions, positionX, positionY, precision,
+        gpu.allocate(
+            (long) input.length() * outputDimensions[2] * outputDimensions[1] * outputDimensions[0] * precision.size,
+            MemoryType.Managed.ifEnabled(), dirty));
   }
 
   public static void copy(@Nonnull final CudnnHandle gpu, @Nonnull final TensorList input, @Nonnull final int[] inputDimensions,
                           final int positionX, final int positionY, @Nonnull Precision precision, @Nonnull final CudaTensor output) {
-    CudaMemory memory = output.getMemory(gpu.addRef());
-    RefUtil.freeRef(copy(gpu, input, inputDimensions,
-        new int[]{output.descriptor.width, output.descriptor.height, output.descriptor.channels}, positionX,
-        positionY, precision, memory));
+    RefUtil.freeRef(copy(
+        gpu, input, inputDimensions,
+        new int[]{output.descriptor.width, output.descriptor.height, output.descriptor.channels},
+        positionX, positionY, precision,
+        output.getMemory(gpu.addRef())));
     output.freeRef();
   }
 
@@ -216,8 +215,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
         outputDimensions[0], //
         1);
     gpu.freeRef();
-    return new CudaTensor(outputPtr,
-        passbackDescriptor, precision);
+    return new CudaTensor(outputPtr, passbackDescriptor, precision);
   }
 
   @Nonnull
@@ -236,23 +234,13 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  ImgTileSelectLayer[] addRefs(@Nullable ImgTileSelectLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter(x -> x != null).map(imgTileSelectLayer -> imgTileSelectLayer.addRef())
-        .toArray(x -> new ImgTileSelectLayer[x]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
-      Layer temp_24_0013 = getCompatibilityLayer();
-      Result temp_24_0009 = temp_24_0013.eval(RefUtil.addRefs(inObj));
-      temp_24_0013.freeRef();
-      RefUtil.freeRef(inObj);
-      return temp_24_0009;
+      Layer compatibilityLayer = getCompatibilityLayer();
+      Result result = compatibilityLayer.eval(inObj);
+      compatibilityLayer.freeRef();
+      return result;
     }
     assert 1 == inObj.length;
     final Result input = inObj[0].addRef();
@@ -269,94 +257,17 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     }
     @Nonnull final int[] dimOut = getViewDimensions(dimIn, new int[]{sizeX, sizeY, dimIn[2]},
         new int[]{-positionX, -positionY, 0});
-    final ImgTileSelectLayer imgTileSelectLayer = this.addRef();
-    final TensorList outputData = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-          assert dimOut[0] > 0;
-          assert dimOut[1] > 0;
-          assert dimOut[2] > 0;
-          boolean dirty = dimOut[0] == dimIn[0] && dimOut[1] == dimIn[1];
-          return new CudaTensorList(copy(gpu, inputData.addRef(), dimIn, dimOut, precision,
-              imgTileSelectLayer.positionX, imgTileSelectLayer.positionY, dirty), length, dimOut, precision);
-        }, inputData.addRef(), imgTileSelectLayer.addRef()),
-        inputData.addRef());
-    inputData.freeRef();
+    final TensorList outputData = fwd(inputData, length, dimIn, dimOut);
     int[] outputDimensions = outputData.getDimensions();
     assert length == outputData.length();
-    try {
-      return new Result(outputData, new Result.Accumulator() {
-        {
-          input.addRef();
-          imgTileSelectLayer.addRef();
-        }
-
-        @Override
-        public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList error) {
-          if (!RefArrays.equals(error.getDimensions(), outputDimensions)) {
-            if (null != buffer)
-              buffer.freeRef();
-            AssertionError temp_24_0011 = new AssertionError(
-                RefArrays.toString(error.getDimensions()) + " != " + RefArrays.toString(outputDimensions));
-            error.freeRef();
-            throw temp_24_0011;
-          }
-          if (error.length() != length) {
-            if (null != buffer)
-              buffer.freeRef();
-            AssertionError temp_24_0012 = new AssertionError(error.length() + " != " + length);
-            error.freeRef();
-            throw temp_24_0012;
-          }
-          assert error.length() == length;
-          if (input.isAlive()) {
-            input.accumulate(buffer == null ? null : buffer.addRef(),
-                CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                      boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
-                      final CudaTensor ptr = copy(gpu, error.addRef(), dimOut, dimIn,
-                          precision, -imgTileSelectLayer.positionX, -imgTileSelectLayer.positionY, dirty);
-                      CudaTensorList temp_24_0007 = new CudaTensorList(ptr.addRef(), length,
-                          dimIn, precision);
-                      ptr.freeRef();
-                      return temp_24_0007;
-                    }, error.addRef(),
-                    imgTileSelectLayer.addRef()),
-                    error.addRef()));
-          }
-          error.freeRef();
-          if (null != buffer)
-            buffer.freeRef();
-        }
-
-        public @SuppressWarnings("unused")
-        void _free() {
-          super._free();
-          input.freeRef();
-          imgTileSelectLayer.freeRef();
-        }
-      }) {
-
-        {
-          RefUtil.addRefs(inObj);
-        }
-
-        @Override
-        public boolean isAlive() {
-          return RefArrays.stream(RefUtil.addRefs(inObj)).anyMatch(x -> {
-            boolean temp_24_0008 = x.isAlive();
-            x.freeRef();
-            return temp_24_0008;
-          });
-        }
-
-        public void _free() {
-          RefUtil.freeRef(inObj);
-          super._free();
-        }
-      };
-    } finally {
-      RefUtil.freeRef(inObj);
-      imgTileSelectLayer.freeRef();
-      input.freeRef();
-    }
+    boolean isAlive = RefArrays.stream(inObj).anyMatch(x -> {
+      boolean temp_24_0008 = x.isAlive();
+      x.freeRef();
+      return temp_24_0008;
+    });
+    Accumulator accumulator = new Accumulator(this.addRef(), outputDimensions, length, dimOut, dimIn, ImgTileSelectLayer.this.precision, input.getAccumulator(), input.isAlive());
+    input.freeRef();
+    return new Result(outputData, accumulator, isAlive);
   }
 
   @Nonnull
@@ -393,5 +304,83 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
   @SuppressWarnings("unused")
   ImgTileSelectLayer addRef() {
     return (ImgTileSelectLayer) super.addRef();
+  }
+
+  @NotNull
+  private TensorList fwd(TensorList inputData, int length, int[] dimIn, int[] dimOut) {
+    return CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
+          assert dimOut[0] > 0;
+          assert dimOut[1] > 0;
+          assert dimOut[2] > 0;
+          boolean dirty = dimOut[0] == dimIn[0] && dimOut[1] == dimIn[1];
+          return new CudaTensorList(
+              copy(gpu, inputData.addRef(), dimIn, dimOut, precision, positionX, positionY, dirty),
+              length, dimOut, precision);
+        }, inputData.addRef(), this.addRef()),
+        inputData);
+  }
+
+  private static class Accumulator extends Result.Accumulator {
+
+    private final ImgTileSelectLayer imgTileSelectLayer;
+    private final int[] outputDimensions;
+    private final int length;
+    private final int[] dimOut;
+    private final int[] dimIn;
+    private Precision precision;
+    private Result.Accumulator accumulator;
+    private boolean alive;
+
+    public Accumulator(ImgTileSelectLayer imgTileSelectLayer, int[] outputDimensions, int length, int[] dimOut, int[] dimIn, Precision precision, Result.Accumulator accumulator, boolean alive) {
+      this.imgTileSelectLayer = imgTileSelectLayer;
+      this.outputDimensions = outputDimensions;
+      this.length = length;
+      this.dimOut = dimOut;
+      this.dimIn = dimIn;
+      this.precision = precision;
+      this.accumulator = accumulator;
+      this.alive = alive;
+    }
+
+    @Override
+    public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList error) {
+      if (!RefArrays.equals(error.getDimensions(), outputDimensions)) {
+        if (null != buffer)
+          buffer.freeRef();
+        AssertionError temp_24_0011 = new AssertionError(
+            RefArrays.toString(error.getDimensions()) + " != " + RefArrays.toString(outputDimensions));
+        error.freeRef();
+        throw temp_24_0011;
+      }
+      if (error.length() != length) {
+        if (null != buffer)
+          buffer.freeRef();
+        AssertionError temp_24_0012 = new AssertionError(error.length() + " != " + length);
+        error.freeRef();
+        throw temp_24_0012;
+      }
+      assert error.length() == length;
+      if (alive) {
+        DeltaSet<UUID> buffer1 = buffer == null ? null : buffer.addRef();
+        this.accumulator.accept(buffer1, CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
+                    boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
+                    return new CudaTensorList(
+                        copy(gpu, error.addRef(), dimOut, dimIn, precision, -imgTileSelectLayer.positionX, -imgTileSelectLayer.positionY, dirty),
+                        length, dimIn, precision);
+                  }, error.addRef(),
+                  imgTileSelectLayer.addRef()),
+                  error.addRef()));
+      }
+      error.freeRef();
+      if (null != buffer)
+        buffer.freeRef();
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+      super._free();
+      accumulator.freeRef();
+      imgTileSelectLayer.freeRef();
+    }
   }
 }

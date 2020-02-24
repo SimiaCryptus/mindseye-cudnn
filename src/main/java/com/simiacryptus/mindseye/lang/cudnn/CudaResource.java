@@ -19,12 +19,10 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
-import com.simiacryptus.ref.lang.RefUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.function.ToIntFunction;
 
 public class CudaResource<T> extends CudaResourceBase<T> {
@@ -49,6 +47,7 @@ public class CudaResource<T> extends CudaResourceBase<T> {
       if (isActiveObj()) {
         CudaSystem.withDevice(deviceId, dev -> {
           CudaSystem.handle(this.destructor.applyAsInt(ptr));
+          dev.freeRef();
         });
       }
     } catch (@Nonnull final Throwable e) {
@@ -58,11 +57,7 @@ public class CudaResource<T> extends CudaResourceBase<T> {
 
   public void _free() {
     super._free();
-    CudnnHandle threadHandle = CudaSystem.getThreadHandle();
-    if (null != threadHandle) {
-      threadHandle.cleanupNative.add(this);
-      threadHandle.freeRef();
-    } else release();
+    cleanup();
   }
 
   @Nonnull

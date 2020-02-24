@@ -36,8 +36,6 @@ import com.simiacryptus.ref.wrappers.RefList;
 import smile.plot.PlotCanvas;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.function.DoubleFunction;
 
@@ -70,11 +68,9 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    ActivationLayer temp_21_0003 = new ActivationLayer(mode);
-    temp_21_0003.setPrecision(precision);
-    ActivationLayer temp_21_0002 = RefUtil.addRef(temp_21_0003);
-    temp_21_0003.freeRef();
-    return temp_21_0002;
+    ActivationLayer activationLayer = new ActivationLayer(mode);
+    activationLayer.setPrecision(precision);
+    return activationLayer;
   }
 
   @Nonnull

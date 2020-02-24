@@ -137,17 +137,12 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
     TensorList temp_42_0003 = inObj[0].getData();
     final int[] dimensions = temp_42_0003.getDimensions();
     temp_42_0003.freeRef();
-    ImgPaddingLayer temp_42_0002 = new ImgPaddingLayer(dimensions[0] + sizeX, dimensions[1] + sizeY);
-    temp_42_0002.setHorizontalAlign(horizontalAlign);
-    ImgPaddingLayer temp_42_0004 = temp_42_0002.addRef();
-    temp_42_0004.setVerticalAlign(verticalAlign);
-    final ImgPaddingLayer paddingLayer = temp_42_0004.addRef();
-    temp_42_0004.freeRef();
-    temp_42_0002.freeRef();
-    Result temp_42_0001 = paddingLayer.eval(RefUtil.addRefs(inObj));
-    RefUtil.freeRef(inObj);
-    paddingLayer.freeRef();
-    return temp_42_0001;
+    ImgPaddingLayer imgPaddingLayer = new ImgPaddingLayer(dimensions[0] + sizeX, dimensions[1] + sizeY);
+    imgPaddingLayer.setHorizontalAlign(horizontalAlign);
+    imgPaddingLayer.setVerticalAlign(verticalAlign);
+    Result result = imgPaddingLayer.eval(inObj);
+    imgPaddingLayer.freeRef();
+    return result;
   }
 
   @Nonnull
@@ -170,7 +165,9 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
   }
 
   public @SuppressWarnings("unused")
-  void _free() { super._free(); }
+  void _free() {
+    super._free();
+  }
 
   @Nonnull
   public @Override

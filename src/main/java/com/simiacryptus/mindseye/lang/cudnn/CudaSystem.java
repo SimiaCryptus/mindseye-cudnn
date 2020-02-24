@@ -44,13 +44,11 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.PrintStream;
-import java.util.ConcurrentModificationException;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class CudaSystem extends ReferenceCountingBase {
 
@@ -127,8 +125,8 @@ public class CudaSystem extends ReferenceCountingBase {
   protected static final DoubleStatistics cudaStreamDestroy_execution = new DoubleStatistics();
   protected static final DoubleStatistics cudaStreamSynchronize_execution = new DoubleStatistics();
   protected static final DoubleStatistics getForwardAlgorithm_execution = new DoubleStatistics();
-  protected static final RefHashMap<Integer, ResourcePool<CudnnHandle>> handlePools = new RefHashMap<>();
-  private static final RefMap<Integer, Long> syncTimes = new RefHashMap<>();
+  protected static final RefConcurrentHashMap<Integer, ResourcePool<CudnnHandle>> handlePools = new RefConcurrentHashMap<>();
+  private static final Map<Integer, Long> syncTimes = new HashMap<>();
   private static final long COPY_BLOCK_SIZE = Long.MAX_VALUE;
   private static volatile Integer cachedDeviceCount = init();
   private static volatile StaticResourcePool<CudnnHandle> pool;
@@ -163,9 +161,9 @@ public class CudaSystem extends ReferenceCountingBase {
   }
 
   @Nonnull
-  public static RefMap<CharSequence, RefMap<CharSequence, CharSequence>> getExecutionStatistics() {
+  public static HashMap<CharSequence, Map<CharSequence, CharSequence>> getExecutionStatistics() {
     @Nonnull
-    RefHashMap<CharSequence, RefMap<CharSequence, CharSequence>> map = new RefHashMap<>();
+    HashMap<CharSequence, Map<CharSequence, CharSequence>> map = new HashMap<>();
     RefUtil.freeRef(map.put("createPoolingDescriptor", toMap(createPoolingDescriptor_execution)));
     RefUtil.freeRef(map.put("cudaDeviceReset", toMap(cudaDeviceReset_execution)));
     RefUtil.freeRef(map.put("cudaFree", toMap(cudaFree_execution)));
@@ -218,30 +216,23 @@ public class CudaSystem extends ReferenceCountingBase {
     RefUtil.freeRef(map.put("cudaMemcpyAsync", toMap(cudaMemcpyAsync_execution)));
     RefUtil.freeRef(map.put("cudaSetDeviceFlags", toMap(cudaSetDeviceFlags_execution)));
 
-    RefHashSet<Map.Entry<CharSequence, RefMap<CharSequence, CharSequence>>> temp_25_0004 = map.entrySet();
-    RefList<CharSequence> list = temp_25_0004.stream().filter(x -> {
-      RefMap<CharSequence, CharSequence> temp_25_0005 = x.getValue();
+    Set<Map.Entry<CharSequence, Map<CharSequence, CharSequence>>> temp_25_0004 = map.entrySet();
+    List<CharSequence> list = temp_25_0004.stream().filter(x -> {
+      Map<CharSequence, CharSequence> temp_25_0005 = x.getValue();
       boolean temp_25_0001 = temp_25_0005.isEmpty();
-      temp_25_0005.freeRef();
       RefUtil.freeRef(x);
       return temp_25_0001;
     }).map(x -> {
       CharSequence temp_25_0002 = x.getKey();
       RefUtil.freeRef(x);
       return temp_25_0002;
-    }).collect(RefCollectors.toList());
-    list.stream().map(key -> map.remove(key)).forEach(value -> RefUtil.freeRef(value));
-    list.freeRef();
-    temp_25_0004.freeRef();
+    }).collect(Collectors.toList());
+    list.stream().forEach(value -> RefUtil.freeRef(map.remove(value)));
     return map;
   }
 
   public static Integer getThreadDeviceId() {
     return CudaSystem.currentDeviceId.get();
-  }
-
-  public static CudnnHandle getThreadHandle() {
-    return CudnnHandle.threadContext.get();
   }
 
   public static boolean isEnabled() {
@@ -519,6 +510,11 @@ public class CudaSystem extends ReferenceCountingBase {
   }
 
   public static void log(final CharSequence method, @RefAware final Object result, @Nullable @RefAware final Object[] args) {
+    if (CudaSystem.apiLog.isEmpty()) {
+      RefUtil.freeRef(result);
+      RefUtil.freeRef(args);
+      return;
+    }
     CharSequence callstack = !CudaSettings.INSTANCE().isLogStack() ? ""
         : Util.toString(RefArrays.stream(Thread.currentThread().getStackTrace())
         .filter(x -> true && x.getClassName().startsWith("com.simiacryptus.mindseye.")
@@ -550,47 +546,59 @@ public class CudaSystem extends ReferenceCountingBase {
     try {
       if (threadlocal != null && threadlocal.getDeviceId() == deviceId) {
         assert CudaSystem.isThreadDeviceId(threadlocal.getDeviceId());
-        fn.accept(threadlocal.addRef());
+        try {
+          fn.accept(threadlocal.addRef());
+        } finally {
+          RefUtil.freeRef(fn);
+        }
       } else {
-        ResourcePool<CudnnHandle> temp_25_0006 = getPool(deviceId);
-        temp_25_0006.apply(gpu -> {
-          RefSupplier<Object> wrap = gpu.wrap(RefUtil.wrapInterface(() -> {
-            fn.accept(gpu.addRef());
-            return null;
-          }, gpu.addRef()));
-          RefUtil.freeRef(wrap.get());
-          RefUtil.freeRef(wrap);
-        });
-        temp_25_0006.freeRef();
+        ResourcePool<CudnnHandle> pool = getPool(deviceId);
+        try {
+          pool.apply(RefUtil.wrapInterface((RefConsumer<CudnnHandle>) gpu -> {
+            try {
+              gpu.call(RefUtil.addRef(fn));
+            } finally {
+              gpu.freeRef();
+            }
+          }, fn));
+        } finally {
+          pool.freeRef();
+        }
       }
     } finally {
-      setThreadContext(threadlocal);
+      CudnnHandle.threadContext.set(threadlocal);
       if (null != incumbantDevice)
         CudaDevice.setDevice(incumbantDevice);
-      RefUtil.freeRef(fn);
     }
   }
 
-  public static <T> T withDevice(int deviceId, @Nonnull Function<CudnnHandle, T> action) {
+  public static <T> T withDevice(int deviceId, @Nonnull RefFunction<CudnnHandle, T> fn) {
     CudnnHandle threadlocal = CudnnHandle.threadContext.get();
     final Integer incumbantDevice = getThreadDeviceId();
     try {
-      if (threadlocal != null)
+      if (threadlocal != null) {
         if (threadlocal.getDeviceId() == deviceId) {
-          return action.apply(threadlocal.addRef());
+          try {
+            return fn.apply(threadlocal.addRef());
+          } finally {
+            RefUtil.freeRef(fn);
+          }
         }
-      ResourcePool<CudnnHandle> temp_25_0008 = getPool(deviceId);
-      T temp_25_0007 = temp_25_0008.apply(gpu -> {
-        RefSupplier<T> wrap = gpu.wrap(() -> action.apply(gpu.addRef()));
-        gpu.freeRef();
-        T t = wrap.get();
-        RefUtil.freeRef(wrap);
-        return t;
-      });
-      temp_25_0008.freeRef();
-      return temp_25_0007;
+      }
+      ResourcePool<CudnnHandle> pool = getPool(deviceId);
+      try {
+        return pool.apply(RefUtil.wrapInterface((RefFunction<CudnnHandle, T>) gpu -> {
+          try {
+            return gpu.call(RefUtil.addRef(fn));
+          } finally {
+            gpu.freeRef();
+          }
+        }, fn));
+      } finally {
+        pool.freeRef();
+      }
     } finally {
-      setThreadContext(threadlocal);
+      CudnnHandle.threadContext.set(threadlocal);
       if (null != incumbantDevice)
         CudaDevice.setDevice(incumbantDevice);
     }
@@ -602,86 +610,94 @@ public class CudaSystem extends ReferenceCountingBase {
     try {
       if (threadlocal != null) {
         assert isThreadDeviceId(threadlocal.getDeviceId());
-        fn.accept(threadlocal.addRef());
         RefUtil.freeRef(hints);
+        try {
+          fn.accept(threadlocal.addRef());
+        } finally {
+          RefUtil.freeRef(fn);
+        }
       } else {
         int device = chooseDevice(hints);
-        ResourcePool<CudnnHandle> temp_25_0009 = getPool(device);
-        temp_25_0009.apply(gpu -> {
-          RefSupplier<Object> wrap = gpu.wrap(RefUtil.wrapInterface(() -> {
-            fn.accept(gpu.addRef());
-            return null;
-          }, gpu, RefUtil.addRef(fn)));
-          Object o = wrap.get();
-          RefUtil.freeRef(wrap);
-          return o;
-        });
-        temp_25_0009.freeRef();
+        ResourcePool<CudnnHandle> pool = getPool(device);
+        try {
+          pool.apply(RefUtil.wrapInterface((RefConsumer<CudnnHandle>) gpu -> {
+            try {
+              gpu.call(RefUtil.addRef(fn));
+            } finally {
+              gpu.freeRef();
+            }
+          }, fn));
+        } finally {
+          pool.freeRef();
+        }
       }
     } finally {
-      RefUtil.freeRef(fn);
-      setThreadContext(threadlocal);
+      CudnnHandle.threadContext.set(threadlocal);
       if (null != incumbantDevice)
         CudaDevice.setDevice(incumbantDevice);
     }
   }
 
-  public static <T> T run(@Nonnull @RefAware final Function<CudnnHandle, T> fn, @Nonnull @RefAware Object... hints) {
+  public static <T> T run(@Nonnull @RefAware final RefFunction<CudnnHandle, T> fn, @Nonnull @RefAware Object... hints) {
     CudnnHandle threadLocal = CudnnHandle.threadContext.get();
     final Integer incumbentDevice = getThreadDeviceId();
     try {
       if (threadLocal != null) {
         assert CudaDevice.isThreadDeviceId(threadLocal.getDeviceId());
         RefUtil.freeRef(hints);
-        return fn.apply(threadLocal.addRef());
-      } else {
-        int device = chooseDevice(hints);
-        assert device >= 0;
-        ResourcePool<CudnnHandle> temp_25_0011 = getPool(device);
-        T temp_25_0010 = temp_25_0011.apply(gpu -> {
-          RefSupplier<T> wrap = gpu.wrap(RefUtil.wrapInterface(() -> fn.apply(gpu.addRef()), gpu.addRef()));
-          T t = wrap.get();
-          RefUtil.freeRef(wrap);
-          return t;
-        });
-        temp_25_0011.freeRef();
-        return temp_25_0010;
+        try {
+          return fn.apply(threadLocal.addRef());
+        } finally {
+          RefUtil.freeRef(fn);
+        }
+      }
+      int device = chooseDevice(hints);
+      assert device >= 0;
+      ResourcePool<CudnnHandle> pool = getPool(device);
+      try {
+        return pool.apply(RefUtil.wrapInterface((RefFunction<CudnnHandle, T>) gpu -> {
+          RefUtil.assertAlive(gpu);
+          try {
+            return gpu.call(RefUtil.addRef(fn));
+          } finally {
+            gpu.freeRef();
+          }
+        }, fn));
+      } finally {
+        pool.freeRef();
       }
     } finally {
-      setThreadContext(threadLocal);
-      if (null != incumbentDevice)
+      CudnnHandle.threadContext.set(threadLocal);
+      if (null != incumbentDevice) {
         CudaDevice.setDevice(incumbentDevice);
-      RefUtil.freeRef(fn);
+      }
     }
-  }
-
-  public static void setThreadContext(CudnnHandle threadlocal) {
-    if (null == threadlocal)
-      CudnnHandle.threadContext.remove();
-    else
-      CudnnHandle.threadContext.set(threadlocal);
   }
 
   public static int chooseDevice(@Nonnull @RefAware final Object[] hints) {
     RefSet<Integer> devices = RefArrays.stream(hints).map(hint -> {
-      if (hint instanceof Result) {
-        TensorList data = ((Result) hint).getData();
-        if (data instanceof CudaTensorList) {
-          int deviceId = ((CudaTensorList) data).getDeviceId();
-          assert deviceId >= 0;
+      try {
+        if (hint instanceof Result) {
+          TensorList data = ((Result) hint).getData();
+          if (data instanceof CudaTensorList) {
+            int deviceId = ((CudaTensorList) data).getDeviceId();
+            assert deviceId >= 0;
+            data.freeRef();
+            return deviceId;
+          }
           data.freeRef();
+        } else if (hint instanceof CudaDeviceResource) {
+          int deviceId = ((CudaDeviceResource) hint).getDeviceId();
+          //assert deviceId >= 0 : String.format("%s/%d", hint.getClass(), deviceId);
+          if (deviceId >= 0)
+            return deviceId;
+        } else if (hint instanceof Integer) {
+          Integer deviceId = (Integer) hint;
+          assert deviceId >= 0;
           return deviceId;
         }
-        data.freeRef();
-      } else if (hint instanceof CudaDeviceResource) {
-        int deviceId = ((CudaDeviceResource) hint).getDeviceId();
-        //assert deviceId >= 0 : String.format("%s/%d", hint.getClass(), deviceId);
-        if (deviceId >= 0)
-          return deviceId;
-      } else if (hint instanceof Integer) {
-        Integer deviceId = (Integer) hint;
-        assert deviceId >= 0;
-        return deviceId;
+      } finally {
+        RefUtil.freeRef(hint);
       }
       return null;
     }).filter(x -> x != null).collect(RefCollectors.toSet());
@@ -696,9 +712,9 @@ public class CudaSystem extends ReferenceCountingBase {
         return deviceId;
       } else {
         devices.freeRef();
-        int temp_25_0003 = Integer.parseInt(candidates.get((int) (Math.random() * candidates.size())));
+        String str = candidates.get((int) (Math.random() * candidates.size()));
         candidates.freeRef();
-        return temp_25_0003;
+        return Integer.parseInt(str);
       }
     } else {
       Integer deviceId = RefUtil.get(devices.stream().findAny());
@@ -718,10 +734,11 @@ public class CudaSystem extends ReferenceCountingBase {
       CharSequence caller = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getCaller() : "";
       withDevice(device, gpu -> {
         TimedResult<Long> timedResult = TimedResult.time(() -> cudaDeviceSynchronize());
-        long result = timedResult.getResult();
+        Long result = timedResult.getResult();
         CudaTensorList.logger.debug(RefString.format("Synchronized %d in %.4f (%.6f -> %.6f -> %.6f) via %s",
             getThreadDeviceId(), timedResult.seconds(), (finalVal - startTime) / 1e9, (time - startTime) / 1e9,
             (result - startTime) / 1e9, caller));
+        gpu.freeRef();
         timedResult.freeRef();
       });
     }
@@ -740,21 +757,9 @@ public class CudaSystem extends ReferenceCountingBase {
   @NotNull
   public static ResourcePool<CudnnHandle> getPool(final int deviceId) {
     assert deviceId >= 0;
-    return handlePools.computeIfAbsent(deviceId, d -> {
-      return new ResourcePool<CudnnHandle>(CudaSettings.INSTANCE().getHandlesPerDevice()) {
-        {
-        }
-
-        @Nonnull
-        @Override
-        public CudnnHandle create() {
-          return new CudnnHandle(deviceId);
-        }
-
-        public @SuppressWarnings("unused")
-        void _free() { super._free(); }
-      };
-    });
+    ResourcePool<CudnnHandle> pool = handlePools.computeIfAbsent(deviceId, HandlePool::new);
+    pool.assertAlive();
+    return pool;
   }
 
   static int init() {
@@ -769,9 +774,9 @@ public class CudaSystem extends ReferenceCountingBase {
   }
 
   @Nonnull
-  protected static RefMap<CharSequence, CharSequence> toMap(@Nonnull DoubleStatistics obj) {
+  protected static HashMap<CharSequence, CharSequence> toMap(@Nonnull DoubleStatistics obj) {
     @Nonnull
-    RefHashMap<CharSequence, CharSequence> map = new RefHashMap<>();
+    HashMap<CharSequence, CharSequence> map = new HashMap<>();
     if (0 < obj.getCount()) {
       map.put("stddev", Double.toString(obj.getStandardDeviation()));
       map.put("mean", Double.toString(obj.getAverage()));
@@ -827,17 +832,33 @@ public class CudaSystem extends ReferenceCountingBase {
     }
   }
 
-  protected void cleanup() {
-    CudnnHandle.threadContext.remove();
+  public @SuppressWarnings("unused")
+  void _free() {
+    super._free();
   }
+
 
   public interface CudaDeviceResource {
     int getDeviceId();
   }
 
+  private static class HandlePool extends ResourcePool<CudnnHandle> {
+    private final Integer deviceId;
 
-  public @SuppressWarnings("unused")
-  void _free() {
-    super._free();
+    public HandlePool(Integer deviceId) {
+      super(CudaSettings.INSTANCE().getHandlesPerDevice());
+      this.deviceId = deviceId;
+    }
+
+    @Nonnull
+    @Override
+    public CudnnHandle create() {
+      return new CudnnHandle(deviceId);
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+      super._free();
+    }
   }
 }

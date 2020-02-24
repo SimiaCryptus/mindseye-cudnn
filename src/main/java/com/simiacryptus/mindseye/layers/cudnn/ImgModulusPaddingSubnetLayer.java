@@ -138,21 +138,14 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
       }
     }
 
-    ImgCropLayer temp_34_0003 = new ImgCropLayer(ouputWidth, outputHeight);
-    temp_34_0003.setPrecision(precision);
-    @Nonnull
-    ImgCropLayer imgCropLayer1 = RefUtil.addRef(temp_34_0003);
-    temp_34_0003.freeRef();
-    ImgCropLayer temp_34_0004 = new ImgCropLayer(inputWidth, inputHeight);
-    temp_34_0004.setPrecision(precision);
-    @Nonnull
-    ImgCropLayer imgCropLayer2 = RefUtil.addRef(temp_34_0004);
-    temp_34_0004.freeRef();
-    Result temp_34_0001 = imgCropLayer2.eval(super.eval(imgCropLayer1.eval(RefUtil.addRefs(inObj))).addRef());
-    RefUtil.freeRef(inObj);
-    imgCropLayer2.freeRef();
+    ImgCropLayer imgCropLayer1 = new ImgCropLayer(ouputWidth, outputHeight);
+    imgCropLayer1.setPrecision(precision);
+    ImgCropLayer imgCropLayer = new ImgCropLayer(inputWidth, inputHeight);
+    imgCropLayer.setPrecision(precision);
+    Result result = imgCropLayer.eval(super.eval(imgCropLayer1.eval(inObj)));
+    imgCropLayer.freeRef();
     imgCropLayer1.freeRef();
-    return temp_34_0001;
+    return result;
   }
 
   @Nonnull
@@ -174,7 +167,9 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
   }
 
   public @SuppressWarnings("unused")
-  void _free() { super._free(); }
+  void _free() {
+    super._free();
+  }
 
   @Nonnull
   public @Override

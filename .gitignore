@@ -1,3 +1,6 @@
 .idea/
 mindseye-cudnn.iml
 target/
+*.hprof
+logs/
+reports/

@@ -26,12 +26,11 @@ import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.BatchingTester;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
 import com.simiacryptus.notebook.NotebookOutput;
-import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.lang.RefIgnore;
 import org.junit.After;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Random;
 
 public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
@@ -39,8 +38,10 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
   @Nonnull
   protected final int[] inputDim;
   @Nonnull
+  @RefIgnore
   protected final FullyConnectedLayer fullyConnectedLayer;
   @Nonnull
+  @RefIgnore
   protected final Layer layer;
 
   public FullyConnectedLayerTest(@Nonnull int[] inputDims, @Nonnull int[] outputDims, int batchBands) {
@@ -132,7 +133,9 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
         }
 
         public @SuppressWarnings("unused")
-        void _free() { super._free(); }
+        void _free() {
+          super._free();
+        }
       };
       batchingTester.setBatchSize(5);
       return batchingTester;

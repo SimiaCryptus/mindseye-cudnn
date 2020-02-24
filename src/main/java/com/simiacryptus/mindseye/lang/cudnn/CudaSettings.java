@@ -98,7 +98,7 @@ public class CudaSettings implements Settings {
     convolutionCache = true;
     defaultDevices = Settings.get("CUDA_DEVICES", "");
     this.handlesPerDevice = Settings.get("CUDA_HANDLES_PER_DEVICE", 8);
-    defaultPrecision = Precision.valueOf(Settings.get("CUDA_DEFAULT_PRECISION", Precision.Float.name()));
+    defaultPrecision = Precision.valueOf(Settings.get("CUDA_DEFAULT_PRECISION", Precision.Double.name()));
     allDense = false;
     verbose = false;
   }

@@ -20,25 +20,25 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSystem;
 import com.simiacryptus.mindseye.layers.LayerTestBase;
 import com.simiacryptus.notebook.NotebookOutput;
-import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
 
 public abstract class CudnnLayerTestBase extends LayerTestBase {
 
   @Override
   public void run(@Nonnull NotebookOutput log) {
-    OutputStream file = log.file("gpu.log");
-    log.out(log.link(new File(log.getResourceDir(), "gpu.log"), "Cuda Log"));
-    CudaSystem.addLog(new PrintStream(file));
+    if (CudaSettings.INSTANCE().verbose) {
+      OutputStream file = log.file("gpu.log");
+      log.out(log.link(new File(log.getResourceDir(), "gpu.log"), "Cuda Log"));
+      CudaSystem.addLog(new PrintStream(file));
+    }
     super.run(log);
   }
 

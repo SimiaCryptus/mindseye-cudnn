@@ -150,18 +150,12 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision {
       }
     }
 
-    ImgCropLayer temp_40_0003 = new ImgCropLayer(ouputWidth, outputHeight);
-    temp_40_0003.setPrecision(precision);
-    ImgCropLayer temp_40_0005 = RefUtil.addRef(temp_40_0003);
-    temp_40_0005.setRoundUp(isRoundUp());
-    @Nonnull
-    ImgCropLayer imgCropLayer = temp_40_0005.addRef();
-    temp_40_0005.freeRef();
-    temp_40_0003.freeRef();
-    Result temp_40_0001 = imgCropLayer.eval(RefUtil.addRefs(inObj));
-    RefUtil.freeRef(inObj);
+    ImgCropLayer imgCropLayer = new ImgCropLayer(ouputWidth, outputHeight);
+    imgCropLayer.setPrecision(precision);
+    imgCropLayer.setRoundUp(isRoundUp());
+    Result result = imgCropLayer.eval(inObj);
     imgCropLayer.freeRef();
-    return temp_40_0001;
+    return result;
   }
 
   @Nonnull
@@ -184,7 +178,9 @@ public class ImgModulusCropLayer extends LayerBase implements MultiPrecision {
   }
 
   public @SuppressWarnings("unused")
-  void _free() { super._free(); }
+  void _free() {
+    super._free();
+  }
 
   @Nonnull
   public @Override

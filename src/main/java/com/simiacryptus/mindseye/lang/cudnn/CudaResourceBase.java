@@ -19,14 +19,12 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public abstract class CudaResourceBase<T> extends ReferenceCountingBase implements CudaSystem.CudaDeviceResource {
   private static final Logger logger = LoggerFactory.getLogger(CudaResourceBase.class);
@@ -59,5 +57,14 @@ public abstract class CudaResourceBase<T> extends ReferenceCountingBase implemen
   @SuppressWarnings("unused")
   CudaResourceBase<T> addRef() {
     return (CudaResourceBase<T>) super.addRef();
+  }
+
+  protected void cleanup() {
+    CudnnHandle threadHandle = CudnnHandle.threadContext.get();
+    if (null != threadHandle) {
+      threadHandle.cleanupNative.add(this);
+      threadHandle.freeRef();
+    } else
+      release();
   }
 }

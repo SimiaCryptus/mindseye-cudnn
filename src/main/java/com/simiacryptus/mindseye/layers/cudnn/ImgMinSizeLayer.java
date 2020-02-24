@@ -101,15 +101,11 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
     }
 
     in0.freeRef();
-    ImgCropLayer temp_45_0002 = new ImgCropLayer(ouputWidth, outputHeight);
-    temp_45_0002.setPrecision(precision);
-    @Nonnull
-    ImgCropLayer imgCropLayer = RefUtil.addRef(temp_45_0002);
-    temp_45_0002.freeRef();
-    Result temp_45_0001 = imgCropLayer.eval(RefUtil.addRefs(inObj));
-    RefUtil.freeRef(inObj);
-    imgCropLayer.freeRef();
-    return temp_45_0001;
+    ImgCropLayer cropLayer = new ImgCropLayer(ouputWidth, outputHeight);
+    cropLayer.setPrecision(precision);
+    Result result = cropLayer.eval(inObj);
+    cropLayer.freeRef();
+    return result;
   }
 
   @Nonnull
@@ -129,7 +125,9 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
   }
 
   public @SuppressWarnings("unused")
-  void _free() { super._free(); }
+  void _free() {
+    super._free();
+  }
 
   @Nonnull
   public @Override

@@ -20,10 +20,7 @@
 package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.lang.TimedResult;
-import com.simiacryptus.ref.wrappers.RefCollection;
-import com.simiacryptus.ref.wrappers.RefSet;
-import com.simiacryptus.ref.wrappers.RefString;
-import com.simiacryptus.ref.wrappers.RefSystem;
+import com.simiacryptus.ref.wrappers.*;
 import jcuda.jcudnn.*;
 import jcuda.runtime.JCuda;
 import jcuda.runtime.cudaDeviceProp;
@@ -34,8 +31,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.function.Function;
 
 public class CudaDevice extends CudaSystem {
   protected static final Logger logger = LoggerFactory.getLogger(CudnnHandle.class);
@@ -75,15 +70,15 @@ public class CudaDevice extends CudaSystem {
     long startTime = RefSystem.nanoTime();
     if (null == devPtr)
       return;
-    Function<CudnnHandle, Integer> fn = dev -> {
+    RefConsumer<CudnnHandle> fn = dev -> {
       final int result = JCuda.cudaFree(devPtr);
       log("cudaFree", result, new Object[]{devPtr});
       cudaFree_execution.accept((RefSystem.nanoTime() - startTime) / 1e9);
       handle(result);
-      return result;
+      dev.freeRef();
     };
     if (deviceId < 0) {
-      fn.apply(null);
+      fn.accept(null);
     } else {
       withDevice(deviceId, fn);
     }
@@ -158,7 +153,7 @@ public class CudaDevice extends CudaSystem {
   public CudaMemory allocate(final long size, @Nonnull MemoryType type, boolean dirty) {
     assert isThreadDeviceId(getDeviceId());
     @Nonnull
-    CudaMemory obtain = new CudaMemory(this, size, type);
+    CudaMemory obtain = new CudaMemory(addRef(), size, type);
     if (!dirty)
       obtain.clear();
     return obtain;
@@ -240,7 +235,9 @@ public class CudaDevice extends CudaSystem {
       }
 
       public @SuppressWarnings("unused")
-      void _free() { super._free(); }
+      void _free() {
+        super._free();
+      }
     };
   }
 
@@ -324,6 +321,11 @@ public class CudaDevice extends CudaSystem {
     return (CudaDevice) super.addRef();
   }
 
+  public @SuppressWarnings("unused")
+  void _free() {
+    super._free();
+  }
+
   @Nonnull
   CudaPointer acquire(long size, @Nonnull MemoryType type, int retries) {
     if (size <= 0)
@@ -331,9 +333,7 @@ public class CudaDevice extends CudaSystem {
     assert isThreadDeviceId(getDeviceId());
     if (retries < 0)
       throw new IllegalArgumentException();
-    @Nonnull
-    CudaPointer pointer = _acquire(size, type, retries);
-    return pointer;
+    return _acquire(size, type, retries);
   }
 
   @Nonnull
@@ -343,7 +343,7 @@ public class CudaDevice extends CudaSystem {
       @Nonnull
       CudaPointer pointer = null;
       try {
-        pointer = type.allocCached(size, this);
+        pointer = type.allocCached(size, this.addRef());
         final long finalMemory = metrics.activeMemory.addAndGet(size);
         metrics.peakMemory.updateAndGet(l -> Math.max(finalMemory, l));
       } catch (@Nonnull final ThreadDeath e) {
@@ -352,7 +352,7 @@ public class CudaDevice extends CudaSystem {
         if (retries <= 0)
           throw new RuntimeException(
               RefString.format(RefString.format("Error allocating %e bytes; %s currently allocated to device %s",
-                  (double) size, metrics.usedMemory, this)),
+                  (double) size, metrics.usedMemory, this.addRef())),
               e);
         final long startMemory = metrics.usedMemory.get();
         @Nonnull
@@ -395,15 +395,6 @@ public class CudaDevice extends CudaSystem {
       this.wStride = wStride;
     }
 
-    @Nullable
-    public static @SuppressWarnings("unused")
-    CudaTensorDescriptor[] addRefs(@Nullable CudaTensorDescriptor[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter(x -> x != null).map(cudaTensorDescriptor -> cudaTensorDescriptor.addRef())
-          .toArray(x -> new CudaTensorDescriptor[x]);
-    }
-
     @Nonnull
     public CudaTensorDescriptor copy(@Nonnull CudaDevice device) {
       CudaTensorDescriptor tensorDescriptor = device.newTensorDescriptor(
@@ -414,7 +405,9 @@ public class CudaDevice extends CudaSystem {
     }
 
     public @SuppressWarnings("unused")
-    void _free() { super._free(); }
+    void _free() {
+      super._free();
+    }
 
     @Nonnull
     public @Override
@@ -423,7 +416,4 @@ public class CudaDevice extends CudaSystem {
       return (CudaTensorDescriptor) super.addRef();
     }
   }
-
-  public @SuppressWarnings("unused")
-  void _free() { super._free(); }
 }

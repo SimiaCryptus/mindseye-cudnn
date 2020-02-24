@@ -147,18 +147,12 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision 
       }
     }
 
-    ImgCropLayer temp_44_0003 = new ImgCropLayer(ouputWidth, outputHeight);
-    temp_44_0003.setPrecision(precision);
-    ImgCropLayer temp_44_0005 = RefUtil.addRef(temp_44_0003);
-    temp_44_0005.setRoundUp(roundUp);
-    @Nonnull
-    ImgCropLayer imgCropLayer = temp_44_0005.addRef();
-    temp_44_0005.freeRef();
-    temp_44_0003.freeRef();
-    Result temp_44_0001 = imgCropLayer.eval(RefUtil.addRefs(inObj));
-    RefUtil.freeRef(inObj);
+    ImgCropLayer imgCropLayer = new ImgCropLayer(ouputWidth, outputHeight);
+    imgCropLayer.setPrecision(precision);
+    imgCropLayer.setRoundUp(roundUp);
+    Result result = imgCropLayer.eval(inObj);
     imgCropLayer.freeRef();
-    return temp_44_0001;
+    return result;
   }
 
   @Nonnull
@@ -181,7 +175,9 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision 
   }
 
   public @SuppressWarnings("unused")
-  void _free() { super._free(); }
+  void _free() {
+    super._free();
+  }
 
   @Nonnull
   public @Override

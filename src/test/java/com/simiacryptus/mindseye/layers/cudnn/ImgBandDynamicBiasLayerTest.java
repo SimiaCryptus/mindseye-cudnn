@@ -28,7 +28,6 @@ import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Random;
 
 public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
@@ -46,7 +45,9 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
   public ComponentTest<TrainingTester.ComponentResult> getTrainingTester() {
     TrainingTester temp_68_0002 = new TrainingTester() {
       public @SuppressWarnings("unused")
-      void _free() { super._free(); }
+      void _free() {
+        super._free();
+      }
 
       @Nonnull
       @Override

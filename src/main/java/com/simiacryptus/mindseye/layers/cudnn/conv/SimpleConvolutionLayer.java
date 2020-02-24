@@ -24,9 +24,12 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer;
+import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.*;
+import com.simiacryptus.util.Util;
 import jcuda.jcudnn.*;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +38,6 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.DoubleSupplier;
-import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 @SuppressWarnings("serial")
@@ -62,16 +64,13 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
 
   protected SimpleConvolutionLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
     super(json);
-    Tensor temp_16_0001 = Tensor.fromJson(json.get("filter"), resources);
-    kernel = temp_16_0001 == null ? null : temp_16_0001.addRef();
-    if (null != temp_16_0001)
-      temp_16_0001.freeRef();
+    kernel = Tensor.fromJson(json.get("filter"), resources);
     strideX = json.get("strideX").getAsInt();
     strideY = json.get("strideY").getAsInt();
     setPaddingX(json.get("paddingX").getAsInt());
     setPaddingY(json.get("paddingY").getAsInt());
     precision = Precision.valueOf(json.get("precision").getAsString());
-    ObjectRegistry.register(this);
+    ObjectRegistry.register(addRef());
   }
 
   protected SimpleConvolutionLayer(@Nonnull final Tensor kernel) {
@@ -94,16 +93,13 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
       kernel.freeRef();
       throw new IllegalArgumentException();
     }
-    Tensor temp_16_0002 = kernel.addRef();
     //    if (kernelSize[0] >= 60000) throw new IllegalArgumentException();
     //    if (kernelSize[1] >= 60000) throw new IllegalArgumentException();
     //    if (kernelSize[2] >= 60000) throw new IllegalArgumentException();
-    this.kernel = temp_16_0002.addRef();
-    temp_16_0002.freeRef();
-    kernel.freeRef();
+    this.kernel = kernel;
     setPaddingX((int) Math.ceil((kernelSize[0] - 1) / 2.0));
     setPaddingY((int) Math.ceil((kernelSize[1] - 1) / 2.0));
-    ObjectRegistry.register(this);
+    ObjectRegistry.register(addRef());
   }
 
   public SimpleConvolutionLayer(int width, int height, int inputBands, int outputBands) {
@@ -190,17 +186,16 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     assertAlive();
-    TensorList temp_16_0016 = inObj[0].getData();
-    @Nonnull final int[] rawInputDims = temp_16_0016.getDimensions();
-    temp_16_0016.freeRef();
+    TensorList data0 = inObj[0].getData();
+    @Nonnull final int[] rawInputDims = data0.getDimensions();
+    data0.freeRef();
     final int[] kernelDimensions = kernel.getDimensions();
     int kernelLength = kernel.length();
     double[] kernelData = kernel.getData();
     int correctionX = correct(rawInputDims[0], strideX, kernelDimensions[0]);
     int correctionY = correct(rawInputDims[1], strideY, kernelDimensions[1]);
-    final SimpleConvolutionLayer simpleConvolutionLayer = SimpleConvolutionLayer.this.addRef();
-    int paddingX = Math.max(0, simpleConvolutionLayer.paddingX - (correctionX + 1) / 2);
-    int paddingY = Math.max(0, simpleConvolutionLayer.paddingY - (correctionY + 1) / 2);
+    int paddingX = Math.max(0, this.paddingX - (correctionX + 1) / 2);
+    int paddingY = Math.max(0, this.paddingY - (correctionY + 1) / 2);
     if (correctionX >= kernelDimensions[0])
       correctionX -= kernelDimensions[0];
     if (correctionY >= kernelDimensions[1])
@@ -212,20 +207,11 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     @Nullable
     Result input = null;
     if (correctionX > 0 || correctionY > 0) {
-      ImgCropLayer temp_16_0015 = new ImgCropLayer(rawInputDims[0] + correctionX, rawInputDims[1] + correctionY);
-      temp_16_0015.setPrecision(precision);
-      ImgCropLayer temp_16_0017 = RefUtil.addRef(temp_16_0015);
-      temp_16_0017.setHorizontalAlign(ImgCropLayer.Alignment.Center);
-      ImgCropLayer temp_16_0018 = temp_16_0017.addRef();
-      temp_16_0018.setVerticalAlign(ImgCropLayer.Alignment.Center);
-      ImgCropLayer temp_16_0019 = temp_16_0018.addRef();
-      temp_16_0019.setRoundUp(false);
-      @Nonnull
-      ImgCropLayer imgCropLayer = temp_16_0019.addRef();
-      temp_16_0019.freeRef();
-      temp_16_0018.freeRef();
-      temp_16_0017.freeRef();
-      temp_16_0015.freeRef();
+      ImgCropLayer imgCropLayer = new ImgCropLayer(rawInputDims[0] + correctionX, rawInputDims[1] + correctionY);
+      imgCropLayer.setPrecision(precision);
+      imgCropLayer.setHorizontalAlign(ImgCropLayer.Alignment.Center);
+      imgCropLayer.setVerticalAlign(ImgCropLayer.Alignment.Center);
+      imgCropLayer.setRoundUp(false);
       RefUtil.freeRef(input);
       input = imgCropLayer.eval(inObj[0].addRef());
       imgCropLayer.freeRef();
@@ -239,151 +225,20 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     @Nonnull final int[] inputDims = inputData.getDimensions();
     final int inputLength = inputData.length();
     final int[] outputSize = getOutputSize(inputDims);
-    CudaTensorList run = CudaSystem.run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-      assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-      assert 0 < kernelLength;
-      assert kernelDimensions[0] * kernelDimensions[1] * kernelDimensions[2] == kernelLength;
-      return fwd(gpu, paddingX, paddingY, inputLength, inputDims, kernelDimensions, outputSize,
-          inputData.addRef(), getCudaFilter(gpu));
-    }, inputData.addRef()), inputData.addRef());
+    CudaTensorList data = fwd(kernelDimensions, kernelLength, paddingX, paddingY, inputData.addRef(), inputDims, inputLength, outputSize);
 
-    try {
-      Result finalInput = input.addRef();
-      final boolean finalInputAlive = finalInput.isAlive();
-      Result.Accumulator accumulator = new Result.Accumulator() {
-        {
-          inputData.addRef();
-          simpleConvolutionLayer.addRef();
-          finalInput.addRef();
-        }
-
-        @Override
-        public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
-          delta.assertAlive();
-          buffer.assertAlive();
-          inputData.assertAlive();
-          assert delta.length() == inputLength;
-          Runnable learnFn = RefUtil.wrapInterface(() -> {
-                if (!SimpleConvolutionLayer.this.isFrozen()) {
-                  @Nonnull final Tensor weightGradient = CudaSystem
-                      .run(RefUtil.wrapInterface((Function<CudnnHandle, Tensor>) gpu -> {
-                            @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta.addRef(), precision,
-                                MemoryType.Device, true);
-                            @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(),
-                                precision, MemoryType.Device, false);
-                            final CudaResource<cudnnFilterDescriptor> filterDescriptor = gpu.newFilterDescriptor(
-                                precision, cudnnTensorFormat.CUDNN_TENSOR_NCHW, outputSize[2], inputDims[2],
-                                kernelDimensions[1], kernelDimensions[0]);
-                            final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor = gpu
-                                .newConvolutions2dDescriptor(cudnnConvolutionMode.CUDNN_CONVOLUTION, precision, paddingY,
-                                    paddingX, strideY, strideX, 1, 1);
-                            final int backwardFilterAlgorithm = SimpleConvolutionLayer.this.getBackwardFilterAlgorithm(
-                                gpu, deltaTensor.addRef(),
-                                inputTensor.addRef(),
-                                filterDescriptor.addRef(),
-                                convolutionDescriptor.addRef());
-                            final CudaMemory backwardsFilterWorkSpace = gpu.allocateBackwardFilterWorkspace(
-                                inputTensor.descriptor.getPtr(), filterDescriptor.getPtr(),
-                                convolutionDescriptor.getPtr(), deltaTensor.descriptor.getPtr(), backwardFilterAlgorithm,
-                                1);
-                            @Nonnull
-                            CudaMemory filterPtr = gpu.allocate((long) kernelLength * precision.size, MemoryType.Device,
-                                true);
-                            try {
-                              CudaMemory inputTensorMemory = inputTensor.getMemory(gpu);
-                              CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu, MemoryType.Managed.ifEnabled());
-                              //              inputTensorMemory.synchronize();
-                              assert deltaTensorMemory != null;
-                              assert inputTensorMemory != null;
-                              CudaSystem.handle(gpu.cudnnConvolutionBackwardFilter(precision.getPointer(1.0),
-                                  inputTensor.descriptor.getPtr(), inputTensorMemory.getPtr(),
-                                  deltaTensor.descriptor.getPtr(), deltaTensorMemory.getPtr(),
-                                  convolutionDescriptor.getPtr(), backwardFilterAlgorithm,
-                                  backwardsFilterWorkSpace.getPtr(), backwardsFilterWorkSpace.size,
-                                  precision.getPointer(0.0), filterDescriptor.getPtr(), filterPtr.getPtr()));
-                              filterPtr.dirty();
-                              deltaTensorMemory.dirty();
-                              deltaTensorMemory.freeRef();
-                              inputTensorMemory.dirty();
-                              inputTensorMemory.freeRef();
-                              backwardsFilterWorkSpace.dirty();
-                              deltaTensor.freeRef();
-                              inputTensor.freeRef();
-                              filterDescriptor.freeRef();
-                              convolutionDescriptor.freeRef();
-                              backwardsFilterWorkSpace.freeRef();
-                              Tensor temp_16_0007 = filterPtr.read(precision, kernelDimensions);
-                              filterPtr.freeRef();
-                              return temp_16_0007;
-                            } catch (@Nonnull final Throwable e) {
-                              throw new ComponentException(
-                                  RefString.format("Error in convolution %s x %s => %s", RefArrays.toString(inputDims),
-                                      RefArrays.toString(kernelDimensions), RefArrays.toString(outputSize)),
-                                  e);
-                            }
-                          }, inputData.addRef(), delta.addRef()),
-                          delta.addRef());
-                  Delta<UUID> temp_16_0020 = buffer.get(simpleConvolutionLayer.getId(), kernelData);
-                  assert temp_16_0020 != null;
-                  temp_16_0020.addInPlace(weightGradient.getData());
-                  temp_16_0020.freeRef();
-                  weightGradient.freeRef();
-                  SimpleConvolutionLayer.this.clearCudaFilters();
-                }
-              }, inputData.addRef(),
-              simpleConvolutionLayer.addRef(),
-              delta.addRef(), buffer.addRef());
-          Runnable backpropFn = RefUtil.wrapInterface(() -> {
-                if (finalInputAlive) {
-                  final TensorList inputBufferTensors = CudaSystem
-                      .run(RefUtil.wrapInterface((Function<CudnnHandle, CudaTensorList>) gpu -> {
-                        return SimpleConvolutionLayer.this.bck_workaround(gpu, paddingX, paddingY, inputLength,
-                            inputDims, kernelDimensions, outputSize, delta.addRef());
-                      }, delta.addRef()), delta.addRef());
-                  if (null != inputBufferTensors) {
-                    finalInput.accumulate(buffer.addRef(),
-                        inputBufferTensors.addRef());
-                  }
-                  if (null != inputBufferTensors)
-                    inputBufferTensors.freeRef();
-                }
-              }, delta.addRef(), finalInput.addRef(),
-              buffer.addRef());
-          delta.freeRef();
-          buffer.freeRef();
-          RefStream.of(learnFn, backpropFn).forEach(runnable -> runnable.run());
-        }
-
-        public @SuppressWarnings("unused")
-        void _free() {
-          super._free();
-          inputData.freeRef();
-          simpleConvolutionLayer.freeRef();
-          finalInput.freeRef();
-        }
-      };
-      finalInput.freeRef();
-      return new Result(run, accumulator) {
-
-        {
-        }
-
-        @Override
-        public boolean isAlive() {
-          return finalInputAlive || !isFrozen();
-        }
-
-        public @SuppressWarnings("unused")
-        void _free() {
-          super._free();
-        }
-
-      };
-    } finally {
-      inputData.freeRef();
-      input.freeRef();
-      simpleConvolutionLayer.freeRef();
-    }
+    final boolean inputAlive = input.isAlive();
+    Result.Accumulator accumulator = new Accumulator(
+        inputData,
+        inputLength, outputSize,
+        inputDims, kernelDimensions,
+        paddingY, paddingX,
+        kernelLength, kernelData,
+        inputAlive,
+        addRef(), input.getAccumulator()
+    );
+    input.freeRef();
+    return new Result(data, accumulator, inputAlive || !isFrozen());
   }
 
   @Nullable
@@ -391,24 +246,18 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
                                        @Nonnull int[] kernelDimensions, @Nonnull int[] outputSize, @Nullable TensorList delta) {
     if (1 != kernelDimensions[0] || 1 != kernelDimensions[1]) {
       CudaMemory cudaFilter = getCudaFilter(gpu.addRef());
-      CudaTensorList temp_16_0011 = bck(gpu, paddingX, paddingY, inputLength, inputDims, kernelDimensions, outputSize,
-          delta == null ? null : delta.addRef(), cudaFilter);
-      if (null != delta)
-        delta.freeRef();
-      return temp_16_0011;
+      return bck(gpu, paddingX, paddingY, inputLength, inputDims, kernelDimensions, outputSize, delta, cudaFilter);
     } else {
-      CudaMemory temp_16_0022 = gpu.allocate((long) kernel.length() * precision.size, MemoryType.Device, true);
+      CudaMemory cudaMemory = gpu.allocate((long) kernel.length() * precision.size, MemoryType.Device, true);
       Tensor temp_16_0023 = kernel.reshapeCast(1, 1, inputDims[2], outputSize[2]);
       Tensor temp_16_0024 = temp_16_0023.permuteDimensions(0, 1, 3, 2);
-      CudaTensorList temp_16_0012 = fwd(gpu, paddingX, paddingY, inputLength, outputSize,
-          new int[]{1, 1, outputSize[2], inputDims[2]}, inputDims, delta == null ? null : delta.addRef(),
-          temp_16_0022.write(precision, temp_16_0024.getData()));
-      temp_16_0024.freeRef();
       temp_16_0023.freeRef();
-      temp_16_0022.freeRef();
-      if (null != delta)
-        delta.freeRef();
-      return temp_16_0012;
+      cudaMemory.write(precision, temp_16_0024.getData());
+      CudaTensorList cudaTensorList = fwd(gpu, paddingX, paddingY, inputLength, outputSize,
+          new int[]{1, 1, outputSize[2], inputDims[2]}, inputDims, delta,
+          cudaMemory);
+      temp_16_0024.freeRef();
+      return cudaTensorList;
     }
   }
 
@@ -422,11 +271,9 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
         cudnnTensorFormat.CUDNN_TENSOR_NCHW, outputSize[2], inputDims[2], kernelDimensions[1], kernelDimensions[0]);
     final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor = gpu.newConvolutions2dDescriptor(
         cudnnConvolutionMode.CUDNN_CONVOLUTION, precision, paddingY, paddingX, strideY, strideX, 1, 1);
-    @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta == null ? null : delta.addRef(), precision, MemoryType.Device,
-        false);
-    if (null != delta)
-      delta.freeRef();
-    final int backwardDataAlgorithm = getBackwardDataAlgorithm(gpu.addRef(), deltaTensor.descriptor.addRef(),
+    @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta, precision, MemoryType.Device, false);
+    final int backwardDataAlgorithm = getBackwardDataAlgorithm(gpu.addRef(),
+        deltaTensor.descriptor.addRef(),
         filterDescriptor.addRef(),
         convolutionDescriptor.addRef(),
         inputDescriptor.addRef());
@@ -470,10 +317,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
                             int[] kernelDimensions, int[] outputSize, @Nullable TensorList inputData, @Nonnull CudaMemory filterPtr) {
     CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor = gpu.newConvolutions2dDescriptor(
         cudnnConvolutionMode.CUDNN_CONVOLUTION, precision, paddingY, paddingX, strideY, strideX, 1, 1);
-    CudaTensor tensor = gpu.getTensor(inputData == null ? null : inputData.addRef(), precision, MemoryType.Device,
-        false);
-    if (null != inputData)
-      inputData.freeRef();
+    CudaTensor tensor = gpu.getTensor(inputData, precision, MemoryType.Device, false);
     CudaResource<cudnnFilterDescriptor> filterDescriptor = gpu.newFilterDescriptor(precision,
         cudnnTensorFormat.CUDNN_TENSOR_NCHW, outputSize[2], inputDims[2], kernelDimensions[1], kernelDimensions[0]);
     String msg = RefString.format("Error in convolution %s x %s", RefArrays.toString(inputDims),
@@ -506,6 +350,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
           outputBuffer.getPtr()));
       assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
       forwardWorkspace.dirty();
+      forwardWorkspace.freeRef();
       filterPtr.dirty();
       outputBuffer.dirty();
       inputTensorMemory.dirty();
@@ -514,17 +359,13 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
       tensor.freeRef();
       filterDescriptor.freeRef();
       inputDescriptor.freeRef();
-      CudaTensorList temp_16_0009 = new CudaTensorList(
-          new CudaTensor(outputBuffer,
-              outputDescriptor.addRef(), precision),
+      return new CudaTensorList(
+          new CudaTensor(outputBuffer, outputDescriptor, precision),
           inputLength, outputDims, precision);
-      outputDescriptor.freeRef();
-      forwardWorkspace.freeRef();
-      filterPtr.freeRef();
-      return temp_16_0009;
     } catch (@Nonnull final Throwable e) {
       throw new ComponentException(msg, e);
     } finally {
+      filterPtr.freeRef();
       gpu.freeRef();
     }
   }
@@ -533,7 +374,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
                                  @Nonnull final CudaResource<cudnnFilterDescriptor> filterDescriptor,
                                  @Nonnull final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor,
                                  @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor) {
-    int temp_16_0013 = gpu.getForwardAlgorithm(inputTensor.descriptor.getPtr(), filterDescriptor.getPtr(),
+    int gpuForwardAlgorithm = gpu.getForwardAlgorithm(inputTensor.descriptor.getPtr(), filterDescriptor.getPtr(),
         convolutionDescriptor.getPtr(), outputDescriptor.getPtr(),
         CudaSettings.INSTANCE().getConvolutionWorkspaceSizeLimit());
     gpu.freeRef();
@@ -542,13 +383,13 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     filterDescriptor.freeRef();
     inputTensor.freeRef();
     //    return cudnnConvolutionFwdAlgo.CUDNN_CONVOLUTION_FWD_ALGO_FFT;
-    return temp_16_0013;
+    return gpuForwardAlgorithm;
   }
 
   public int getBackwardFilterAlgorithm(@Nonnull final CudnnHandle gpu, @Nonnull final CudaTensor deltaTensor,
                                         @Nonnull final CudaTensor inputTensor, @Nonnull final CudaResource<cudnnFilterDescriptor> filterDescriptor,
                                         @Nonnull final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor) {
-    int temp_16_0014 = gpu.getBackwardFilterAlgorithm(inputTensor.descriptor.getPtr(), filterDescriptor.getPtr(),
+    int backwardFilterAlgorithm = gpu.getBackwardFilterAlgorithm(inputTensor.descriptor.getPtr(), filterDescriptor.getPtr(),
         convolutionDescriptor.getPtr(), deltaTensor.descriptor.getPtr(),
         CudaSettings.INSTANCE().getConvolutionWorkspaceSizeLimit());
     convolutionDescriptor.freeRef();
@@ -556,7 +397,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     inputTensor.freeRef();
     deltaTensor.freeRef();
     gpu.freeRef();
-    return temp_16_0014;
+    return backwardFilterAlgorithm;
   }
 
   public int getBackwardDataAlgorithm(@Nonnull final CudnnHandle gpu, @Nullable final CudaDevice.CudaTensorDescriptor dyDescriptor,
@@ -582,22 +423,21 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
   }
 
   public long evictDeviceData(final int deviceId) {
-    assert gpuFilters != null;
-    CudaMemory remove = gpuFilters.remove(deviceId);
-    if (null != remove) {
-      if (1 == remove.currentRefCount()) {
-        long temp_16_0010 = remove.size;
-        remove.freeRef();
-        return temp_16_0010;
+    synchronized (gpuFilters) {
+      assert gpuFilters != null;
+      CudaMemory remove = gpuFilters.remove(deviceId);
+      if (null != remove) {
+        if (1 == remove.currentRefCount()) {
+          long size = remove.size;
+          remove.freeRef();
+          return size;
+        } else {
+          RefUtil.freeRef(gpuFilters.put(deviceId, remove));
+          return 0;
+        }
       } else {
-        CudaMemory race = gpuFilters.put(deviceId, remove.addRef());
-        if (null != race)
-          race.freeRef();
-        remove.freeRef();
         return 0;
       }
-    } else {
-      return 0;
     }
   }
 
@@ -669,9 +509,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
   @Nonnull
   public void setPaddingXY(int x, int y) {
     setPaddingX(x);
-    SimpleConvolutionLayer temp_16_0025 = this.addRef();
-    temp_16_0025.setPaddingY(y);
-    temp_16_0025.freeRef();
+    setPaddingY(y);
   }
 
   public void set(@Nonnull Tensor kernel) {
@@ -698,11 +536,12 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
   }
 
   public void _free() {
-    if (null != gpuFilters)
-      gpuFilters.freeRef();
-    kernel.freeRef();
-    clearCudaFilters();
     super._free();
+    clearCudaFilters();
+    if (null != gpuFilters) {
+      gpuFilters.freeRef();
+    }
+    kernel.freeRef();
   }
 
   @Nonnull
@@ -710,6 +549,17 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
   @SuppressWarnings("unused")
   SimpleConvolutionLayer addRef() {
     return (SimpleConvolutionLayer) super.addRef();
+  }
+
+  @NotNull
+  private CudaTensorList fwd(int[] kernelDimensions, int kernelLength, int paddingX, int paddingY, TensorList inputData, int[] inputDims, int inputLength, int[] outputSize) {
+    return CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
+      assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+      assert 0 < kernelLength;
+      assert kernelDimensions[0] * kernelDimensions[1] * kernelDimensions[2] == kernelLength;
+      return fwd(gpu, paddingX, paddingY, inputLength, inputDims, kernelDimensions, outputSize,
+          inputData.addRef(), getCudaFilter(gpu.addRef()));
+    }, inputData.addRef()), inputData);
   }
 
   private int correct(int dim, int modulus, int offset) {
@@ -729,38 +579,159 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
 
   @Nonnull
   private CudaMemory getCudaFilter_instance(@Nonnull final CudaDevice device) {
-    double[] data = kernel.getData();
-    CudaMemory temp_16_0027 = device.allocate((long) data.length * precision.size, MemoryType.Device, true);
+    CudaMemory cudaMemory = device.allocate((long) kernel.length() * precision.size, MemoryType.Device, true);
+    cudaMemory.write(precision, kernel.getData());
     device.freeRef();
-    CudaMemory temp_16_0026 = temp_16_0027.write(precision, data);
-    temp_16_0027.freeRef();
-    return temp_16_0026;
+    return cudaMemory;
   }
 
   @Nonnull
+  @RefIgnore
   private CudaMemory getCudaFilter_cached(@Nonnull final CudaDevice device) {
-    assert gpuFilters != null;
-    CudaMemory cudaMemory = gpuFilters.get(device.getDeviceId());
-    if (null != cudaMemory && cudaMemory.tryAddRef()) {
-      device.freeRef();
-      return cudaMemory;
+    synchronized (gpuFilters) {
+      assert gpuFilters != null;
+      return gpuFilters.computeIfAbsent(device.getDeviceId(), deviceId -> getCudaFilter_instance(device));
     }
-    if (null != cudaMemory)
-      cudaMemory.freeRef();
-    CudaMemory newInstance = getCudaFilter_instance(device.addRef());
-    CudaMemory replaced = gpuFilters.put(device.getDeviceId(), newInstance.addRef());
-    device.freeRef();
-    if (null != replaced)
-      replaced.freeRef();
-    return newInstance;
   }
 
   private void clearCudaFilters() {
-    assert gpuFilters != null;
-    RefSet<Integer> temp_16_0028 = gpuFilters.keySet();
-    RefList<Integer> temp_16_0029 = temp_16_0028.stream().collect(RefCollectors.toList());
-    temp_16_0029.stream().forEach(key -> gpuFilters.remove(key));
-    temp_16_0029.freeRef();
-    temp_16_0028.freeRef();
+    synchronized (gpuFilters) {
+      assert gpuFilters != null;
+      gpuFilters.clear();
+    }
+  }
+
+  private class Accumulator extends Result.Accumulator {
+
+    private final TensorList inputData;
+    private final int inputLength;
+    private final int[] outputSize;
+    private final int[] inputDims;
+    private final int[] kernelDimensions;
+    private final int paddingY;
+    private final int paddingX;
+    private final int kernelLength;
+    private final double[] kernelData;
+    private final boolean alive;
+    private UUID id;
+    private SimpleConvolutionLayer simpleConvolutionLayer;
+    private Result.Accumulator inputAccumulator;
+
+    public Accumulator(TensorList inputData, int inputLength, int[] outputSize, int[] inputDims, int[] kernelDimensions, int paddingY, int paddingX, int kernelLength, double[] kernelData, boolean alive, SimpleConvolutionLayer simpleConvolutionLayer, Result.Accumulator accumulator) {
+      this.inputData = inputData;
+      this.inputLength = inputLength;
+      this.outputSize = outputSize;
+      this.inputDims = inputDims;
+      this.kernelDimensions = kernelDimensions;
+      this.paddingY = paddingY;
+      this.paddingX = paddingX;
+      this.kernelLength = kernelLength;
+      this.kernelData = kernelData;
+      this.alive = alive;
+      this.id = simpleConvolutionLayer.getId();
+      this.simpleConvolutionLayer = simpleConvolutionLayer;
+      inputAccumulator = accumulator;
+    }
+
+    @Override
+    public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
+      delta.assertAlive();
+      buffer.assertAlive();
+      inputData.assertAlive();
+      assert delta.length() == inputLength;
+      Runnable learnFn = RefUtil.wrapInterface(() -> {
+        if (!simpleConvolutionLayer.isFrozen()) {
+          @Nonnull final Tensor weightGradient = CudaSystem
+              .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, Tensor>) gpu -> {
+                @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta.addRef(), precision,
+                    MemoryType.Device, true);
+                @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(),
+                    precision, MemoryType.Device, false);
+                final CudaResource<cudnnFilterDescriptor> filterDescriptor = gpu.newFilterDescriptor(
+                    precision, cudnnTensorFormat.CUDNN_TENSOR_NCHW, outputSize[2], inputDims[2],
+                    kernelDimensions[1], kernelDimensions[0]);
+                final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor = gpu
+                    .newConvolutions2dDescriptor(cudnnConvolutionMode.CUDNN_CONVOLUTION, precision, paddingY,
+                        paddingX, strideY, strideX, 1, 1);
+                final int backwardFilterAlgorithm = simpleConvolutionLayer.getBackwardFilterAlgorithm(
+                    gpu.addRef(), deltaTensor.addRef(),
+                    inputTensor.addRef(),
+                    filterDescriptor.addRef(),
+                    convolutionDescriptor.addRef());
+                final CudaMemory backwardsFilterWorkSpace = gpu.allocateBackwardFilterWorkspace(
+                    inputTensor.descriptor.getPtr(), filterDescriptor.getPtr(),
+                    convolutionDescriptor.getPtr(), deltaTensor.descriptor.getPtr(), backwardFilterAlgorithm,
+                    1);
+                @Nonnull
+                CudaMemory filterPtr = gpu.allocate((long) kernelLength * precision.size, MemoryType.Device,
+                    true);
+                try {
+                  CudaMemory inputTensorMemory = inputTensor.getMemory(gpu.addRef());
+                  CudaMemory deltaTensorMemory = deltaTensor.getMemory(gpu.addRef(), MemoryType.Managed.ifEnabled());
+                  //              inputTensorMemory.synchronize();
+                  assert deltaTensorMemory != null;
+                  assert inputTensorMemory != null;
+                  CudaSystem.handle(gpu.cudnnConvolutionBackwardFilter(precision.getPointer(1.0),
+                      inputTensor.descriptor.getPtr(), inputTensorMemory.getPtr(),
+                      deltaTensor.descriptor.getPtr(), deltaTensorMemory.getPtr(),
+                      convolutionDescriptor.getPtr(), backwardFilterAlgorithm,
+                      backwardsFilterWorkSpace.getPtr(), backwardsFilterWorkSpace.size,
+                      precision.getPointer(0.0), filterDescriptor.getPtr(), filterPtr.getPtr()));
+                  gpu.freeRef();
+                  filterPtr.dirty();
+                  deltaTensorMemory.dirty();
+                  deltaTensorMemory.freeRef();
+                  inputTensorMemory.dirty();
+                  inputTensorMemory.freeRef();
+                  backwardsFilterWorkSpace.dirty();
+                  backwardsFilterWorkSpace.freeRef();
+                  deltaTensor.freeRef();
+                  inputTensor.freeRef();
+                  filterDescriptor.freeRef();
+                  convolutionDescriptor.freeRef();
+                  Tensor temp_16_0007 = filterPtr.read(precision, kernelDimensions);
+                  filterPtr.freeRef();
+                  return temp_16_0007;
+                } catch (@Nonnull final Throwable e) {
+                  throw new ComponentException(
+                      RefString.format("Error in convolution %s x %s => %s", RefArrays.toString(inputDims),
+                          RefArrays.toString(kernelDimensions), RefArrays.toString(outputSize)),
+                      e);
+                }
+              }, inputData.addRef(), delta.addRef()), delta.addRef());
+          Delta<UUID> temp_16_0020 = buffer.get(id, kernelData);
+          assert temp_16_0020 != null;
+          temp_16_0020.addInPlace(weightGradient.getData());
+          temp_16_0020.freeRef();
+          weightGradient.freeRef();
+          simpleConvolutionLayer.clearCudaFilters();
+        }
+      }, inputData.addRef(), delta.addRef(), buffer.addRef());
+      Runnable backpropFn = RefUtil.wrapInterface(() -> {
+        if (alive) {
+          final TensorList inputBufferTensors = CudaSystem
+              .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
+                return simpleConvolutionLayer.bck_workaround(gpu, paddingX, paddingY, inputLength,
+                    inputDims, kernelDimensions, outputSize, delta.addRef());
+              }, delta.addRef()), delta.addRef());
+          if (null != inputBufferTensors) {
+            inputAccumulator.accept(buffer.addRef(), inputBufferTensors);
+          }
+        }
+      }, delta, inputAccumulator.addRef(), buffer);
+      if (CoreSettings.INSTANCE().isSingleThreaded()) {
+        Util.runAllSerial(learnFn, backpropFn);
+      } else {
+        Util.runAllParallel(learnFn, backpropFn);
+      }
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+      super._free();
+      inputData.freeRef();
+      inputAccumulator.freeRef();
+      simpleConvolutionLayer.freeRef();
+    }
   }
 }

@@ -28,10 +28,8 @@ import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 
 public abstract class GramianLayerTest extends CudnnLayerTestBase {
 
@@ -56,32 +54,17 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
         int inBands = inputDimensions[2];
         Tensor output = new Tensor(1, 1, inBands * inBands);
         output.setByCoord(RefUtil.wrapInterface(c -> {
-              int[] coords = c.getCoords();
-              int outBand = coords[2];
-              int bandA = outBand / inBands;
-              int bandB = outBand % inBands;
-              return RefIntStream.range(0, inputDimensions[0]).mapToDouble(RefUtil.wrapInterface(x -> {
-                return RefIntStream.range(0, inputDimensions[1]).mapToDouble(RefUtil.wrapInterface(y -> {
-                  return input.get(x, y, bandA) * input.get(x, y, bandB);
-                }, input.addRef())).average().getAsDouble();
-              }, input.addRef())).average().getAsDouble();
-            }, input.addRef()));
-        input.freeRef();
-        Result temp_41_0001 = new Result(new TensorArray(output.addRef()),
-            new Result.Accumulator() {
-              @Override
-              public void accept(@Nullable DeltaSet<UUID> a, @Nullable TensorList b) {
-                if (null != b)
-                  b.freeRef();
-                if (null != a)
-                  a.freeRef();
-              }
-
-              public @SuppressWarnings("unused")
-              void _free() { super._free(); }
-            });
-        output.freeRef();
-        return temp_41_0001;
+          int[] coords = c.getCoords();
+          int outBand = coords[2];
+          int bandA = outBand / inBands;
+          int bandB = outBand % inBands;
+          return RefIntStream.range(0, inputDimensions[0]).mapToDouble(RefUtil.wrapInterface(x -> {
+            return RefIntStream.range(0, inputDimensions[1]).mapToDouble(RefUtil.wrapInterface(y -> {
+              return input.get(x, y, bandA) * input.get(x, y, bandB);
+            }, input.addRef())).average().getAsDouble();
+          }, input.addRef())).average().getAsDouble();
+        }, input));
+        return new Result(new TensorArray(output));
       }
 
       @Nullable
@@ -97,7 +80,9 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
       }
 
       public @SuppressWarnings("unused")
-      void _free() { super._free(); }
+      void _free() {
+        super._free();
+      }
     };
   }
 

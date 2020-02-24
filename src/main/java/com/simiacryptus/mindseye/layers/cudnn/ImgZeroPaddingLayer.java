@@ -35,13 +35,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
 public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgZeroPaddingLayer.class);
-//  public StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
+  //  public StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private int sizeX;
   private int sizeY;
   private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
@@ -81,15 +80,6 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  ImgZeroPaddingLayer[] addRefs(@Nullable ImgZeroPaddingLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter(x -> x != null).map(imgZeroPaddingLayer -> imgZeroPaddingLayer.addRef())
-        .toArray(x -> new ImgZeroPaddingLayer[x]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     if (sizeX == 0 && sizeY == 0) {
@@ -102,15 +92,11 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
     @Nonnull
     int[] dimensions = temp_22_0004.getDimensions();
     temp_22_0004.freeRef();
-    ImgCropLayer temp_22_0003 = new ImgCropLayer(dimensions[0] + 2 * this.sizeX, dimensions[1] + 2 * this.sizeY);
-    temp_22_0003.setPrecision(precision);
-    @Nonnull
-    ImgCropLayer imgCropLayer = RefUtil.addRef(temp_22_0003);
-    temp_22_0003.freeRef();
-    Result temp_22_0001 = imgCropLayer.eval(RefUtil.addRefs(inObj));
-    RefUtil.freeRef(inObj);
-    imgCropLayer.freeRef();
-    return temp_22_0001;
+    ImgCropLayer cropLayer = new ImgCropLayer(dimensions[0] + 2 * this.sizeX, dimensions[1] + 2 * this.sizeY);
+    cropLayer.setPrecision(precision);
+    Result result = cropLayer.eval(inObj);
+    cropLayer.freeRef();
+    return result;
   }
 
   @Nonnull
@@ -130,7 +116,9 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
   }
 
   public @SuppressWarnings("unused")
-  void _free() { super._free(); }
+  void _free() {
+    super._free();
+  }
 
   @Nonnull
   public @Override

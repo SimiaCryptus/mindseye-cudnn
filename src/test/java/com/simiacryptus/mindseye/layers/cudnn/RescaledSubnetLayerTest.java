@@ -22,6 +22,9 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayer;
 import com.simiacryptus.notebook.NotebookOutput;
+import com.simiacryptus.ref.lang.MustCall;
+import com.simiacryptus.ref.lang.RefIgnore;
+import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -31,7 +34,9 @@ import java.util.Random;
 public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
+  @RefIgnore
   final ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1);
+
 
   public RescaledSubnetLayerTest() {
   }
@@ -39,6 +44,14 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return com.simiacryptus.mindseye.layers.java.RescaledSubnetLayer.class;
+  }
+
+  @After
+  @MustCall
+  public void cleanup() {
+    super.cleanup();
+    if (null != convolutionLayer)
+      convolutionLayer.freeRef();
   }
 
   @Override

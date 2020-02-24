@@ -192,6 +192,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
           CudaSystem.cudaMemcpy(precision.getPointer(destination),
               getPtr().withByteOffset((long) offset * precision.size), (long) destination.length * precision.size,
               cudaMemcpyKind.cudaMemcpyDeviceToHost);
+          gpu.freeRef();
         });
         CudaMemory.getGpuStats(deviceId).memoryReads.addAndGet((long) destination.length * precision.size);
       }
@@ -223,10 +224,8 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     }
   }
 
-  @Nonnull
-  public CudaMemory write(@Nonnull final Precision precision, @Nonnull final double[] data) {
+  public void write(@Nonnull Precision precision, @Nonnull double[] data) {
     write(precision, data, 0);
-    return this.addRef();
   }
 
   public void write(@Nonnull Precision precision, @Nonnull double[] data, long offset) {
@@ -260,19 +259,8 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     if (0 > byteOffset)
       throw new IllegalArgumentException(Integer.toString(byteOffset));
     assertAlive();
-    final CudaMemory baseMemorySegment = this.addRef();
-    try {
-      assert ptr != null;
-      return new CudaMemory(size - byteOffset, type, ptr.withByteOffset(byteOffset), baseMemorySegment.getDeviceId()) {
-        @Override
-        public void release() {
-        }
-
-        public void _free() { super._free(); }
-      };
-    } finally {
-      baseMemorySegment.freeRef();
-    }
+    assert ptr != null;
+    return new OffsetCudaMemory(this.addRef(), byteOffset);
   }
 
   public void dirty() {
@@ -289,14 +277,8 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
   public void _free() {
     super._free();
     assert ptr != null;
-    if (ptr.getByteOffset() != 0)
-      return;
-    CudnnHandle threadHandle = CudaSystem.getThreadHandle();
-    if (null != threadHandle) {
-      threadHandle.cleanupNative.add(this);
-      threadHandle.freeRef();
-    } else
-      release();
+    if (ptr.getByteOffset() != 0) return;
+    cleanup();
   }
 
   @Nonnull
@@ -311,4 +293,21 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     CudaSystem.cudaMemset(getPtr(), 0, size);
   }
 
+  public static class OffsetCudaMemory extends CudaMemory {
+    private final CudaMemory base;
+
+    public OffsetCudaMemory(CudaMemory base, int byteOffset) {
+      super(base.size - byteOffset, base.type, base.ptr.withByteOffset(byteOffset), base.getDeviceId());
+      this.base = base;
+    }
+
+    @Override
+    public void release() {
+    }
+
+    public void _free() {
+      base.freeRef();
+      super._free();
+    }
+  }
 }

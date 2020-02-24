@@ -95,52 +95,28 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision {
   @Override
   public Result eval(@Nullable final Result... inObj) {
     if (!CudaSystem.isEnabled()) {
-      Layer temp_27_0004 = getCompatibilityLayer();
-      Result temp_27_0002 = temp_27_0004.eval(RefUtil.addRefs(inObj));
-      temp_27_0004.freeRef();
-      if (null != inObj)
-        RefUtil.freeRef(inObj);
-      return temp_27_0002;
+      Layer compatibilityLayer = getCompatibilityLayer();
+      Result result = compatibilityLayer.eval(inObj);
+      compatibilityLayer.freeRef();
+      return result;
     }
     assert inObj != null;
-    final Result input = inObj[0].addRef();
-    final TensorList batch = input.getData();
-    input.freeRef();
+    final TensorList batch = Result.getData(inObj[0].addRef());
     @Nonnull final int[] inputSize = batch.getDimensions();
     batch.freeRef();
-    PoolingLayer temp_27_0003 = new PoolingLayer();
-    temp_27_0003.setMode(mode);
-    PoolingLayer temp_27_0005 = temp_27_0003.addRef();
-    temp_27_0005.setPrecision(precision);
-    PoolingLayer temp_27_0006 = RefUtil.addRef(temp_27_0005);
-    temp_27_0006.setWindowX(inputSize[0]);
-    PoolingLayer temp_27_0007 = temp_27_0006.addRef();
-    temp_27_0007.setWindowY(inputSize[1]);
-    PoolingLayer temp_27_0008 = temp_27_0007.addRef();
-    temp_27_0008.setStrideX(inputSize[0]);
-    PoolingLayer temp_27_0009 = temp_27_0008.addRef();
-    temp_27_0009.setStrideY(inputSize[1]);
-    PoolingLayer temp_27_0010 = temp_27_0009.addRef();
-    temp_27_0010.setPaddingX(0);
-    PoolingLayer temp_27_0011 = temp_27_0010.addRef();
-    temp_27_0011.setPaddingY(0);
-    PoolingLayer temp_27_0012 = temp_27_0011.addRef();
-    temp_27_0012.setAlpha(alpha);
-    @Nonnull
-    PoolingLayer impl = temp_27_0012.addRef();
-    temp_27_0012.freeRef();
-    temp_27_0011.freeRef();
-    temp_27_0010.freeRef();
-    temp_27_0009.freeRef();
-    temp_27_0008.freeRef();
-    temp_27_0007.freeRef();
-    temp_27_0006.freeRef();
-    temp_27_0005.freeRef();
-    temp_27_0003.freeRef();
-    Result temp_27_0001 = impl.eval(RefUtil.addRefs(inObj));
-    RefUtil.freeRef(inObj);
-    impl.freeRef();
-    return temp_27_0001;
+    PoolingLayer poolingLayer = new PoolingLayer();
+    poolingLayer.setMode(mode);
+    poolingLayer.setPrecision(precision);
+    poolingLayer.setWindowX(inputSize[0]);
+    poolingLayer.setWindowY(inputSize[1]);
+    poolingLayer.setStrideX(inputSize[0]);
+    poolingLayer.setStrideY(inputSize[1]);
+    poolingLayer.setPaddingX(0);
+    poolingLayer.setPaddingY(0);
+    poolingLayer.setAlpha(alpha);
+    Result result = poolingLayer.eval(inObj);
+    poolingLayer.freeRef();
+    return result;
   }
 
   @Nonnull
@@ -160,7 +136,9 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision {
   }
 
   public @SuppressWarnings("unused")
-  void _free() { super._free(); }
+  void _free() {
+    super._free();
+  }
 
   @Nonnull
   public @Override

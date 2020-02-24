@@ -29,8 +29,6 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Random;
 
 public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
@@ -42,7 +40,7 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
   public BinarySumLayerTest(final Precision precision) {
     this.precision = precision;
     smallSize = 2;
-    largeSize = 1200;
+    largeSize = 600;
   }
 
   @Nonnull
@@ -54,11 +52,9 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    BinarySumLayer temp_69_0002 = new BinarySumLayer();
-    temp_69_0002.setPrecision(precision);
-    BinarySumLayer temp_69_0001 = RefUtil.addRef(temp_69_0002);
-    temp_69_0002.freeRef();
-    return temp_69_0001;
+    BinarySumLayer binarySumLayer = new BinarySumLayer();
+    binarySumLayer.setPrecision(precision);
+    return binarySumLayer;
   }
 
   @Nonnull
@@ -147,11 +143,9 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      BinarySumLayer temp_69_0004 = new BinarySumLayer(1.0, -1.0);
-      temp_69_0004.setPrecision(precision);
-      BinarySumLayer temp_69_0003 = RefUtil.addRef(temp_69_0004);
-      temp_69_0004.freeRef();
-      return temp_69_0003;
+      BinarySumLayer binarySumLayer = new BinarySumLayer(1.0, -1.0);
+      binarySumLayer.setPrecision(precision);
+      return binarySumLayer;
     }
 
   }
@@ -180,11 +174,9 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
     @Nonnull
     @Override
     public Layer getLayer(final int[][] inputSize, Random random) {
-      BinarySumLayer temp_69_0006 = new BinarySumLayer(0.5, 0.5);
-      temp_69_0006.setPrecision(precision);
-      BinarySumLayer temp_69_0005 = RefUtil.addRef(temp_69_0006);
-      temp_69_0006.freeRef();
-      return temp_69_0005;
+      BinarySumLayer binarySumLayer = new BinarySumLayer(0.5, 0.5);
+      binarySumLayer.setPrecision(precision);
+      return binarySumLayer;
     }
   }
 }

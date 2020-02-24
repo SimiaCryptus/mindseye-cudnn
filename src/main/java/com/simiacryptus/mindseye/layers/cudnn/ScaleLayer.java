@@ -50,10 +50,7 @@ public class ScaleLayer extends PipelineNetwork implements MultiPrecision {
 
   public ScaleLayer(@Nullable final Tensor weights) {
     super(1);
-    RefUtil.freeRef(add(new ProductLayer(), getInput(0),
-        add(new ValueLayer(weights == null ? null : weights.addRef()), new DAGNode[]{})));
-    if (null != weights)
-      weights.freeRef();
+    RefUtil.freeRef(add(new ProductLayer(), getInput(0), add(new ValueLayer(weights), new DAGNode[]{})));
   }
 
   protected ScaleLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -81,7 +78,9 @@ public class ScaleLayer extends PipelineNetwork implements MultiPrecision {
 
 
   public @SuppressWarnings("unused")
-  void _free() { super._free(); }
+  void _free() {
+    super._free();
+  }
 
   @Nonnull
   public @Override

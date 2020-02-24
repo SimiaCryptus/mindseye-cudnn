@@ -19,14 +19,11 @@
 
 package com.simiacryptus.mindseye.layers;
 
-import com.simiacryptus.mindseye.layers.java.LayerTestBase;
+import com.simiacryptus.mindseye.test.LayerTestBase;
 import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.ComponentTest;
-import com.simiacryptus.ref.lang.RefUtil;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public abstract class MetaLayerTestBase extends LayerTestBase {
 

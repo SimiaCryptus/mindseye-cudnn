@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.notebook.NotebookOutput;
+import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import org.junit.After;
 
@@ -33,6 +34,7 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 
   final Precision precision;
   @Nonnull
+  @RefIgnore
   final ImgBandSelectLayer layer;
   final int inputBands;
   private final int smallSize;
