@@ -264,7 +264,7 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     final ConvolutionLayer convolutionLayer = ConvolutionLayer.this.addRef();
     Result.Accumulator accumulator = new Accumulator(kernel, convolutionLayer, grid, isFrozen(), result.getAccumulator());
     result.freeRef();
-    return new Result(resultData, accumulator, alive);
+    return new Result(resultData, accumulator, alive || !isFrozen());
   }
 
   @Nonnull

@@ -119,7 +119,7 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision 
       Result.Accumulator accumulator = new Accumulator(algorithm, mode, precision, inputData, outPtr.addRef(), inputSize, length, inputResult.getAccumulator(), inputResult.isAlive());
       inputResult.freeRef();
       CudaTensorList data = new CudaTensorList(outPtr, length, outputSize, precision);
-      return new Result(data, accumulator, alive || !isFrozen());
+      return new Result(data, accumulator, alive);
     } catch (@Nonnull final Throwable e) {
       throw new ComponentException("Error apply png res " + RefArrays.toString(inputSize), e);
     }

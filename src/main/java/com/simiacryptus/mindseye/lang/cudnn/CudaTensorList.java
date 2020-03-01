@@ -65,23 +65,45 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
       cudaTensor.freeRef();
       throw new IllegalArgumentException();
     }
-    assert cudaTensor.memory.size >= (long) (length - 1) * Tensor.length(dimensions) * precision.size : String
-        .format("%s < %s", cudaTensor.memory.size, (long) length * Tensor.length(dimensions) * precision.size);
-    assert cudaTensor.descriptor.batchCount == length;
-    assert cudaTensor.descriptor.channels == (dimensions.length < 3 ? 1 : dimensions[2]) : RefString.format(
-        "%s != (%d,%d,%d,%d)", RefArrays.toString(dimensions), cudaTensor.descriptor.batchCount, cudaTensor.descriptor.channels,
-        cudaTensor.descriptor.height, cudaTensor.descriptor.width);
-    assert cudaTensor.descriptor.height == (dimensions.length < 2 ? 1 : dimensions[1]) : RefString.format(
-        "%s != (%d,%d,%d,%d)", RefArrays.toString(dimensions), cudaTensor.descriptor.batchCount, cudaTensor.descriptor.channels,
-        cudaTensor.descriptor.height, cudaTensor.descriptor.width);
-    assert cudaTensor.descriptor.width == (dimensions.length < 1 ? 1 : dimensions[0]) : RefString.format("%s != (%d,%d,%d,%d)",
-        RefArrays.toString(dimensions), cudaTensor.descriptor.batchCount, cudaTensor.descriptor.channels, cudaTensor.descriptor.height,
-        cudaTensor.descriptor.width);
-    assert cudaTensor.getPrecision() == precision;
-    assert cudaTensor.memory.getPtr() != null;
-    if (null != this.cudaTensor)
-      this.cudaTensor.freeRef();
-    this.cudaTensor = cudaTensor;
+    if (cudaTensor.memory.size < (long) (length - 1) * Tensor.length(dimensions) * precision.size) {
+      String message = String.format("%s < %s", cudaTensor.memory.size, (long) length * Tensor.length(dimensions) * precision.size);
+      cudaTensor.freeRef();
+      throw new AssertionError(message);
+    }
+    if (cudaTensor.descriptor.batchCount != length) {
+      cudaTensor.freeRef();
+      throw new AssertionError();
+    }
+    if (cudaTensor.descriptor.channels != (dimensions.length < 3 ? 1 : dimensions[2])) {
+      String message = RefString.format(
+          "%s != (%d,%d,%d,%d)", RefArrays.toString(dimensions), cudaTensor.descriptor.batchCount, cudaTensor.descriptor.channels,
+          cudaTensor.descriptor.height, cudaTensor.descriptor.width);
+      cudaTensor.freeRef();
+      throw new AssertionError(message);
+    }
+    if (cudaTensor.descriptor.height != (dimensions.length < 2 ? 1 : dimensions[1])) {
+      String message = RefString.format(
+          "%s != (%d,%d,%d,%d)", RefArrays.toString(dimensions), cudaTensor.descriptor.batchCount, cudaTensor.descriptor.channels,
+          cudaTensor.descriptor.height, cudaTensor.descriptor.width);
+      cudaTensor.freeRef();
+      throw new AssertionError(message);
+    }
+    if (cudaTensor.descriptor.width != (dimensions.length < 1 ? 1 : dimensions[0])) {
+      String message = RefString.format("%s != (%d,%d,%d,%d)",
+          RefArrays.toString(dimensions), cudaTensor.descriptor.batchCount, cudaTensor.descriptor.channels, cudaTensor.descriptor.height,
+          cudaTensor.descriptor.width);
+      cudaTensor.freeRef();
+      throw new AssertionError(message);
+    }
+    if (cudaTensor.getPrecision() != precision) {
+      cudaTensor.freeRef();
+      throw new AssertionError();
+    }
+    if (cudaTensor.memory.getPtr() == null) {
+      cudaTensor.freeRef();
+      throw new AssertionError();
+    }
+    setCudaTensor(cudaTensor);
     this.dimensions = RefArrays.copyOf(dimensions, dimensions.length);
     this.length = length;
     ObjectRegistry.register(this.addRef());
@@ -146,6 +168,17 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
     return new CudaTensorList(
         new CudaTensor(ptr, descriptor, precision),
         length, dimensions, precision);
+  }
+
+  void setCudaTensor(CudaTensor cudaTensor) {
+    synchronized (this) {
+      if (cudaTensor != this.cudaTensor) {
+        RefUtil.freeRef(this.cudaTensor);
+        this.cudaTensor = cudaTensor;
+      } else {
+        cudaTensor.freeRef();
+      }
+    }
   }
 
   @Override
@@ -313,7 +346,7 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
 
   @RefIgnore
   public long evictToHeap() {
-    if (isFinalized())
+    if (isFreed())
       return 0;
     TensorArray heapCopy = heapCopy(true);
     if (null == heapCopy) {
@@ -325,7 +358,7 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
       ptr = this.cudaTensor;
       this.cudaTensor = null;
     }
-    if (!ptr.isFinalized()) {
+    if (null != ptr && !ptr.isFreed()) {
       long elements = getElements();
       assert 0 < length;
       assert 0 < elements : RefArrays.toString(dimensions);
@@ -346,10 +379,8 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
     super._free();
     synchronized (this) {
       if (null != cudaTensor) {
-        if (null != cudaTensor) {
-          cudaTensor.freeRef();
-          cudaTensor = null;
-        }
+        cudaTensor.freeRef();
+        cudaTensor = null;
       }
       if (null != heapCopy) {
         heapCopy.freeRef();
@@ -379,19 +410,20 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
   }
 
   private boolean hasHeapCopy() {
-    return null != heapCopy && !heapCopy.isFinalized();
+    return null != heapCopy && !heapCopy.isFreed();
   }
 
   @Nullable
   @RefIgnore
   private TensorArray toHeap(final boolean avoidAllocations) {
     assertAlive();
+    CudaTensor cudaTensor = this.cudaTensor;
     if (cudaTensor.tryAddRef()) {
       return toHeap(avoidAllocations, cudaTensor);
     } else {
       if (null == heapCopy) {
         throw new IllegalStateException("No data");
-      } else if (heapCopy.isFinalized()) {
+      } else if (heapCopy.isFreed()) {
         throw new IllegalStateException("Local data has been freed");
       } else {
         return heapCopy.addRef();
@@ -401,6 +433,7 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
 
   private TensorArray toHeap(boolean avoidAllocations, CudaTensor gpuCopy) {
     try {
+      if(null == gpuCopy) return null;
       int length = getLength();
       if (0 >= length) {
         throw new IllegalStateException();
@@ -435,7 +468,7 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
       timedResult.freeRef();
       return result;
     } finally {
-      gpuCopy.freeRef();
+      if(null != gpuCopy) gpuCopy.freeRef();
     }
   }
 }

@@ -242,7 +242,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
     Result.Accumulator accumulator = new Accumulator(input, outputData.addRef(), inputData, inputLength, alive, inputDims, poolDims, windowSize, padding, stride, precision, mode, alpha);
     CudaTensorList data = new CudaTensorList(outputData, inputLength,
         new int[]{outputSize[3], outputSize[2], outputSize[1]}, precision);
-    return new Result(data, accumulator, alive || !isFrozen());
+    return new Result(data, accumulator, alive);
   }
 
   @Nonnull

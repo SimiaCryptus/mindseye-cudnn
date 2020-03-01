@@ -26,11 +26,14 @@ import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.lang.TensorArray;
 import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.Util;
 import jcuda.Pointer;
 import jcuda.jcudnn.*;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -260,10 +263,7 @@ public class CudnnHandle extends CudaDevice {
       if (data instanceof CudaTensorList) {
         CudaTensorList cudaTensorList = (CudaTensorList) data.addRef();
         if (precision == cudaTensorList.getPrecision()) {
-          CudaTensor temp_53_0003 = this.getTensor(cudaTensorList.addRef(), memoryType,
-              dense);
-          cudaTensorList.freeRef();
-          return temp_53_0003;
+          return this.getTensor(cudaTensorList, memoryType, dense);
         } else {
           if (CudaSettings.INSTANCE().verbose) {
             CudaTensorList.logger.warn(RefString.format(
@@ -326,37 +326,58 @@ public class CudnnHandle extends CudaDevice {
   @Nonnull
   public CudaTensor getTensor(@Nonnull final CudaTensorList data, @Nonnull final MemoryType memoryType,
                               final boolean dense) {
-    assert CudaDevice.isThreadDeviceId(getDeviceId());
-    CudaTensor gpuCopy = null;
-    TensorArray heapCopy = null;
-    synchronized (data) {
-      RefUtil.freeRef(gpuCopy);
-      RefUtil.freeRef(heapCopy);
-      gpuCopy = data.cudaTensor.addRef();
-      heapCopy = null == data.heapCopy ? null : data.heapCopy.addRef();
-    }
-    CudaTensor result = null;
-    if (gpuCopy.isFinalized() && !heapCopy.isFinalized()) {
-      RefUtil.freeRef(result);
-      result = getTensor(heapCopy.addRef(), data.getPrecision(), memoryType, dense);
-    } else {
-      RefUtil.freeRef(result);
-      result = gpuCopy.addRef();
-    }
-    if (dense || CudaSettings.INSTANCE().allDense) {
-      CudaTensor dense1 = result.getDense(this.addRef());
-      RefUtil.freeRef(result);
-      result = dense1;
-    }
-    synchronized (data) {
-      if (result != data.cudaTensor) {
-        data.cudaTensor = result.addRef();
-      }
-    }
-    gpuCopy.freeRef();
-    if (null != heapCopy) heapCopy.freeRef();
+    final CudaTensor result = getCudaTensor(data.addRef(), memoryType, dense);
+    data.setCudaTensor(result.addRef());
     data.freeRef();
     return result;
+  }
+
+  private CudaTensor getCudaTensor(@Nonnull CudaTensorList data, @Nonnull MemoryType memoryType, boolean dense) {
+    final CudaTensor gpuCopy;
+    final TensorArray heapCopy;
+    synchronized (data) {
+      gpuCopy = get(data.cudaTensor);
+      heapCopy = get(data.heapCopy);
+    }
+    try {
+      assert CudaDevice.isThreadDeviceId(getDeviceId());
+      if (gpuCopy == null) {
+        if (heapCopy != null) {
+          return denseFilter(getTensor(heapCopy.addRef(), data.getPrecision(), memoryType, dense), dense);
+        } else {
+          throw new IllegalArgumentException();
+        }
+      } else {
+        return denseFilter(gpuCopy.addRef(), dense);
+      }
+    } finally {
+      RefUtil.freeRef(gpuCopy);
+      RefUtil.freeRef(heapCopy);
+      data.freeRef();
+    }
+  }
+
+  public CudaTensor denseFilter(CudaTensor result, boolean dense) {
+    if (dense || CudaSettings.INSTANCE().allDense) {
+      return getDense(result);
+    } else {
+      return result;
+    }
+  }
+
+  @NotNull
+  public CudaTensor getDense(CudaTensor result) {
+    CudaTensor dense = result.getDense(this.addRef());
+    RefUtil.freeRef(result);
+    return dense;
+  }
+
+  @org.jetbrains.annotations.Nullable
+  @RefAware
+  public static <T extends ReferenceCounting> T get(@RefIgnore T obj) {
+    if (null == obj) return null;
+    else if (obj.isFreed()) return null;
+    else return (T) obj.addRef();
   }
 
   @Nonnull

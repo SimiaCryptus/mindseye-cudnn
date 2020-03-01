@@ -116,7 +116,7 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
       return inner.eval(inObj);
     }
     Result[] counting = RefArrays.stream(inObj).map(r -> {
-      return new CountingResult(r, samples);
+      return new CountingResult(r, samples, StochasticSamplingSubnetLayer.this.addRef());
     }).toArray(i -> new Result[i]);
     return average(
         RefArrays.stream(getSeeds()).mapToObj(RefUtil.wrapInterface((LongFunction<? extends Result>) seed -> {

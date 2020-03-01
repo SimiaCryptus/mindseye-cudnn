@@ -93,14 +93,8 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
       log.info("Suspicious Input: " + RefArrays.toString(inputDimensions));
     }
     final CudaTensorList tensorList = fwd(inputData.addRef());
-    final Result.Accumulator accumulator1 = inObj[0].getAccumulator();
-    final boolean alive1 = inObj[0].isAlive();
-    Result.Accumulator accumulator = new Accumulator(inputData, inputDimensions, GramianLayer.this.precision, GramianLayer.this.alpha, accumulator1, alive1);
-    boolean isAlive = RefArrays.stream(inObj).anyMatch(x -> {
-      boolean alive = x.isAlive();
-      x.freeRef();
-      return alive;
-    });
+    Result.Accumulator accumulator = new Accumulator(inputData, inputDimensions, GramianLayer.this.precision, GramianLayer.this.alpha, inObj[0].getAccumulator(), inObj[0].isAlive());
+    boolean isAlive = Result.anyAlive(inObj);
     return new Result(tensorList, accumulator, isAlive);
   }
 

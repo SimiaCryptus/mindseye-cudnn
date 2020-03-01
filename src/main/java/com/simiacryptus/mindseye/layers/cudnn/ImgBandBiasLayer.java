@@ -146,10 +146,10 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
     }
     //   assert !right.isAlive();
     CudaTensorList data = fwd(inputData, inputDimensions, length);
-    boolean alive = alive(inObj);
+    boolean alive = Result.anyAlive(inObj);
     Accumulator accumulator = new Accumulator(this.getId(), bias.addRef(), precision, isFrozen(), input.getAccumulator(), input.isAlive());
     input.freeRef();
-    return new Result(data, accumulator, alive);
+    return new Result(data, accumulator, alive || !isFrozen());
   }
 
   @Nonnull
@@ -241,10 +241,6 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
     }, inputData.addRef()), inputData);
   }
 
-  private boolean alive(Result[] inObj) {
-    return Result.anyAlive(inObj);
-  }
-
   private static class Accumulator extends Result.Accumulator {
 
     private UUID id;
@@ -313,7 +309,7 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
     void _free() {
       super._free();
       bias.freeRef();
-      accumulator.freeRef();
+      if(null != accumulator) accumulator.freeRef();
     }
   }
 }

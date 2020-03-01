@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
+import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.InnerNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
@@ -94,7 +95,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
     PipelineNetwork pipelineNetwork = new PipelineNetwork(1);
     RefUtil.freeRef(pipelineNetwork.add(new SumInputsLayer(), RefArrays.stream(networks)
         .map(RefUtil.wrapInterface((Function<? super PipelineNetwork, ? extends InnerNode>) network -> {
-          return PipelineNetwork
+          return DAGNetwork
               .transferNode(pipelineNetwork.addRef(), network.getHead(), network);
         }, pipelineNetwork.addRef())).toArray(i -> new DAGNode[i])));
     return pipelineNetwork;

@@ -86,7 +86,7 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision {
     }
     Result left = inObj[0].addRef();
     Result right = inObj[1].addRef();
-    boolean alive = isAlive(inObj);
+    boolean alive = Result.anyAlive(inObj);
     final TensorList leftData = left.getData();
     final TensorList rightData = right.getData();
     @Nonnull final int[] leftDimensions = leftData.getDimensions();
@@ -170,17 +170,6 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision {
           new CudaTensor(outputPtr, outputDescriptor, precision),
           length, leftDimensions, precision);
     }, leftData.addRef(), rightData), leftData);
-  }
-
-  private boolean isAlive(@Nonnull Result... inObj) {
-    boolean alive = false;
-    for (@Nonnull final Result element : inObj)
-      if (element.isAlive()) {
-        alive = true;
-        break;
-      }
-    RefUtil.freeRef(inObj);
-    return alive;
   }
 
   private static class Accumulator extends Result.Accumulator {

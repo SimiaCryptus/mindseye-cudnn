@@ -151,11 +151,11 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
     @Nonnull final int[] outputSize = new int[]{length, inputSize[2], inputSize[1], inputSize[0]};
     final CudaTensor outputData = fwd(inputData.addRef(), outputSize);
     assert getPrecision() != null;
-    boolean isAlive = input.isAlive() || !isFrozen();
+    boolean isAlive = input.isAlive();
     Result.Accumulator accumulator = new Accumulator(outputData.addRef(), inputData, length, inputSize, inputDims, LRNLayer.this.getPrecision(), getWidth(), getAlpha(), getBeta(), getK(), input.getAccumulator(), input.isAlive());
     input.freeRef();
     CudaTensorList data = new CudaTensorList(outputData, length, new int[]{outputSize[3], outputSize[2], outputSize[1]}, getPrecision());
-    return new Result(data, accumulator, isAlive);
+    return new Result(data, accumulator, isAlive || !isFrozen());
   }
 
   @Nonnull

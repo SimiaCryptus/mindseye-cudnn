@@ -128,12 +128,15 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
           getType(), true);
       CudaMemory memory = getMemory(gpu.addRef());
       assert memory != null;
-      gpu.cudnnTransformTensor(getPrecision().getPointer(1.0), this.descriptor.getPtr(), memory.getPtr(),
-          getPrecision().getPointer(0.0), destDescriptor.getPtr(), destMemory.getPtr());
-      assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
-      memory.dirty();
-      memory.freeRef();
-      destMemory.dirty();
+      try {
+        gpu.cudnnTransformTensor(getPrecision().getPointer(1.0), this.descriptor.getPtr(), memory.getPtr(),
+            getPrecision().getPointer(0.0), destDescriptor.getPtr(), destMemory.getPtr());
+        assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
+        memory.dirty();
+        destMemory.dirty();
+      } finally {
+        memory.freeRef();
+      }
       return new CudaTensor(destMemory, destDescriptor, getPrecision());
     });
     gpu.freeRef();
