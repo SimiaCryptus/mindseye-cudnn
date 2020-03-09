@@ -80,7 +80,8 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public Layer getLayer(final int[][] inputSize, Random random) {
-    return new RescaledSubnetLayer(2, convolutionLayer.set(() -> this.random()));
+    convolutionLayer.set(() -> this.random());
+    return new RescaledSubnetLayer(2, convolutionLayer.addRef());
   }
 
   public static class Basic extends RescaledSubnetLayerTest {

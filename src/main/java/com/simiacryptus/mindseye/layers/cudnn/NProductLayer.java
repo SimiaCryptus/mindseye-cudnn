@@ -109,8 +109,8 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
             RefArrays.toString(dimensions) + " != " + RefArrays.toString(dataDimensions));
       }
     }
-    boolean alive = alive(RefUtil.addRefs(inObj));
-    Accumulator accumulator = new Accumulator(precision, inLength, length, dimensions, RefUtil.addRefs(inObj));
+    boolean alive = alive(RefUtil.addRef(inObj));
+    Accumulator accumulator = new Accumulator(precision, inLength, length, dimensions, RefUtil.addRef(inObj));
     TensorList data = fwd(dimensions, length, inObj);
     return new Result(data, accumulator, alive);
   }
@@ -154,7 +154,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
       @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
           dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
           dimensions[1] * dimensions[0], dimensions[0], 1);
-      return RefUtil.get(RefArrays.stream(RefUtil.addRefs(inObj)).map(x -> {
+      return RefUtil.get(RefArrays.stream(RefUtil.addRef(inObj)).map(x -> {
         return getData(x);
       }).reduce(RefUtil.wrapInterface((BinaryOperator<TensorList>) (l, r) -> {
         @Nullable final CudaTensor lPtr = gpu.getTensor(l == null ? null : l.addRef(), precision, MemoryType.Device, false);
@@ -184,7 +184,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
                 outputDescriptor.addRef(), precision),
             length, dimensions, precision);
       }, opDescriptor, outputDescriptor, gpu)));
-    }, RefUtil.addRefs(inObj)), RefArrays.stream(inObj).map(result -> {
+    }, RefUtil.addRef(inObj)), RefArrays.stream(inObj).map(result -> {
       TensorList data = result.getData();
       result.freeRef();
       return data;
@@ -217,7 +217,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
           TensorList data = RefUtil.get(RefIntStream.range(0, inLength)
               .mapToObj(RefUtil.wrapInterface((IntFunction<TensorList>) i -> {
                 return i == _index ? delta.addRef() : inObj[i].getData();
-              }, RefUtil.addRefs(inObj), delta.addRef())).reduce((l, r) -> {
+              }, RefUtil.addRef(inObj), delta.addRef())).reduce((l, r) -> {
                 return CudaSystem
                     .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
                           @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu

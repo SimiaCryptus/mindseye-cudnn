@@ -241,15 +241,15 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
       }
       if (alive) {
         this.accumulator.accept(buffer, CudaSystem
-              .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
-                CudaTensor inputCuda = gpu.getTensor(inputData.addRef(), precision, MemoryType.Device, true);
-                CudaTensor deltaCuda = gpu.getTensor(delta.addRef(), precision, MemoryType.Device, true);
-                return getFeedback(
-                    gpu,
-                    inputCuda,
-                    deltaCuda
-                );
-              }, delta.addRef(), inputData.addRef()), delta));
+            .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
+              CudaTensor inputCuda = gpu.getTensor(inputData.addRef(), precision, MemoryType.Device, true);
+              CudaTensor deltaCuda = gpu.getTensor(delta.addRef(), precision, MemoryType.Device, true);
+              return getFeedback(
+                  gpu,
+                  inputCuda,
+                  deltaCuda
+              );
+            }, delta.addRef(), inputData.addRef()), delta));
       } else {
         delta.freeRef();
         if (null != buffer)

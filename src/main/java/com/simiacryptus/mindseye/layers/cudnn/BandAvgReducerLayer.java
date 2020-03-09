@@ -31,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
@@ -195,10 +194,9 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision {
         int bands = inputSize[2];
         assert delta.length() == bands;
         final Tensor tensor = new Tensor(inputSize[0], inputSize[1], bands);
-        final double[] tensorData = tensor.getData();
         for (int band = 0; band < bands; band++) {
           int fromIndex = band * pixels;
-          Arrays.fill(tensorData, fromIndex, fromIndex + pixels, delta.get(band) * alpha / pixels);
+          tensor.fill(fromIndex, fromIndex + pixels, delta.get(band) * alpha / pixels);
         }
         delta.freeRef();
         return tensor;

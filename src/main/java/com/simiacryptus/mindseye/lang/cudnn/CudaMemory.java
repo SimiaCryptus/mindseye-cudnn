@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Map;
 
 import static jcuda.runtime.cudaMemcpyKind.cudaMemcpyDeviceToHost;
@@ -136,13 +135,10 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
         final int length = tensor.length();
         @Nonnull final float[] data = new float[length];
         read(precision, data);
-        @Nullable final double[] doubles = tensor.getData();
-        for (int i = 0; i < length; i++) {
-          doubles[i] = data[i];
-        }
+        tensor.set(i -> data[i]);
         return tensor;
       case Double:
-        read(precision, tensor.getData(), 0);
+        read(precision, tensor.addRef(), 0);
         return tensor;
       default:
         tensor.freeRef();
@@ -173,28 +169,56 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     }
   }
 
-  public void read(@Nonnull Precision precision, @Nonnull double[] destination, int offset) {
-    if (0 != destination.length) {
-      if (size < (long) (offset + destination.length) * precision.size) {
+  public void read(@Nonnull Precision precision, @Nonnull Tensor destination, int offset) {
+    int length = destination.length();
+    if (0 != length) {
+      if (size < (long) (offset + length) * precision.size) {
+        destination.freeRef();
         throw new IllegalArgumentException(
-            RefString.format("%d < %d + %d", size, (long) destination.length * precision.size, offset));
+            RefString.format("%d < %d + %d", size, (long) length * precision.size, offset));
       }
       if (precision == Precision.Float) {
         @Nonnull
-        float[] data = new float[destination.length];
+        float[] data = new float[length];
         read(Precision.Float, data, offset);
-        for (int i = 0; i < destination.length; i++) {
+        destination.set(i -> data[i]);
+      } else {
+        synchronize();
+        CudaSystem.run(gpu -> {
+          CudaSystem.cudaMemcpy(precision.getPointer(destination.getData()),
+              getPtr().withByteOffset((long) offset * precision.size), (long) length * precision.size,
+              cudaMemcpyKind.cudaMemcpyDeviceToHost);
+          gpu.freeRef();
+        });
+        CudaMemory.getGpuStats(deviceId).memoryReads.addAndGet((long) length * precision.size);
+      }
+    }
+    destination.freeRef();
+  }
+
+  public void read(@Nonnull Precision precision, @Nonnull double[] destination, int offset) {
+    int length = destination.length;
+    if (0 != length) {
+      if (size < (long) (offset + length) * precision.size) {
+        throw new IllegalArgumentException(
+            RefString.format("%d < %d + %d", size, (long) length * precision.size, offset));
+      }
+      if (precision == Precision.Float) {
+        @Nonnull
+        float[] data = new float[length];
+        read(Precision.Float, data, offset);
+        for (int i = 0; i < length; i++) {
           destination[i] = data[i];
         }
       } else {
         synchronize();
         CudaSystem.run(gpu -> {
           CudaSystem.cudaMemcpy(precision.getPointer(destination),
-              getPtr().withByteOffset((long) offset * precision.size), (long) destination.length * precision.size,
+              getPtr().withByteOffset((long) offset * precision.size), (long) length * precision.size,
               cudaMemcpyKind.cudaMemcpyDeviceToHost);
           gpu.freeRef();
         });
-        CudaMemory.getGpuStats(deviceId).memoryReads.addAndGet((long) destination.length * precision.size);
+        CudaMemory.getGpuStats(deviceId).memoryReads.addAndGet((long) length * precision.size);
       }
     }
   }
@@ -224,18 +248,22 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     }
   }
 
-  public void write(@Nonnull Precision precision, @Nonnull double[] data) {
+  public void write(@Nonnull Precision precision, @Nonnull Tensor data) {
     write(precision, data, 0);
   }
 
-  public void write(@Nonnull Precision precision, @Nonnull double[] data, long offset) {
+  public void write(@Nonnull Precision precision, @Nonnull Tensor data, long offset) {
+    int length = data.length();
     assert getType() == MemoryType.Managed || CudaDevice.isThreadDeviceId(getDeviceId());
-    if (size < (offset + data.length) * precision.size)
+    if (size < (offset + length) * precision.size) {
+      data.freeRef();
       throw new IllegalArgumentException(
-          RefString.format("%d != (%d + %d) * %d", size, offset, data.length, precision.size));
-    CudaSystem.cudaMemcpy(getPtr().withByteOffset(offset * precision.size), precision.getPointer(data),
-        (long) data.length * precision.size, cudaMemcpyKind.cudaMemcpyHostToDevice);
-    CudaMemory.getGpuStats(deviceId).memoryWrites.addAndGet((long) data.length * precision.size);
+          RefString.format("%d != (%d + %d) * %d", size, offset, length, precision.size));
+    }
+    CudaSystem.cudaMemcpy(getPtr().withByteOffset(offset * precision.size), precision.getPointer(data.getData()),
+        (long) length * precision.size, cudaMemcpyKind.cudaMemcpyHostToDevice);
+    CudaMemory.getGpuStats(deviceId).memoryWrites.addAndGet((long) length * precision.size);
+    data.freeRef();
   }
 
   @Nonnull

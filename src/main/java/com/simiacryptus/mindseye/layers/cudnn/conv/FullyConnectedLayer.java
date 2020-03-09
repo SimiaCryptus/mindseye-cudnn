@@ -118,10 +118,7 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
 
   @Nonnull
   public void setWeights(@Nonnull final DoubleSupplier f) {
-    Tensor weights = getWeights();
-    assert weights != null;
-    RefArrays.parallelSetAll(weights.getData(), i -> f.getAsDouble());
-    weights.freeRef();
+    weights.set(i -> f.getAsDouble());
   }
 
   public void setWeightsLog(double value) {
@@ -205,11 +202,7 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
   @Nonnull
   @Override
   public RefList<double[]> state() {
-    Tensor weights = getWeights();
-    assert weights != null;
-    RefList<double[]> refList = RefArrays.asList(weights.getData());
-    weights.freeRef();
-    return refList;
+    return RefArrays.asList(weights.getData());
   }
 
   public void set(@Nonnull DoubleSupplier fn) {

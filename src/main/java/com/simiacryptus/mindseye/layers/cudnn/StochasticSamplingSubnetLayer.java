@@ -97,7 +97,7 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
     productLayer.setPrecision(precision);
     RefUtil.freeRef(gateNetwork.add(productLayer, gateNetwork.getInput(0),
         gateNetwork.add(
-            new ValueLayer(tensor.map(RefUtil.wrapInterface(v -> 1.0 / samples.length, RefUtil.addRefs(samples)))),
+            new ValueLayer(tensor.map(RefUtil.wrapInterface(v -> 1.0 / samples.length, RefUtil.addRef(samples)))),
             new DAGNode[]{})));
     tensor.freeRef();
     SumInputsLayer sumInputsLayer = new SumInputsLayer();
@@ -142,7 +142,7 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
           }
           assert inner != null;
           inner.setFrozen(isFrozen());
-          return inner.eval(RefUtil.addRefs(counting));
+          return inner.eval(RefUtil.addRef(counting));
         }, counting)).toArray(i -> new Result[i]), precision);
   }
 

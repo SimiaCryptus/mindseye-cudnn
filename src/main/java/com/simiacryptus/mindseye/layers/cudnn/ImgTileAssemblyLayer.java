@@ -108,9 +108,9 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     final int length = data0.length();
     data0.freeRef();
     assert 3 == inputDimensions.length;
-    int[] outputDims = getOutputDims(RefUtil.addRefs(inObj));
-    final TensorList outputData = fwd(length, outputDims, RefUtil.addRefs(inObj));
-    Result.Accumulator accumulator = new Accumulator(this.addRef(), outputData.addRef(), length, outputDims, rows, columns, parallel, RefUtil.addRefs(inObj));
+    int[] outputDims = getOutputDims(RefUtil.addRef(inObj));
+    final TensorList outputData = fwd(length, outputDims, RefUtil.addRef(inObj));
+    Result.Accumulator accumulator = new Accumulator(this.addRef(), outputData.addRef(), length, outputDims, rows, columns, parallel, RefUtil.addRef(inObj));
     boolean isAlive = RefArrays.stream(inObj).anyMatch(x -> {
       boolean temp_09_0009 = x.isAlive();
       x.freeRef();
@@ -301,7 +301,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
               int[] tileDimensions = temp_09_0020.getDimensions();
               temp_09_0020.freeRef();
               rowHeight = Math.max(rowHeight, tileDimensions[1]);
-              copies.add(new CopyParams(gpu.addRef(), RefUtil.addRefs(inObj), outputBuffer.addRef(),
+              copies.add(new CopyParams(gpu.addRef(), RefUtil.addRef(inObj), outputBuffer.addRef(),
                   length, outputDims, tileDimensions, inputIndex, positionX, totalHeight));
               positionX += tileDimensions[0];
               inputIndex += 1;
@@ -323,7 +323,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
               length, outputDims, precision);
           gpu.freeRef();
           return cudaTensorList;
-        }, RefUtil.addRefs(inObj)),
+        }, RefUtil.addRef(inObj)),
         RefArrays.stream(inObj).map(result -> {
           TensorList data = result.getData();
           result.freeRef();
@@ -499,7 +499,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
           in.freeRef();
           rowHeight = Math.max(rowHeight, tileDimensions[1]);
           if (inObj[inputIndex].isAlive()) {
-            tasks.add(new BackpropParams(RefUtil.addRefs(inObj), buffer == null ? null : buffer.addRef(),
+            tasks.add(new BackpropParams(RefUtil.addRef(inObj), buffer == null ? null : buffer.addRef(),
                 error.addRef(), outputDims, tileDimensions, length, positionX,
                 totalHeight, inputIndex));
           }

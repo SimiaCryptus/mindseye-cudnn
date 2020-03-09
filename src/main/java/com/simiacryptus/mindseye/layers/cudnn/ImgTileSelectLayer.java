@@ -363,13 +363,13 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
       if (alive) {
         DeltaSet<UUID> buffer1 = buffer == null ? null : buffer.addRef();
         this.accumulator.accept(buffer1, CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
-                    boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
-                    return new CudaTensorList(
-                        copy(gpu, error.addRef(), dimOut, dimIn, precision, -imgTileSelectLayer.positionX, -imgTileSelectLayer.positionY, dirty),
-                        length, dimIn, precision);
-                  }, error.addRef(),
-                  imgTileSelectLayer.addRef()),
-                  error.addRef()));
+              boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
+              return new CudaTensorList(
+                  copy(gpu, error.addRef(), dimOut, dimIn, precision, -imgTileSelectLayer.positionX, -imgTileSelectLayer.positionY, dirty),
+                  length, dimIn, precision);
+            }, error.addRef(),
+            imgTileSelectLayer.addRef()),
+            error.addRef()));
       }
       error.freeRef();
       if (null != buffer)

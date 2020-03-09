@@ -431,15 +431,15 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
 
       if (alive) {
         this.accumulator.accept(buffer, CudaSystem
-              .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
-                @Nullable final CudaTensor errorPtr = gpu.getTensor(delta.addRef(), precision,
-                    MemoryType.Device, false);
-                boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
-                CudaTensor cudaTensor = copy(gpu, errorPtr,
-                    length, dimOut, dimIn, dirty, precision, horizontalAlign,
-                    verticalAlign, roundUp, baseValue);
-                return new CudaTensorList(cudaTensor, length, dimIn, precision);
-              }, delta.addRef()), delta));
+            .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
+              @Nullable final CudaTensor errorPtr = gpu.getTensor(delta.addRef(), precision,
+                  MemoryType.Device, false);
+              boolean dirty = dimOut[0] >= dimIn[0] && dimOut[1] >= dimIn[1];
+              CudaTensor cudaTensor = copy(gpu, errorPtr,
+                  length, dimOut, dimIn, dirty, precision, horizontalAlign,
+                  verticalAlign, roundUp, baseValue);
+              return new CudaTensorList(cudaTensor, length, dimIn, precision);
+            }, delta.addRef()), delta));
       } else {
         delta.freeRef();
         if (null != buffer)

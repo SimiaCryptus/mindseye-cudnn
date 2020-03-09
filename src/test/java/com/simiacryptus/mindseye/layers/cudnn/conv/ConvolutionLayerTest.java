@@ -60,15 +60,12 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     convolutionLayer.setPrecision(precision);
     convolutionLayer.setBatchBands(batchBands);
     convolutionLayer.setStrideXY(stride, stride);
-    this.convolutionLayer = convolutionLayer;
     @Nonnull
     Random random = getRandom();
-    Tensor kernel = this.convolutionLayer.getKernel();
-    assert kernel != null;
-    kernel.set(() -> {
+    convolutionLayer.set(() -> {
       return random(random);
     });
-    kernel.freeRef();
+    this.convolutionLayer = convolutionLayer;
     this.smallSize = smallSize;
     this.largeSize = largeSize;
     this.testingBatchSize = 2;
@@ -104,11 +101,8 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     assert this.convolutionLayer != null;
     @Nonnull
     ExplodedConvolutionGrid explodedNetwork = this.convolutionLayer.getExplodedNetwork();
-    Tensor temp_12_0007 = this.convolutionLayer.getKernel();
-    assert temp_12_0007 != null;
     @Nonnull
-    int[] kernelDims = temp_12_0007.getDimensions();
-    temp_12_0007.freeRef();
+    int[] kernelDims = this.convolutionLayer.getKernelDimensions();
     Tensor temp_12_0003 = new Tensor(kernelDims);
     @Nullable
     Tensor testData = temp_12_0003.map(x -> random());

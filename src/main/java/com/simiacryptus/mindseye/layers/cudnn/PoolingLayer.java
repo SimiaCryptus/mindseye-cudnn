@@ -325,7 +325,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
             return new CudaTensor(outputTensor,
                 outputDescriptor, precision);
           } catch (@Nonnull final Throwable e) {
-            throw new ComponentException("Error processing " + RefArrays.stream(RefUtil.addRefs(inObj)).map(x -> {
+            throw new ComponentException("Error processing " + RefArrays.stream(RefUtil.addRef(inObj)).map(x -> {
               TensorList temp_37_0018 = x.getData();
               String temp_37_0004 = RefArrays.toString(temp_37_0018.getDimensions());
               temp_37_0018.freeRef();

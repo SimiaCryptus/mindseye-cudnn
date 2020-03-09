@@ -74,9 +74,10 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
   }
 
   public void write(@Nonnull Tensor filter) {
+    assert filter.rms() > 0;
     if (1 == subLayers.size()) {
       ExplodedConvolutionLeg leg = subLayers.get(0);
-      leg.write(filter.addRef());
+      leg.write(filter);
       leg.freeRef();
     } else {
       subLayers.forEach(leg -> {
@@ -91,11 +92,12 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
           return filter.get(coords[0], coords[1], getFilterBand(leg.addRef(), coords[2]));
         }, leg.addRef(), filter.addRef()), false);
         template.freeRef();
+        assert tensor.rms() > 0;
         leg.write(tensor);
         leg.freeRef();
       });
+      filter.freeRef();
     }
-    filter.freeRef();
   }
 
   public Tensor read(@Nonnull @RefAware RefFunction<ExplodedConvolutionLeg, Tensor> extractor) {
@@ -167,10 +169,9 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
       paddedInput = input.addRef();
     }
     input.freeRef();
-    InnerNode output = null;
+    final InnerNode output;
     if (subLayers.size() == 1) {
       ExplodedConvolutionLeg leg = subLayers.get(0);
-      RefUtil.freeRef(output);
       output = (InnerNode) leg.add(paddedInput, network.addRef());
       leg.freeRef();
     } else {
@@ -185,7 +186,6 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
       linearSubnetLayer.setPrecision(convolutionParams.precision);
       linearSubnetLayer.setParallel(isParallel);
       assert network != null;
-      RefUtil.freeRef(output);
       output = network.add(linearSubnetLayer, paddedInput);
       output.setParallel(isParallel);
     }

@@ -173,7 +173,7 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
       @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision,
           MemoryType.Device, true);
       CudaMemory biasMem = gpu.allocate(bias.length() * precision.size, MemoryType.Device, true);
-      biasMem.write(precision, bias.getData());
+      biasMem.write(precision, bias.addRef());
       int[] biasDim = bias.getDimensions();
       CudaDevice.CudaTensorDescriptor biasDescriptor = gpu.newTensorDescriptor(precision, 1, biasDim[2],
           biasDim[1], biasDim[0], biasDim[2] * biasDim[1] * biasDim[0], biasDim[1] * biasDim[0], biasDim[0],
@@ -223,14 +223,14 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
     public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
       if (alive) {
         @Nonnull
-        double[] biasDelta = CudaSystem
-            .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, double[]>) gpu -> {
+        Tensor biasDelta = CudaSystem
+            .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, Tensor>) gpu -> {
                   @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta == null ? null : delta.addRef(),
                       precision, MemoryType.Device, false);
 
                   CudaMemory temp_33_0012 = gpu.allocate(bias.length() * precision.size, MemoryType.Device,
                       true);
-                  temp_33_0012.write(precision, bias.getData());
+                  temp_33_0012.write(precision, bias.addRef());
                   CudaMemory biasMem = temp_33_0012.addRef();
                   temp_33_0012.freeRef();
                   int[] biasDim = bias.getDimensions();
@@ -248,14 +248,14 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
                   assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
                   gpu.freeRef();
                   biasMem.dirty();
-                  double[] biasV = new double[bias.length()];
-                  biasMem.read(precision, biasV, 0);
+                  Tensor biasV = new Tensor(bias.getDimensions());
+                  biasMem.read(precision, biasV.addRef(), 0);
                   biasMem.freeRef();
                   return biasV;
                 }, delta == null ? null : delta.addRef(), bias.addRef()),
                 delta == null ? null : delta.addRef());
         DeltaSet<UUID> buffer1 = buffer == null ? null : buffer.addRef();
-        biasinputAccumulator.accept(buffer1, new TensorArray(new Tensor(biasDelta, bias.getDimensions())));
+        biasinputAccumulator.accept(buffer1, new TensorArray(biasDelta));
       }
       if (inputAlive) {
         DeltaSet<UUID> buffer1 = buffer == null ? null : buffer.addRef();

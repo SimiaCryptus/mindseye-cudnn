@@ -78,10 +78,10 @@ public class CudaSettings implements Settings {
       RefSystem.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
     appSettings.freeRef();
     maxTotalMemory = Settings.get("MAX_TOTAL_MEMORY", 12 * CudaMemory.GiB);
-    maxDeviceMemory = Settings.get("MAX_DEVICE_MEMORY", 6 * CudaMemory.GiB);
+    maxDeviceMemory = Settings.get("MAX_DEVICE_MEMORY", 8 * CudaMemory.GiB);
     maxAllocSize = (long) Settings.get("MAX_ALLOC_SIZE", (double) Precision.Double.size * (Integer.MAX_VALUE / 2 - 1L));
-    maxFilterElements = (long) Settings.get("MAX_FILTER_ELEMENTS", (double) 126 * CudaMemory.MiB);
-    maxIoElements = Settings.get("MAX_IO_ELEMENTS", (double) 126 * CudaMemory.MiB);
+    maxFilterElements = (long) Settings.get("MAX_FILTER_ELEMENTS", (double) 256 * CudaMemory.MiB);
+    maxIoElements = Settings.get("MAX_IO_ELEMENTS", (double) 256 * CudaMemory.MiB);
     convolutionWorkspaceSizeLimit = (long) Settings.get("CONVOLUTION_WORKSPACE_SIZE_LIMIT",
         (double) 126 * CudaMemory.MiB);
     disable = Settings.get("DISABLE_CUDNN", false);

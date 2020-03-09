@@ -31,7 +31,13 @@ import java.util.Random;
 public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
 
   @RefIgnore
-  private final ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1).set(() -> this.random());
+  private final ConvolutionLayer convolutionLayer;
+
+  {
+    ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1);
+    convolutionLayer.set(() -> this.random());
+    this.convolutionLayer = convolutionLayer;
+  }
 
   @Nullable
   @Override

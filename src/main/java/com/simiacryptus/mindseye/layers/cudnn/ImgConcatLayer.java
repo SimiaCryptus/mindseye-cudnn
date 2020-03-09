@@ -139,7 +139,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
     int[] dimensions = getDimensions(data0);
     assert 3 == dimensions.length;
     @Nonnull final int[] outputDimensions = RefArrays.copyOf(dimensions, dimensions.length);
-    assert RefArrays.stream(RefUtil.addRefs(inObj)).allMatch(x -> {
+    assert RefArrays.stream(RefUtil.addRef(inObj)).allMatch(x -> {
       TensorList data = getData(x);
       @Nonnull
       int[] d = data.getDimensions();
@@ -148,7 +148,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
       data.freeRef();
       return temp_31_0002;
     });
-    outputDimensions[2] = RefArrays.stream(RefUtil.addRefs(inObj)).mapToInt(x -> {
+    outputDimensions[2] = RefArrays.stream(RefUtil.addRef(inObj)).mapToInt(x -> {
       TensorList temp_31_0017 = getData(x);
       int temp_31_0003 = temp_31_0017.getDimensions()[2];
       temp_31_0017.freeRef();
@@ -214,7 +214,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
           int dimension = data.getDimensions()[2];
           data.freeRef();
           return dimension;
-        }, RefUtil.addRefs(inObj))).sum();
+        }, RefUtil.addRef(inObj))).sum();
         if (maxBands > 0)
           bandOffset = Math.min(bandOffset, maxBands);
         int inputBands = inputDimensions[2];
@@ -253,13 +253,13 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
           cudaOutput.dirty();
         }
         input.freeRef();
-      }, RefUtil.addRefs(inObj), cudaOutput.addRef()));
+      }, RefUtil.addRef(inObj), cudaOutput.addRef()));
       CudaDevice.CudaTensorDescriptor outDesc = gpu.newTensorDescriptor(precision, length, outputDimensions[2],
           outputDimensions[1], outputDimensions[0]);
       gpu.freeRef();
       return new CudaTensorList(new CudaTensor(cudaOutput,
           outDesc, precision), length, outputDimensions, precision);
-    }, RefUtil.addRefs(inObj)), RefArrays.stream(inObj).map(result -> {
+    }, RefUtil.addRef(inObj)), RefArrays.stream(inObj).map(result -> {
       return getData(result);
     }).toArray());
   }
@@ -311,7 +311,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
         assert inputDimentions[1] == outputDimensions[1];
         int bandOffset = RefIntStream.range(0, i).map(RefUtil.wrapInterface(j -> {
           return getDimensions(getTensorList(inObj[j].addRef()))[2];
-        }, RefUtil.addRefs(inObj))).sum();
+        }, RefUtil.addRef(inObj))).sum();
         int inputBands = maxBands <= 0 ? inputDimentions[2]
             : Math.min(inputDimentions[2], maxBands - bandOffset);
         if (inputBands > 0 && input.isAlive()) {
@@ -386,7 +386,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
         }
         //assert passbackTensorList.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(v->Double.isFinite(v));
         input.freeRef();
-      }, delta, RefUtil.addRefs(inObj), buffer));
+      }, delta, RefUtil.addRef(inObj), buffer));
     }
 
     public @SuppressWarnings("unused")

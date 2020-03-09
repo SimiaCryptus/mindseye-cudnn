@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.lang.cudnn.*;
-import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.InnerNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
@@ -95,8 +94,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
     PipelineNetwork pipelineNetwork = new PipelineNetwork(1);
     RefUtil.freeRef(pipelineNetwork.add(new SumInputsLayer(), RefArrays.stream(networks)
         .map(RefUtil.wrapInterface((Function<? super PipelineNetwork, ? extends InnerNode>) network -> {
-          return DAGNetwork
-              .transferNode(pipelineNetwork.addRef(), network.getHead(), network);
+          return pipelineNetwork.transferNode(network, network.getHead());
         }, pipelineNetwork.addRef())).toArray(i -> new DAGNode[i])));
     return pipelineNetwork;
   }
@@ -130,8 +128,8 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
       compatibilityLayer.freeRef();
       return result;
     }
-    TensorList data = fwd(RefUtil.addRefs(inObj));
-    Accumulator accumulator = new Accumulator(parallel, RefUtil.addRefs(inObj));
+    TensorList data = fwd(RefUtil.addRef(inObj));
+    Accumulator accumulator = new Accumulator(parallel, RefUtil.addRef(inObj));
     boolean alive = alive(inObj);
     return new Result(data, accumulator, alive);
   }
@@ -198,7 +196,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
     @Override
     public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
       @Nonnull
-      RefStream<Result> deltaStream = RefArrays.stream(RefUtil.addRefs(inObj));
+      RefStream<Result> deltaStream = RefArrays.stream(RefUtil.addRef(inObj));
       if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
         deltaStream = deltaStream.parallel();
       deltaStream.filter(result -> {

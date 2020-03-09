@@ -26,7 +26,6 @@ import com.simiacryptus.mindseye.test.ToleranceStatistics;
 import com.simiacryptus.mindseye.test.unit.*;
 import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.RefIgnore;
-import com.simiacryptus.ref.lang.RefUtil;
 import org.junit.After;
 import org.junit.Test;
 
@@ -47,22 +46,13 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
   protected SimpleConvolutionLayerTest(final int radius, final int bands, final Precision precision, int stride) {
     this.radius = radius;
     this.bands = bands;
-    SimpleConvolutionLayer temp_10_0002 = new SimpleConvolutionLayer(radius, radius, bands * bands);
-    temp_10_0002.setPrecision(precision);
-    SimpleConvolutionLayer temp_10_0005 = RefUtil.addRef(temp_10_0002);
-    temp_10_0005.setStrideX(stride);
-    SimpleConvolutionLayer temp_10_0006 = temp_10_0005.addRef();
-    temp_10_0006.setStrideY(stride);
-    SimpleConvolutionLayer temp_10_0007 = temp_10_0006.addRef();
-    SimpleConvolutionLayer temp_10_0001 = temp_10_0007.setWeightsLog(-2);
-    temp_10_0007.freeRef();
-    temp_10_0006.freeRef();
-    temp_10_0005.freeRef();
-    temp_10_0002.freeRef();
-    layer = temp_10_0001.addRef();
-    temp_10_0001.freeRef();
-    layer.kernel.set(() -> random());
-    RefUtil.freeRef(layer.kernel.addRef());
+    SimpleConvolutionLayer simpleConvolutionLayer = new SimpleConvolutionLayer(radius, radius, bands * bands);
+    simpleConvolutionLayer.setPrecision(precision);
+    simpleConvolutionLayer.setStrideX(stride);
+    simpleConvolutionLayer.setStrideY(stride);
+    simpleConvolutionLayer.setWeightsLog(-2);
+    layer = simpleConvolutionLayer;
+    layer.set(() -> random());
     smallSize = this.radius;
     testTraining = false;
     largeSize = 800;

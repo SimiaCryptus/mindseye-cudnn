@@ -25,7 +25,6 @@ import com.simiacryptus.ref.lang.RecycleBin;
 import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
-import com.simiacryptus.ref.wrappers.RefConsumer;
 import com.simiacryptus.ref.wrappers.RefFunction;
 import com.simiacryptus.ref.wrappers.RefString;
 import com.simiacryptus.ref.wrappers.RefSystem;
@@ -158,13 +157,13 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
       gpu.freeRef();
       try {
         assert CudaDevice.isThreadDeviceId(deviceId);
-        CudaSystem.withDevice(memory.getDeviceId(), RefUtil.wrapInterface((RefConsumer<CudnnHandle>) dev -> {
+        CudaSystem.withDevice(memory.getDeviceId(), dev -> {
           assert CudaDevice.isThreadDeviceId(dev.getDeviceId());
           CudaMemory memory = getMemory(dev);
           assert memory != null;
-          memory.read(descriptor.dataType, result.getData(), index * descriptor.nStride);
+          memory.read(descriptor.dataType, result.addRef(), index * descriptor.nStride);
           memory.freeRef();
-        }, result.addRef()));
+        });
         assert CudaDevice.isThreadDeviceId(deviceId);
       } catch (Throwable e) {
         log.warn("Error", e);
@@ -194,10 +193,10 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
       }
     } else {
       try {
-        RefUtil.freeRef(withDense(gpu, index, RefUtil.wrapInterface((Function<CudaMemory, CudaMemory>) mem -> {
-          mem.read(this.descriptor.dataType, result.getData(), 0);
+        RefUtil.freeRef(withDense(gpu, index, mem -> {
+          mem.read(this.descriptor.dataType, result.addRef(), 0);
           return mem;
-        }, result.addRef())));
+        }));
       } finally {
         assert CudaDevice.isThreadDeviceId(deviceId);
       }

@@ -111,7 +111,7 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
   }
 
   public int getDeviceId() {
-    return null==cudaTensor?-1:cudaTensor.getDeviceId();
+    return null == cudaTensor ? -1 : cudaTensor.getDeviceId();
   }
 
   @Nonnull
@@ -129,7 +129,18 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
    */
   @Nonnull
   public Precision getPrecision() {
-    return null == cudaTensor? null : cudaTensor.getPrecision();
+    return null == cudaTensor ? null : cudaTensor.getPrecision();
+  }
+
+  void setCudaTensor(CudaTensor cudaTensor) {
+    synchronized (this) {
+      if (cudaTensor != this.cudaTensor) {
+        RefUtil.freeRef(this.cudaTensor);
+        this.cudaTensor = cudaTensor;
+      } else {
+        cudaTensor.freeRef();
+      }
+    }
   }
 
   private synchronized void setHeapCopy(TensorArray toHeap) {
@@ -168,17 +179,6 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
     return new CudaTensorList(
         new CudaTensor(ptr, descriptor, precision),
         length, dimensions, precision);
-  }
-
-  void setCudaTensor(CudaTensor cudaTensor) {
-    synchronized (this) {
-      if (cudaTensor != this.cudaTensor) {
-        RefUtil.freeRef(this.cudaTensor);
-        this.cudaTensor = cudaTensor;
-      } else {
-        cudaTensor.freeRef();
-      }
-    }
   }
 
   @Override
@@ -292,7 +292,7 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
         if (cudaTensor.isDense()) {
           CudaMemory memory = cudaTensor.getMemory(gpu.addRef());
           assert memory != null;
-          memory.read(cudaTensor.getPrecision(), t.getData(), i * Tensor.length(getDimensions()));
+          memory.read(cudaTensor.getPrecision(), t.addRef(), i * Tensor.length(getDimensions()));
           memory.freeRef();
         } else {
           cudaTensor.read(gpu.addRef(), i, t.addRef(), false);
@@ -433,7 +433,7 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
 
   private TensorArray toHeap(boolean avoidAllocations, CudaTensor gpuCopy) {
     try {
-      if(null == gpuCopy) return null;
+      if (null == gpuCopy) return null;
       int length = getLength();
       if (0 >= length) {
         throw new IllegalStateException();
@@ -451,7 +451,7 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
                       gpuCopy.read(gpu.addRef(), i, output[i].addRef(), avoidAllocations);
                     }
                     gpu.freeRef();
-                    return new TensorArray(RefUtil.addRefs(output));
+                    return new TensorArray(RefUtil.addRef(output));
                   }, this.addRef()
               ), output));
       TensorArray result = timedResult.getResult();
@@ -468,7 +468,7 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
       timedResult.freeRef();
       return result;
     } finally {
-      if(null != gpuCopy) gpuCopy.freeRef();
+      if (null != gpuCopy) gpuCopy.freeRef();
     }
   }
 }

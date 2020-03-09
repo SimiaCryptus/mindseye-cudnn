@@ -51,6 +51,10 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
     this(new Tensor(1, 1, bands));
   }
 
+  public ImgBandBiasLayer(double... values) {
+    this(new Tensor(values, new int[]{1, 1, values.length}));
+  }
+
   public ImgBandBiasLayer(@Nullable final Tensor bias) {
     setBias(bias);
   }
@@ -132,7 +136,7 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
       inputData.freeRef();
       RefUtil.freeRef(inObj);
       throw new IllegalArgumentException(
-          RefString.format("Input dimensions=%s; Bias dimensions=%s", RefArrays.toString(bias.getDimensions())));
+          RefString.format("Input dimensions=%s; Bias dimensions=%s", RefArrays.toString(inputDimensions), RefArrays.toString(bias.getDimensions())));
     }
     if (0 == Tensor.length(inputData.getDimensions())) {
       inputData.freeRef();
@@ -207,7 +211,7 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
         @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision,
             MemoryType.Device, true);
         CudaMemory biasMem = gpu.allocate(bias.length() * precision.size, MemoryType.Device, true);
-        biasMem.write(precision, bias.getData());
+        biasMem.write(precision, bias.addRef());
         int[] biasDim = bias.getDimensions();
         CudaDevice.CudaTensorDescriptor biasDescriptor = gpu.newTensorDescriptor(precision, 1, biasDim[2],
             biasDim[1], biasDim[0], biasDim[2] * biasDim[1] * biasDim[0], biasDim[1] * biasDim[0], biasDim[0],
@@ -263,14 +267,14 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
     public void accept(@Nonnull DeltaSet<UUID> buffer, @Nullable TensorList delta) {
       if (!frozen) {
         @Nonnull
-        double[] biasDelta = CudaSystem
-            .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, double[]>) gpu -> {
-              @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta == null ? null : delta.addRef(),
+        Tensor biasDelta = CudaSystem
+            .run(gpu -> {
+              @Nullable final CudaTensor deltaTensor = gpu.getTensor(delta.addRef(),
                   precision, MemoryType.Device, false);
 
               CudaMemory biasMem = gpu.allocate(bias.length() * precision.size, MemoryType.Device,
                   true);
-              biasMem.write(precision, bias.getData());
+              biasMem.write(precision, bias.addRef());
               int[] biasDim = bias.getDimensions();
               CudaDevice.CudaTensorDescriptor biasDescriptor = gpu.newTensorDescriptor(precision, 1,
                   biasDim[2], biasDim[1], biasDim[0], biasDim[2] * biasDim[1] * biasDim[0],
@@ -285,13 +289,13 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
               deltaTensor.freeRef();
               assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
               biasMem.dirty();
-              double[] biasV = new double[bias.length()];
-              biasMem.read(precision, biasV, 0);
+              Tensor biasV = new Tensor(bias.getDimensions());
+              biasMem.read(precision, biasV.addRef(), 0);
               biasMem.freeRef();
               gpu.freeRef();
               return biasV;
-            }, delta == null ? null : delta.addRef()), delta == null ? null : delta.addRef());
-        Delta<UUID> temp_17_0015 = buffer.get(id, bias == null ? null : bias.addRef());
+            }, delta.addRef());
+        Delta<UUID> temp_17_0015 = buffer.get(id, bias.addRef());
         assert temp_17_0015 != null;
         temp_17_0015.addInPlace(biasDelta);
         temp_17_0015.freeRef();
@@ -309,7 +313,7 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
     void _free() {
       super._free();
       bias.freeRef();
-      if(null != accumulator) accumulator.freeRef();
+      if (null != accumulator) accumulator.freeRef();
     }
   }
 }

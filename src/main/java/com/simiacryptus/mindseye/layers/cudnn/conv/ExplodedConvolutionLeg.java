@@ -93,6 +93,7 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
 
   @Nonnull
   public void write(@Nonnull Tensor filter) {
+    assert filter.rms() > 0;
     int inputBands = getInputBands();
     @Nonnull final int[] filterDimensions = RefArrays.copyOf(this.convolutionParams.masterFilterDimensions,
         this.convolutionParams.masterFilterDimensions.length);
@@ -105,10 +106,11 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     assert RefArrays.equals(filter.getDimensions(), filterDimensions) : RefArrays.toString(filter.getDimensions())
         + " != " + RefArrays.toString(filterDimensions);
     final int inputBandsSq = inputBands * inputBands;
-    RefIntStream.range(0, subLayers.size()).parallel().forEach(RefUtil.wrapInterface(layerNumber -> {
+    assert subLayers.size() > 0;
+    RefIntStream.range(0, subLayers.size()).parallel().forEach(layerNumber -> {
       final int filterBandOffset = layerNumber * inputBandsSq;
       Tensor kernel = new Tensor(filterDimensions[0], filterDimensions[1], inputBandsSq);
-      kernel.setByCoord(RefUtil.wrapInterface(c -> {
+      kernel.setByCoord(c -> {
         int[] coords = c.getCoords();
         int filterBand = getFilterBand(filterBandOffset, coords[2], squareOutputBands);
         if (filterBand < filterDimensions[2]) {
@@ -116,11 +118,13 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
         } else {
           return 0;
         }
-      }, filter.addRef()), true);
+      }, true);
+      assert kernel.rms() > 0;
       SimpleConvolutionLayer simpleConvolutionLayer = subKernels.get(layerNumber);
       simpleConvolutionLayer.set(kernel);
       simpleConvolutionLayer.freeRef();
-    }, filter));
+    });
+    filter.freeRef();
   }
 
   @Nonnull
@@ -172,13 +176,11 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
       RefMap<UUID, Delta<UUID>> map = deltaSet.getMap();
       Delta<UUID> uuidDelta = map.get(sublayer.getId());
       assert uuidDelta != null;
-      Delta<UUID> subnetDelta = null;
+      final Delta<UUID> subnetDelta;
       if (remove) {
-        RefUtil.freeRef(subnetDelta);
         subnetDelta = map.remove(sublayer.addRef());
         uuidDelta.freeRef();
       } else {
-        RefUtil.freeRef(subnetDelta);
         subnetDelta = uuidDelta;
       }
       map.freeRef();
@@ -187,7 +189,7 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
         sublayer.freeRef();
         throw new RuntimeException("No Delta for " + toString);
       }
-      Tensor kernel = new Tensor(subnetDelta.getDelta(), sublayer.kernel.getDimensions());
+      Tensor kernel = new Tensor(subnetDelta.getDelta(), sublayer.getKernelDimensions());
       sublayer.freeRef();
       subnetDelta.freeRef();
       return kernel;
@@ -197,7 +199,7 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
   @Nonnull
   public Tensor read() {
     return read(sublayer -> {
-      Tensor kernel = sublayer.kernel.addRef();
+      Tensor kernel = sublayer.getKernel();
       sublayer.freeRef();
       return kernel;
     });
