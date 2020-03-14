@@ -88,7 +88,6 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -336,7 +335,6 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     }
   }
 
-  @Nonnull
   public static CudaDevice.CudaTensorDescriptor simpleDescriptor(int length, int[] dimOut, @Nonnull CudnnHandle gpu, Precision precision) {
     CudaDevice.CudaTensorDescriptor tensorDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
@@ -505,11 +503,9 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     public int output_offset;
     @Nullable
     public CudaMemory input_memory;
-    @Nullable
     public CudaDevice.CudaTensorDescriptor input_view_descriptor;
     @Nullable
     public CudaMemory output_memory;
-    @Nullable
     private CudaDevice.CudaTensorDescriptor output_view_descriptor;
 
     public CopyParams(CudnnHandle gpu) {
@@ -526,7 +522,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
       this.input_offset = input_offset;
     }
 
-    public void setInput_view_descriptor(@Nullable CudaDevice.CudaTensorDescriptor input_view_descriptor) {
+    public void setInput_view_descriptor(CudaDevice.CudaTensorDescriptor input_view_descriptor) {
       if (null != this.input_view_descriptor)
         this.input_view_descriptor.freeRef();
       this.input_view_descriptor = input_view_descriptor;
@@ -546,7 +542,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
       this.output_offset = output_offset;
     }
 
-    public void setOutput_view_descriptor(@Nullable CudaDevice.CudaTensorDescriptor output_view_descriptor) {
+    public void setOutput_view_descriptor(CudaDevice.CudaTensorDescriptor output_view_descriptor) {
       this.output_view_descriptor = output_view_descriptor;
     }
 
@@ -556,7 +552,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
 
     public void set() {
       assert this.input_view_descriptor != null;
-      @Nonnull final CudaDevice.CudaTensorDescriptor input_view_descriptor = this.input_view_descriptor.addRef();
+      final CudaDevice.CudaTensorDescriptor input_view_descriptor = this.input_view_descriptor.addRef();
       assert output_memory != null;
       CudaMemory output_with_offset = output_memory.withByteOffset(output_offset * precision.size);
       assert input_memory != null;
@@ -575,7 +571,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
 
     public void add() {
       assert this.input_view_descriptor != null;
-      @Nonnull final CudaDevice.CudaTensorDescriptor input_view_descriptor = this.input_view_descriptor.addRef();
+      final CudaDevice.CudaTensorDescriptor input_view_descriptor = this.input_view_descriptor.addRef();
       assert input_memory != null;
       CudaMemory input_with_offset = input_memory.withByteOffset(input_offset * precision.size);
       assert output_memory != null;

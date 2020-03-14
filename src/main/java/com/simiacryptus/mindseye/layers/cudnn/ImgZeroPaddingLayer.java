@@ -67,7 +67,6 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;

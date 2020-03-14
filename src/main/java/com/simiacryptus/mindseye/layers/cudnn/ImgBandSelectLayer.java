@@ -63,7 +63,6 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
     return from;
   }
 
-  @Nonnull
   public void setFrom(final int from) {
     this.from = from;
   }
@@ -73,7 +72,6 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -83,7 +81,6 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
     return to;
   }
 
-  @Nonnull
   public void setTo(int to) {
     this.to = to;
   }
@@ -158,7 +155,7 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
       @Nullable final CudaTensor cudaInput = gpu.getTensor(inputData.addRef(), precision,
           MemoryType.Device, false);
       final int byteOffset = cudaInput.descriptor.cStride * getFrom() * precision.size;
-      @Nonnull final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length,
+      final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length,
           outputDimensions[2], outputDimensions[1], outputDimensions[0], //
           cudaInput.descriptor.nStride, //
           cudaInput.descriptor.cStride, //
@@ -212,13 +209,13 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
       if (alive) {
         final TensorList passbackTensorList = CudaSystem
             .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
-              @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision,
+              final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision,
                   length, outputDimensions[2], outputDimensions[1], outputDimensions[0], //
                   inputDimensions[2] * inputDimensions[1] * inputDimensions[0], //
                   inputDimensions[1] * inputDimensions[0], //
                   inputDimensions[0], //
                   1);
-              @Nonnull final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision,
+              final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision,
                   length, inputDimensions[2], inputDimensions[1], inputDimensions[0], //
                   inputDimensions[2] * inputDimensions[1] * inputDimensions[0], //
                   inputDimensions[1] * inputDimensions[0], //

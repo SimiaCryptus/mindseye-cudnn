@@ -89,7 +89,6 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -204,7 +203,7 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
       try {
         @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
             .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_ADD, precision);
-        @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+        final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
             inputDimensions[2], inputDimensions[1], inputDimensions[0],
             inputDimensions[2] * inputDimensions[1] * inputDimensions[0],
             inputDimensions[1] * inputDimensions[0], inputDimensions[0], 1);

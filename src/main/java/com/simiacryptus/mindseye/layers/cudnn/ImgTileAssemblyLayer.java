@@ -69,7 +69,6 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -190,7 +189,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     //log.info(String.format("offset=%d,%d", offsetX, offsetY));
     @Nonnull final int[] viewDim = getViewDimensions(sourceDimensions, destinationDimensions,
         new int[]{positionX, positionY, 0});
-    @Nonnull final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(precision, //
+    final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         viewDim[2], //
         viewDim[1], //
@@ -199,7 +198,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
         source.descriptor.cStride, //
         source.descriptor.hStride, //
         source.descriptor.wStride);
-    @Nonnull final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(precision, //
+    final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         viewDim[2], //
         viewDim[1], //

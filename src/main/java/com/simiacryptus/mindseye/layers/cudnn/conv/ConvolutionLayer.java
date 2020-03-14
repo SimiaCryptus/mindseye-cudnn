@@ -184,7 +184,6 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -306,7 +305,6 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     return RefArrays.asList(kernel.getData());
   }
 
-  @Nonnull
   public void setStrideXY(int x, int y) {
     setStrideX(x);
     setStrideY(y);

@@ -105,7 +105,6 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -116,7 +115,6 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
     return weights == null ? null : weights.addRef();
   }
 
-  @Nonnull
   public void setWeights(@Nonnull final DoubleSupplier f) {
     weights.set(i -> f.getAsDouble());
   }

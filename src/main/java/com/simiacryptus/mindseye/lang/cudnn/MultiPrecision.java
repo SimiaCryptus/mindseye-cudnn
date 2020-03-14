@@ -19,6 +19,7 @@
 
 package com.simiacryptus.mindseye.lang.cudnn;
 
+import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.network.DAGNetwork;
 
@@ -30,7 +31,7 @@ public interface MultiPrecision {
 
   void setPrecision(Precision precision);
 
-  static void setPrecision(final LayerBase network, final Precision precision) {
+  static void setPrecision(final Layer network, final Precision precision) {
     try {
       if (network instanceof DAGNetwork) {
         ((DAGNetwork) network).visitLayers(layer -> {

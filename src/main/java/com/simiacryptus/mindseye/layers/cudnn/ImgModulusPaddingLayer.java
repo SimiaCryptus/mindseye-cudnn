@@ -85,7 +85,6 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision 
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -95,7 +94,6 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision 
     return roundUp;
   }
 
-  @Nonnull
   public void setRoundUp(boolean roundUp) {
     this.roundUp = roundUp;
   }

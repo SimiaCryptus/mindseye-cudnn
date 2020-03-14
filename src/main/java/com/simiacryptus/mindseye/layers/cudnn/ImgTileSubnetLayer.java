@@ -73,7 +73,6 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(Precision precision) {
     this.precision = precision;
@@ -87,7 +86,6 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
     this.parallel = parallel;
   }
 
-  @Nonnull
   @Override
   public void setFrozen(final boolean frozen) {
     Layer inner = getInner();

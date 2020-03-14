@@ -69,7 +69,6 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -149,7 +148,7 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
     return CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
       @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
           .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-      @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+      final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
           dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
           dimensions[1] * dimensions[0], dimensions[0], 1);
       @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), precision,
@@ -205,7 +204,7 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
             .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
                   @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
                       .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-                  @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision,
+                  final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision,
                       length, dimensions[2], dimensions[1], dimensions[0],
                       dimensions[2] * dimensions[1] * dimensions[0], dimensions[1] * dimensions[0],
                       dimensions[0], 1);

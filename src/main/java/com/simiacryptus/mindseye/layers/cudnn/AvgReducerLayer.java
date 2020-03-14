@@ -60,7 +60,6 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -126,7 +125,7 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision {
           MemoryType.Device, false);
       CudaMemory inputMemory = inputTensor.getMemory(gpu.addRef());
 
-      @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, 1, 1, 1);
+      final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, 1, 1, 1);
       long size = (long) precision.size * outputDescriptor.nStride * length;
       @Nonnull final CudaMemory outputMemory = gpu.allocate(size, MemoryType.Managed.ifEnabled(), true);
       CudaResource<cudnnReduceTensorDescriptor> reduceTensorDescriptor = gpu.cudnnCreateReduceTensorDescriptor(

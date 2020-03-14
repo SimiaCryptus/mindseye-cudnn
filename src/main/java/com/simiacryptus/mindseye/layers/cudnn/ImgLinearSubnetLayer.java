@@ -68,7 +68,6 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(Precision precision) {
     this.precision = precision;
@@ -82,7 +81,6 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
     this.parallel = parallel;
   }
 
-  @Nonnull
   @Override
   public void setFrozen(final boolean frozen) {
     legs.stream().map(x -> {
@@ -275,7 +273,7 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
       int[] outputDimensions = delta.getDimensions();
       synchronized (passback) {
         CudaSystem.run(RefUtil.wrapInterface((RefConsumer<CudnnHandle>) gpu -> {
-              @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
+              final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision, length,
                   outputDimensions[2], outputDimensions[1], outputDimensions[0],
                   inputDims[2] * inputDims[1] * inputDims[0], inputDims[1] * inputDims[0], inputDims[0], 1);
               final int byteOffset = viewDescriptor.cStride * leg.fromBand * precision.size;

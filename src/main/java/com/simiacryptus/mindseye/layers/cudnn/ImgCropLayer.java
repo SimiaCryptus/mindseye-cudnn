@@ -96,7 +96,6 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -186,7 +185,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
     assert destinationOffset >= 0;
 
     assert input != null;
-    @Nonnull final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(precision, //
+    final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         view_channels, //
         view_height, //
@@ -206,7 +205,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
       return new CudaTensor(offset, sourceViewDescriptor, precision);
     }
 
-    @Nonnull final CudaDevice.CudaTensorDescriptor outputViewDescriptor = gpu.newTensorDescriptor(precision, //
+    final CudaDevice.CudaTensorDescriptor outputViewDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         view_channels, //
         view_height, //
@@ -215,7 +214,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
         output_height * output_width, //
         output_width, //
         1);
-    @Nonnull final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(precision, //
+    final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         output_channels, //
         output_height, //

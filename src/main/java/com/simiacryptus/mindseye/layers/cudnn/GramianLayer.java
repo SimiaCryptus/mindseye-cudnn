@@ -70,7 +70,6 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -139,7 +138,7 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
 
           CudaMemory inputMemory = inputTensor.getMemory(gpu.addRef());
 
-          @Nonnull final CudaDevice.CudaTensorDescriptor ouputDescriptor = gpu.newTensorDescriptor(precision, length, bands * bands, 1,
+          final CudaDevice.CudaTensorDescriptor ouputDescriptor = gpu.newTensorDescriptor(precision, length, bands * bands, 1,
               1, bands * bands, //
               1, //
               1, //
@@ -147,7 +146,7 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
           @Nullable final CudaMemory outputMemory = gpu.allocate((long) ouputDescriptor.nStride * precision.size * length,
               MemoryType.Device, true);
 
-          @Nonnull final CudaDevice.CudaTensorDescriptor bufferDescriptor = gpu.newTensorDescriptor(precision, length, bands,
+          final CudaDevice.CudaTensorDescriptor bufferDescriptor = gpu.newTensorDescriptor(precision, length, bands,
               inputDimensions[1], inputDimensions[0], inputDimensions[0] * inputDimensions[1] * bands, //
               inputDimensions[0] * inputDimensions[1], //
               inputDimensions[0], //
@@ -155,7 +154,7 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
           @Nullable final CudaMemory bufferMemory = gpu.allocate((long) bufferDescriptor.nStride * length * precision.size,
               MemoryType.Device, true);
 
-          @Nonnull final CudaDevice.CudaTensorDescriptor inputViewDescriptor = gpu.newTensorDescriptor(precision, length, 1,
+          final CudaDevice.CudaTensorDescriptor inputViewDescriptor = gpu.newTensorDescriptor(precision, length, 1,
               inputDimensions[1], inputDimensions[0], inputTensor.descriptor.nStride, //
               inputTensor.descriptor.cStride, //
               inputTensor.descriptor.hStride, //
@@ -165,7 +164,7 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
               cudnnReduceTensorOp.CUDNN_REDUCE_TENSOR_ADD, precision.code, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN,
               cudnnReduceTensorIndices.CUDNN_REDUCE_TENSOR_NO_INDICES, cudnnIndicesType.CUDNN_32BIT_INDICES);
 
-          @Nonnull final CudaDevice.CudaTensorDescriptor outputViewDescriptor = gpu.newTensorDescriptor(precision, length, bands, 1, 1,
+          final CudaDevice.CudaTensorDescriptor outputViewDescriptor = gpu.newTensorDescriptor(precision, length, bands, 1, 1,
               bands * bands, 1, 1, 1);
           @Nonnull final CudaResource<cudnnOpTensorDescriptor> multiplyDescriptor = gpu
               .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
@@ -276,12 +275,12 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
 
       @Nullable final CudaMemory bufferMemory = gpu.allocate((long) inputTensor.descriptor.nStride * length * precision.size,
           MemoryType.Device, true);
-      @Nonnull final CudaDevice.CudaTensorDescriptor bufferDescriptor = gpu.newTensorDescriptor(precision, length, bands,
+      final CudaDevice.CudaTensorDescriptor bufferDescriptor = gpu.newTensorDescriptor(precision, length, bands,
           inputDimensions[1], inputDimensions[0], inputDimensions[0] * inputDimensions[1] * bands, //
           inputDimensions[0] * inputDimensions[1], //
           inputDimensions[0], //
           1);
-      @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, bands,
+      final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length, bands,
           inputDimensions[1], inputDimensions[0], inputDimensions[0] * inputDimensions[1] * bands, //
           inputDimensions[0] * inputDimensions[1], //
           inputDimensions[0], //
@@ -299,15 +298,15 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
           cudnnReduceTensorOp.CUDNN_REDUCE_TENSOR_ADD, precision.code, cudnnNanPropagation.CUDNN_NOT_PROPAGATE_NAN,
           cudnnReduceTensorIndices.CUDNN_REDUCE_TENSOR_NO_INDICES, cudnnIndicesType.CUDNN_32BIT_INDICES);
 
-      @Nonnull final CudaDevice.CudaTensorDescriptor bandDescriptor = gpu.newTensorDescriptor(precision, length, 1,
+      final CudaDevice.CudaTensorDescriptor bandDescriptor = gpu.newTensorDescriptor(precision, length, 1,
           inputDimensions[1], inputDimensions[0], inputDimensions[2] * inputDimensions[1] * inputDimensions[0],
           inputDimensions[1] * inputDimensions[0], inputDimensions[0], 1);
-      @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor1 = gpu.newTensorDescriptor(precision, length, bands, 1, 1, //
+      final CudaDevice.CudaTensorDescriptor viewDescriptor1 = gpu.newTensorDescriptor(precision, length, bands, 1, 1, //
           deltaTensor.descriptor.nStride, //
           deltaTensor.descriptor.cStride, //
           deltaTensor.descriptor.hStride, //
           deltaTensor.descriptor.wStride);
-      @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor2 = gpu.newTensorDescriptor(precision, length, bands, 1, 1, //
+      final CudaDevice.CudaTensorDescriptor viewDescriptor2 = gpu.newTensorDescriptor(precision, length, bands, 1, 1, //
           deltaTensor.descriptor.nStride, //
           deltaTensor.descriptor.cStride * bands, //
           deltaTensor.descriptor.hStride, //

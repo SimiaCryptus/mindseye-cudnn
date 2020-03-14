@@ -73,7 +73,6 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -225,14 +224,14 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
               MemoryType.Device, false);
           assert maxBands <= 0 || inputBands <= maxBands;
           assert inputBands <= inputDimensions[2];
-          @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+          final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
               inputBands, outputDimensions[1], outputDimensions[0], //
               outputDimensions[2] * outputDimensions[1] * outputDimensions[0], //
               outputDimensions[1] * outputDimensions[0], //
               outputDimensions[0], //
               1);
 
-          @Nonnull final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length,
+          final CudaDevice.CudaTensorDescriptor inputDescriptor = gpu.newTensorDescriptor(precision, length,
               inputBands, inputDimensions[1], inputDimensions[0], //
               cudaInput.descriptor.nStride, //
               cudaInput.descriptor.cStride, //
@@ -322,7 +321,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
                 @Nullable final CudaTensor cudaDelta = gpu.getTensor(delta.addRef(), precision, MemoryType.Device, true);
                 CudaMemory cudaDeltaMemory = cudaDelta.getMemory(gpu.addRef());
                 if (inputDimentions[2] == inputBands) {
-                  @Nonnull final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision,
+                  final CudaDevice.CudaTensorDescriptor viewDescriptor = gpu.newTensorDescriptor(precision,
                       length, inputDimentions[2], inputDimentions[1], inputDimentions[0], //
                       cudaDelta.descriptor.nStride, //
                       cudaDelta.descriptor.cStride, //
@@ -338,19 +337,19 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
                       new CudaTensor(ptr, viewDescriptor, precision),
                       length, inputDimentions, precision);
                 } else {
-                  @Nonnull final CudaDevice.CudaTensorDescriptor passbackTransferDescriptor = gpu.newTensorDescriptor(
+                  final CudaDevice.CudaTensorDescriptor passbackTransferDescriptor = gpu.newTensorDescriptor(
                       precision, length, inputBands, inputDimentions[1], inputDimentions[0], //
                       inputDimentions[2] * inputDimentions[1] * inputDimentions[0], //
                       inputDimentions[1] * inputDimentions[0], //
                       inputDimentions[0], //
                       1);
-                  @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision,
+                  final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision,
                       length, inputDimentions[2], inputDimentions[1], inputDimentions[0], //
                       inputDimentions[2] * inputDimentions[1] * inputDimentions[0], //
                       inputDimentions[1] * inputDimentions[0], //
                       inputDimentions[0], //
                       1);
-                  @Nonnull final CudaDevice.CudaTensorDescriptor deltaViewDescriptor = gpu.newTensorDescriptor(precision,
+                  final CudaDevice.CudaTensorDescriptor deltaViewDescriptor = gpu.newTensorDescriptor(precision,
                       length, inputBands, inputDimentions[1], inputDimentions[0], //
                       cudaDelta.descriptor.nStride, //
                       cudaDelta.descriptor.cStride, //

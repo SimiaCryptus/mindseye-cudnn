@@ -66,6 +66,7 @@ public class CudaSettings implements Settings {
   public Precision defaultPrecision;
 
   private CudaSettings() {
+    CudaSystem.printHeader(System.out);
     RefHashMap<String, String> appSettings = LocalAppSettings.read();
     String spark_home = RefSystem.getenv("SPARK_HOME");
     File sparkHomeFile = new File(spark_home == null ? "." : spark_home);
@@ -86,19 +87,19 @@ public class CudaSettings implements Settings {
         (double) 126 * CudaMemory.MiB);
     disable = Settings.get("DISABLE_CUDNN", false);
     forceSingleGpu = Settings.get("FORCE_SINGLE_GPU", true);
-    conv_para_1 = Settings.get("CONV_PARA_1", false);
+    conv_para_1 = Settings.get("CONV_PARA_1", true);
     conv_para_2 = Settings.get("CONV_PARA_2", false);
     conv_para_3 = Settings.get("CONV_PARA_3", false);
     memoryCacheMode = Settings.get("CUDA_CACHE_MODE", PersistanceMode.WEAK);
+    memoryCacheTTL = Settings.get("CUDA_CACHE_TTL", 5);
     logStack = Settings.get("CUDA_LOG_STACK", false);
     profileMemoryIO = Settings.get("CUDA_PROFILE_MEM_IO", false);
-    enableManaged = false;
-    syncBeforeFree = false;
-    memoryCacheTTL = 5;
-    convolutionCache = true;
+    enableManaged = Settings.get("CUDA_MANAGED_MEM", false);
+    syncBeforeFree = Settings.get("SYNC_BEFORE_FREE", false);
     defaultDevices = Settings.get("CUDA_DEVICES", "");
     this.handlesPerDevice = Settings.get("CUDA_HANDLES_PER_DEVICE", 8);
     defaultPrecision = Precision.valueOf(Settings.get("CUDA_DEFAULT_PRECISION", Precision.Double.name()));
+    convolutionCache = true;
     allDense = false;
     verbose = false;
   }

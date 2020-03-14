@@ -83,7 +83,6 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(@Nonnull final Precision precision) {
     this.precision = precision;
@@ -162,7 +161,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     assert sourceOffset + Tensor.length(viewDim) <= Tensor.length(inputDimensions);
     assert destinationOffset + Tensor.length(viewDim) <= Tensor.length(outputDimensions);
 
-    @Nonnull final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(precision, //
+    final CudaDevice.CudaTensorDescriptor sourceViewDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         viewDim[2], //
         viewDim[1], //
@@ -185,7 +184,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
       return temp_24_0002;
     }
 
-    @Nonnull final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(precision, //
+    final CudaDevice.CudaTensorDescriptor destinationViewDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         viewDim[2], //
         viewDim[1], //
@@ -205,7 +204,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     outputPtr.dirty();
     inputTensorMemory.dirty();
     inputTensorMemory.freeRef();
-    @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, //
+    final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
         outputDimensions[2], //
         outputDimensions[1], //

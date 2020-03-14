@@ -72,7 +72,6 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(Precision precision) {
     this.precision = precision;

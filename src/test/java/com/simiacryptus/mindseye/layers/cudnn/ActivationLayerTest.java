@@ -33,7 +33,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefCollectors;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
-import smile.plot.PlotCanvas;
+import smile.plot.swing.PlotCanvas;
 
 import javax.annotation.Nonnull;
 import java.util.Random;

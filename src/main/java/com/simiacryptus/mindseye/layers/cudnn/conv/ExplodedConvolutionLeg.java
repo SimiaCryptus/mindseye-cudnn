@@ -91,7 +91,6 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     return this.toBand - this.fromBand;
   }
 
-  @Nonnull
   public void write(@Nonnull Tensor filter) {
     assert filter.rms() > 0;
     int inputBands = getInputBands();

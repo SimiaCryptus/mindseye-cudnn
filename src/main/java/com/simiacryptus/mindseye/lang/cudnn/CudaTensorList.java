@@ -174,7 +174,7 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
   }
 
   @Nonnull
-  public static CudaTensorList create(@Nullable final CudaMemory ptr, @Nullable CudaDevice.CudaTensorDescriptor descriptor,
+  public static CudaTensorList create(@Nullable final CudaMemory ptr, CudaDevice.CudaTensorDescriptor descriptor,
                                       final int length, @Nonnull final int[] dimensions, @Nonnull final Precision precision) {
     return new CudaTensorList(
         new CudaTensor(ptr, descriptor, precision),

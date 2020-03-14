@@ -112,7 +112,6 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -199,7 +198,7 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
         assert getPrecision() != null;
         @Nullable final CudaTensor inputTensor = gpu.getTensor(inputData.addRef(), getPrecision(),
             MemoryType.Device, false);
-        @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(getPrecision(), outputSize[0],
+        final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(getPrecision(), outputSize[0],
             outputSize[1], outputSize[2], outputSize[3], outputSize[1] * outputSize[2] * outputSize[3],
             outputSize[2] * outputSize[3], outputSize[3], 1);
         @Nonnull final CudaMemory outputTensor = gpu.allocate((long) getPrecision().size * Tensor.length(outputSize),
@@ -260,7 +259,7 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
       if (alive) {
         TensorList data = CudaSystem
             .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
-                  @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(
+                  final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(
                       precision, length, inputSize[2], inputSize[1], inputSize[0],
                       inputSize[2] * inputSize[1] * inputSize[0], inputSize[1] * inputSize[0], inputSize[0],
                       1);

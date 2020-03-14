@@ -61,7 +61,6 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -93,7 +92,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
   public static CudaTensor copy(@Nonnull final CudnnHandle gpu, @Nonnull final CudaTensor input, final int length,
                                 @Nonnull Precision precision, final int splitX, final int splitY) {
     CudaMemory inputTensorMemory = input.getMemory(gpu.addRef());
-    @Nonnull final CudaDevice.CudaTensorDescriptor imageDescriptor = gpu.newTensorDescriptor(precision, length,
+    final CudaDevice.CudaTensorDescriptor imageDescriptor = gpu.newTensorDescriptor(precision, length,
         input.descriptor.channels, input.descriptor.height, input.descriptor.width, input.descriptor.nStride,
         input.descriptor.cStride, input.descriptor.hStride, input.descriptor.wStride);
     @Nonnull final CudaMemory outputBuffer = gpu.allocate((long) length * imageDescriptor.nStride * precision.size,
@@ -101,7 +100,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
     int splitY2 = input.descriptor.height - splitY;
     int splitX2 = input.descriptor.width - splitX;
     {
-      @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, length,
+      final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, length,
           input.descriptor.channels, splitY, splitX, input.descriptor.nStride, input.descriptor.cStride,
           input.descriptor.hStride, input.descriptor.wStride);
       assert inputTensorMemory != null;
@@ -112,7 +111,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
       tileDescriptor.freeRef();
     }
     {
-      @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, length,
+      final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, length,
           input.descriptor.channels, splitY2, splitX, input.descriptor.nStride, input.descriptor.cStride,
           input.descriptor.hStride, input.descriptor.wStride);
       CudaSystem.handle(gpu.cudnnTransformTensor(precision.getPointer(1.0), tileDescriptor.getPtr(),
@@ -122,7 +121,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
       tileDescriptor.freeRef();
     }
     {
-      @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, length,
+      final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, length,
           input.descriptor.channels, splitY, splitX2, input.descriptor.nStride, input.descriptor.cStride,
           input.descriptor.hStride, input.descriptor.wStride);
       CudaSystem.handle(gpu.cudnnTransformTensor(precision.getPointer(1.0), tileDescriptor.getPtr(),
@@ -131,7 +130,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
           outputBuffer.getPtr().withByteOffset(splitY2 * input.descriptor.hStride * precision.size)));
       tileDescriptor.freeRef();
     }
-    @Nonnull final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, length,
+    final CudaDevice.CudaTensorDescriptor tileDescriptor = gpu.newTensorDescriptor(precision, length,
         input.descriptor.channels, splitY2, splitX2, input.descriptor.nStride, input.descriptor.cStride,
         input.descriptor.hStride, input.descriptor.wStride);
     CudaSystem.handle(gpu.cudnnTransformTensor(precision.getPointer(1.0), tileDescriptor.getPtr(),

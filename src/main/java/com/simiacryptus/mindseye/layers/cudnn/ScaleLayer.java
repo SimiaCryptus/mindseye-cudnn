@@ -64,7 +64,6 @@ public class ScaleLayer extends PipelineNetwork implements MultiPrecision {
     return null;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(Precision precision) {
     MultiPrecision.setPrecision(this.addRef(), precision);

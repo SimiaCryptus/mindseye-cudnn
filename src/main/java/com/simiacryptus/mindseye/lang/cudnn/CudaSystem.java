@@ -216,16 +216,10 @@ public class CudaSystem extends ReferenceCountingBase {
     RefUtil.freeRef(map.put("cudaMemcpyAsync", toMap(cudaMemcpyAsync_execution)));
     RefUtil.freeRef(map.put("cudaSetDeviceFlags", toMap(cudaSetDeviceFlags_execution)));
 
-    Set<Map.Entry<CharSequence, Map<CharSequence, CharSequence>>> temp_25_0004 = map.entrySet();
-    List<CharSequence> list = temp_25_0004.stream().filter(x -> {
-      Map<CharSequence, CharSequence> temp_25_0005 = x.getValue();
-      boolean temp_25_0001 = temp_25_0005.isEmpty();
-      RefUtil.freeRef(x);
-      return temp_25_0001;
+    List<CharSequence> list = map.entrySet().stream().filter(x -> {
+      return x.getValue().isEmpty();
     }).map(x -> {
-      CharSequence temp_25_0002 = x.getKey();
-      RefUtil.freeRef(x);
-      return temp_25_0002;
+      return x.getKey();
     }).collect(Collectors.toList());
     list.stream().forEach(value -> RefUtil.freeRef(map.remove(value)));
     return map;
@@ -263,6 +257,7 @@ public class CudaSystem extends ReferenceCountingBase {
       JCuda.cudaGetDeviceProperties(deviceProp, device);
       out.printf("Device %d = %s%n", device, deviceProp, free[0], total[0]);
     });
+    out.printf("CuDNN version: %d / %d%n", JCudnn.cudnnGetVersion(), JCudnn.cudnnGetCudartVersion());
     RefSystem.getProperties().forEach((k, v) -> {
       boolean display = false;
       if (k.toString().endsWith(".version"))

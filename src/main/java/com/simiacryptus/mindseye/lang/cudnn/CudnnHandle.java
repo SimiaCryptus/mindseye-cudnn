@@ -101,7 +101,6 @@ public class CudnnHandle extends CudaDevice {
     else return (T) obj.addRef();
   }
 
-  @Nonnull
   public @RefAware
   void call(@Nonnull @RefAware final RefConsumer<CudnnHandle> fn) {
     try {
@@ -188,7 +187,7 @@ public class CudnnHandle extends CudaDevice {
     assert lPtr.descriptor.width == rPtr.descriptor.width;
     @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_ADD,
         precision);
-    @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = newTensorDescriptor(left.getPrecision(), length, d2, d1,
+    final CudaDevice.CudaTensorDescriptor outputDescriptor = newTensorDescriptor(left.getPrecision(), length, d2, d1,
         d0, d2 * d1 * d0, d1 * d0, d0, 1);
     left.freeRef();
     @Nonnull final CudaMemory outputPtr = allocate((long) outputDescriptor.nStride * precision.size * length,
@@ -384,7 +383,7 @@ public class CudnnHandle extends CudaDevice {
     }
     @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_ADD,
         precision);
-    @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = newTensorDescriptor(precision, length, dimensions[2],
+    final CudaDevice.CudaTensorDescriptor outputDescriptor = newTensorDescriptor(precision, length, dimensions[2],
         dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0], dimensions[1] * dimensions[0],
         dimensions[0], 1);
     @Nullable final CudaTensor lPtr = getTensor(left.addRef(), precision, MemoryType.Device, false);//.moveTo(gpu.getDeviceNumber());

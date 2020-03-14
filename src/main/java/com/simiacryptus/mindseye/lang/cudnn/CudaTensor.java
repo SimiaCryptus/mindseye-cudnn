@@ -39,14 +39,13 @@ import java.util.function.Function;
 public class CudaTensor extends ReferenceCountingBase implements CudaSystem.CudaDeviceResource {
   static final Logger log = LoggerFactory.getLogger(CudaTensor.class);
 
-  @Nonnull
   public final CudaDevice.CudaTensorDescriptor descriptor;
   public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getStackTrace()
       : new StackTraceElement[]{};
   @Nonnull
   final CudaMemory memory;
 
-  public CudaTensor(@Nullable final CudaMemory memory, @Nullable final CudaDevice.CudaTensorDescriptor descriptor,
+  public CudaTensor(@Nullable final CudaMemory memory, final CudaDevice.CudaTensorDescriptor descriptor,
                     @Nonnull final Precision precision) {
     assert descriptor != null;
     assert memory != null;

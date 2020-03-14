@@ -93,7 +93,6 @@ public class ActivationLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -174,7 +173,7 @@ public class ActivationLayer extends LayerBase implements MultiPrecision {
         RefUtil.freeRef(outputTensor);
         outputTensor = inputTensor.addRef();
       } else {
-        @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+        final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
             inputSize[2], inputSize[1], inputSize[0], inputSize[2] * inputSize[1] * inputSize[0],
             inputSize[1] * inputSize[0], inputSize[0], 1);
         @Nonnull final CudaMemory outputData = gpu.allocate((long) precision.size * inputDims * length,

@@ -137,7 +137,6 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     gpuFilters.clear();
@@ -292,7 +291,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
   public static int getForwardAlgorithm(@Nonnull final CudnnHandle gpu, @Nonnull final CudaTensor inputTensor,
                                         @Nonnull final CudaResource<cudnnFilterDescriptor> filterDescriptor,
                                         @Nonnull final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor,
-                                        @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor) {
+                                        final CudaDevice.CudaTensorDescriptor outputDescriptor) {
     int gpuForwardAlgorithm = gpu.getForwardAlgorithm(inputTensor.descriptor.getPtr(), filterDescriptor.getPtr(),
         convolutionDescriptor.getPtr(), outputDescriptor.getPtr(),
         CudaSettings.INSTANCE().getConvolutionWorkspaceSizeLimit());
@@ -319,10 +318,10 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     return backwardFilterAlgorithm;
   }
 
-  public static int getBackwardDataAlgorithm(@Nonnull final CudnnHandle gpu, @Nullable final CudaDevice.CudaTensorDescriptor dyDescriptor,
+  public static int getBackwardDataAlgorithm(@Nonnull final CudnnHandle gpu, final CudaDevice.CudaTensorDescriptor dyDescriptor,
                                              @Nullable final CudaResource<cudnnFilterDescriptor> filterDescriptor,
                                              @Nullable final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor,
-                                             @Nullable CudaDevice.CudaTensorDescriptor dxDescriptor) {
+                                             CudaDevice.CudaTensorDescriptor dxDescriptor) {
     gpu.freeRef();
     if (null != dxDescriptor)
       dxDescriptor.freeRef();
@@ -350,7 +349,6 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     return fwd(precision, strideX, strideY, gpu, paddingX, paddingY, inputLength, outputSize, new int[]{1, 1, outputSize[2], inputDims[2]}, inputDims, delta, cudaMemory);
   }
 
-  @NotNull
   private static CudaDevice.CudaTensorDescriptor newTensorDescriptor(Precision precision, @Nonnull CudnnHandle gpu, int inputLength, int[] outputDims) {
     CudaDevice.CudaTensorDescriptor tensorDescriptor = gpu.newTensorDescriptor(precision, inputLength,
         outputDims[2], outputDims[1], outputDims[0], outputDims[2] * outputDims[1] * outputDims[0],
@@ -549,7 +547,6 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     return RefArrays.asList(kernel.getData());
   }
 
-  @Nonnull
   public void setPaddingXY(int x, int y) {
     setPaddingX(x);
     setPaddingY(y);
@@ -575,7 +572,6 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     return true;
   }
 
-  @Nonnull
   public void setStrideXY(int x, int y) {
     setStrideX(x);
     setStrideY(y);

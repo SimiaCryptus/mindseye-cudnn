@@ -223,12 +223,10 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     }
   }
 
-  @Nonnull
   public void read(@Nonnull final Precision precision, @Nonnull final float[] destination) {
     read(precision, destination, 0);
   }
 
-  @Nonnull
   public void read(@Nonnull final Precision precision, @Nonnull final float[] destination, int offset) {
     if (size < (long) destination.length * precision.size) {
       throw new IllegalArgumentException(size + " != " + (long) destination.length * precision.size);
@@ -316,7 +314,6 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
     return (CudaMemory) super.addRef();
   }
 
-  @Nonnull
   void clear() {
     CudaSystem.cudaMemset(getPtr(), 0, size);
   }

@@ -83,7 +83,6 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
     return leftFactor;
   }
 
-  @Nonnull
   public void setLeftFactor(final double leftFactor) {
     this.leftFactor = leftFactor;
   }
@@ -93,7 +92,6 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -103,7 +101,6 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
     return rightFactor;
   }
 
-  @Nonnull
   public void setRightFactor(final double rightFactor) {
     this.rightFactor = rightFactor;
   }
@@ -233,7 +230,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
     return CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
           @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
               .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_ADD, precision);
-          @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+          final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
               dimensions[2], dimensions[1], dimensions[0], dimensions[2] * dimensions[1] * dimensions[0],
               dimensions[1] * dimensions[0], dimensions[0], 1);
           @Nullable final CudaTensor lPtr = gpu.getTensor(leftData.addRef(), precision,
@@ -304,7 +301,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
                     @Nonnull final CudaMemory passbackPtr = gpu.allocate(
                         precision.size * Tensor.length(dimensions) * length, MemoryType.Managed.ifEnabled(),
                         true);
-                    @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(
+                    final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(
                         precision, length, dimensions[2], dimensions[1], dimensions[0],
                         dimensions[2] * dimensions[1] * dimensions[0], dimensions[1] * dimensions[0],
                         dimensions[0], 1);
@@ -340,7 +337,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
                         @Nonnull final CudaMemory outputPtr = gpu.allocate(
                             precision.size * Tensor.length(dimensions) * length, MemoryType.Managed.ifEnabled(),
                             true);
-                        @Nonnull final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(
+                        final CudaDevice.CudaTensorDescriptor passbackDescriptor = gpu.newTensorDescriptor(
                             precision, length, dimensions[2], dimensions[1], dimensions[0],
                             dimensions[2] * dimensions[1] * dimensions[0], dimensions[1] * dimensions[0],
                             dimensions[0], 1);

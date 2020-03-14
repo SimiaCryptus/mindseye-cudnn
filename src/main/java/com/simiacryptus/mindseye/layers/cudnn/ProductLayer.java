@@ -66,7 +66,6 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
     return precision;
   }
 
-  @Nonnull
   @Override
   public void setPrecision(final Precision precision) {
     this.precision = precision;
@@ -180,7 +179,7 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
     return CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
           @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
               .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-          @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
+          final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(precision, length,
               leftDimensions[2], leftDimensions[1], leftDimensions[0],
               leftDimensions[2] * leftDimensions[1] * leftDimensions[0], leftDimensions[1] * leftDimensions[0],
               leftDimensions[0], 1);
@@ -249,7 +248,7 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
             .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
                   @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
                       .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-                  @Nonnull final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(
+                  final CudaDevice.CudaTensorDescriptor outputDescriptor = gpu.newTensorDescriptor(
                       precision, length, leftDimensions[2], leftDimensions[1], leftDimensions[0],
                       leftDimensions[2] * leftDimensions[1] * leftDimensions[0],
                       leftDimensions[1] * leftDimensions[0], leftDimensions[0], 1);
@@ -293,7 +292,7 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
             .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
                   @Nonnull final CudaResource<cudnnOpTensorDescriptor> opDescriptor = gpu
                       .newOpDescriptor(cudnnOpTensorOp.CUDNN_OP_TENSOR_MUL, precision);
-                  @Nonnull final CudaDevice.CudaTensorDescriptor expandedDescriptor = gpu.newTensorDescriptor(
+                  final CudaDevice.CudaTensorDescriptor expandedDescriptor = gpu.newTensorDescriptor(
                       precision, length, leftDimensions[2], leftDimensions[1], leftDimensions[0],
                       leftDimensions[2] * leftDimensions[1] * leftDimensions[0],
                       leftDimensions[1] * leftDimensions[0], leftDimensions[0], 1);
@@ -328,7 +327,7 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
                         new CudaTensor(outputPtr, expandedDescriptor, precision),
                         length, rightDimensions, precision);
                   } else {
-                    @Nonnull final CudaDevice.CudaTensorDescriptor reducedOutputDescriptor = gpu.newTensorDescriptor(
+                    final CudaDevice.CudaTensorDescriptor reducedOutputDescriptor = gpu.newTensorDescriptor(
                         precision, rightData.length(), rightDimensions[2], rightDimensions[1],
                         rightDimensions[0], rightDimensions[2] * rightDimensions[1] * rightDimensions[0],
                         rightDimensions[1] * rightDimensions[0], rightDimensions[0], 1);
