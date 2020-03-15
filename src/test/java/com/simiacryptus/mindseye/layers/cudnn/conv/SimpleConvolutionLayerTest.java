@@ -27,11 +27,14 @@ import com.simiacryptus.mindseye.test.unit.*;
 import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.RefIgnore;
 import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
@@ -162,9 +165,12 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
 
     @Override
-    @Test(timeout = 15 * 60 * 1000, expected = Throwable.class)
+    @Test
+    @Timeout(value = 15, unit = TimeUnit.MINUTES)
     public void test() throws Throwable {
-      super.test();
+      Assertions.assertThrows(Throwable.class, () -> {
+        super.test();
+      });
     }
 
     @Override

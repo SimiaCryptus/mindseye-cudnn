@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.network.DAGNetwork;
 
 import javax.annotation.Nullable;
