@@ -29,6 +29,7 @@ import com.simiacryptus.ref.lang.RefIgnore;
 import org.junit.After;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.Timeout;
 
 import javax.annotation.Nonnull;
@@ -167,9 +168,9 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     @Override
     @Test
     @Timeout(value = 15, unit = TimeUnit.MINUTES)
-    public void test() throws Throwable {
+    public void test(TestInfo testInfo) {
       Assertions.assertThrows(Throwable.class, () -> {
-        super.test();
+        super.test(testInfo);
       });
     }
 

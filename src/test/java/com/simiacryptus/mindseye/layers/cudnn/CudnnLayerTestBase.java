@@ -22,7 +22,7 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSettings;
 import com.simiacryptus.mindseye.lang.cudnn.CudaSystem;
-import com.simiacryptus.mindseye.layers.LayerTestBase;
+import com.simiacryptus.mindseye.test.LayerTestBase;
 import com.simiacryptus.notebook.NotebookOutput;
 
 import javax.annotation.Nonnull;

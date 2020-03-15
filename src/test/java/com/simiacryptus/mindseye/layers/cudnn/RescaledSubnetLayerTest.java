@@ -27,6 +27,7 @@ import com.simiacryptus.ref.lang.RefIgnore;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.Timeout;
 
 import javax.annotation.Nonnull;
@@ -92,8 +93,8 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
     @Test
     @Timeout(value = 15, unit = TimeUnit.MINUTES)
     @Ignore // Crashing SpanBug!?!?
-    public void test() throws Throwable {
-      super.test();
+    public void test(TestInfo testInfo) {
+      super.test(testInfo);
     }
 
   }
