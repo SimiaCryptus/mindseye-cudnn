@@ -39,7 +39,7 @@ import java.util.function.IntFunction;
 @SuppressWarnings("serial")
 public class SumReducerLayer extends LayerBase implements MultiPrecision {
 
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   public SumReducerLayer() {
     super();

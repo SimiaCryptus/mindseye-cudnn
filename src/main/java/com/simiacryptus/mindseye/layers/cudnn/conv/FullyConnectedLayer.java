@@ -53,7 +53,7 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
   @Nullable
   private final Tensor weights;
 
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private int batchBands = 0;
 
   private FullyConnectedLayer() {

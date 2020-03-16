@@ -54,7 +54,7 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
   private Integer paddingX = null;
   @Nullable
   private Integer paddingY = null;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private int batchBands = 0;
 
   protected ConvolutionLayer() {
@@ -79,7 +79,7 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
       throw new IllegalArgumentException();
     this.inputBands = inputBands;
     this.outputBands = outputBands;
-    setBatchBands((int) Math.sqrt(CudaSettings.INSTANCE().getMaxFilterElements() / (width * height)));
+    setBatchBands((int) Math.sqrt(CudaSettings.INSTANCE().maxFilterElements / (width * height)));
   }
 
   protected ConvolutionLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {

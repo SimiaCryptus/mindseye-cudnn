@@ -41,7 +41,7 @@ import java.util.UUID;
 public class GramianLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(GramianLayer.class);
 
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private double alpha = 1.0;
 
   public GramianLayer() {

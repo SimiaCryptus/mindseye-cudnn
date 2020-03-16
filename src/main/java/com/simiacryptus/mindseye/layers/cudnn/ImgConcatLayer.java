@@ -42,7 +42,7 @@ import static com.simiacryptus.mindseye.lang.Result.getData;
 public class ImgConcatLayer extends LayerBase implements MultiPrecision {
 
   private int maxBands = -1;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private boolean parallel = true;
 
   public ImgConcatLayer() {
@@ -297,7 +297,7 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
       //assert error.stream().flatMapToDouble(x-> Arrays.stream(x.getData())).allMatch(Double::isFinite);
       @Nonnull
       RefIntStream stream = RefIntStream.range(0, inObj.length);
-      if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+      if (!CoreSettings.INSTANCE().singleThreaded && parallel)
         stream = stream.parallel();
       stream.forEach(RefUtil.wrapInterface(i -> {
         final Result input = inObj[i].addRef();

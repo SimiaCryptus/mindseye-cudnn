@@ -42,7 +42,7 @@ import java.util.function.Function;
 @SuppressWarnings("serial")
 public class SumInputsLayer extends LayerBase implements MultiPrecision {
 
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private boolean parallel = true;
 
   public SumInputsLayer() {
@@ -165,7 +165,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
     RefStream<TensorList> tensorListStream = RefArrays.stream(inObj).map(x -> {
       return Result.getData(x);
     });
-    if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+    if (!CoreSettings.INSTANCE().singleThreaded && parallel)
       tensorListStream = tensorListStream.parallel();
     return RefUtil.get(tensorListStream.reduce((leftData, rightData) -> {
       return CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, TensorList>) gpu -> {
@@ -196,7 +196,7 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
     public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
       @Nonnull
       RefStream<Result> deltaStream = RefArrays.stream(RefUtil.addRef(inObj));
-      if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+      if (!CoreSettings.INSTANCE().singleThreaded && parallel)
         deltaStream = deltaStream.parallel();
       deltaStream.filter(result -> {
         boolean alive = result.isAlive();

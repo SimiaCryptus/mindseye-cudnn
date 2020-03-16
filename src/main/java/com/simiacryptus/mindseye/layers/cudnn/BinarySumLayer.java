@@ -43,7 +43,7 @@ import java.util.UUID;
 public class BinarySumLayer extends LayerBase implements MultiPrecision {
 
   private double leftFactor;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private double rightFactor;
 
   public BinarySumLayer() {
@@ -364,7 +364,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
           delta,
           rightAccumulator.addRef()
       );
-      if (CoreSettings.INSTANCE().isSingleThreaded())
+      if (CoreSettings.INSTANCE().singleThreaded)
         Util.runAllSerial(leftRunnable, rightRunnable);
       else
         Util.runAllParallel(leftRunnable, rightRunnable);

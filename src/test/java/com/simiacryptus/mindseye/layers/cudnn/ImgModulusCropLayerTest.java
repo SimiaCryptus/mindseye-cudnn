@@ -20,6 +20,9 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
 import java.util.Random;
@@ -30,8 +33,6 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
   final int offset;
 
   public ImgModulusCropLayerTest(int modulus, int offset) {
-    validateBatchExecution = true;
-    validateDifferentials = false;
     testingBatchSize = 5;
     this.modulus = modulus;
     this.offset = offset;
@@ -40,6 +41,18 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return null;
+  }
+
+  @Override
+  @Disabled
+  public void derivativeTest(TestInfo testInfo) {
+    super.derivativeTest(testInfo);
+  }
+
+  @Override
+  @Disabled
+  public void batchingTest(TestInfo testInfo) {
+    super.batchingTest(testInfo);
   }
 
   @Nonnull

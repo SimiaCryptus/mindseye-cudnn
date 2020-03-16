@@ -20,6 +20,8 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
 import java.util.Random;
@@ -30,7 +32,6 @@ public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
   final int offset;
 
   public ImgModulusPaddingLayerTest(int inputSize, int modulus, int offset) {
-    validateBatchExecution = false;
     this.modulus = modulus;
     this.offset = offset;
   }
@@ -38,6 +39,12 @@ public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return null;
+  }
+
+  @Override
+  @Disabled
+  public void batchingTest(TestInfo testInfo) {
+    super.batchingTest(testInfo);
   }
 
   @Nonnull

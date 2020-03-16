@@ -111,11 +111,9 @@ public class CudnnHandle extends CudaDevice {
         fn.accept(CudnnHandle.this.addRef());
       }).get();
     } catch (ExecutionException e) {
-      throw new RuntimeException(e.getCause());
-    } catch (RuntimeException e) {
-      throw e;
+      throw Util.throwException(e.getCause());
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw Util.throwException(e);
     } finally {
       RefUtil.freeRef(fn);
       cleanup();
@@ -133,11 +131,9 @@ public class CudnnHandle extends CudaDevice {
         return fn.apply(CudnnHandle.this.addRef());
       }).get();
     } catch (ExecutionException e) {
-      throw new RuntimeException(e.getCause());
-    } catch (RuntimeException e) {
-      throw e;
+      throw Util.throwException(e.getCause());
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw Util.throwException(e);
     } finally {
       RefUtil.freeRef(fn);
       cleanup();
@@ -155,11 +151,9 @@ public class CudnnHandle extends CudaDevice {
         return fn.get();
       }).get();
     } catch (ExecutionException e) {
-      throw new RuntimeException(e.getCause());
-    } catch (RuntimeException e) {
-      throw e;
+      throw Util.throwException(e.getCause());
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw Util.throwException(e);
     } finally {
       RefUtil.freeRef(fn);
       cleanup();
@@ -872,7 +866,7 @@ public class CudnnHandle extends CudaDevice {
   }
 
   private void freeAll(List<CudaResourceBase> objsToFree) {
-    if (CudaSettings.INSTANCE().isSyncBeforeFree())
+    if (CudaSettings.INSTANCE().syncBeforeFree)
       synchronize(RefSystem.nanoTime(), deviceId);
     objsToFree.forEach(CudaResourceBase::release);
     threadContext.set(null);

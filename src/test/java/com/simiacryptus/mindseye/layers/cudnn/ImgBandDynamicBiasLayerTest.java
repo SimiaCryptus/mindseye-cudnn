@@ -21,13 +21,12 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
-import com.simiacryptus.mindseye.test.unit.ComponentTest;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
-import com.simiacryptus.mindseye.test.unit.TrainingTester;
 import com.simiacryptus.ref.lang.RefUtil;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Random;
 
 public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
@@ -37,28 +36,12 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
   public ImgBandDynamicBiasLayerTest(final Precision precision) {
     this.precision = precision;
     this.testingBatchSize = 1;
-    this.validateBatchExecution = false;
   }
 
-  @Nullable
   @Override
-  public ComponentTest<TrainingTester.ComponentResult> getTrainingTester() {
-    TrainingTester temp_68_0002 = new TrainingTester() {
-      public @SuppressWarnings("unused")
-      void _free() {
-        super._free();
-      }
-
-      @Nonnull
-      @Override
-      protected Layer lossLayer() {
-        return new MeanSqLossLayer();
-      }
-    };
-    temp_68_0002.setBatches(1);
-    ComponentTest<TrainingTester.ComponentResult> temp_68_0001 = isTestTraining() ? temp_68_0002.addRef() : null;
-    temp_68_0002.freeRef();
-    return temp_68_0001;
+  @Disabled
+  public void batchingTest(TestInfo testInfo) {
+    super.batchingTest(testInfo);
   }
 
   @Nonnull
@@ -81,6 +64,11 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
   @Override
   public int[][] getLargeDims(Random random) {
     return new int[][]{{1200, 1200, 3}, {1, 1, 3}};
+  }
+
+  @Override
+  protected @Nonnull Layer lossLayer() {
+    return new MeanSqLossLayer();
   }
 
   public static class Double extends ImgBandDynamicBiasLayerTest {

@@ -45,7 +45,7 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
   private PoolingMode mode = PoolingMode.Max;
   private int paddingX = 0;
   private int paddingY = 0;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private int strideX = 2;
   private int strideY = 2;
   private int windowX = 2;

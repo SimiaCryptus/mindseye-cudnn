@@ -46,7 +46,7 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
   private double alpha;
   private double beta;
   private double k;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   private LRNLayer() {
   }
@@ -72,7 +72,7 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
     if (null != precision) {
       setPrecision(Precision.valueOf(precision.getAsString()));
     } else {
-      setPrecision(CudaSettings.INSTANCE().defaultPrecision);
+      setPrecision(CudaSettings.INSTANCE().getDefaultPrecision());
     }
     assert 0 < getWidth();
     assert 0 < getAlpha();

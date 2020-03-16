@@ -38,7 +38,7 @@ import java.util.UUID;
 @SuppressWarnings("serial")
 public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision {
 
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   public ImgBandDynamicBiasLayer() {
   }

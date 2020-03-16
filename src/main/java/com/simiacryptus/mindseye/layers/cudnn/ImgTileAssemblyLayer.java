@@ -40,7 +40,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
 
   private int columns;
   private int rows;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private boolean parallel;
 
   private ImgTileAssemblyLayer() {
@@ -311,7 +311,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
           }
           assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
           RefStream<CopyParams> stream = copies.stream();
-          if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+          if (!CoreSettings.INSTANCE().singleThreaded && parallel)
             stream = stream.parallel();
           stream.forEach(copyParams -> copy(copyParams));
           copies.freeRef();
@@ -512,7 +512,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
         buffer.freeRef();
       RefStream<BackpropParams> stream = tasks.stream();
       tasks.freeRef();
-      if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+      if (!CoreSettings.INSTANCE().singleThreaded && parallel)
         stream = stream.parallel();
       stream.forEach(backpropParams -> imgTileAssemblyLayer.backprop(backpropParams));
     }

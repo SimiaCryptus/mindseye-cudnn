@@ -39,7 +39,7 @@ import java.util.UUID;
 @SuppressWarnings("serial")
 public class SquareActivationLayer extends LayerBase implements MultiPrecision {
 
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private double alpha = 1.0;
 
   public SquareActivationLayer() {

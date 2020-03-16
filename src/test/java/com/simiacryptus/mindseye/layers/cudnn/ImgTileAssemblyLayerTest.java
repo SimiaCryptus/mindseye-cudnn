@@ -20,6 +20,8 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -28,13 +30,18 @@ import java.util.Random;
 public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
 
   public ImgTileAssemblyLayerTest() {
-    validateBatchExecution = false;
   }
 
   @Nullable
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return com.simiacryptus.mindseye.layers.java.ImgTileAssemblyLayer.class;
+  }
+
+  @Override
+  @Disabled
+  public void batchingTest(TestInfo testInfo) {
+    super.batchingTest(testInfo);
   }
 
   @Nonnull

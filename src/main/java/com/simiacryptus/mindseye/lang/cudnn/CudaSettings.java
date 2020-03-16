@@ -23,15 +23,16 @@ import com.simiacryptus.lang.Settings;
 import com.simiacryptus.ref.lang.PersistanceMode;
 import com.simiacryptus.ref.wrappers.RefHashMap;
 import com.simiacryptus.ref.wrappers.RefString;
-import com.simiacryptus.ref.wrappers.RefSystem;
 import com.simiacryptus.util.JsonUtil;
 import com.simiacryptus.util.LocalAppSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
+import java.util.HashMap;
+
+import static com.simiacryptus.lang.Settings.get;
 
 public class CudaSettings implements Settings {
 
@@ -39,36 +40,40 @@ public class CudaSettings implements Settings {
 
   @Nullable
   private static transient CudaSettings INSTANCE = null;
+
   public final String defaultDevices;
-  @Nonnull
-  public final PersistanceMode memoryCacheMode;
-  public final boolean allDense;
-  public final boolean verbose;
+  public final PersistanceMode memoryCacheMode = get("CUDA_CACHE_MODE", PersistanceMode.WEAK);
+  public final boolean allDense = false;
+  public final boolean verbose = false;
   public final double asyncFreeLoadThreshold = 0.5;
-  private final long maxTotalMemory;
-  private final long maxAllocSize;
-  private final double maxIoElements;
-  private final long convolutionWorkspaceSizeLimit;
-  private final boolean disable;
-  private final boolean forceSingleGpu;
-  private final long maxFilterElements;
-  private final boolean conv_para_2;
-  private final boolean conv_para_1;
-  private final boolean conv_para_3;
-  private final long maxDeviceMemory;
-  private final boolean logStack;
-  private final boolean profileMemoryIO;
-  private final boolean enableManaged;
-  private final boolean syncBeforeFree;
-  private final int memoryCacheTTL;
-  private final boolean convolutionCache;
-  private final int handlesPerDevice;
-  public Precision defaultPrecision;
+  public final long maxTotalMemory = get("MAX_TOTAL_MEMORY", 12 * CudaMemory.GiB);
+  public final long maxAllocSize = (long) get("MAX_ALLOC_SIZE",
+      (double) Precision.Double.size * (Integer.MAX_VALUE / 2 - 1L));
+  public final double maxIoElements = get("MAX_IO_ELEMENTS",
+      (double) 256 * CudaMemory.MiB);
+  public final long convolutionWorkspaceSizeLimit = (long) get("CONVOLUTION_WORKSPACE_SIZE_LIMIT",
+      (double) 126 * CudaMemory.MiB);
+  public final boolean disable = get("DISABLE_CUDNN", false);
+  public final boolean forceSingleGpu = get("FORCE_SINGLE_GPU", true);
+  public final long maxFilterElements = (long) get("MAX_FILTER_ELEMENTS",
+      (double) 256 * CudaMemory.MiB);
+  public final boolean conv_para_2 = get("CONV_PARA_2", false);
+  public final boolean conv_para_1 = get("CONV_PARA_1", true);
+  public final boolean conv_para_3 = get("CONV_PARA_3", false);
+  public final long maxDeviceMemory = get("MAX_DEVICE_MEMORY", 8 * CudaMemory.GiB);
+  public final boolean logStack = get("CUDA_LOG_STACK", false);
+  public final boolean profileMemoryIO = get("CUDA_PROFILE_MEM_IO", false);
+  public final boolean enableManaged = get("CUDA_MANAGED_MEM", false);
+  public final boolean syncBeforeFree = get("SYNC_BEFORE_FREE", false);
+  public final int memoryCacheTTL = get("CUDA_CACHE_TTL", 5);
+  public final boolean convolutionCache = true;
+  public final int handlesPerDevice = get("CUDA_HANDLES_PER_DEVICE", 8);
+  private Precision defaultPrecision = get("CUDA_DEFAULT_PRECISION", Precision.Double);
 
   private CudaSettings() {
     CudaSystem.printHeader(System.out);
-    RefHashMap<String, String> appSettings = LocalAppSettings.read();
-    String spark_home = RefSystem.getenv("SPARK_HOME");
+    HashMap<String, String> appSettings = LocalAppSettings.read();
+    String spark_home = System.getenv("SPARK_HOME");
     File sparkHomeFile = new File(spark_home == null ? "." : spark_home);
     if (sparkHomeFile.exists()) {
       assert appSettings != null;
@@ -76,104 +81,16 @@ public class CudaSettings implements Settings {
     }
     assert appSettings != null;
     if (appSettings.containsKey("worker.index"))
-      RefSystem.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
-    appSettings.freeRef();
-    maxTotalMemory = Settings.get("MAX_TOTAL_MEMORY", 12 * CudaMemory.GiB);
-    maxDeviceMemory = Settings.get("MAX_DEVICE_MEMORY", 8 * CudaMemory.GiB);
-    maxAllocSize = (long) Settings.get("MAX_ALLOC_SIZE", (double) Precision.Double.size * (Integer.MAX_VALUE / 2 - 1L));
-    maxFilterElements = (long) Settings.get("MAX_FILTER_ELEMENTS", (double) 256 * CudaMemory.MiB);
-    maxIoElements = Settings.get("MAX_IO_ELEMENTS", (double) 256 * CudaMemory.MiB);
-    convolutionWorkspaceSizeLimit = (long) Settings.get("CONVOLUTION_WORKSPACE_SIZE_LIMIT",
-        (double) 126 * CudaMemory.MiB);
-    disable = Settings.get("DISABLE_CUDNN", false);
-    forceSingleGpu = Settings.get("FORCE_SINGLE_GPU", true);
-    conv_para_1 = Settings.get("CONV_PARA_1", true);
-    conv_para_2 = Settings.get("CONV_PARA_2", false);
-    conv_para_3 = Settings.get("CONV_PARA_3", false);
-    memoryCacheMode = Settings.get("CUDA_CACHE_MODE", PersistanceMode.WEAK);
-    memoryCacheTTL = Settings.get("CUDA_CACHE_TTL", 5);
-    logStack = Settings.get("CUDA_LOG_STACK", false);
-    profileMemoryIO = Settings.get("CUDA_PROFILE_MEM_IO", false);
-    enableManaged = Settings.get("CUDA_MANAGED_MEM", false);
-    syncBeforeFree = Settings.get("SYNC_BEFORE_FREE", false);
-    defaultDevices = Settings.get("CUDA_DEVICES", "");
-    this.handlesPerDevice = Settings.get("CUDA_HANDLES_PER_DEVICE", 8);
-    defaultPrecision = Precision.valueOf(Settings.get("CUDA_DEFAULT_PRECISION", Precision.Double.name()));
-    convolutionCache = true;
-    allDense = false;
-    verbose = false;
+      System.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
+    defaultDevices = get("CUDA_DEVICES", "");
   }
 
-  public long getConvolutionWorkspaceSizeLimit() {
-    return convolutionWorkspaceSizeLimit;
+  public Precision getDefaultPrecision() {
+    return defaultPrecision;
   }
 
-  public int getHandlesPerDevice() {
-    return handlesPerDevice;
-  }
-
-  public double getMaxAllocSize() {
-    return maxAllocSize;
-  }
-
-  public double getMaxDeviceMemory() {
-    return maxDeviceMemory;
-  }
-
-  public long getMaxFilterElements() {
-    return maxFilterElements;
-  }
-
-  public double getMaxIoElements() {
-    return maxIoElements;
-  }
-
-  public double getMaxTotalMemory() {
-    return maxTotalMemory;
-  }
-
-  public int getMemoryCacheTTL() {
-    return memoryCacheTTL;
-  }
-
-  public boolean isConv_para_1() {
-    return conv_para_1;
-  }
-
-  public boolean isConv_para_2() {
-    return conv_para_2;
-  }
-
-  public boolean isConv_para_3() {
-    return conv_para_3;
-  }
-
-  public boolean isConvolutionCache() {
-    return convolutionCache;
-  }
-
-  public boolean isDisable() {
-    return disable;
-  }
-
-  public boolean isEnableManaged() {
-    return enableManaged;
-  }
-
-  public boolean isForceSingleGpu() {
-    return forceSingleGpu;
-  }
-
-  public boolean isLogStack() {
-    return logStack;
-  }
-
-  public boolean isProfileMemoryIO() {
-    return profileMemoryIO;
-  }
-
-  public boolean isSyncBeforeFree() {
-    return syncBeforeFree;
+  public void setDefaultPrecision(Precision defaultPrecision) {
+    this.defaultPrecision = defaultPrecision;
   }
 
   @Nullable

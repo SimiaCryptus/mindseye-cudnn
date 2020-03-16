@@ -50,7 +50,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
   private final RefMap<Integer, CudaMemory> gpuFilters = new RefConcurrentHashMap<>();
   private int paddingX;
   private int paddingY;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private int strideX = 1;
   private int strideY = 1;
 
@@ -294,7 +294,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
                                         final CudaDevice.CudaTensorDescriptor outputDescriptor) {
     int gpuForwardAlgorithm = gpu.getForwardAlgorithm(inputTensor.descriptor.getPtr(), filterDescriptor.getPtr(),
         convolutionDescriptor.getPtr(), outputDescriptor.getPtr(),
-        CudaSettings.INSTANCE().getConvolutionWorkspaceSizeLimit());
+        CudaSettings.INSTANCE().convolutionWorkspaceSizeLimit);
     gpu.freeRef();
     outputDescriptor.freeRef();
     convolutionDescriptor.freeRef();
@@ -309,7 +309,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
                                                @Nonnull final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor) {
     int backwardFilterAlgorithm = gpu.getBackwardFilterAlgorithm(inputTensor.descriptor.getPtr(), filterDescriptor.getPtr(),
         convolutionDescriptor.getPtr(), deltaTensor.descriptor.getPtr(),
-        CudaSettings.INSTANCE().getConvolutionWorkspaceSizeLimit());
+        CudaSettings.INSTANCE().convolutionWorkspaceSizeLimit);
     convolutionDescriptor.freeRef();
     filterDescriptor.freeRef();
     inputTensor.freeRef();
@@ -359,7 +359,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
 
   @Nonnull
   private static CudaMemory getCudaFilter(RefMap<Integer, CudaMemory> gpuFilters, Tensor kernel, Precision precision, @Nonnull final CudaDevice gpu) {
-    if (CudaSettings.INSTANCE().isConvolutionCache()) return getCudaFilter_cached(gpuFilters, kernel, precision, gpu);
+    if (CudaSettings.INSTANCE().convolutionCache) return getCudaFilter_cached(gpuFilters, kernel, precision, gpu);
     else {
       gpuFilters.freeRef();
       return getCudaFilter_instance(kernel, precision, gpu);
@@ -743,7 +743,7 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
           }
         }
       }, delta, inputAccumulator.addRef(), buffer);
-      if (CoreSettings.INSTANCE().isSingleThreaded()) {
+      if (CoreSettings.INSTANCE().singleThreaded) {
         Util.runAllSerial(learnFn, backpropFn);
       } else {
         Util.runAllParallel(learnFn, backpropFn);

@@ -46,7 +46,7 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
   private int sizeY;
   private int offsetX;
   private int offsetY;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   private ImgModulusPaddingSubnetLayer() {
   }

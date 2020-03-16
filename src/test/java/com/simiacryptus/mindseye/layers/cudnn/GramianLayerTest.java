@@ -21,7 +21,6 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
-import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -108,13 +107,13 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
     return new GramianLayer();
   }
 
-  @Override
-  public void run(@Nonnull NotebookOutput log) {
-    //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
-    //    log.p(log.file((String) null, logName, "GPU Log"));
-    //    CudaSystem.addLog(new PrintStream(log.file(logName)));
-    super.run(log);
-  }
+//  @Override
+//  public void allTests(@Nonnull NotebookOutput log) {
+//    //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
+//    //    log.p(log.file((String) null, logName, "GPU Log"));
+//    //    CudaSystem.addLog(new PrintStream(log.file(logName)));
+//    super.allTests(log);
+//  }
 
   public static class Image extends GramianLayerTest {
     public Image() {

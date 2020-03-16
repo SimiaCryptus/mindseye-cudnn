@@ -41,7 +41,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
   private double xPos = 0.5;
   private double yPos = 0.5;
 
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   public ImgTileCycleLayer() {
   }

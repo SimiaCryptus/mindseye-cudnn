@@ -28,6 +28,7 @@ import com.simiacryptus.mindseye.lang.CoreSettings;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
@@ -130,7 +131,7 @@ public class CudaSystem extends ReferenceCountingBase {
   private static final long COPY_BLOCK_SIZE = Long.MAX_VALUE;
   private static volatile Integer cachedDeviceCount = init();
   private static volatile StaticResourcePool<CudnnHandle> pool;
-  protected final ExecutorService executionThread = CoreSettings.INSTANCE().isSingleThreaded()
+  protected final ExecutorService executionThread = CoreSettings.INSTANCE().singleThreaded
       ? MoreExecutors.newDirectExecutorService()
       : Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat(toString()).build());
 
@@ -150,7 +151,7 @@ public class CudaSystem extends ReferenceCountingBase {
 
   private static int getDeviceCount() {
     final int deviceCount;
-    if (CudaSettings.INSTANCE().isForceSingleGpu()) {
+    if (CudaSettings.INSTANCE().forceSingleGpu) {
       CudaDevice.logger.warn("Forcing Single-GPU Mode");
       deviceCount = 1;
     } else {
@@ -161,67 +162,68 @@ public class CudaSystem extends ReferenceCountingBase {
   }
 
   @Nonnull
+  @RefIgnore
   public static HashMap<CharSequence, Map<CharSequence, CharSequence>> getExecutionStatistics() {
     @Nonnull
     HashMap<CharSequence, Map<CharSequence, CharSequence>> map = new HashMap<>();
-    RefUtil.freeRef(map.put("createPoolingDescriptor", toMap(createPoolingDescriptor_execution)));
-    RefUtil.freeRef(map.put("cudaDeviceReset", toMap(cudaDeviceReset_execution)));
-    RefUtil.freeRef(map.put("cudaFree", toMap(cudaFree_execution)));
-    RefUtil.freeRef(map.put("cudaMalloc", toMap(cudaMalloc_execution)));
-    RefUtil.freeRef(map.put("cudaMallocManaged", toMap(cudaMallocManaged_execution)));
-    RefUtil.freeRef(map.put("cudaHostAlloc", toMap(cudaHostAlloc_execution)));
-    RefUtil.freeRef(map.put("cudaFreeHost", toMap(cudaFreeHost_execution)));
-    RefUtil.freeRef(map.put("cudaDeviceGetLimit", toMap(cudaDeviceGetLimit_execution)));
-    RefUtil.freeRef(map.put("cudaDeviceSetLimit", toMap(cudaDeviceSetLimit_execution)));
-    RefUtil.freeRef(map.put("cudaMemcpy", toMap(cudaMemcpy_execution)));
-    RefUtil.freeRef(map.put("cudaMemset", toMap(cudaMemset_execution)));
-    RefUtil.freeRef(map.put("cudnnActivationBackward", toMap(cudnnActivationBackward_execution)));
-    RefUtil.freeRef(map.put("cudnnActivationForward", toMap(cudnnActivationForward_execution)));
-    RefUtil.freeRef(map.put("cudnnAddTensor", toMap(cudnnAddTensor_execution)));
-    RefUtil.freeRef(map.put("cudnnConvolutionBackwardBias", toMap(cudnnConvolutionBackwardBias_execution)));
-    RefUtil.freeRef(map.put("cudnnConvolutionBackwardData", toMap(cudnnConvolutionBackwardData_execution)));
-    RefUtil.freeRef(map.put("cudnnConvolutionBackwardFilter", toMap(cudnnConvolutionBackwardFilter_execution)));
-    RefUtil.freeRef(map.put("cudnnConvolutionForward", toMap(cudnnConvolutionForward_execution)));
-    RefUtil.freeRef(map.put("cudnnDestroyActivationDescriptor", toMap(cudnnDestroyActivationDescriptor_execution)));
-    RefUtil.freeRef(map.put("cudnnDestroyConvolutionDescriptor", toMap(cudnnDestroyConvolutionDescriptor_execution)));
-    RefUtil.freeRef(map.put("cudnnDestroyFilterDescriptor", toMap(cudnnDestroyFilterDescriptor_execution)));
-    RefUtil.freeRef(map.put("cudnnDestroyOpTensorDescriptor", toMap(cudnnDestroyOpTensorDescriptor_execution)));
-    RefUtil.freeRef(map.put("cudnnDestroyPoolingDescriptor", toMap(cudnnDestroyPoolingDescriptor_execution)));
-    RefUtil.freeRef(map.put("cudnnDestroyTensorDescriptor", toMap(cudnnDestroyTensorDescriptor_execution)));
-    RefUtil.freeRef(map.put("cudnnGetPoolingNdForwardOutputDim", toMap(cudnnGetPoolingNdForwardOutputDim_execution)));
-    RefUtil.freeRef(map.put("cudnnOpTensor", toMap(cudnnOpTensor_execution)));
-    RefUtil.freeRef(map.put("cudnnPoolingBackward", toMap(cudnnPoolingBackward_execution)));
-    RefUtil.freeRef(map.put("cudnnPoolingForward", toMap(cudnnPoolingForward_execution)));
-    RefUtil.freeRef(map.put("cudnnTransformTensor", toMap(cudnnTransformTensor_execution)));
-    RefUtil.freeRef(map.put("cachedDeviceCount", toMap(deviceCount_execution)));
-    RefUtil.freeRef(map.put("setDevice", toMap(setDevice_execution)));
-    RefUtil.freeRef(map.put("getDeviceProperties", toMap(getDeviceProperties_execution)));
-    RefUtil.freeRef(map.put("getOutputDims", toMap(getOutputDims_execution)));
-    RefUtil.freeRef(map.put("newActivationDescriptor", toMap(newActivationDescriptor_execution)));
-    RefUtil.freeRef(map.put("newConvolutionNdDescriptor", toMap(newConvolutionNdDescriptor_execution)));
-    RefUtil.freeRef(map.put("newConvolutions2dDescriptor", toMap(newConvolutions2dDescriptor_execution)));
-    RefUtil.freeRef(map.put("newFilterDescriptor", toMap(newFilterDescriptor_execution)));
-    RefUtil.freeRef(map.put("newOpDescriptor", toMap(newOpDescriptor_execution)));
-    RefUtil.freeRef(map.put("newTensorDescriptor", toMap(newTensorDescriptor_execution)));
-    RefUtil.freeRef(map.put("allocateBackwardDataWorkspace", toMap(allocateBackwardDataWorkspace_execution)));
-    RefUtil.freeRef(map.put("allocateBackwardFilterWorkspace", toMap(allocateBackwardFilterWorkspace_execution)));
-    RefUtil.freeRef(map.put("allocateForwardWorkspace", toMap(allocateForwardWorkspace_execution)));
-    RefUtil.freeRef(map.put("getBackwardDataAlgorithm", toMap(getBackwardDataAlgorithm_execution)));
-    RefUtil.freeRef(map.put("getBackwardFilterAlgorithm", toMap(getBackwardFilterAlgorithm_execution)));
-    RefUtil.freeRef(map.put("getForwardAlgorithm", toMap(getForwardAlgorithm_execution)));
-    RefUtil.freeRef(map.put("cudaDeviceSynchronize", toMap(cudaDeviceSynchronize_execution)));
-    RefUtil.freeRef(map.put("cudaStreamCreate", toMap(cudaStreamCreate_execution)));
-    RefUtil.freeRef(map.put("cudaStreamDestroy", toMap(cudaStreamDestroy_execution)));
-    RefUtil.freeRef(map.put("cudaStreamSynchronize", toMap(cudaStreamSynchronize_execution)));
-    RefUtil.freeRef(map.put("cudaMemcpyAsync", toMap(cudaMemcpyAsync_execution)));
-    RefUtil.freeRef(map.put("cudaSetDeviceFlags", toMap(cudaSetDeviceFlags_execution)));
+    map.put("createPoolingDescriptor", toMap(createPoolingDescriptor_execution));
+    map.put("cudaDeviceReset", toMap(cudaDeviceReset_execution));
+    map.put("cudaFree", toMap(cudaFree_execution));
+    map.put("cudaMalloc", toMap(cudaMalloc_execution));
+    map.put("cudaMallocManaged", toMap(cudaMallocManaged_execution));
+    map.put("cudaHostAlloc", toMap(cudaHostAlloc_execution));
+    map.put("cudaFreeHost", toMap(cudaFreeHost_execution));
+    map.put("cudaDeviceGetLimit", toMap(cudaDeviceGetLimit_execution));
+    map.put("cudaDeviceSetLimit", toMap(cudaDeviceSetLimit_execution));
+    map.put("cudaMemcpy", toMap(cudaMemcpy_execution));
+    map.put("cudaMemset", toMap(cudaMemset_execution));
+    map.put("cudnnActivationBackward", toMap(cudnnActivationBackward_execution));
+    map.put("cudnnActivationForward", toMap(cudnnActivationForward_execution));
+    map.put("cudnnAddTensor", toMap(cudnnAddTensor_execution));
+    map.put("cudnnConvolutionBackwardBias", toMap(cudnnConvolutionBackwardBias_execution));
+    map.put("cudnnConvolutionBackwardData", toMap(cudnnConvolutionBackwardData_execution));
+    map.put("cudnnConvolutionBackwardFilter", toMap(cudnnConvolutionBackwardFilter_execution));
+    map.put("cudnnConvolutionForward", toMap(cudnnConvolutionForward_execution));
+    map.put("cudnnDestroyActivationDescriptor", toMap(cudnnDestroyActivationDescriptor_execution));
+    map.put("cudnnDestroyConvolutionDescriptor", toMap(cudnnDestroyConvolutionDescriptor_execution));
+    map.put("cudnnDestroyFilterDescriptor", toMap(cudnnDestroyFilterDescriptor_execution));
+    map.put("cudnnDestroyOpTensorDescriptor", toMap(cudnnDestroyOpTensorDescriptor_execution));
+    map.put("cudnnDestroyPoolingDescriptor", toMap(cudnnDestroyPoolingDescriptor_execution));
+    map.put("cudnnDestroyTensorDescriptor", toMap(cudnnDestroyTensorDescriptor_execution));
+    map.put("cudnnGetPoolingNdForwardOutputDim", toMap(cudnnGetPoolingNdForwardOutputDim_execution));
+    map.put("cudnnOpTensor", toMap(cudnnOpTensor_execution));
+    map.put("cudnnPoolingBackward", toMap(cudnnPoolingBackward_execution));
+    map.put("cudnnPoolingForward", toMap(cudnnPoolingForward_execution));
+    map.put("cudnnTransformTensor", toMap(cudnnTransformTensor_execution));
+    map.put("cachedDeviceCount", toMap(deviceCount_execution));
+    map.put("setDevice", toMap(setDevice_execution));
+    map.put("getDeviceProperties", toMap(getDeviceProperties_execution));
+    map.put("getOutputDims", toMap(getOutputDims_execution));
+    map.put("newActivationDescriptor", toMap(newActivationDescriptor_execution));
+    map.put("newConvolutionNdDescriptor", toMap(newConvolutionNdDescriptor_execution));
+    map.put("newConvolutions2dDescriptor", toMap(newConvolutions2dDescriptor_execution));
+    map.put("newFilterDescriptor", toMap(newFilterDescriptor_execution));
+    map.put("newOpDescriptor", toMap(newOpDescriptor_execution));
+    map.put("newTensorDescriptor", toMap(newTensorDescriptor_execution));
+    map.put("allocateBackwardDataWorkspace", toMap(allocateBackwardDataWorkspace_execution));
+    map.put("allocateBackwardFilterWorkspace", toMap(allocateBackwardFilterWorkspace_execution));
+    map.put("allocateForwardWorkspace", toMap(allocateForwardWorkspace_execution));
+    map.put("getBackwardDataAlgorithm", toMap(getBackwardDataAlgorithm_execution));
+    map.put("getBackwardFilterAlgorithm", toMap(getBackwardFilterAlgorithm_execution));
+    map.put("getForwardAlgorithm", toMap(getForwardAlgorithm_execution));
+    map.put("cudaDeviceSynchronize", toMap(cudaDeviceSynchronize_execution));
+    map.put("cudaStreamCreate", toMap(cudaStreamCreate_execution));
+    map.put("cudaStreamDestroy", toMap(cudaStreamDestroy_execution));
+    map.put("cudaStreamSynchronize", toMap(cudaStreamSynchronize_execution));
+    map.put("cudaMemcpyAsync", toMap(cudaMemcpyAsync_execution));
+    map.put("cudaSetDeviceFlags", toMap(cudaSetDeviceFlags_execution));
 
     List<CharSequence> list = map.entrySet().stream().filter(x -> {
       return x.getValue().isEmpty();
     }).map(x -> {
       return x.getKey();
     }).collect(Collectors.toList());
-    list.stream().forEach(value -> RefUtil.freeRef(map.remove(value)));
+    list.stream().forEach(value -> map.remove(value));
     return map;
   }
 
@@ -510,7 +512,7 @@ public class CudaSystem extends ReferenceCountingBase {
       RefUtil.freeRef(args);
       return;
     }
-    CharSequence callstack = !CudaSettings.INSTANCE().isLogStack() ? ""
+    CharSequence callstack = !CudaSettings.INSTANCE().logStack ? ""
         : Util.toString(RefArrays.stream(Thread.currentThread().getStackTrace())
         .filter(x -> true && x.getClassName().startsWith("com.simiacryptus.mindseye.")
             //&& !x.getClassName().startsWith("com.simiacryptus.mindseye.lang.")
@@ -726,7 +728,7 @@ public class CudaSystem extends ReferenceCountingBase {
       val = 0L;
     if (val < time) {
       final Long finalVal = val;
-      CharSequence caller = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getCaller() : "";
+      CharSequence caller = CudaSettings.INSTANCE().profileMemoryIO ? Util.getCaller() : "";
       withDevice(device, gpu -> {
         TimedResult<Long> timedResult = TimedResult.time(() -> cudaDeviceSynchronize());
         Long result = timedResult.getResult();
@@ -758,7 +760,7 @@ public class CudaSystem extends ReferenceCountingBase {
   }
 
   static int init() {
-    if (CudaSettings.INSTANCE().isDisable()) {
+    if (CudaSettings.INSTANCE().disable) {
       CudaDevice.logger.warn("Disabled CudaSystem");
     }
     final int deviceCount = getDeviceCount();
@@ -813,7 +815,7 @@ public class CudaSystem extends ReferenceCountingBase {
       //CudaSystem.handle(CudaSystem.cudaSetDeviceFlags(JCuda.cudaDeviceScheduleBlockingSync));
     } catch (Throwable e) {
       CudaDevice.logger.warn("Error initializing GPU", e);
-      throw new RuntimeException(e);
+      throw Util.throwException(e);
     }
     for (@Nonnull
         DeviceLimits limit : DeviceLimits.values()) {
@@ -841,7 +843,7 @@ public class CudaSystem extends ReferenceCountingBase {
     private final Integer deviceId;
 
     public HandlePool(Integer deviceId) {
-      super(CudaSettings.INSTANCE().getHandlesPerDevice());
+      super(CudaSettings.INSTANCE().handlesPerDevice);
       this.deviceId = deviceId;
     }
 

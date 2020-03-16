@@ -24,11 +24,13 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.java.SumInputsLayer;
 import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
-import com.simiacryptus.mindseye.test.ToleranceStatistics;
-import com.simiacryptus.mindseye.test.unit.ComponentTest;
+import com.simiacryptus.mindseye.test.unit.BatchingTester;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefIntStream;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -169,28 +171,41 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
 
     public Big(final Precision precision, int inputBands, int inputs, final int largeSize) {
       super(precision, inputBands, inputs, largeSize);
-      validateDifferentials = false;
-      setTestTraining(false);
       testingBatchSize = 5;
     }
 
-    @Nullable
     @Override
-    protected ComponentTest<ToleranceStatistics> getJsonTester() {
-      logger.warn("Disabled Json Test");
-      return null;
-    }
-
-    @Nullable
-    @Override
-    public ComponentTest<ToleranceStatistics> getPerformanceTester() {
-      logger.warn("Disabled Performance Test");
-      return null;
+    public @Nullable BatchingTester getBatchingTester() {
+      return getBatchingTester(1e-2, false, this.testingBatchSize);
     }
 
     @Override
     public Class<? extends Layer> getReferenceLayerClass() {
       return null;
+    }
+
+    @Override
+    @Disabled
+    public void derivativeTest(TestInfo testInfo) {
+      super.derivativeTest(testInfo);
+    }
+
+    @Override
+    @Disabled
+    public void trainingTest(TestInfo testInfo) {
+      super.trainingTest(testInfo);
+    }
+
+    @Override
+    @Disabled
+    public void jsonTest(TestInfo testInfo) {
+      super.jsonTest(testInfo);
+    }
+
+    @Override
+    @Disabled
+    public void perfTest(TestInfo testInfo) {
+      super.perfTest(testInfo);
     }
 
   }

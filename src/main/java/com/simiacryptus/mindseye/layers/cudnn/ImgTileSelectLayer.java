@@ -45,7 +45,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
   private int sizeY;
   private int sizeX;
   private @Nonnull
-  Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   private ImgTileSelectLayer() {
   }

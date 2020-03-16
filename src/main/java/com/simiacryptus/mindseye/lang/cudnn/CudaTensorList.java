@@ -37,7 +37,7 @@ import java.util.function.IntFunction;
 
 public class CudaTensorList extends ReferenceCountingBase implements TensorList, CudaSystem.CudaDeviceResource {
   public static final Logger logger = LoggerFactory.getLogger(CudaTensorList.class);
-  public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getStackTrace()
+  public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().profileMemoryIO ? Util.getStackTrace()
       : new StackTraceElement[]{};
   @Nonnull
   private final int[] dimensions;

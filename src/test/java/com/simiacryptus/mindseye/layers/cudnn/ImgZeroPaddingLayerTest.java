@@ -20,6 +20,8 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
 import java.util.Random;
@@ -27,12 +29,17 @@ import java.util.Random;
 public abstract class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
 
   public ImgZeroPaddingLayerTest() {
-    validateBatchExecution = false;
   }
 
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return com.simiacryptus.mindseye.layers.java.ImgZeroPaddingLayer.class;
+  }
+
+  @Override
+  @Disabled
+  public void batchingTest(TestInfo testInfo) {
+    super.batchingTest(testInfo);
   }
 
   @Nonnull

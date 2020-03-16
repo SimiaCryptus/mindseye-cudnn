@@ -30,6 +30,6 @@ public class DeviceMetrics {
   public final AtomicLong usedMemory = new AtomicLong(0);
 
   public double load() {
-    return usedMemory.get() / CudaSettings.INSTANCE().getMaxDeviceMemory();
+    return usedMemory.get() / (double) CudaSettings.INSTANCE().maxDeviceMemory;
   }
 }

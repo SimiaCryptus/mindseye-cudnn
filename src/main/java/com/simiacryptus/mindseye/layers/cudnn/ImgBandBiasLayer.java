@@ -43,7 +43,7 @@ import java.util.function.IntToDoubleFunction;
 @SuppressWarnings("serial")
 public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
 
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   @Nullable
   private Tensor bias;
 

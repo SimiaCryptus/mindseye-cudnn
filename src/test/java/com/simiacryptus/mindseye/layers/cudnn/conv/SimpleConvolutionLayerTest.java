@@ -22,20 +22,18 @@ package com.simiacryptus.mindseye.layers.cudnn.conv;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.layers.cudnn.CudnnLayerTestBase;
-import com.simiacryptus.mindseye.test.ToleranceStatistics;
-import com.simiacryptus.mindseye.test.unit.*;
-import com.simiacryptus.notebook.NotebookOutput;
+import com.simiacryptus.mindseye.test.unit.BatchingTester;
+import com.simiacryptus.mindseye.test.unit.PerformanceTester;
+import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.ref.lang.RefIgnore;
 import org.junit.After;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.Timeout;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
@@ -58,7 +56,6 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     layer = simpleConvolutionLayer;
     layer.set(() -> random());
     smallSize = this.radius;
-    testTraining = false;
     largeSize = 800;
   }
 
@@ -66,6 +63,12 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
   @Override
   public Layer getReferenceLayer() {
     return null;
+  }
+
+  @Override
+  @Disabled
+  public void trainingTest(TestInfo testInfo) {
+    super.trainingTest(testInfo);
   }
 
   @Nonnull
@@ -140,50 +143,42 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
   public abstract static class Bug_Control extends SimpleConvolutionLayerTest {
     protected Bug_Control() {
       super(3, 8, Precision.Double, 1);
-      validateDifferentials = false;
-    }
-
-    @Nonnull
-    public ComponentTest<ToleranceStatistics> getPerformanceTester() {
-      PerformanceTester temp_10_0004 = new PerformanceTester();
-      temp_10_0004.setBatches(10);
-      PerformanceTester temp_10_0008 = temp_10_0004.addRef();
-      temp_10_0008.setSamples(1);
-      PerformanceTester temp_10_0003 = temp_10_0008.addRef();
-      temp_10_0008.freeRef();
-      temp_10_0004.freeRef();
-      return temp_10_0003;
-    }
-
-    @Nonnull
-    protected ComponentTest<ToleranceStatistics> getReferenceIOTester() {
-      return new ReferenceIO(getReferenceIO());
     }
 
     @Override
-    public ComponentTest<TrainingTester.ComponentResult> getTrainingTester() {
-      return null;
+    public @Nullable BatchingTester getBatchingTester() {
+      return getBatchingTester(1e-2, false, this.testingBatchSize);
+    }
+
+    public @Nullable PerformanceTester getPerformanceTester() {
+      PerformanceTester performanceTester = new PerformanceTester();
+      performanceTester.setBatches(10);
+      performanceTester.setSamples(1);
+      return performanceTester;
     }
 
     @Override
-    @Test
-    @Timeout(value = 15, unit = TimeUnit.MINUTES)
-    public void test(TestInfo testInfo) {
-      Assertions.assertThrows(Throwable.class, () -> {
-        super.test(testInfo);
-      });
+    @Disabled
+    public void derivativeTest(TestInfo testInfo) {
+      super.derivativeTest(testInfo);
     }
 
     @Override
-    public void run(@Nonnull NotebookOutput log) {
-      //      @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
-      //      log.p(log.file((String) null, logName, "GPU Log"));
-      //      @Nonnull PrintStream apiLog = new PrintStream(log.file(logName));
-      //      CudaSystem.addLog(apiLog);
-      super.run(log);
-      //      apiLog.close();
-      //      CudaSystem.apiLog.remove(apiLog);
+    @Disabled
+    public void trainingTest(TestInfo testInfo) {
+      super.trainingTest(testInfo);
     }
+
+//    @Override
+//    public void allTests(@Nonnull NotebookOutput log) {
+//      //      @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
+//      //      log.p(log.file((String) null, logName, "GPU Log"));
+//      //      @Nonnull PrintStream apiLog = new PrintStream(log.file(logName));
+//      //      CudaSystem.addLog(apiLog);
+//      super.allTests(log);
+//      //      apiLog.close();
+//      //      CudaSystem.apiLog.remove(apiLog);
+//    }
 
   }
 
@@ -216,46 +211,40 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
   public abstract static class Big extends SimpleConvolutionLayerTest {
     public Big(int radius, int bands, Precision aDouble) {
       super(radius, bands, aDouble, 1);
-      validateDifferentials = false;
-      setTestTraining(false);
     }
 
     @Override
-    public ComponentTest<ToleranceStatistics> getBatchingTester() {
-      if (!validateBatchExecution)
-        return null;
-      BatchingTester batchingTester = new BatchingTester(1e-2, true) {
-        @Override
-        public double getRandom() {
-          return random();
-        }
-
-        public @SuppressWarnings("unused")
-        void _free() {
-          super._free();
-        }
-      };
-      batchingTester.setBatchSize(5);
-      return batchingTester;
-    }
-
-    @Nullable
-    @Override
-    protected ComponentTest<ToleranceStatistics> getJsonTester() {
-      logger.warn("Disabled Json Test");
-      return null;
-    }
-
-    @Nullable
-    @Override
-    public ComponentTest<ToleranceStatistics> getPerformanceTester() {
-      logger.warn("Disabled Performance Test");
-      return null;
+    public @Nullable BatchingTester getBatchingTester() {
+      return getBatchingTester(1e-2, true, 5);
     }
 
     @Override
     public Layer getReferenceLayer() {
       return null;
+    }
+
+    @Override
+    @Disabled
+    public void derivativeTest(TestInfo testInfo) {
+      super.derivativeTest(testInfo);
+    }
+
+    @Override
+    @Disabled
+    public void trainingTest(TestInfo testInfo) {
+      super.trainingTest(testInfo);
+    }
+
+    @Override
+    @Disabled
+    public void jsonTest(TestInfo testInfo) {
+      super.jsonTest(testInfo);
+    }
+
+    @Override
+    @Disabled
+    public void perfTest(TestInfo testInfo) {
+      super.perfTest(testInfo);
     }
 
     @Nonnull

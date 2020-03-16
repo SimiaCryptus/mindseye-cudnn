@@ -45,7 +45,7 @@ import static com.simiacryptus.mindseye.lang.Result.getData;
 @SuppressWarnings("serial")
 public class NProductLayer extends LayerBase implements MultiPrecision {
 
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   public NProductLayer() {
   }

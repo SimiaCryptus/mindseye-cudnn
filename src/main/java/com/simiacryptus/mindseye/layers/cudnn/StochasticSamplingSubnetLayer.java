@@ -50,7 +50,7 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
     implements StochasticComponent, MultiPrecision {
 
   private final int samples;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private long seed = RefSystem.nanoTime();
   private long layerSeed = RefSystem.nanoTime();
 

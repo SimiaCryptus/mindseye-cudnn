@@ -46,7 +46,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
   private boolean roundUp = false;
   private int sizeX;
   private int sizeY; // SpatialReflectionPadding
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   private ImgPaddingLayer() {
   }

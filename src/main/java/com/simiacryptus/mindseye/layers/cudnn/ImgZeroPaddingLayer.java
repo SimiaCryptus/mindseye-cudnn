@@ -43,7 +43,7 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
   //  public StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private int sizeX;
   private int sizeY;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   private ImgZeroPaddingLayer() {
   }

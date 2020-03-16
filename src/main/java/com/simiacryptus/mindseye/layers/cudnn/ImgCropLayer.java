@@ -45,7 +45,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
   private double baseValue = 0.0;
   private int sizeX;
   private int sizeY;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   private ImgCropLayer() {
   }

@@ -44,7 +44,7 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
   private int scale;
   @Nullable
   private Layer layer;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   private RescaledSubnetLayer() {
   }

@@ -39,7 +39,7 @@ import java.util.UUID;
 @SuppressWarnings("serial")
 public class ProductLayer extends LayerBase implements MultiPrecision {
 
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private boolean bypassOnError = false;
 
   public ProductLayer() {

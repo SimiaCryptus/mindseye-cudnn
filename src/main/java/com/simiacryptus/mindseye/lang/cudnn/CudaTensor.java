@@ -40,7 +40,7 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
   static final Logger log = LoggerFactory.getLogger(CudaTensor.class);
 
   public final CudaDevice.CudaTensorDescriptor descriptor;
-  public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().isProfileMemoryIO() ? Util.getStackTrace()
+  public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().profileMemoryIO ? Util.getStackTrace()
       : new StackTraceElement[]{};
   @Nonnull
   final CudaMemory memory;

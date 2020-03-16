@@ -43,7 +43,7 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
 
   private int sizeX;
   private int sizeY;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   private ImgMinSizeLayer() {
   }

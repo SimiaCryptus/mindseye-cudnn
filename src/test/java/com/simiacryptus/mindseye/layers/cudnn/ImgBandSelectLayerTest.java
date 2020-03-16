@@ -21,7 +21,6 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
-import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import org.junit.After;
@@ -59,16 +58,16 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
     return layer.getCompatibilityLayer();
   }
 
-  @Override
-  public void run(@Nonnull NotebookOutput log) {
-    //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
-    //    log.p(log.file((String) null, logName, "GPU Log"));
-    //    @Nonnull PrintStream apiLog = new PrintStream(log.file(logName));
-    //    CudaSystem.addLog(apiLog);
-    super.run(log);
-    //    apiLog.close();
-    //    CudaSystem.apiLog.remove(apiLog);
-  }
+//  @Override
+//  public void allTests(@Nonnull NotebookOutput log) {
+//    //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
+//    //    log.p(log.file((String) null, logName, "GPU Log"));
+//    //    @Nonnull PrintStream apiLog = new PrintStream(log.file(logName));
+//    //    CudaSystem.addLog(apiLog);
+//    super.allTests(log);
+//    //    apiLog.close();
+//    //    CudaSystem.apiLog.remove(apiLog);
+//  }
 
   //  /**
   //   * Basic 64-bit apply

@@ -38,7 +38,7 @@ import java.util.Map;
 public class BandReducerLayer extends LayerBase implements MultiPrecision {
 
   private PoolingLayer.PoolingMode mode = PoolingLayer.PoolingMode.Max;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private double alpha = 1.0;
 
   public BandReducerLayer() {

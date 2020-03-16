@@ -43,7 +43,7 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
   private boolean roundUp = false;
   private int sizeX;
   private int sizeY; // SpatialReflectionPadding
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   private SpatialReflectionPadding() {
   }

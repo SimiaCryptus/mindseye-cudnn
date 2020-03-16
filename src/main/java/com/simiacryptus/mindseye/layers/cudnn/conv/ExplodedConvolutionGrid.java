@@ -182,7 +182,7 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
         linearSubnetLayer.add(leg.fromBand, leg.toBand, subnet);
         leg.freeRef();
       }, linearSubnetLayer.addRef()));
-      boolean isParallel = CudaSettings.INSTANCE().isConv_para_1();
+      boolean isParallel = CudaSettings.INSTANCE().conv_para_1;
       linearSubnetLayer.setPrecision(convolutionParams.precision);
       linearSubnetLayer.setParallel(isParallel);
       assert network != null;

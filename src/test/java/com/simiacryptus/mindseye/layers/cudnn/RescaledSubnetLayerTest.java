@@ -21,18 +21,12 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayer;
-import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.MustCall;
 import com.simiacryptus.ref.lang.RefIgnore;
 import org.junit.After;
-import org.junit.Ignore;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.Timeout;
 
 import javax.annotation.Nonnull;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
 
@@ -57,16 +51,16 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
       convolutionLayer.freeRef();
   }
 
-  @Override
-  public void run(@Nonnull NotebookOutput log) {
-    //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
-    //    log.p(log.file((String) null, logName, "GPU Log"));
-    //    @Nonnull PrintStream apiLog = new PrintStream(log.file(logName));
-    //    CudaSystem.addLog(apiLog);
-    super.run(log);
-    //    apiLog.close();
-    //    CudaSystem.apiLog.remove(apiLog);
-  }
+//  @Override
+//  public void allTests(@Nonnull NotebookOutput log) {
+//    //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
+//    //    log.p(log.file((String) null, logName, "GPU Log"));
+//    //    @Nonnull PrintStream apiLog = new PrintStream(log.file(logName));
+//    //    CudaSystem.addLog(apiLog);
+//    super.allTests(log);
+//    //    apiLog.close();
+//    //    CudaSystem.apiLog.remove(apiLog);
+//  }
 
   @Nonnull
   @Override
@@ -88,15 +82,5 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
   }
 
   public static class Basic extends RescaledSubnetLayerTest {
-
-    @Override
-    @Test
-    @Timeout(value = 15, unit = TimeUnit.MINUTES)
-    @Ignore // Crashing SpanBug!?!?
-    public void test(TestInfo testInfo) {
-      super.test(testInfo);
-    }
-
   }
-
 }

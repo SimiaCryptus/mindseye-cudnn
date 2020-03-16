@@ -39,7 +39,7 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
 
   private int from;
   private int to;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   public ImgBandSelectLayer(int from, int to) {
     this.setFrom(from);

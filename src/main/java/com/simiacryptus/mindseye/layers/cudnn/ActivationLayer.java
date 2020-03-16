@@ -44,7 +44,7 @@ public class ActivationLayer extends LayerBase implements MultiPrecision {
   private static final Logger logger = LoggerFactory.getLogger(ActivationLayer.class);
   final int mode;
   private double alpha = 1.0;
-  private Precision precision = CudaSettings.INSTANCE().defaultPrecision;
+  private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
   public ActivationLayer(final int id) {
     mode = id;
