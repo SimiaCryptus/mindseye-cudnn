@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class ProductLayerTest extends CudnnLayerTestBase {
 
@@ -37,24 +36,24 @@ public abstract class ProductLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{4, 4, 3}, {1, 1, 3}};
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(final Random random) {
+  public int[][] getLargeDims() {
     return new int[][]{{400, 400, 30}, {1, 1, 30}};
   }
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     ProductLayer temp_56_0002 = new ProductLayer();
     temp_56_0002.setPrecision(precision);
     ProductLayer temp_56_0001 = RefUtil.addRef(temp_56_0002);
     temp_56_0002.freeRef();
     return temp_56_0001;
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getSmallDims() {
+    return new int[][]{{4, 4, 3}, {1, 1, 3}};
   }
 
   public static class Mask extends ProductLayerTest {
@@ -64,14 +63,14 @@ public abstract class ProductLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{4, 4, 3}, {4, 4, 1}};
+    public int[][] getLargeDims() {
+      return new int[][]{{400, 400, 30}, {400, 400, 1}};
     }
 
     @Nonnull
     @Override
-    public int[][] getLargeDims(final Random random) {
-      return new int[][]{{400, 400, 30}, {400, 400, 1}};
+    public int[][] getSmallDims() {
+      return new int[][]{{4, 4, 3}, {4, 4, 1}};
     }
 
   }

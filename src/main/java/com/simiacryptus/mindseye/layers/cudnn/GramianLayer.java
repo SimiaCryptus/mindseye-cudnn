@@ -51,7 +51,7 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
     super(id, "Gramian");
   }
 
-  protected GramianLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected GramianLayer(@Nonnull final JsonObject json) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     this.alpha = json.getAsJsonPrimitive("alpha").getAsDouble();
@@ -78,7 +78,7 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
   @Nonnull
   @SuppressWarnings("unused")
   public static GramianLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new GramianLayer(json, rs);
+    return new GramianLayer(json);
   }
 
   @Nullable

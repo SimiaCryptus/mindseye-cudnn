@@ -29,7 +29,6 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
@@ -45,13 +44,13 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{smallSize, smallSize, 1}, {smallSize, smallSize, 1}};
+  public int[][] getLargeDims() {
+    return new int[][]{{largeSize, largeSize, 1}, {largeSize, largeSize, 1}};
   }
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     BinarySumLayer binarySumLayer = new BinarySumLayer();
     binarySumLayer.setPrecision(precision);
     return binarySumLayer;
@@ -59,8 +58,8 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{{largeSize, largeSize, 1}, {largeSize, largeSize, 1}};
+  public int[][] getSmallDims() {
+    return new int[][]{{smallSize, smallSize, 1}, {smallSize, smallSize, 1}};
   }
 
   public static class Double_List extends BinarySumLayerTest {
@@ -70,14 +69,14 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return RefIntStream.range(0, 5).mapToObj(i -> new int[]{smallSize, smallSize, 2}).toArray(i -> new int[i][]);
+    public int[][] getLargeDims() {
+      return RefIntStream.range(0, 5).mapToObj(i -> new int[]{largeSize, largeSize, 3}).toArray(i -> new int[i][]);
     }
 
     @Nonnull
     @Override
-    public int[][] getLargeDims(Random random) {
-      return RefIntStream.range(0, 5).mapToObj(i -> new int[]{largeSize, largeSize, 3}).toArray(i -> new int[i][]);
+    public int[][] getSmallDims() {
+      return RefIntStream.range(0, 5).mapToObj(i -> new int[]{smallSize, smallSize, 2}).toArray(i -> new int[i][]);
     }
   }
 
@@ -85,6 +84,24 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
     public OnePlusOne() {
       super();
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getLargeDims() {
+      return new int[][]{{1200, 800, 1}};
+    }
+
+    @Nonnull
+    @Override
+    public Layer getLayer() {
+      @Nonnull
+      PipelineNetwork network = new PipelineNetwork();
+      DAGNode input = network.getInput(0);
+      RefUtil.freeRef(network.add(new BinarySumLayer(), input.addRef(),
+          input.addRef()));
+      input.freeRef();
+      return network;
     }
 
     @Override
@@ -100,32 +117,14 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    protected Class<?> getTargetClass() {
-      return BinarySumLayer.class;
-    }
-
-    @Nonnull
-    @Override
-    public Layer getLayer(int[][] inputSize, Random random) {
-      @Nonnull
-      PipelineNetwork network = new PipelineNetwork();
-      DAGNode input = network.getInput(0);
-      RefUtil.freeRef(network.add(new BinarySumLayer(), input.addRef(),
-          input.addRef()));
-      input.freeRef();
-      return network;
-    }
-
-    @Nonnull
-    @Override
-    public int[][] getSmallDims(Random random) {
+    public int[][] getSmallDims() {
       return new int[][]{{4, 4, 1}};
     }
 
     @Nonnull
     @Override
-    public int[][] getLargeDims(Random random) {
-      return new int[][]{{1200, 800, 1}};
+    protected Class<?> getTargetClass() {
+      return BinarySumLayer.class;
     }
   }
 
@@ -142,7 +141,7 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       BinarySumLayer binarySumLayer = new BinarySumLayer(1.0, -1.0);
       binarySumLayer.setPrecision(precision);
       return binarySumLayer;
@@ -173,7 +172,7 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       BinarySumLayer binarySumLayer = new BinarySumLayer(0.5, 0.5);
       binarySumLayer.setPrecision(precision);
       return binarySumLayer;

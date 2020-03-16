@@ -54,7 +54,7 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
     assert sizeY != 0 || sizeX != 0;
   }
 
-  protected ImgZeroPaddingLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgZeroPaddingLayer(@Nonnull final JsonObject json) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -75,7 +75,7 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgZeroPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new ImgZeroPaddingLayer(json, rs);
+    return new ImgZeroPaddingLayer(json);
   }
 
   @Nullable

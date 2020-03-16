@@ -30,11 +30,9 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefAssert;
 import com.simiacryptus.ref.wrappers.RefStream;
 import com.simiacryptus.ref.wrappers.RefSystem;
-import org.junit.After;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -71,18 +69,17 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     this.testingBatchSize = 2;
   }
 
-  @Nullable
+  @Nonnull
   @Override
-  public Layer getReferenceLayer() {
-    assert convolutionLayer != null;
-    //return convolutionLayer.as(com.simiacryptus.mindseye.layers.aparapi.ConvolutionLayer.class);
-    return null;
+  public int[][] getLargeDims() {
+    return new int[][]{{largeSize, largeSize, inputBands}};
   }
 
   @Nonnull
   @Override
-  protected Class<?> getTargetClass() {
-    return ConvolutionLayer.class;
+  public Layer getLayer() {
+    assert convolutionLayer != null;
+    return convolutionLayer.explode();
   }
 
 //  @Override
@@ -95,6 +92,26 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 //    //    apiLog.close();
 //    //    CudaSystem.apiLog.remove(apiLog);
 //  }
+
+  @Nullable
+  @Override
+  public Layer getReferenceLayer() {
+    assert convolutionLayer != null;
+    //return convolutionLayer.as(com.simiacryptus.mindseye.layers.aparapi.ConvolutionLayer.class);
+    return null;
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getSmallDims() {
+    return new int[][]{{smallSize, smallSize, inputBands}};
+  }
+
+  @Nonnull
+  @Override
+  protected Class<?> getTargetClass() {
+    return ConvolutionLayer.class;
+  }
 
   @Test
   public void verifyWeights() {
@@ -124,28 +141,8 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     }
   }
 
-  @Nonnull
-  @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{smallSize, smallSize, inputBands}};
-  }
-
-  @Nonnull
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    assert convolutionLayer != null;
-    return convolutionLayer.explode();
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{{largeSize, largeSize, inputBands}};
-  }
-
-  @After
-  public void cleanup() {
-    super.cleanup();
+  @AfterEach
+  void cleanup() {
     if (null != convolutionLayer)
       convolutionLayer.freeRef();
   }
@@ -163,14 +160,14 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{1, 1, inputBands}};
+    public int[][] getLargeDims() {
+      return getSmallDims();
     }
 
     @Nonnull
     @Override
-    public int[][] getLargeDims(Random random) {
-      return getSmallDims(random);
+    public int[][] getSmallDims() {
+      return new int[][]{{1, 1, inputBands}};
     }
 
   }
@@ -278,7 +275,7 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getLargeDims(final Random random) {
+    public int[][] getLargeDims() {
       return new int[][]{{256, 128, inputBands}};
     }
 
@@ -293,14 +290,14 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(final Random random) {
-      return new int[][]{{1, 1, inputBands}};
+    public int[][] getLargeDims() {
+      return new int[][]{{100, 100, inputBands}};
     }
 
     @Nonnull
     @Override
-    public int[][] getLargeDims(final Random random) {
-      return new int[][]{{100, 100, inputBands}};
+    public int[][] getSmallDims() {
+      return new int[][]{{1, 1, inputBands}};
     }
 
   }
@@ -325,20 +322,20 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
     @Override
     @Disabled
-    public void derivativeTest(TestInfo testInfo) {
-      super.derivativeTest(testInfo);
+    public void derivativeTest() {
+      super.derivativeTest();
     }
 
     @Override
     @Disabled
-    public void jsonTest(TestInfo testInfo) {
-      super.jsonTest(testInfo);
+    public void jsonTest() {
+      super.jsonTest();
     }
 
     @Override
     @Disabled
-    public void perfTest(TestInfo testInfo) {
-      super.perfTest(testInfo);
+    public void perfTest() {
+      super.perfTest();
     }
   }
 

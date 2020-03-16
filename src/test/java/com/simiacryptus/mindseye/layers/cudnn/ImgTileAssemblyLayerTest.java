@@ -21,40 +21,18 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
 
   public ImgTileAssemblyLayerTest() {
   }
 
-  @Nullable
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return com.simiacryptus.mindseye.layers.java.ImgTileAssemblyLayer.class;
-  }
-
-  @Override
-  @Disabled
-  public void batchingTest(TestInfo testInfo) {
-    super.batchingTest(testInfo);
-  }
-
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{2, 2, 1}, {1, 2, 1}, {2, 2, 1}, {1, 2, 1}, {2, 1, 1}, {1, 1, 1}
-        //      {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}
-    };
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(final Random random) {
+  public int[][] getLargeDims() {
     int scale = 25;
     return new int[][]{
         {2 * scale, 2 * scale, scale},
@@ -68,8 +46,28 @@ public abstract class ImgTileAssemblyLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     return new ImgTileAssemblyLayer(2, 3);
+  }
+
+  @Nullable
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return com.simiacryptus.mindseye.layers.java.ImgTileAssemblyLayer.class;
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getSmallDims() {
+    return new int[][]{{2, 2, 1}, {1, 2, 1}, {2, 2, 1}, {1, 2, 1}, {2, 1, 1}, {1, 1, 1}
+        //      {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}, {3, 3, 1}
+    };
+  }
+
+  @Override
+  @Disabled
+  public void batchingTest() {
+    super.batchingTest();
   }
 
   public static class Basic extends ImgTileAssemblyLayerTest {

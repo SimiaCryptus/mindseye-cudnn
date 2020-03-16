@@ -21,7 +21,6 @@ package com.simiacryptus.mindseye.lang.cudnn;
 
 import com.simiacryptus.lang.Settings;
 import com.simiacryptus.ref.lang.PersistanceMode;
-import com.simiacryptus.ref.wrappers.RefHashMap;
 import com.simiacryptus.ref.wrappers.RefString;
 import com.simiacryptus.util.JsonUtil;
 import com.simiacryptus.util.LocalAppSettings;

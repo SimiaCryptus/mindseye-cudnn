@@ -62,7 +62,7 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision 
     this(sizeX, sizeY, 0, 0);
   }
 
-  protected ImgModulusPaddingLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgModulusPaddingLayer(@Nonnull final JsonObject json) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -101,7 +101,7 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision 
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgModulusPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new ImgModulusPaddingLayer(json, rs);
+    return new ImgModulusPaddingLayer(json);
   }
 
   @Nullable

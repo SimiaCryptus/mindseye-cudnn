@@ -51,7 +51,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     this.rows = rows;
   }
 
-  protected ImgTileAssemblyLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgTileAssemblyLayer(@Nonnull final JsonObject json) {
     super(json);
     columns = json.get("columns").getAsInt();
     rows = json.get("rows").getAsInt();
@@ -85,7 +85,7 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgTileAssemblyLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new ImgTileAssemblyLayer(json, rs);
+    return new ImgTileAssemblyLayer(json);
   }
 
   @Nullable

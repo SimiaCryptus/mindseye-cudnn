@@ -21,11 +21,10 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.ref.lang.RefIgnore;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
 
@@ -44,27 +43,15 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
     largeSize = 100;
   }
 
-  @Nullable
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return null;
-  }
-
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{smallSize, smallSize, 3}};
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(final Random random) {
+  public int[][] getLargeDims() {
     return new int[][]{{largeSize, largeSize, 3}};
   }
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     ImgLinearSubnetLayer temp_67_0002 = new ImgLinearSubnetLayer();
     final Layer layer5 = layer1 == null ? null : layer1.addRef();
     temp_67_0002.add(0, 1, layer5);
@@ -81,9 +68,20 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
     return temp_67_0001;
   }
 
-  @After
-  public void cleanup() {
-    super.cleanup();
+  @Nullable
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return null;
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getSmallDims() {
+    return new int[][]{{smallSize, smallSize, 3}};
+  }
+
+  @AfterEach
+  void cleanup() {
     if (null != layer3)
       layer3.freeRef();
     if (null != layer2)

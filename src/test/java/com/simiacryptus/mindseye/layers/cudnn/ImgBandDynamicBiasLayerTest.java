@@ -24,10 +24,8 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.ref.lang.RefUtil;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
 
@@ -38,21 +36,15 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
     this.testingBatchSize = 1;
   }
 
+  @Nonnull
   @Override
-  @Disabled
-  public void batchingTest(TestInfo testInfo) {
-    super.batchingTest(testInfo);
+  public int[][] getLargeDims() {
+    return new int[][]{{1200, 1200, 3}, {1, 1, 3}};
   }
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{8, 8, 3}, {1, 1, 3}};
-  }
-
-  @Nonnull
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     ImgBandDynamicBiasLayer temp_68_0004 = new ImgBandDynamicBiasLayer();
     temp_68_0004.setPrecision(precision);
     ImgBandDynamicBiasLayer temp_68_0003 = RefUtil.addRef(temp_68_0004);
@@ -62,8 +54,14 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{{1200, 1200, 3}, {1, 1, 3}};
+  public int[][] getSmallDims() {
+    return new int[][]{{8, 8, 3}, {1, 1, 3}};
+  }
+
+  @Override
+  @Disabled
+  public void batchingTest() {
+    super.batchingTest();
   }
 
   @Override

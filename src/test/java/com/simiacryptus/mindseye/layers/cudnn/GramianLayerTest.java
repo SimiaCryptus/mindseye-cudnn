@@ -28,13 +28,22 @@ import com.simiacryptus.ref.wrappers.RefList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.Random;
 
 public abstract class GramianLayerTest extends CudnnLayerTestBase {
 
   public GramianLayerTest() {
     this.tolerance = 1e-2;
     testingBatchSize = 1;
+  }
+
+  @Nonnull
+  @Override
+  public abstract int[][] getLargeDims();
+
+  @Nonnull
+  @Override
+  public Layer getLayer() {
+    return new GramianLayer();
   }
 
   @Override
@@ -87,24 +96,14 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  protected Class<?> getTargetClass() {
-    return GramianLayer.class;
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getSmallDims(Random random) {
+  public int[][] getSmallDims() {
     return new int[][]{{2, 2, 3}};
   }
 
   @Nonnull
   @Override
-  public abstract int[][] getLargeDims(final Random random);
-
-  @Nonnull
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    return new GramianLayer();
+  protected Class<?> getTargetClass() {
+    return GramianLayer.class;
   }
 
 //  @Override
@@ -122,7 +121,7 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getLargeDims(final Random random) {
+    public int[][] getLargeDims() {
       return new int[][]{{1000, 1000, 3}};
     }
 
@@ -135,7 +134,7 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getLargeDims(final Random random) {
+    public int[][] getLargeDims() {
       return new int[][]{{100, 100, 512}};
     }
 

@@ -58,7 +58,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     assert 0 < sizeY;
   }
 
-  protected ImgPaddingLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgPaddingLayer(@Nonnull final JsonObject json) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -112,13 +112,13 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new ImgPaddingLayer(json, rs);
+    return new ImgPaddingLayer(json);
   }
 
   public static void add(@Nonnull CudnnHandle gpu, @Nullable CudaTensor input, @Nonnull int[] input_dimensions, @Nonnull int[] output_dimensions,
                          @Nonnull int[] offset, int length, @Nonnull Precision precision, @Nullable CudaMemory output_memory) {
     CopyParams copyParams = getCopyParams(gpu, input, input_dimensions,
-        output_dimensions, offset, length, precision, output_memory, true);
+        output_dimensions, offset, length, precision, output_memory);
     if (null == copyParams) {
       return;
     }
@@ -138,7 +138,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
   public static void set(@Nonnull CudnnHandle gpu, @Nullable CudaTensor input, @Nonnull int[] input_dimensions, @Nonnull int[] output_dimensions,
                          @Nonnull int[] offset, int length, @Nonnull Precision precision, @Nullable CudaMemory output_memory) {
     CopyParams copyParams = getCopyParams(gpu, input, input_dimensions,
-        output_dimensions, offset, length, precision, output_memory, false);
+        output_dimensions, offset, length, precision, output_memory);
     if (null == copyParams) {
       return;
     }
@@ -157,8 +157,7 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
 
   @Nullable
   public static CopyParams getCopyParams(@Nonnull CudnnHandle gpu, @Nullable CudaTensor input, int[] input_dimensions,
-                                         int[] output_dimensions, int[] offset, int length, @Nonnull Precision precision, @Nullable CudaMemory output_memory,
-                                         boolean reflect) {
+                                         int[] output_dimensions, int[] offset, int length, @Nonnull Precision precision, @Nullable CudaMemory output_memory) {
 
     int offset_left = offset[0];
     int offset_top = offset[1];

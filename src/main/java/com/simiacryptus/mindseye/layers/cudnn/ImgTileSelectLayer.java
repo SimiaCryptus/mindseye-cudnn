@@ -63,7 +63,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
-  protected ImgTileSelectLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgTileSelectLayer(@Nonnull final JsonObject json) {
     super(json);
     sizeY = json.get("sizeY").getAsInt();
     sizeX = json.get("sizeX").getAsInt();
@@ -91,7 +91,7 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgTileSelectLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new ImgTileSelectLayer(json, rs);
+    return new ImgTileSelectLayer(json);
   }
 
   @Nonnull

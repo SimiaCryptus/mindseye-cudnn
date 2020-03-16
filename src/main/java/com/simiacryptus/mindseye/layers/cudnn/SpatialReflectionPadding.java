@@ -55,7 +55,7 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
     assert 0 < sizeY;
   }
 
-  protected SpatialReflectionPadding(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected SpatialReflectionPadding(@Nonnull final JsonObject json) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -109,7 +109,7 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
   @Nonnull
   @SuppressWarnings("unused")
   public static SpatialReflectionPadding fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new SpatialReflectionPadding(json, rs);
+    return new SpatialReflectionPadding(json);
   }
 
   public int half(int i, Alignment alignment) {

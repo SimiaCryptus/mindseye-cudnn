@@ -28,17 +28,16 @@ import com.simiacryptus.mindseye.layers.java.ReLuActivationLayer;
 import com.simiacryptus.mindseye.layers.java.SigmoidActivationLayer;
 import com.simiacryptus.mindseye.test.SimpleEval;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
+import com.simiacryptus.notebook.NotebookOutput;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefCollectors;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.Timeout;
 import smile.plot.swing.PlotCanvas;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.DoubleFunction;
 
@@ -64,13 +63,13 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{smallSize, smallSize, 1}};
+  public int[][] getLargeDims() {
+    return new int[][]{{largeSize, largeSize, 1}};
   }
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     ActivationLayer activationLayer = new ActivationLayer(mode);
     activationLayer.setPrecision(precision);
     return activationLayer;
@@ -78,47 +77,45 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{{largeSize, largeSize, 1}};
+  public int[][] getSmallDims() {
+    return new int[][]{{smallSize, smallSize, 1}};
   }
-
 
   @Test
   @Timeout(value = 15, unit = TimeUnit.MINUTES)
-  public void functionPlots(TestInfo testInfo) {
-    report(testInfo, log -> {
-      log.h3("Function Plots");
-      @Nonnull final Layer layer = getLayer(new int[][]{{1, 1, 1}}, new Random());
-      final RefList<double[]> plotData = RefIntStream.range(-1000, 1000).mapToDouble(x -> x / 300.0)
-          .mapToObj(RefUtil.wrapInterface((DoubleFunction<? extends double[]>) x -> {
-            @Nonnull
-            Tensor input = new Tensor(new double[]{x}, 1, 1, 1);
-            @Nonnull final SimpleEval eval = SimpleEval.run(layer.addRef(), input);
-            Tensor output = eval.getOutput();
-            Tensor[] derivative = eval.getDerivative();
-            assert derivative != null;
-            assert output != null;
-            double[] doubles = new double[]{x, output.get(0), derivative[0].get(0)};
-            RefUtil.freeRef(derivative);
-            output.freeRef();
-            eval.freeRef();
-            return doubles;
-          }, layer)).collect(RefCollectors.toList());
-      log.eval(RefUtil.wrapInterface((UncheckedSupplier<PlotCanvas>) () -> {
-        return ActivationLayerTestBase.plot("Value Plot", plotData == null ? null : plotData.addRef(),
-            x -> new double[]{x[0], x[1]});
-      }, plotData == null ? null : plotData.addRef()));
+  public void functionPlots() {
+    NotebookOutput log = getLog();
+    log.h3("Function Plots");
+    @Nonnull final Layer layer = getLayer();
+    final RefList<double[]> plotData = RefIntStream.range(-1000, 1000).mapToDouble(x -> x / 300.0)
+        .mapToObj(RefUtil.wrapInterface((DoubleFunction<? extends double[]>) x -> {
+          @Nonnull
+          Tensor input = new Tensor(new double[]{x}, 1, 1, 1);
+          @Nonnull final SimpleEval eval = SimpleEval.run(layer.addRef(), input);
+          Tensor output = eval.getOutput();
+          Tensor[] derivative = eval.getDerivative();
+          assert derivative != null;
+          assert output != null;
+          double[] doubles = new double[]{x, output.get(0), derivative[0].get(0)};
+          RefUtil.freeRef(derivative);
+          output.freeRef();
+          eval.freeRef();
+          return doubles;
+        }, layer)).collect(RefCollectors.toList());
+    log.eval(RefUtil.wrapInterface((UncheckedSupplier<PlotCanvas>) () -> {
+      return ActivationLayerTestBase.plot("Value Plot", plotData == null ? null : plotData.addRef(),
+          x -> new double[]{x[0], x[1]});
+    }, plotData == null ? null : plotData.addRef()));
 
-      log.eval(RefUtil.wrapInterface((UncheckedSupplier<PlotCanvas>) () -> {
-        return ActivationLayerTestBase.plot("Derivative Plot", plotData == null ? null : plotData.addRef(),
-            x -> new double[]{x[0], x[2]});
-      }, plotData == null ? null : plotData.addRef()));
-      if (null != plotData)
-        plotData.freeRef();
-    });
+    log.eval(RefUtil.wrapInterface((UncheckedSupplier<PlotCanvas>) () -> {
+      return ActivationLayerTestBase.plot("Derivative Plot", plotData == null ? null : plotData.addRef(),
+          x -> new double[]{x[0], x[2]});
+    }, plotData == null ? null : plotData.addRef()));
+    if (null != plotData)
+      plotData.freeRef();
   }
 
-//  @Override
+  //  @Override
 //  public void allTests(@Nonnull final NotebookOutput log) {
 //    //    @Nonnull String logName = "cuda_" + log.getName() + "_all.log";
 //    //    log.p(log.file((String) null, logName, "GPU Log"));

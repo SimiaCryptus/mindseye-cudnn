@@ -46,7 +46,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
   public ImgTileCycleLayer() {
   }
 
-  protected ImgTileCycleLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgTileCycleLayer(@Nonnull final JsonObject json) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
@@ -85,7 +85,7 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgTileCycleLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new ImgTileCycleLayer(json, rs);
+    return new ImgTileCycleLayer(json);
   }
 
   @Nonnull

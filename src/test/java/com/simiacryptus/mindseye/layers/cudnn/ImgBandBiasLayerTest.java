@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
 
@@ -37,13 +36,13 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{8, 8, 3}};
+  public int[][] getLargeDims() {
+    return new int[][]{{1200, 1200, 3}};
   }
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     ImgBandBiasLayer temp_55_0002 = new ImgBandBiasLayer(3);
     temp_55_0002.setPrecision(precision);
     ImgBandBiasLayer temp_55_0003 = RefUtil.addRef(temp_55_0002);
@@ -56,8 +55,8 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{{1200, 1200, 3}};
+  public int[][] getSmallDims() {
+    return new int[][]{{8, 8, 3}};
   }
 
   public static class Double extends ImgBandBiasLayerTest {

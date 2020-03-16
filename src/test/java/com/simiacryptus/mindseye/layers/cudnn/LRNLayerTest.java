@@ -23,7 +23,6 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public class LRNLayerTest extends CudnnLayerTestBase {
 
@@ -42,20 +41,20 @@ public class LRNLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{smallSize, smallSize, 1}};
+  public int[][] getLargeDims() {
+    return new int[][]{{largeSize, largeSize, 1}};
   }
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     return new LRNLayer(5);
   }
 
   @Nonnull
   @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{{largeSize, largeSize, 1}};
+  public int[][] getSmallDims() {
+    return new int[][]{{smallSize, smallSize, 1}};
   }
 
 }

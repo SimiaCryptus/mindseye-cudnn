@@ -24,7 +24,6 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class PoolingLayerTest extends CudnnLayerTestBase {
 
@@ -36,7 +35,13 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public int[][] getLargeDims() {
+    return new int[][]{{800, 800, 16}};
+  }
+
+  @Nonnull
+  @Override
+  public Layer getLayer() {
     PoolingLayer poolingLayer = new PoolingLayer();
     poolingLayer.setPrecision(precision);
     return poolingLayer;
@@ -44,14 +49,8 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
+  public int[][] getSmallDims() {
     return new int[][]{{8, 8, 1}};
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{{800, 800, 16}};
   }
 
   public static class Repro extends PoolingLayerTest {
@@ -61,24 +60,24 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{3, 2, 1}};
-    }
-
-    @Nonnull
-    @Override
-    public int[][] getLargeDims(Random random) {
+    public int[][] getLargeDims() {
       return new int[][]{{3, 2, 512}};
     }
 
     @Nonnull
     @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       PoolingLayer poolingLayer = new PoolingLayer();
       poolingLayer.setWindowXY(3, 2);
       poolingLayer.setStrideXY(3, 2);
       poolingLayer.setPrecision(precision);
       return poolingLayer;
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getSmallDims() {
+      return new int[][]{{3, 2, 1}};
     }
 
   }
@@ -97,7 +96,7 @@ public abstract class PoolingLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       PoolingLayer poolingLayer = new PoolingLayer();
       poolingLayer.setPrecision(precision);
       poolingLayer.setWindowY(4);

@@ -28,13 +28,10 @@ import com.simiacryptus.mindseye.test.unit.BatchingTester;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefIntStream;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
 
@@ -50,6 +47,23 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
     SumInputsLayerTest.largeSize = largeSize;
   }
 
+  @Nonnull
+  @Override
+  public int[][] getLargeDims() {
+    return RefIntStream.range(0, inputs).mapToObj(i -> new int[]{largeSize, largeSize, inputBands})
+        .toArray(i -> new int[i][]);
+  }
+
+  @Nonnull
+  @Override
+  public Layer getLayer() {
+    com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer temp_73_0002 = new com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer();
+    temp_73_0002.setPrecision(precision);
+    com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer temp_73_0001 = RefUtil.addRef(temp_73_0002);
+    temp_73_0002.freeRef();
+    return temp_73_0001;
+  }
+
   @Nullable
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
@@ -58,25 +72,8 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
+  public int[][] getSmallDims() {
     return RefIntStream.range(0, inputs).mapToObj(i -> new int[]{2, 2, inputBands}).toArray(i -> new int[i][]);
-  }
-
-  @Nonnull
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer temp_73_0002 = new com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer();
-    temp_73_0002.setPrecision(precision);
-    com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer temp_73_0001 = RefUtil.addRef(temp_73_0002);
-    temp_73_0002.freeRef();
-    return temp_73_0001;
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(Random random) {
-    return RefIntStream.range(0, inputs).mapToObj(i -> new int[]{largeSize, largeSize, inputBands})
-        .toArray(i -> new int[i][]);
   }
 
   public static class Double_List extends SumInputsLayerTest {
@@ -90,6 +87,24 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
 
     public OnePlusOne() {
       super();
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getLargeDims() {
+      return new int[][]{{1200, 800, 1}};
+    }
+
+    @Nonnull
+    @Override
+    public Layer getLayer() {
+      @Nonnull
+      PipelineNetwork network = new PipelineNetwork();
+      DAGNode input = network.getInput(0);
+      RefUtil.freeRef(network.add(new com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer(),
+          input.addRef(), input.addRef()));
+      input.freeRef();
+      return network;
     }
 
     @Override
@@ -110,32 +125,14 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    protected Class<?> getTargetClass() {
-      return SumInputsLayer.class;
-    }
-
-    @Nonnull
-    @Override
-    public Layer getLayer(int[][] inputSize, Random random) {
-      @Nonnull
-      PipelineNetwork network = new PipelineNetwork();
-      DAGNode input = network.getInput(0);
-      RefUtil.freeRef(network.add(new com.simiacryptus.mindseye.layers.cudnn.SumInputsLayer(),
-          input.addRef(), input.addRef()));
-      input.freeRef();
-      return network;
-    }
-
-    @Nonnull
-    @Override
-    public int[][] getSmallDims(Random random) {
+    public int[][] getSmallDims() {
       return new int[][]{{4, 4, 1}};
     }
 
     @Nonnull
     @Override
-    public int[][] getLargeDims(Random random) {
-      return new int[][]{{1200, 800, 1}};
+    protected Class<?> getTargetClass() {
+      return SumInputsLayer.class;
     }
 
   }
@@ -186,26 +183,26 @@ public abstract class SumInputsLayerTest extends CudnnLayerTestBase {
 
     @Override
     @Disabled
-    public void derivativeTest(TestInfo testInfo) {
-      super.derivativeTest(testInfo);
+    public void derivativeTest() {
+      super.derivativeTest();
     }
 
     @Override
     @Disabled
-    public void trainingTest(TestInfo testInfo) {
-      super.trainingTest(testInfo);
+    public void trainingTest() {
+      super.trainingTest();
     }
 
     @Override
     @Disabled
-    public void jsonTest(TestInfo testInfo) {
-      super.jsonTest(testInfo);
+    public void jsonTest() {
+      super.jsonTest();
     }
 
     @Override
     @Disabled
-    public void perfTest(TestInfo testInfo) {
-      super.perfTest(testInfo);
+    public void perfTest() {
+      super.perfTest();
     }
 
   }

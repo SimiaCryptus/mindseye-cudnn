@@ -62,7 +62,7 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
     setK(k);
   }
 
-  protected LRNLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected LRNLayer(@Nonnull final JsonObject json) {
     super(json);
     setWidth(json.get("width").getAsInt());
     setAlpha(json.get("alpha").getAsDouble());
@@ -128,7 +128,7 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
   @Nonnull
   @SuppressWarnings("unused")
   public static LRNLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new LRNLayer(json, rs);
+    return new LRNLayer(json);
   }
 
 

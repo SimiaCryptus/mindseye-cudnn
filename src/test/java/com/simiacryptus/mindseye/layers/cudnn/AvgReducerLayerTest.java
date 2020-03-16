@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
 
@@ -41,13 +40,13 @@ public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{smallSize, smallSize, 1}};
+  public int[][] getLargeDims() {
+    return new int[][]{{largeSize, largeSize, 3}};
   }
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     AvgReducerLayer temp_61_0002 = new AvgReducerLayer();
     temp_61_0002.setPrecision(precision);
     AvgReducerLayer temp_61_0001 = RefUtil.addRef(temp_61_0002);
@@ -57,8 +56,8 @@ public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{{largeSize, largeSize, 3}};
+  public int[][] getSmallDims() {
+    return new int[][]{{smallSize, smallSize, 1}};
   }
 
   public static class Double extends AvgReducerLayerTest {
@@ -75,14 +74,14 @@ public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{2, 5, 2}};
+    public int[][] getLargeDims() {
+      return new int[][]{{1200, 800, 3}};
     }
 
     @Nonnull
     @Override
-    public int[][] getLargeDims(Random random) {
-      return new int[][]{{1200, 800, 3}};
+    public int[][] getSmallDims() {
+      return new int[][]{{2, 5, 2}};
     }
 
   }

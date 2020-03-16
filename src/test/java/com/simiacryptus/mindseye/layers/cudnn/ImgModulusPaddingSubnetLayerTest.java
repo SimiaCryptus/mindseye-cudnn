@@ -21,10 +21,8 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class ImgModulusPaddingSubnetLayerTest extends CudnnLayerTestBase {
 
@@ -36,34 +34,34 @@ public abstract class ImgModulusPaddingSubnetLayerTest extends CudnnLayerTestBas
     this.offset = offset;
   }
 
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return null;
-  }
-
-  @Override
-  @Disabled
-  public void batchingTest(TestInfo testInfo) {
-    super.batchingTest(testInfo);
-  }
-
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{2, 2, 1}};
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(Random random) {
+  public int[][] getLargeDims() {
     return new int[][]{{1200, 1200, 1}};
   }
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     return new ImgModulusPaddingSubnetLayer(modulus, modulus, offset, offset,
         new ActivationLayer(ActivationLayer.Mode.RELU));
+  }
+
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return null;
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getSmallDims() {
+    return new int[][]{{2, 2, 1}};
+  }
+
+  @Override
+  @Disabled
+  public void batchingTest() {
+    super.batchingTest();
   }
 
   public static class Basic extends ImgModulusPaddingSubnetLayerTest {

@@ -23,11 +23,10 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 
@@ -53,9 +52,10 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
     testingBatchSize = 1;
   }
 
+  @Nonnull
   @Override
-  public Layer getReferenceLayer() {
-    return layer.getCompatibilityLayer();
+  public int[][] getLargeDims() {
+    return new int[][]{{largeSize, largeSize, inputBands}};
   }
 
 //  @Override
@@ -81,27 +81,25 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
   //    }
   //  }
 
-  @Nonnull
-  @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{smallSize, smallSize, inputBands}};
-  }
-
   @Nullable
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     return layer.addRef();
   }
 
-  @Nonnull
   @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{{largeSize, largeSize, inputBands}};
+  public Layer getReferenceLayer() {
+    return layer.getCompatibilityLayer();
   }
 
-  @After
-  public void cleanup() {
-    super.cleanup();
+  @Nonnull
+  @Override
+  public int[][] getSmallDims() {
+    return new int[][]{{smallSize, smallSize, inputBands}};
+  }
+
+  @AfterEach
+  void cleanup() {
     if (null != layer)
       layer.freeRef();
   }

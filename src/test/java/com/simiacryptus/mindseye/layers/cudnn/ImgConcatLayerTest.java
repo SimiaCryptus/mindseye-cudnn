@@ -24,13 +24,10 @@ import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.mindseye.test.unit.BatchingTester;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
 
@@ -51,23 +48,23 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     this.largeSize = largeSize;
   }
 
+  @Nonnull
   @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return com.simiacryptus.mindseye.layers.java.ImgConcatLayer.class;
+  public int[][] getLargeDims() {
+    return RefArrays.stream(bandSeq).mapToObj(x -> new int[]{largeSize, largeSize, x}).toArray(i -> new int[i][]);
   }
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return RefArrays.stream(bandSeq).mapToObj(x -> new int[]{smallSize, smallSize, x}).toArray(i -> new int[i][]);
-  }
-
-  @Nonnull
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     ImgConcatLayer imgConcatLayer = new ImgConcatLayer();
     imgConcatLayer.setPrecision(precision);
     return imgConcatLayer;
+  }
+
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return com.simiacryptus.mindseye.layers.java.ImgConcatLayer.class;
   }
   //
   //  /**
@@ -84,8 +81,8 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getLargeDims(Random random) {
-    return RefArrays.stream(bandSeq).mapToObj(x -> new int[]{largeSize, largeSize, x}).toArray(i -> new int[i][]);
+  public int[][] getSmallDims() {
+    return RefArrays.stream(bandSeq).mapToObj(x -> new int[]{smallSize, smallSize, x}).toArray(i -> new int[i][]);
   }
 
   public static class BandLimitTest extends ImgConcatLayerTest {
@@ -96,22 +93,22 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{1, 1, 3}};
+    public int[][] getLargeDims() {
+      return getSmallDims();
     }
 
     @Nonnull
     @Override
-    public int[][] getLargeDims(Random random) {
-      return getSmallDims(new Random());
-    }
-
-    @Nonnull
-    @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       ImgConcatLayer imgConcatLayer = new ImgConcatLayer();
       imgConcatLayer.setMaxBands(2);
       return imgConcatLayer;
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getSmallDims() {
+      return new int[][]{{1, 1, 3}};
     }
 
   }
@@ -124,13 +121,13 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getLargeDims(Random random) {
-      return getSmallDims(new Random());
+    public int[][] getLargeDims() {
+      return getSmallDims();
     }
 
     @Nonnull
     @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       ImgConcatLayer imgConcatLayer = new ImgConcatLayer();
       imgConcatLayer.setMaxBands(8);
       return imgConcatLayer;
@@ -158,26 +155,26 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
 
     @Override
     @Disabled
-    public void derivativeTest(TestInfo testInfo) {
-      super.derivativeTest(testInfo);
+    public void derivativeTest() {
+      super.derivativeTest();
     }
 
     @Override
     @Disabled
-    public void trainingTest(TestInfo testInfo) {
-      super.trainingTest(testInfo);
+    public void trainingTest() {
+      super.trainingTest();
     }
 
     @Override
     @Disabled
-    public void jsonTest(TestInfo testInfo) {
-      super.jsonTest(testInfo);
+    public void jsonTest() {
+      super.jsonTest();
     }
 
     @Override
     @Disabled
-    public void perfTest(TestInfo testInfo) {
-      super.perfTest(testInfo);
+    public void perfTest() {
+      super.perfTest();
     }
 
   }

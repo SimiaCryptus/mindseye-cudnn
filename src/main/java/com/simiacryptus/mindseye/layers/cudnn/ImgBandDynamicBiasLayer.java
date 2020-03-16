@@ -43,7 +43,7 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
   public ImgBandDynamicBiasLayer() {
   }
 
-  protected ImgBandDynamicBiasLayer(@Nonnull final JsonObject id, final Map<CharSequence, byte[]> rs) {
+  protected ImgBandDynamicBiasLayer(@Nonnull final JsonObject id) {
     super(id);
     this.precision = Precision.valueOf(id.getAsJsonPrimitive("precision").getAsString());
   }
@@ -66,7 +66,7 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgBandDynamicBiasLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new ImgBandDynamicBiasLayer(json, rs);
+    return new ImgBandDynamicBiasLayer(json);
   }
 
   @Nullable

@@ -57,7 +57,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
     assert 0 < sizeY;
   }
 
-  protected ImgCropLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgCropLayer(@Nonnull final JsonObject json) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -120,7 +120,7 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgCropLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new ImgCropLayer(json, rs);
+    return new ImgCropLayer(json);
   }
 
   @Nullable

@@ -24,14 +24,11 @@ import com.simiacryptus.mindseye.layers.cudnn.CudnnLayerTestBase;
 import com.simiacryptus.mindseye.layers.java.FullyConnectedReferenceLayer;
 import com.simiacryptus.mindseye.test.unit.BatchingTester;
 import com.simiacryptus.ref.lang.RefIgnore;
-import org.junit.After;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
@@ -60,6 +57,12 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
     temp_11_0002.freeRef();
   }
 
+  @Nonnull
+  @Override
+  public Layer getLayer() {
+    return layer.addRef();
+  }
+
   @Override
   public Layer getReferenceLayer() {
     @Nullable
@@ -75,20 +78,14 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  protected Class<?> getTargetClass() {
-    return FullyConnectedLayer.class;
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getSmallDims(Random random) {
+  public int[][] getSmallDims() {
     return new int[][]{inputDim};
   }
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    return layer.addRef();
+  protected Class<?> getTargetClass() {
+    return FullyConnectedLayer.class;
   }
 
 //  @Override
@@ -99,10 +96,8 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
 //    super.allTests(log);
 //  }
 
-
-  @After
-  public void cleanup() {
-    super.cleanup();
+  @AfterEach
+  void cleanup() {
     if (null != layer)
       layer.freeRef();
     fullyConnectedLayer.freeRef();
@@ -132,26 +127,26 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
     @Override
     @Disabled
-    public void derivativeTest(TestInfo testInfo) {
-      super.derivativeTest(testInfo);
+    public void derivativeTest() {
+      super.derivativeTest();
     }
 
     @Override
     @Disabled
-    public void trainingTest(TestInfo testInfo) {
-      super.trainingTest(testInfo);
+    public void trainingTest() {
+      super.trainingTest();
     }
 
     @Override
     @Disabled
-    public void jsonTest(TestInfo testInfo) {
-      super.jsonTest(testInfo);
+    public void jsonTest() {
+      super.jsonTest();
     }
 
     @Override
     @Disabled
-    public void perfTest(TestInfo testInfo) {
-      super.perfTest(testInfo);
+    public void perfTest() {
+      super.perfTest();
     }
 
   }

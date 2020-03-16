@@ -23,7 +23,6 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
@@ -33,6 +32,10 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
   public ImgPaddingLayerTest() {
   }
 
+  @Nonnull
+  @Override
+  public abstract Layer getLayer();
+
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return null;
@@ -40,24 +43,20 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public abstract int[][] getSmallDims(Random random);
-
-  @Nonnull
-  @Override
-  public abstract Layer getLayer(final int[][] inputSize, Random random);
+  public abstract int[][] getSmallDims();
 
   public static class Center extends ImgPaddingLayerTest {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
+    public Layer getLayer() {
+      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
     }
 
     @Nonnull
     @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
+    public int[][] getSmallDims() {
+      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
     }
 
   }
@@ -66,18 +65,18 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
-    }
-
-    @Nonnull
-    @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       ImgPaddingLayer temp_63_0002 = new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
       temp_63_0002.setHorizontalAlign(Alignment.Left);
       ImgPaddingLayer temp_63_0001 = temp_63_0002.addRef();
       temp_63_0002.freeRef();
       return temp_63_0001;
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getSmallDims() {
+      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
     }
 
   }
@@ -86,18 +85,18 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
-    }
-
-    @Nonnull
-    @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       ImgPaddingLayer temp_63_0004 = new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
       temp_63_0004.setHorizontalAlign(Alignment.Right);
       ImgPaddingLayer temp_63_0003 = temp_63_0004.addRef();
       temp_63_0004.freeRef();
       return temp_63_0003;
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getSmallDims() {
+      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
     }
 
   }
@@ -106,18 +105,18 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
-    }
-
-    @Nonnull
-    @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       ImgPaddingLayer temp_63_0006 = new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
       temp_63_0006.setVerticalAlign(Alignment.Left);
       ImgPaddingLayer temp_63_0005 = temp_63_0006.addRef();
       temp_63_0006.freeRef();
       return temp_63_0005;
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getSmallDims() {
+      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
     }
 
   }
@@ -126,18 +125,18 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
-    }
-
-    @Nonnull
-    @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       ImgPaddingLayer temp_63_0008 = new ImgPaddingLayer(SIZE_OUT, SIZE_OUT);
       temp_63_0008.setVerticalAlign(Alignment.Right);
       ImgPaddingLayer temp_63_0007 = temp_63_0008.addRef();
       temp_63_0008.freeRef();
       return temp_63_0007;
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getSmallDims() {
+      return new int[][]{{SIZE_IN, SIZE_IN, 1}};
     }
 
   }

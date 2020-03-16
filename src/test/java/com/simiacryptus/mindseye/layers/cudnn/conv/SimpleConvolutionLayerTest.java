@@ -26,14 +26,11 @@ import com.simiacryptus.mindseye.test.unit.BatchingTester;
 import com.simiacryptus.mindseye.test.unit.PerformanceTester;
 import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.ref.lang.RefIgnore;
-import org.junit.After;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
@@ -59,39 +56,38 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     largeSize = 800;
   }
 
+  @Nonnull
+  @Override
+  public int[][] getLargeDims() {
+    return new int[][]{{largeSize, largeSize, bands}};
+  }
+
+  @Nullable
+  @Override
+  public Layer getLayer() {
+    return layer == null ? null : layer.addRef();
+  }
+
   @Nullable
   @Override
   public Layer getReferenceLayer() {
     return null;
   }
 
-  @Override
-  @Disabled
-  public void trainingTest(TestInfo testInfo) {
-    super.trainingTest(testInfo);
-  }
-
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
+  public int[][] getSmallDims() {
     return new int[][]{{smallSize, smallSize, bands}};
   }
 
-  @Nullable
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    return layer == null ? null : layer.addRef();
+  @Disabled
+  public void trainingTest() {
+    super.trainingTest();
   }
 
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{{largeSize, largeSize, bands}};
-  }
-
-  @After
-  public void cleanup() {
-    super.cleanup();
+  @AfterEach
+  void cleanup() {
     if (null != layer)
       layer.freeRef();
   }
@@ -159,14 +155,14 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
     @Override
     @Disabled
-    public void derivativeTest(TestInfo testInfo) {
-      super.derivativeTest(testInfo);
+    public void derivativeTest() {
+      super.derivativeTest();
     }
 
     @Override
     @Disabled
-    public void trainingTest(TestInfo testInfo) {
-      super.trainingTest(testInfo);
+    public void trainingTest() {
+      super.trainingTest();
     }
 
 //    @Override
@@ -218,6 +214,12 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
       return getBatchingTester(1e-2, true, 5);
     }
 
+    @Nonnull
+    @Override
+    public int[][] getLargeDims() {
+      return new int[][]{{30, 30, bands}};
+    }
+
     @Override
     public Layer getReferenceLayer() {
       return null;
@@ -225,32 +227,26 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
     @Override
     @Disabled
-    public void derivativeTest(TestInfo testInfo) {
-      super.derivativeTest(testInfo);
+    public void derivativeTest() {
+      super.derivativeTest();
     }
 
     @Override
     @Disabled
-    public void trainingTest(TestInfo testInfo) {
-      super.trainingTest(testInfo);
+    public void trainingTest() {
+      super.trainingTest();
     }
 
     @Override
     @Disabled
-    public void jsonTest(TestInfo testInfo) {
-      super.jsonTest(testInfo);
+    public void jsonTest() {
+      super.jsonTest();
     }
 
     @Override
     @Disabled
-    public void perfTest(TestInfo testInfo) {
-      super.perfTest(testInfo);
-    }
-
-    @Nonnull
-    @Override
-    public int[][] getLargeDims(Random random) {
-      return new int[][]{{30, 30, bands}};
+    public void perfTest() {
+      super.perfTest();
     }
 
   }

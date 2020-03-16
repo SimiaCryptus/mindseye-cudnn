@@ -23,27 +23,23 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.cudnn.Precision;
 import com.simiacryptus.ref.lang.RefUtil;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
   public ImgTileSelectLayerTest() {
   }
 
+  @Nonnull
+  @Override
+  public abstract ImgTileSelectLayer getLayer();
+
   @Nullable
   @Override
   public Class<? extends Layer> getReferenceLayerClass() {
     return com.simiacryptus.mindseye.layers.java.ImgTileSelectLayer.class;
-  }
-
-  @Override
-  @Disabled
-  public void batchingTest(TestInfo testInfo) {
-    super.batchingTest(testInfo);
   }
 
   //  @Override
@@ -55,19 +51,21 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
+  public int[][] getSmallDims() {
     return new int[][]{{8, 6, 1}};
   }
 
-  @Nonnull
   @Override
-  public abstract ImgTileSelectLayer getLayer(final int[][] inputSize, Random random);
+  @Disabled
+  public void batchingTest() {
+    super.batchingTest();
+  }
 
   public static class UL extends ImgTileSelectLayerTest {
 
     @Nonnull
     @Override
-    public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
+    public ImgTileSelectLayer getLayer() {
       ImgTileSelectLayer temp_58_0002 = new ImgTileSelectLayer(4, 3, 0, 0);
       temp_58_0002.setPrecision(Precision.Double);
       ImgTileSelectLayer temp_58_0001 = RefUtil.addRef(temp_58_0002);
@@ -81,7 +79,7 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
+    public ImgTileSelectLayer getLayer() {
       ImgTileSelectLayer temp_58_0004 = new ImgTileSelectLayer(4, 3, 4, 0);
       temp_58_0004.setPrecision(Precision.Double);
       ImgTileSelectLayer temp_58_0003 = RefUtil.addRef(temp_58_0004);
@@ -94,7 +92,7 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
+    public ImgTileSelectLayer getLayer() {
       ImgTileSelectLayer temp_58_0006 = new ImgTileSelectLayer(4, 3, 0, 3);
       temp_58_0006.setPrecision(Precision.Double);
       ImgTileSelectLayer temp_58_0005 = RefUtil.addRef(temp_58_0006);
@@ -108,7 +106,7 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public ImgTileSelectLayer getLayer(final int[][] inputSize, Random random) {
+    public ImgTileSelectLayer getLayer() {
       ImgTileSelectLayer temp_58_0008 = new ImgTileSelectLayer(4, 3, 4, 3);
       temp_58_0008.setPrecision(Precision.Double);
       ImgTileSelectLayer temp_58_0007 = RefUtil.addRef(temp_58_0008);

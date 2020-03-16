@@ -21,14 +21,24 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
 
   public ImgZeroPaddingLayerTest() {
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getLargeDims() {
+    return new int[][]{{1200, 1200, 3}};
+  }
+
+  @Nonnull
+  @Override
+  public Layer getLayer() {
+    return new ImgZeroPaddingLayer(1, 1);
   }
 
   @Override
@@ -36,28 +46,16 @@ public abstract class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
     return com.simiacryptus.mindseye.layers.java.ImgZeroPaddingLayer.class;
   }
 
-  @Override
-  @Disabled
-  public void batchingTest(TestInfo testInfo) {
-    super.batchingTest(testInfo);
-  }
-
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
+  public int[][] getSmallDims() {
     return new int[][]{{8, 8, 1}};
   }
 
-  @Nonnull
   @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{{1200, 1200, 3}};
-  }
-
-  @Nonnull
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    return new ImgZeroPaddingLayer(1, 1);
+  @Disabled
+  public void batchingTest() {
+    super.batchingTest();
   }
 
   public static class Basic extends ImgZeroPaddingLayerTest {

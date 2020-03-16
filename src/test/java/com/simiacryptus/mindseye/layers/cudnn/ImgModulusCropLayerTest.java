@@ -20,12 +20,9 @@
 package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
 
@@ -38,34 +35,9 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
     this.offset = offset;
   }
 
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return null;
-  }
-
-  @Override
-  @Disabled
-  public void derivativeTest(TestInfo testInfo) {
-    super.derivativeTest(testInfo);
-  }
-
-  @Override
-  @Disabled
-  public void batchingTest(TestInfo testInfo) {
-    super.batchingTest(testInfo);
-  }
-
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{320, 240, 3}
-        //        {2, 2, 1}
-    };
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(Random random) {
+  public int[][] getLargeDims() {
     return new int[][]{{320, 240, 3}
         //        {1200, 1200, 1}
     };
@@ -73,10 +45,35 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     return new ImgModulusCropLayer(modulus, modulus, offset, offset)
         //.setRoundUp(true)
         ;
+  }
+
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return null;
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getSmallDims() {
+    return new int[][]{{320, 240, 3}
+        //        {2, 2, 1}
+    };
+  }
+
+  @Override
+  @Disabled
+  public void derivativeTest() {
+    super.derivativeTest();
+  }
+
+  @Override
+  @Disabled
+  public void batchingTest() {
+    super.batchingTest();
   }
 
   public static class Basic extends ImgModulusCropLayerTest {

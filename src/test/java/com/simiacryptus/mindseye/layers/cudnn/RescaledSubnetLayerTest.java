@@ -23,10 +23,9 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayer;
 import com.simiacryptus.ref.lang.MustCall;
 import com.simiacryptus.ref.lang.RefIgnore;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
 
@@ -38,17 +37,17 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
   public RescaledSubnetLayerTest() {
   }
 
+  @Nonnull
   @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return com.simiacryptus.mindseye.layers.java.RescaledSubnetLayer.class;
+  public int[][] getLargeDims() {
+    return new int[][]{{1200, 1200, 3}};
   }
 
-  @After
-  @MustCall
-  public void cleanup() {
-    super.cleanup();
-    if (null != convolutionLayer)
-      convolutionLayer.freeRef();
+  @Nonnull
+  @Override
+  public Layer getLayer() {
+    convolutionLayer.set(() -> this.random());
+    return new RescaledSubnetLayer(2, convolutionLayer.addRef());
   }
 
 //  @Override
@@ -62,23 +61,22 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
 //    //    CudaSystem.apiLog.remove(apiLog);
 //  }
 
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return com.simiacryptus.mindseye.layers.java.RescaledSubnetLayer.class;
+  }
+
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
+  public int[][] getSmallDims() {
     return new int[][]{{8, 8, 1}};
   }
 
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(final Random random) {
-    return new int[][]{{1200, 1200, 3}};
-  }
-
-  @Nonnull
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    convolutionLayer.set(() -> this.random());
-    return new RescaledSubnetLayer(2, convolutionLayer.addRef());
+  @AfterEach
+  @MustCall
+  void cleanup() {
+    if (null != convolutionLayer)
+      convolutionLayer.freeRef();
   }
 
   public static class Basic extends RescaledSubnetLayerTest {

@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
 
@@ -37,24 +36,24 @@ public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{4, 4, 3}, {1, 1, 3}};
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(final Random random) {
+  public int[][] getLargeDims() {
     return new int[][]{{1200, 1200, 3}, {1, 1, 3}};
   }
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     GateBiasLayer temp_74_0002 = new GateBiasLayer();
     temp_74_0002.setPrecision(precision);
     GateBiasLayer temp_74_0001 = RefUtil.addRef(temp_74_0002);
     temp_74_0002.freeRef();
     return temp_74_0001;
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getSmallDims() {
+    return new int[][]{{4, 4, 3}, {1, 1, 3}};
   }
 
   public static class Double extends GateBiasLayerTest {

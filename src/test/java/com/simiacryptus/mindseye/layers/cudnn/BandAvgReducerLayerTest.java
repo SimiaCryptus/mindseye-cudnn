@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
 
@@ -42,6 +41,21 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
     this.largeSize = largeSize;
   }
 
+  @Nonnull
+  @Override
+  public int[][] getLargeDims() {
+    return new int[][]{{largeSize, largeSize, 3}};
+  }
+
+  @Nonnull
+  @Override
+  public Layer getLayer() {
+    BandAvgReducerLayer bandAvgReducerLayer = new BandAvgReducerLayer();
+    bandAvgReducerLayer.setAlpha(alpha);
+    bandAvgReducerLayer.setPrecision(precision);
+    return bandAvgReducerLayer;
+  }
+
   @Nullable
   @Override
   public Layer getReferenceLayer() {
@@ -54,23 +68,8 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
+  public int[][] getSmallDims() {
     return new int[][]{{smallSize, smallSize, 1}};
-  }
-
-  @Nonnull
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    BandAvgReducerLayer bandAvgReducerLayer = new BandAvgReducerLayer();
-    bandAvgReducerLayer.setAlpha(alpha);
-    bandAvgReducerLayer.setPrecision(precision);
-    return bandAvgReducerLayer;
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{{largeSize, largeSize, 3}};
   }
 
   public static class Double extends BandAvgReducerLayerTest {
@@ -94,14 +93,14 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{3, 5, 2}};
+    public int[][] getLargeDims() {
+      return new int[][]{{1200, 800, 3}};
     }
 
     @Nonnull
     @Override
-    public int[][] getLargeDims(Random random) {
-      return new int[][]{{1200, 800, 3}};
+    public int[][] getSmallDims() {
+      return new int[][]{{3, 5, 2}};
     }
 
   }

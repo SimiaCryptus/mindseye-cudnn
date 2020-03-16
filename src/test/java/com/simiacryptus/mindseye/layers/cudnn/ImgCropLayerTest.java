@@ -23,12 +23,15 @@ import com.simiacryptus.mindseye.lang.Layer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
 
   public ImgCropLayerTest() {
   }
+
+  @Nonnull
+  @Override
+  public abstract Layer getLayer();
 
   @Nullable
   @Override
@@ -38,13 +41,15 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public abstract int[][] getSmallDims(Random random);
-
-  @Nonnull
-  @Override
-  public abstract Layer getLayer(final int[][] inputSize, Random random);
+  public abstract int[][] getSmallDims();
 
   public static class Center extends ImgCropLayerTest {
+    @Nonnull
+    @Override
+    public Layer getLayer() {
+      return new ImgCropLayer(2, 2);
+    }
+
     @Override
     public Class<? extends Layer> getReferenceLayerClass() {
       return com.simiacryptus.mindseye.layers.java.ImgCropLayer.class;
@@ -52,14 +57,8 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
+    public int[][] getSmallDims() {
       return new int[][]{{4, 4, 1}};
-    }
-
-    @Nonnull
-    @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
-      return new ImgCropLayer(2, 2);
     }
 
   }
@@ -68,18 +67,18 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{4, 4, 1}};
-    }
-
-    @Nonnull
-    @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       ImgCropLayer temp_57_0002 = new ImgCropLayer(2, 2);
       temp_57_0002.setHorizontalAlign(ImgCropLayer.Alignment.Left);
       ImgCropLayer temp_57_0001 = temp_57_0002.addRef();
       temp_57_0002.freeRef();
       return temp_57_0001;
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getSmallDims() {
+      return new int[][]{{4, 4, 1}};
     }
 
   }
@@ -88,18 +87,18 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{4, 4, 1}};
-    }
-
-    @Nonnull
-    @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       ImgCropLayer temp_57_0004 = new ImgCropLayer(2, 2);
       temp_57_0004.setHorizontalAlign(ImgCropLayer.Alignment.Right);
       ImgCropLayer temp_57_0003 = temp_57_0004.addRef();
       temp_57_0004.freeRef();
       return temp_57_0003;
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getSmallDims() {
+      return new int[][]{{4, 4, 1}};
     }
 
   }
@@ -108,18 +107,18 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{4, 4, 1}};
-    }
-
-    @Nonnull
-    @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       ImgCropLayer temp_57_0006 = new ImgCropLayer(2, 2);
       temp_57_0006.setVerticalAlign(ImgCropLayer.Alignment.Left);
       ImgCropLayer temp_57_0005 = temp_57_0006.addRef();
       temp_57_0006.freeRef();
       return temp_57_0005;
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getSmallDims() {
+      return new int[][]{{4, 4, 1}};
     }
 
   }
@@ -128,18 +127,18 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
 
     @Nonnull
     @Override
-    public int[][] getSmallDims(Random random) {
-      return new int[][]{{4, 4, 1}};
-    }
-
-    @Nonnull
-    @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       ImgCropLayer temp_57_0008 = new ImgCropLayer(2, 2);
       temp_57_0008.setVerticalAlign(ImgCropLayer.Alignment.Left);
       ImgCropLayer temp_57_0007 = temp_57_0008.addRef();
       temp_57_0008.freeRef();
       return temp_57_0007;
+    }
+
+    @Nonnull
+    @Override
+    public int[][] getSmallDims() {
+      return new int[][]{{4, 4, 1}};
     }
   }
 

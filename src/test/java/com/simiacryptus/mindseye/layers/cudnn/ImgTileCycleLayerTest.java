@@ -21,14 +21,24 @@ package com.simiacryptus.mindseye.layers.cudnn;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.TestInfo;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
 
   public ImgTileCycleLayerTest() {
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getLargeDims() {
+    return new int[][]{{1200, 1200, 3}};
+  }
+
+  @Nonnull
+  @Override
+  public Layer getLayer() {
+    return new ImgTileCycleLayer();
   }
 
   @Override
@@ -36,35 +46,23 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
     return null;
   }
 
-  @Override
-  @Disabled
-  public void batchingTest(TestInfo testInfo) {
-    super.batchingTest(testInfo);
-  }
-
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
+  public int[][] getSmallDims() {
     return new int[][]{{8, 8, 1}};
   }
 
-  @Nonnull
   @Override
-  public int[][] getLargeDims(Random random) {
-    return new int[][]{{1200, 1200, 3}};
-  }
-
-  @Nonnull
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    return new ImgTileCycleLayer();
+  @Disabled
+  public void batchingTest() {
+    super.batchingTest();
   }
 
   public static class OneThird extends ImgTileCycleLayerTest {
 
     @Nonnull
     @Override
-    public Layer getLayer(final int[][] inputSize, Random random) {
+    public Layer getLayer() {
       ImgTileCycleLayer temp_71_0002 = new ImgTileCycleLayer();
       temp_71_0002.setXPos(0.3);
       ImgTileCycleLayer temp_71_0003 = temp_71_0002.addRef();

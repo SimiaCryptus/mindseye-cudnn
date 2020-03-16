@@ -53,7 +53,7 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
     this.sizeY = sizeY;
   }
 
-  protected ImgMinSizeLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected ImgMinSizeLayer(@Nonnull final JsonObject json) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
     sizeY = json.get("sizeY").getAsInt();
@@ -73,7 +73,7 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgMinSizeLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new ImgMinSizeLayer(json, rs);
+    return new ImgMinSizeLayer(json);
   }
 
   @Nullable

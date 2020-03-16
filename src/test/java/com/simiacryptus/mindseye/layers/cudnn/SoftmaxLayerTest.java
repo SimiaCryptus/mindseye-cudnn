@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
 
 public abstract class SoftmaxLayerTest extends CudnnLayerTestBase {
 
@@ -35,27 +34,15 @@ public abstract class SoftmaxLayerTest extends CudnnLayerTestBase {
     this.mode = mode;
   }
 
-  @Override
-  public Class<? extends Layer> getReferenceLayerClass() {
-    return null;
-    //return com.simiacryptus.mindseye.layers.java.SoftmaxLayer.class;
-  }
-
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
-    return new int[][]{{2, 2, 3}};
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(final Random random) {
+  public int[][] getLargeDims() {
     return new int[][]{{1200, 1200, 3}};
   }
 
   @Nonnull
   @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
+  public Layer getLayer() {
     SoftmaxActivationLayer temp_70_0002 = new SoftmaxActivationLayer();
     temp_70_0002.setMode(mode);
     SoftmaxActivationLayer temp_70_0003 = temp_70_0002.addRef();
@@ -64,6 +51,18 @@ public abstract class SoftmaxLayerTest extends CudnnLayerTestBase {
     temp_70_0003.freeRef();
     temp_70_0002.freeRef();
     return temp_70_0001;
+  }
+
+  @Override
+  public Class<? extends Layer> getReferenceLayerClass() {
+    return null;
+    //return com.simiacryptus.mindseye.layers.java.SoftmaxLayer.class;
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getSmallDims() {
+    return new int[][]{{2, 2, 3}};
   }
 
   public static class Basic extends SoftmaxLayerTest {

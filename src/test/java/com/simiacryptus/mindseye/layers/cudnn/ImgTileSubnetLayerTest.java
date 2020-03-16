@@ -22,11 +22,10 @@ package com.simiacryptus.mindseye.layers.cudnn;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.layers.cudnn.conv.ConvolutionLayer;
 import com.simiacryptus.ref.lang.RefIgnore;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
 
@@ -37,6 +36,18 @@ public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
     ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1);
     convolutionLayer.set(() -> this.random());
     this.convolutionLayer = convolutionLayer;
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getLargeDims() {
+    return new int[][]{{1200, 1200, 1}};
+  }
+
+  @Nonnull
+  @Override
+  public Layer getLayer() {
+    return new ImgTileSubnetLayer(new ActivationLayer(ActivationLayer.Mode.RELU), 3, 3, 2, 2);
   }
 
   @Nullable
@@ -53,25 +64,12 @@ public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
+  public int[][] getSmallDims() {
     return new int[][]{{5, 5, 1}};
   }
 
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(final Random random) {
-    return new int[][]{{1200, 1200, 1}};
-  }
-
-  @Nonnull
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    return new ImgTileSubnetLayer(new ActivationLayer(ActivationLayer.Mode.RELU), 3, 3, 2, 2);
-  }
-
-  @After
-  public void cleanup() {
-    super.cleanup();
+  @AfterEach
+  void cleanup() {
     if (null != convolutionLayer)
       convolutionLayer.freeRef();
   }

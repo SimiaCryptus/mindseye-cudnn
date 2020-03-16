@@ -29,7 +29,6 @@ import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
 
@@ -39,6 +38,25 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
   public SquareActivationLayerTest(final Precision precision, final double alpha) {
     this.precision = precision;
     this.alpha = alpha;
+  }
+
+  @Nonnull
+  @Override
+  public int[][] getLargeDims() {
+    return new int[][]{{1200, 1200, 3}};
+  }
+
+  @Nonnull
+  @Override
+  public Layer getLayer() {
+    SquareActivationLayer temp_65_0004 = new SquareActivationLayer();
+    temp_65_0004.setPrecision(precision);
+    SquareActivationLayer temp_65_0005 = RefUtil.addRef(temp_65_0004);
+    temp_65_0005.setAlpha(alpha);
+    SquareActivationLayer temp_65_0003 = temp_65_0005.addRef();
+    temp_65_0005.freeRef();
+    temp_65_0004.freeRef();
+    return temp_65_0003;
   }
 
   @Nullable
@@ -59,27 +77,8 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
   @Override
-  public int[][] getSmallDims(Random random) {
+  public int[][] getSmallDims() {
     return new int[][]{{4, 4, 1}};
-  }
-
-  @Nonnull
-  @Override
-  public int[][] getLargeDims(final Random random) {
-    return new int[][]{{1200, 1200, 3}};
-  }
-
-  @Nonnull
-  @Override
-  public Layer getLayer(final int[][] inputSize, Random random) {
-    SquareActivationLayer temp_65_0004 = new SquareActivationLayer();
-    temp_65_0004.setPrecision(precision);
-    SquareActivationLayer temp_65_0005 = RefUtil.addRef(temp_65_0004);
-    temp_65_0005.setAlpha(alpha);
-    SquareActivationLayer temp_65_0003 = temp_65_0005.addRef();
-    temp_65_0005.freeRef();
-    temp_65_0004.freeRef();
-    return temp_65_0003;
   }
 
   public static class Double extends SquareActivationLayerTest {
