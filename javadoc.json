@@ -243,5 +243,7 @@
   "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.Matrix" : { },
   "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.MultiBand" : { },
   "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.PaddingBug" : { },
-  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.SpanBug" : { }
+  "com.simiacryptus.mindseye.layers.cudnn.conv.SimpleConvolutionLayerTest.SpanBug" : { },
+  "com.simiacryptus.mindseye.test.RemoteTests" : { },
+  "com.simiacryptus.mindseye.test.RemoteTests.LocalTest" : { }
 }

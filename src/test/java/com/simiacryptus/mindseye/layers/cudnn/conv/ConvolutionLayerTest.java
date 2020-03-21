@@ -148,8 +148,8 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
   }
 
   private void print(@Nonnull final RefStream<CharSequence> stream) {
-    stream.forEach(x -> RefSystem.out.println("Zero: " + x));
-    //com.simiacryptus.ref.wrappers.RefSystem.out.println("Zeros: " + stream.sumChannels((a,b)->a+","+b).get());
+    stream.forEach(x -> System.out.println("Zero: " + x));
+    //com.simiacryptus.ref.wrappers.System.out.println("Zeros: " + stream.sumChannels((a,b)->a+","+b).get());
   }
 
   public static class BandExpand extends ConvolutionLayerTest {
