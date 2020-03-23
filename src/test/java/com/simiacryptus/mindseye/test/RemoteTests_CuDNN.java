@@ -22,9 +22,8 @@ package com.simiacryptus.mindseye.test;
 import com.simiacryptus.aws.exe.EC2NodeSettings;
 import com.simiacryptus.aws.exe.EC2NotebookRunner;
 import com.simiacryptus.util.test.MacroTestRunner;
-import com.simiacryptus.util.test.MacroTestRunner.Isolation;
 
-public class RemoteTests {
+public class RemoteTests_CuDNN {
 
   public static void main(String[] args) {
     EC2NotebookRunner.launch(
@@ -32,10 +31,9 @@ public class RemoteTests {
         EC2NodeSettings.AMI_AMAZON_DEEP_LEARNING,
         " -Xmx8g -DTEST_REPO=./runner/",
         log -> {
-          MacroTestRunner.runAll(log,
-              "com.simiacryptus.mindseye.layers",
-              Isolation.Class
-          );
+          new MacroTestRunner()
+              .setChildJvmOptions("-Xmx42g -ea")
+              .runAll(log,"com.simiacryptus.mindseye.layers");
         }
     );
   }
