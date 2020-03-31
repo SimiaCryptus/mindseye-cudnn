@@ -40,7 +40,7 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
   @Nonnull
   @Override
   public int[][] getLargeDims() {
-    return new int[][]{{1200, 1200, 3}};
+    return new int[][]{{1200, 1200, 1}};
   }
 
   @Nonnull

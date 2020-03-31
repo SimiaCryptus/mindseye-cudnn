@@ -61,7 +61,7 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
     scale = json.get("scale").getAsInt();
     if (null != layer)
       layer.freeRef();
-    layer = Layer.fromJson(json, rs);
+    layer = Layer.fromJson(json.getAsJsonObject("inner"), rs);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
@@ -89,13 +89,9 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
   @Nullable
   @Override
   public Result eval(@Nullable final Result... inObj) {
-    if (!CudaSystem.isEnabled()) {
-      Layer compatibilityLayer = getCompatibilityLayer();
-      Result result = compatibilityLayer.eval(inObj);
-      compatibilityLayer.freeRef();
-      return result;
+    if (CudaSystem.isEnabled()) {
+      log.warn("Not Implemented: " + getClass().getCanonicalName());
     }
-    log.warn("Not Implemented: " + getClass().getCanonicalName());
     Layer compatibilityLayer = getCompatibilityLayer();
     Result result = compatibilityLayer.eval(inObj);
     compatibilityLayer.freeRef();
@@ -108,7 +104,7 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.addProperty("scale", scale);
     assert layer != null;
-    json.add("key", layer.getJson(resources, dataSerializer));
+    json.add("inner", layer.getJson(resources, dataSerializer));
     json.addProperty("precision", precision.name());
     return json;
   }

@@ -120,10 +120,8 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     ExplodedConvolutionGrid explodedNetwork = this.convolutionLayer.getExplodedNetwork();
     @Nonnull
     int[] kernelDims = this.convolutionLayer.getKernelDimensions();
-    Tensor temp_12_0003 = new Tensor(kernelDims);
-    @Nullable
-    Tensor testData = temp_12_0003.map(x -> random());
-    temp_12_0003.freeRef();
+    Tensor testData = new Tensor(kernelDims);
+    testData.set(i->random());
     explodedNetwork.write(testData.addRef());
     Tensor echo = explodedNetwork.read();
     explodedNetwork.freeRef();
