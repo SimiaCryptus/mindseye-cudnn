@@ -105,12 +105,7 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
   }
 
   public void add(int from, int to, @Nullable Layer layer) {
-    RefList<SubnetLeg> temp_06_0010 = getLegs();
-    assert temp_06_0010 != null;
-    temp_06_0010.add(new SubnetLeg(layer == null ? null : layer.addRef(), from, to));
-    temp_06_0010.freeRef();
-    if (null != layer)
-      layer.freeRef();
+    legs.add(new SubnetLeg(layer, from, to));
   }
 
   @Nullable

@@ -29,7 +29,6 @@ import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefAssert;
 import com.simiacryptus.ref.wrappers.RefStream;
-import com.simiacryptus.ref.wrappers.RefSystem;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -121,7 +120,7 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     @Nonnull
     int[] kernelDims = this.convolutionLayer.getKernelDimensions();
     Tensor testData = new Tensor(kernelDims);
-    testData.set(i->random());
+    testData.set(i -> random());
     explodedNetwork.write(testData.addRef());
     Tensor echo = explodedNetwork.read();
     explodedNetwork.freeRef();

@@ -33,7 +33,7 @@ public class RemoteTests_CuDNN {
         log -> {
           new MacroTestRunner()
               .setChildJvmOptions("-Xmx42g -ea")
-              .runAll(log,"com.simiacryptus.mindseye.layers");
+              .runAll(log, "com.simiacryptus.mindseye.layers");
         }
     );
   }
