@@ -27,8 +27,14 @@ import org.junit.jupiter.api.Disabled;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Img tile select layer test.
+ */
 public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * Instantiates a new Img tile select layer test.
+   */
   public ImgTileSelectLayerTest() {
   }
 
@@ -61,6 +67,9 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     super.batchingTest();
   }
 
+  /**
+   * The type Ul.
+   */
   public static class UL extends ImgTileSelectLayerTest {
 
     @Nonnull
@@ -75,6 +84,9 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Ll.
+   */
   public static class LL extends ImgTileSelectLayerTest {
 
     @Nonnull
@@ -88,6 +100,9 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
     }
   }
 
+  /**
+   * The type Ur.
+   */
   public static class UR extends ImgTileSelectLayerTest {
 
     @Nonnull
@@ -102,6 +117,9 @@ public abstract class ImgTileSelectLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Lr.
+   */
   public static class LR extends ImgTileSelectLayerTest {
 
     @Nonnull

@@ -37,17 +37,50 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
+/**
+ * The type Convolution layer test.
+ */
 public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Input bands.
+   */
   final int inputBands;
+  /**
+   * The Output bands.
+   */
   final int outputBands;
+  /**
+   * The Radius.
+   */
   final int radius;
+  /**
+   * The Convolution layer.
+   */
   @Nullable
   @RefIgnore
   final ConvolutionLayer convolutionLayer;
+  /**
+   * The Small size.
+   */
   final int smallSize;
+  /**
+   * The Large size.
+   */
   final int largeSize;
 
+  /**
+   * Instantiates a new Convolution layer test.
+   *
+   * @param radius      the radius
+   * @param inputBands  the input bands
+   * @param outputBands the output bands
+   * @param precision   the precision
+   * @param batchBands  the batch bands
+   * @param stride      the stride
+   * @param smallSize   the small size
+   * @param largeSize   the large size
+   */
   protected ConvolutionLayerTest(final int radius, final int inputBands, final int outputBands,
                                  final Precision precision, int batchBands, int stride, final int smallSize, final int largeSize) {
     this.radius = radius;
@@ -112,6 +145,9 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     return ConvolutionLayer.class;
   }
 
+  /**
+   * Verify weights.
+   */
   @Test
   public void verifyWeights() {
     assert this.convolutionLayer != null;
@@ -138,6 +174,9 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     }
   }
 
+  /**
+   * Cleanup.
+   */
   @AfterEach
   void cleanup() {
     if (null != convolutionLayer)
@@ -149,8 +188,14 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
     //com.simiacryptus.ref.wrappers.System.out.println("Zeros: " + stream.sumChannels((a,b)->a+","+b).get());
   }
 
+  /**
+   * The type Band expand.
+   */
   public static class BandExpand extends ConvolutionLayerTest {
 
+    /**
+     * Instantiates a new Band expand.
+     */
     public BandExpand() {
       super(1, 3, 6, Precision.Double, 16, 1, 3, 600);
     }
@@ -169,15 +214,27 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Band limit.
+   */
   public static class BandLimit extends ConvolutionLayerTest {
 
+    /**
+     * Instantiates a new Band limit.
+     */
     public BandLimit() {
       super(1, 3, 2, Precision.Double, 16, 1, 3, 600);
     }
   }
 
+  /**
+   * The type Sq grid.
+   */
   public static class SqGrid extends ConvolutionLayerTest {
 
+    /**
+     * Instantiates a new Sq grid.
+     */
     public SqGrid() {
       super(3, 4, 4, Precision.Double, 2, 1, 3, 600);
     }
@@ -203,28 +260,52 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
   //
   //  }
 
+  /**
+   * The type Irregular grid.
+   */
   public static class IrregularGrid extends ConvolutionLayerTest {
 
+    /**
+     * Instantiates a new Irregular grid.
+     */
     public IrregularGrid() {
       super(3, 5, 3, Precision.Double, 2, 1, 3, 600);
     }
   }
 
+  /**
+   * The type Band reduce test.
+   */
   public static class BandReduceTest extends ConvolutionLayerTest {
 
+    /**
+     * Instantiates a new Band reduce test.
+     */
     public BandReduceTest() {
       super(3, 6, 3, Precision.Double, 16, 1, 3, 600);
     }
   }
 
+  /**
+   * The type Double.
+   */
   public static class Double extends ConvolutionLayerTest {
 
+    /**
+     * Instantiates a new Double.
+     */
     public Double() {
       super(3, 4, 4, Precision.Double, 16, 1, 3, 600);
     }
   }
 
+  /**
+   * The type No padding.
+   */
   public static class NoPadding extends ConvolutionLayerTest {
+    /**
+     * Instantiates a new No padding.
+     */
     public NoPadding() {
       super(3, 3, 3, Precision.Double, 16, 1, 3, 600);
       assert convolutionLayer != null;
@@ -234,22 +315,40 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Float.
+   */
   public static class Float extends ConvolutionLayerTest {
+    /**
+     * Instantiates a new Float.
+     */
     public Float() {
       super(1, 2, 2, Precision.Float, 16, 1, 3, 600);
     }
   }
 
+  /**
+   * The type Irregular test.
+   */
   public static class IrregularTest extends ConvolutionLayerTest {
 
+    /**
+     * Instantiates a new Irregular test.
+     */
     public IrregularTest() {
       super(3, 7, 5, Precision.Double, 16, 1, 3, 600);
     }
 
   }
 
+  /**
+   * The type Irregular test float.
+   */
   public static class IrregularTest_Float extends ConvolutionLayerTest {
 
+    /**
+     * Instantiates a new Irregular test float.
+     */
     public IrregularTest_Float() {
       super(3, 7, 5, Precision.Float, 16, 1, 3, 600);
     }
@@ -261,7 +360,13 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Big 1.
+   */
   public static class Big1 extends VeryBigTest {
+    /**
+     * Instantiates a new Big 1.
+     */
     public Big1() {
       this(1024);
     }
@@ -278,8 +383,20 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Very big test.
+   */
   public abstract static class VeryBigTest extends Big {
 
+    /**
+     * Instantiates a new Very big test.
+     *
+     * @param radius      the radius
+     * @param inputBands  the input bands
+     * @param outputBands the output bands
+     * @param precision   the precision
+     * @param batchBands  the batch bands
+     */
     protected VeryBigTest(final int radius, final int inputBands, final int outputBands, final Precision precision,
                           final int batchBands) {
       super(radius, inputBands, outputBands, precision, batchBands);
@@ -299,8 +416,20 @@ public abstract class ConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Big.
+   */
   public abstract static class Big extends ConvolutionLayerTest {
 
+    /**
+     * Instantiates a new Big.
+     *
+     * @param radius      the radius
+     * @param inputBands  the input bands
+     * @param outputBands the output bands
+     * @param precision   the precision
+     * @param batchBands  the batch bands
+     */
     public Big(final int radius, final int inputBands, final int outputBands, final Precision precision,
                int batchBands) {
       super(radius, inputBands, outputBands, precision, batchBands, 1, 3, 600);

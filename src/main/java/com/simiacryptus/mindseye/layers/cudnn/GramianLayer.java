@@ -37,6 +37,9 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Gramian layer.
+ */
 @SuppressWarnings("serial")
 public class GramianLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(GramianLayer.class);
@@ -44,23 +47,46 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private double alpha = 1.0;
 
+  /**
+   * Instantiates a new Gramian layer.
+   */
   public GramianLayer() {
   }
 
+  /**
+   * Instantiates a new Gramian layer.
+   *
+   * @param id the id
+   */
   public GramianLayer(UUID id) {
     super(id, "Gramian");
   }
 
+  /**
+   * Instantiates a new Gramian layer.
+   *
+   * @param json the json
+   */
   protected GramianLayer(@Nonnull final JsonObject json) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     this.alpha = json.getAsJsonPrimitive("alpha").getAsDouble();
   }
 
+  /**
+   * Gets alpha.
+   *
+   * @return the alpha
+   */
   public double getAlpha() {
     return alpha;
   }
 
+  /**
+   * Sets alpha.
+   *
+   * @param alpha the alpha
+   */
   public void setAlpha(double alpha) {
     this.alpha = alpha;
   }
@@ -75,6 +101,13 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * From json gramian layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the gramian layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static GramianLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -218,6 +251,16 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
     private Result.Accumulator accumulator;
     private boolean alive;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param inputData       the input data
+     * @param inputDimensions the input dimensions
+     * @param precision       the precision
+     * @param alpha           the alpha
+     * @param accumulator     the accumulator
+     * @param alive           the alive
+     */
     public Accumulator(TensorList inputData, int[] inputDimensions, Precision precision, double alpha, Result.Accumulator accumulator, boolean alive) {
       this.inputData = inputData;
       this.inputDimensions = inputDimensions;
@@ -263,6 +306,14 @@ public class GramianLayer extends LayerBase implements MultiPrecision {
       inputData.freeRef();
     }
 
+    /**
+     * Gets feedback.
+     *
+     * @param gpu         the gpu
+     * @param inputTensor the input tensor
+     * @param deltaTensor the delta tensor
+     * @return the feedback
+     */
     @Nonnull
     public CudaTensorList getFeedback(@Nonnull final CudnnHandle gpu, @Nonnull final CudaTensor inputTensor, @Nonnull final CudaTensor deltaTensor) {
       int pixels = inputTensor.descriptor.height * inputTensor.descriptor.width;

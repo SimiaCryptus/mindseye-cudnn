@@ -45,6 +45,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.LongFunction;
 
+/**
+ * The type Stochastic sampling subnet layer.
+ */
 @SuppressWarnings("serial")
 public class StochasticSamplingSubnetLayer extends WrapperLayer
     implements StochasticComponent, MultiPrecision {
@@ -54,11 +57,23 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
   private long seed = RefSystem.nanoTime();
   private long layerSeed = RefSystem.nanoTime();
 
+  /**
+   * Instantiates a new Stochastic sampling subnet layer.
+   *
+   * @param subnetwork the subnetwork
+   * @param samples    the samples
+   */
   public StochasticSamplingSubnetLayer(final Layer subnetwork, final int samples) {
     super(subnetwork);
     this.samples = samples;
   }
 
+  /**
+   * Instantiates a new Stochastic sampling subnet layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   */
   protected StochasticSamplingSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     samples = json.getAsJsonPrimitive("samples").getAsInt();
@@ -77,17 +92,36 @@ public class StochasticSamplingSubnetLayer extends WrapperLayer
     this.precision = precision;
   }
 
+  /**
+   * Get seeds long [ ].
+   *
+   * @return the long [ ]
+   */
   public long[] getSeeds() {
     Random random = new Random(seed + layerSeed);
     return RefIntStream.range(0, this.samples).mapToLong(i -> random.nextLong()).toArray();
   }
 
+  /**
+   * From json stochastic sampling subnet layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the stochastic sampling subnet layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static StochasticSamplingSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new StochasticSamplingSubnetLayer(json, rs);
   }
 
+  /**
+   * Average result.
+   *
+   * @param samples   the samples
+   * @param precision the precision
+   * @return the result
+   */
   @Nullable
   public static Result average(@Nonnull final Result[] samples, final Precision precision) {
     PipelineNetwork gateNetwork = new PipelineNetwork(1);

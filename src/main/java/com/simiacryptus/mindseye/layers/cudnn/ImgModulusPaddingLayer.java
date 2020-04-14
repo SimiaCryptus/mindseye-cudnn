@@ -37,6 +37,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+/**
+ * The type Img modulus padding layer.
+ */
 @SuppressWarnings("serial")
 public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusPaddingLayer.class);
@@ -51,6 +54,14 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision 
   private ImgModulusPaddingLayer() {
   }
 
+  /**
+   * Instantiates a new Img modulus padding layer.
+   *
+   * @param sizeX   the size x
+   * @param sizeY   the size y
+   * @param offsetX the offset x
+   * @param offsetY the offset y
+   */
   public ImgModulusPaddingLayer(int sizeX, int sizeY, int offsetX, int offsetY) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
@@ -58,10 +69,21 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision 
     this.offsetY = offsetY;
   }
 
+  /**
+   * Instantiates a new Img modulus padding layer.
+   *
+   * @param sizeX the size x
+   * @param sizeY the size y
+   */
   public ImgModulusPaddingLayer(int sizeX, int sizeY) {
     this(sizeX, sizeY, 0, 0);
   }
 
+  /**
+   * Instantiates a new Img modulus padding layer.
+   *
+   * @param json the json
+   */
   protected ImgModulusPaddingLayer(@Nonnull final JsonObject json) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
@@ -72,10 +94,20 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision 
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
+  /**
+   * Gets offset x.
+   *
+   * @return the offset x
+   */
   public int getOffsetX() {
     return offsetX;
   }
 
+  /**
+   * Sets offset x.
+   *
+   * @param offsetX the offset x
+   */
   public void setOffsetX(int offsetX) {
     this.offsetX = offsetX;
   }
@@ -90,14 +122,31 @@ public class ImgModulusPaddingLayer extends LayerBase implements MultiPrecision 
     this.precision = precision;
   }
 
+  /**
+   * Gets round up.
+   *
+   * @return the round up
+   */
   public boolean getRoundUp() {
     return roundUp;
   }
 
+  /**
+   * Sets round up.
+   *
+   * @param roundUp the round up
+   */
   public void setRoundUp(boolean roundUp) {
     this.roundUp = roundUp;
   }
 
+  /**
+   * From json img modulus padding layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img modulus padding layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgModulusPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {

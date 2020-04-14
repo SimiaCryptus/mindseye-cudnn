@@ -24,11 +24,17 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Lrn layer test.
+ */
 public class LRNLayerTest extends CudnnLayerTestBase {
 
   private final int smallSize;
   private final int largeSize;
 
+  /**
+   * Instantiates a new Lrn layer test.
+   */
   public LRNLayerTest() {
     this.smallSize = 10;
     this.largeSize = 800;

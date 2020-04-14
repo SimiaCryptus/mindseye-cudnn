@@ -43,11 +43,20 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
 
+/**
+ * The type Fully connected layer.
+ */
 @SuppressWarnings("serial")
 public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Explodable {
   private static final Logger log = LoggerFactory.getLogger(FullyConnectedLayer.class);
+  /**
+   * The Input dims.
+   */
   @Nullable
   public final int[] inputDims;
+  /**
+   * The Output dims.
+   */
   @Nullable
   public final int[] outputDims;
   @Nullable
@@ -62,6 +71,12 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
     inputDims = null;
   }
 
+  /**
+   * Instantiates a new Fully connected layer.
+   *
+   * @param inputDims  the input dims
+   * @param outputDims the output dims
+   */
   public FullyConnectedLayer(@Nonnull final int[] inputDims, @Nonnull final int[] outputDims) {
     final int inputs = Tensor.length(inputDims);
     this.inputDims = RefArrays.copyOf(inputDims, inputDims.length);
@@ -75,6 +90,12 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
     });
   }
 
+  /**
+   * Instantiates a new Fully connected layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   */
   protected FullyConnectedLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     outputDims = JsonUtil.getIntArray(json.getAsJsonArray("outputDims"));
@@ -83,14 +104,29 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
+  /**
+   * Gets batch bands.
+   *
+   * @return the batch bands
+   */
   public int getBatchBands() {
     return batchBands;
   }
 
+  /**
+   * Sets batch bands.
+   *
+   * @param batchBands the batch bands
+   */
   public void setBatchBands(int batchBands) {
     this.batchBands = batchBands;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     assert outputDims != null;
@@ -110,15 +146,30 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
     this.precision = precision;
   }
 
+  /**
+   * Gets weights.
+   *
+   * @return the weights
+   */
   @Nullable
   public Tensor getWeights() {
     return weights == null ? null : weights.addRef();
   }
 
+  /**
+   * Sets weights.
+   *
+   * @param f the f
+   */
   public void setWeights(@Nonnull final DoubleSupplier f) {
     weights.set(i -> f.getAsDouble());
   }
 
+  /**
+   * Sets weights log.
+   *
+   * @param value the value
+   */
   public void setWeightsLog(double value) {
     Tensor weights = getWeights();
     assert weights != null;
@@ -126,17 +177,34 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
     weights.freeRef();
   }
 
+  /**
+   * From json fully connected layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the fully connected layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static FullyConnectedLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new FullyConnectedLayer(json, rs);
   }
 
+  /**
+   * Set.
+   *
+   * @param data the data
+   */
   public void set(double[] data) {
     assert weights != null;
     weights.set(data);
   }
 
+  /**
+   * Set.
+   *
+   * @param data the data
+   */
   public void set(@Nonnull Tensor data) {
     assert weights != null;
     weights.set(data);
@@ -203,6 +271,11 @@ public class FullyConnectedLayer extends LayerBase implements MultiPrecision, Ex
     return RefArrays.asList(weights.getData());
   }
 
+  /**
+   * Set.
+   *
+   * @param fn the fn
+   */
   public void set(@Nonnull DoubleSupplier fn) {
     assert weights != null;
     weights.set(fn);

@@ -24,8 +24,14 @@ import com.simiacryptus.mindseye.lang.Layer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Img crop layer test.
+ */
 public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * Instantiates a new Img crop layer test.
+   */
   public ImgCropLayerTest() {
   }
 
@@ -43,6 +49,9 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
   @Override
   public abstract int[][] getSmallDims();
 
+  /**
+   * The type Center.
+   */
   public static class Center extends ImgCropLayerTest {
     @Nonnull
     @Override
@@ -63,6 +72,9 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Left.
+   */
   public static class Left extends ImgCropLayerTest {
 
     @Nonnull
@@ -83,6 +95,9 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Right.
+   */
   public static class Right extends ImgCropLayerTest {
 
     @Nonnull
@@ -103,6 +118,9 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Top.
+   */
   public static class Top extends ImgCropLayerTest {
 
     @Nonnull
@@ -123,6 +141,9 @@ public abstract class ImgCropLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Bottom.
+   */
   public static class Bottom extends ImgCropLayerTest {
 
     @Nonnull

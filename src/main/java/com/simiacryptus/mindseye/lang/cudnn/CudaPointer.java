@@ -23,18 +23,38 @@ import jcuda.Pointer;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Cuda pointer.
+ */
 public class CudaPointer extends Pointer {
 
+  /**
+   * The Device id.
+   */
   public final int deviceId = CudaSystem.getThreadDeviceId();
 
+  /**
+   * Instantiates a new Cuda pointer.
+   *
+   * @param other the other
+   */
   public CudaPointer(@Nonnull final Pointer other) {
     super(other);
   }
 
+  /**
+   * Instantiates a new Cuda pointer.
+   *
+   * @param other      the other
+   * @param byteOffset the byte offset
+   */
   public CudaPointer(@Nonnull final Pointer other, final long byteOffset) {
     super(other, byteOffset);
   }
 
+  /**
+   * Instantiates a new Cuda pointer.
+   */
   public CudaPointer() {
     super();
   }
@@ -44,11 +64,23 @@ public class CudaPointer extends Pointer {
     return super.getByteOffset();
   }
 
+  /**
+   * To cuda pointer.
+   *
+   * @param values the values
+   * @return the cuda pointer
+   */
   @Nonnull
   public static CudaPointer to(@Nonnull float values[]) {
     return new CudaPointer(Pointer.to(values));
   }
 
+  /**
+   * To cuda pointer.
+   *
+   * @param values the values
+   * @return the cuda pointer
+   */
   @Nonnull
   public static CudaPointer to(@Nonnull double values[]) {
     return new CudaPointer(Pointer.to(values));

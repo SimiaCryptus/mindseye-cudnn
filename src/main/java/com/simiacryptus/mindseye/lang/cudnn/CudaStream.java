@@ -23,12 +23,23 @@ import jcuda.runtime.cudaStream_t;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Cuda stream.
+ */
 public class CudaStream extends CudaResource<cudaStream_t> {
+  /**
+   * Instantiates a new Cuda stream.
+   *
+   * @param stream the stream
+   */
   CudaStream(cudaStream_t stream) {
     super(stream, stream1 -> CudaSystem.cudaStreamDestroy(stream1), CudaSystem.getThreadDeviceId());
   }
 
 
+  /**
+   * Sync.
+   */
   public void sync() {
     CudaSystem.cudaStreamSynchronize(getPtr());
   }

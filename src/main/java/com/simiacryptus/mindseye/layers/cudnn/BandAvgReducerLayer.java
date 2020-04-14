@@ -34,30 +34,56 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Band avg reducer layer.
+ */
 @SuppressWarnings("serial")
 public class BandAvgReducerLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private double alpha = 1.0;
 
+  /**
+   * Instantiates a new Band avg reducer layer.
+   */
   public BandAvgReducerLayer() {
     super();
   }
 
+  /**
+   * Instantiates a new Band avg reducer layer.
+   *
+   * @param json the json
+   */
   protected BandAvgReducerLayer(@Nonnull final JsonObject json) {
     super(json);
     precision = Precision.valueOf(json.get("precision").getAsString());
     alpha = json.get("alpha").getAsDouble();
   }
 
+  /**
+   * Gets alpha.
+   *
+   * @return the alpha
+   */
   public double getAlpha() {
     return alpha;
   }
 
+  /**
+   * Sets alpha.
+   *
+   * @param alpha the alpha
+   */
   public void setAlpha(double alpha) {
     this.alpha = alpha;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     throw new RuntimeException("Not Implemented");
@@ -73,6 +99,13 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * From json band avg reducer layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the band avg reducer layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static BandAvgReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -180,6 +213,13 @@ public class BandAvgReducerLayer extends LayerBase implements MultiPrecision {
     private final double alpha;
     private Result.Accumulator accumulator;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param inputSize   the input size
+     * @param alpha       the alpha
+     * @param accumulator the accumulator
+     */
     public Accumulator(int[] inputSize, double alpha, Result.Accumulator accumulator) {
       this.inputSize = inputSize;
       this.alpha = alpha;

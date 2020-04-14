@@ -34,25 +34,47 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+/**
+ * The type Scale layer.
+ */
 @SuppressWarnings("serial")
 public class ScaleLayer extends PipelineNetwork implements MultiPrecision {
 
   @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(ScaleLayer.class);
 
+  /**
+   * Instantiates a new Scale layer.
+   */
   public ScaleLayer() {
     this(new Tensor(1));
   }
 
+  /**
+   * Instantiates a new Scale layer.
+   *
+   * @param value the value
+   */
   public ScaleLayer(double value) {
     this(new Tensor(new double[]{value}, 1));
   }
 
+  /**
+   * Instantiates a new Scale layer.
+   *
+   * @param weights the weights
+   */
   public ScaleLayer(@Nullable final Tensor weights) {
     super(1);
     RefUtil.freeRef(add(new ProductLayer(), getInput(0), add(new ValueLayer(weights), new DAGNode[]{})));
   }
 
+  /**
+   * Instantiates a new Scale layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   */
   protected ScaleLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     //weights = new Tensor(1);
@@ -69,6 +91,13 @@ public class ScaleLayer extends PipelineNetwork implements MultiPrecision {
     MultiPrecision.setPrecision(this.addRef(), precision);
   }
 
+  /**
+   * From json scale layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the scale layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ScaleLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {

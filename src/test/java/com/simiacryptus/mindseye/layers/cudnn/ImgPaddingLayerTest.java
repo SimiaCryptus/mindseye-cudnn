@@ -24,11 +24,17 @@ import com.simiacryptus.mindseye.layers.cudnn.ImgCropLayer.Alignment;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Img padding layer test.
+ */
 public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   private static final int SIZE_OUT = 4;
   private static final int SIZE_IN = 2;
 
+  /**
+   * Instantiates a new Img padding layer test.
+   */
   public ImgPaddingLayerTest() {
   }
 
@@ -45,6 +51,9 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
   @Override
   public abstract int[][] getSmallDims();
 
+  /**
+   * The type Center.
+   */
   public static class Center extends ImgPaddingLayerTest {
 
     @Nonnull
@@ -61,6 +70,9 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Left.
+   */
   public static class Left extends ImgPaddingLayerTest {
 
     @Nonnull
@@ -81,6 +93,9 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Right.
+   */
   public static class Right extends ImgPaddingLayerTest {
 
     @Nonnull
@@ -101,6 +116,9 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Top.
+   */
   public static class Top extends ImgPaddingLayerTest {
 
     @Nonnull
@@ -121,6 +139,9 @@ public abstract class ImgPaddingLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Bottom.
+   */
   public static class Bottom extends ImgPaddingLayerTest {
 
     @Nonnull

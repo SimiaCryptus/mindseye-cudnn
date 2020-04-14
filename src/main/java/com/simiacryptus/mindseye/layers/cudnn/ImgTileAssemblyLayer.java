@@ -34,6 +34,9 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Img tile assembly layer.
+ */
 @SuppressWarnings("serial")
 public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgTileAssemblyLayer.class);
@@ -46,11 +49,22 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
   private ImgTileAssemblyLayer() {
   }
 
+  /**
+   * Instantiates a new Img tile assembly layer.
+   *
+   * @param columns the columns
+   * @param rows    the rows
+   */
   public ImgTileAssemblyLayer(int columns, int rows) {
     this.columns = columns;
     this.rows = rows;
   }
 
+  /**
+   * Instantiates a new Img tile assembly layer.
+   *
+   * @param json the json
+   */
   protected ImgTileAssemblyLayer(@Nonnull final JsonObject json) {
     super(json);
     columns = json.get("columns").getAsInt();
@@ -59,6 +73,11 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(com.simiacryptus.mindseye.layers.java.ImgTileAssemblyLayer.class);
@@ -74,14 +93,31 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Is parallel boolean.
+   *
+   * @return the boolean
+   */
   public boolean isParallel() {
     return parallel;
   }
 
+  /**
+   * Sets parallel.
+   *
+   * @param parallel the parallel
+   */
   public void setParallel(boolean parallel) {
     this.parallel = parallel;
   }
 
+  /**
+   * From json img tile assembly layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img tile assembly layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgTileAssemblyLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -118,6 +154,11 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     return new Result(outputData, accumulator, isAlive);
   }
 
+  /**
+   * Backprop.
+   *
+   * @param backpropParams the backprop params
+   */
   public void backprop(@Nonnull final BackpropParams backpropParams) {
     final TensorList passbackTensorList = CudaSystem
         .run(RefUtil.wrapInterface((RefFunction<CudnnHandle, CudaTensorList>) gpu -> {
@@ -136,6 +177,18 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
       passbackTensorList.freeRef();
   }
 
+  /**
+   * Copy cuda tensor.
+   *
+   * @param gpu            the gpu
+   * @param error          the error
+   * @param tileDimensions the tile dimensions
+   * @param outputDims     the output dims
+   * @param length         the length
+   * @param positionX      the position x
+   * @param positionY      the position y
+   * @return the cuda tensor
+   */
   @Nullable
   public CudaTensor copy(@Nonnull final CudnnHandle gpu, @Nullable final TensorList error, @Nonnull final int[] tileDimensions,
                          @Nonnull final int[] outputDims, final int length, final int positionX, final int positionY) {
@@ -154,6 +207,11 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     return new CudaTensor(passbackBuffer, descriptor, precision);
   }
 
+  /**
+   * Copy.
+   *
+   * @param copyParams the copy params
+   */
   public void copy(@Nonnull final CopyParams copyParams) {
     CudnnHandle gpu = copyParams.gpu.addRef();
     gpu.initThread();
@@ -165,6 +223,18 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     copyParams.freeRef();
   }
 
+  /**
+   * Copy.
+   *
+   * @param gpu                   the gpu
+   * @param length                the length
+   * @param sourceDimensions      the source dimensions
+   * @param source                the source
+   * @param destinationDimensions the destination dimensions
+   * @param destination           the destination
+   * @param positionX             the position x
+   * @param positionY             the position y
+   */
   public void copy(@Nonnull CudnnHandle gpu, int length, @Nonnull int[] sourceDimensions, @Nonnull CudaTensor source,
                    @Nonnull int[] destinationDimensions, @Nonnull CudaMemory destination, int positionX, int positionY) {
     if (3 != sourceDimensions.length) {
@@ -241,6 +311,14 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     destination.freeRef();
   }
 
+  /**
+   * Get view dimensions int [ ].
+   *
+   * @param sourceDimensions      the source dimensions
+   * @param destinationDimensions the destination dimensions
+   * @param offset                the offset
+   * @return the int [ ]
+   */
   @Nonnull
   public int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions, int[] offset) {
     @Nonnull final int[] viewDim = new int[3];
@@ -358,15 +436,42 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
   }
 
   private static class CopyParams extends ReferenceCountingBase {
+    /**
+     * The Length.
+     */
     public final int length;
+    /**
+     * The Output dims.
+     */
     public final int[] outputDims;
+    /**
+     * The Gpu.
+     */
     public final CudnnHandle gpu;
+    /**
+     * The Output buffer.
+     */
     @Nonnull
     public final CudaMemory outputBuffer;
+    /**
+     * The Total height.
+     */
     public final int totalHeight;
+    /**
+     * The Input index.
+     */
     public final int inputIndex;
+    /**
+     * The Position x.
+     */
     public final int positionX;
+    /**
+     * The Tile dimensions.
+     */
     public final int[] tileDimensions;
+    /**
+     * The In obj.
+     */
     @Nonnull
     public final Result[] inObj;
 
@@ -401,17 +506,44 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
   }
 
   private static class BackpropParams extends ReferenceCountingBase {
+    /**
+     * The In obj.
+     */
     @Nonnull
     public final Result[] inObj;
+    /**
+     * The Buffer.
+     */
     @Nonnull
     public final DeltaSet<UUID> buffer;
+    /**
+     * The Error.
+     */
     @Nonnull
     public final TensorList error;
+    /**
+     * The Output dims.
+     */
     public final int[] outputDims;
+    /**
+     * The Tile dimensions.
+     */
     public final int[] tileDimensions;
+    /**
+     * The Length.
+     */
     public final int length;
+    /**
+     * The Position x.
+     */
     public final int positionX;
+    /**
+     * The Total height.
+     */
     public final int totalHeight;
+    /**
+     * The Input index.
+     */
     public final int inputIndex;
 
     private BackpropParams(@Nonnull final Result[] inObj, @Nonnull final DeltaSet<UUID> buffer,
@@ -455,6 +587,18 @@ public class ImgTileAssemblyLayer extends LayerBase implements MultiPrecision {
     private int columns;
     private boolean parallel;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param imgTileAssemblyLayer the img tile assembly layer
+     * @param outputData           the output data
+     * @param length               the length
+     * @param outputDims           the output dims
+     * @param rows                 the rows
+     * @param columns              the columns
+     * @param parallel             the parallel
+     * @param inObj                the in obj
+     */
     public Accumulator(ImgTileAssemblyLayer imgTileAssemblyLayer, TensorList outputData, int length, int[] outputDims, int rows, int columns, boolean parallel, Result... inObj) {
       this.imgTileAssemblyLayer = imgTileAssemblyLayer;
       this.outputData = outputData;

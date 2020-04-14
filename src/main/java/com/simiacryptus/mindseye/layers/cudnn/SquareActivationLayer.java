@@ -36,29 +36,55 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Square activation layer.
+ */
 @SuppressWarnings("serial")
 public class SquareActivationLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private double alpha = 1.0;
 
+  /**
+   * Instantiates a new Square activation layer.
+   */
   public SquareActivationLayer() {
   }
 
+  /**
+   * Instantiates a new Square activation layer.
+   *
+   * @param id the id
+   */
   protected SquareActivationLayer(@Nonnull final JsonObject id) {
     super(id);
     this.precision = Precision.valueOf(id.getAsJsonPrimitive("precision").getAsString());
     this.alpha = id.getAsJsonPrimitive("alpha").getAsDouble();
   }
 
+  /**
+   * Gets alpha.
+   *
+   * @return the alpha
+   */
   public double getAlpha() {
     return alpha;
   }
 
+  /**
+   * Sets alpha.
+   *
+   * @param alpha the alpha
+   */
   public void setAlpha(double alpha) {
     this.alpha = alpha;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(ProductInputsLayer.class);
@@ -74,6 +100,13 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * From json square activation layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the square activation layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static SquareActivationLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -186,6 +219,17 @@ public class SquareActivationLayer extends LayerBase implements MultiPrecision {
     private boolean alive;
     private @NotNull TensorList inputData;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param alpha       the alpha
+     * @param precision   the precision
+     * @param length      the length
+     * @param dimensions  the dimensions
+     * @param accumulator the accumulator
+     * @param inputData   the input data
+     * @param alive       the alive
+     */
     public Accumulator(double alpha, Precision precision, int length, int[] dimensions, Result.Accumulator accumulator, @NotNull TensorList inputData, boolean alive) {
       this.length = length;
       this.dimensions = dimensions;

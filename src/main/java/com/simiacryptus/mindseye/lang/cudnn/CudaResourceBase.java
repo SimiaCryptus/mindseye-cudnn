@@ -26,26 +26,55 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Cuda resource base.
+ *
+ * @param <T> the type parameter
+ */
 public abstract class CudaResourceBase<T> extends ReferenceCountingBase implements CudaSystem.CudaDeviceResource {
   private static final Logger logger = LoggerFactory.getLogger(CudaResourceBase.class);
+  /**
+   * The Obj generation.
+   */
   public final int objGeneration = CudaSystem.gpuGeneration.get();
+  /**
+   * The Ptr.
+   */
   @Nullable
   protected T ptr;
 
+  /**
+   * Instantiates a new Cuda resource base.
+   *
+   * @param obj the obj
+   */
   public CudaResourceBase(final T obj) {
     this.ptr = obj;
   }
 
+  /**
+   * Gets ptr.
+   *
+   * @return the ptr
+   */
   @Nullable
   public T getPtr() {
     assertAlive();
     return ptr;
   }
 
+  /**
+   * Is active obj boolean.
+   *
+   * @return the boolean
+   */
   public boolean isActiveObj() {
     return objGeneration == CudaSystem.gpuGeneration.get();
   }
 
+  /**
+   * Release.
+   */
   public abstract void release();
 
   public void _free() {
@@ -59,6 +88,9 @@ public abstract class CudaResourceBase<T> extends ReferenceCountingBase implemen
     return (CudaResourceBase<T>) super.addRef();
   }
 
+  /**
+   * Cleanup.
+   */
   protected void cleanup() {
     CudnnHandle threadHandle = CudnnHandle.threadContext.get();
     if (null != threadHandle) {

@@ -44,14 +44,31 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * The type Cudnn handle.
+ */
 public class CudnnHandle extends CudaDevice {
+  /**
+   * The Thread context.
+   */
   static final RefThreadLocal<CudnnHandle> threadContext = new RefThreadLocal<>();
   private static final ExecutorService cleanupPool = Executors.newFixedThreadPool(1,
       new ThreadFactoryBuilder().setDaemon(true).build());
+  /**
+   * The Cleanup native.
+   */
   public final LinkedBlockingQueue<CudaResourceBase> cleanupNative = new LinkedBlockingQueue<>();
+  /**
+   * The Handle.
+   */
   @Nullable
   public final cudnnHandle handle;
 
+  /**
+   * Instantiates a new Cudnn handle.
+   *
+   * @param deviceNumber the device number
+   */
   CudnnHandle(final int deviceNumber) {
     super(deviceNumber);
     if (0 <= this.deviceId) {
@@ -64,6 +81,11 @@ public class CudnnHandle extends CudaDevice {
     //cudaSetDevice();
   }
 
+  /**
+   * For each.
+   *
+   * @param fn the fn
+   */
   public static void forEach(@Nonnull final RefConsumer<? super CudnnHandle> fn) {
     RefSet<Integer> keys = handlePools.keySet();
     try {
@@ -84,6 +106,12 @@ public class CudnnHandle extends CudaDevice {
     }
   }
 
+  /**
+   * Cudnn destroy reduce tensor descriptor int.
+   *
+   * @param obj the obj
+   * @return the int
+   */
   public static int cudnnDestroyReduceTensorDescriptor(final cudnnReduceTensorDescriptor obj) {
     long startTime = RefSystem.nanoTime();
     final int result = JCudnn.cudnnDestroyReduceTensorDescriptor(obj);
@@ -93,6 +121,13 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Get t.
+   *
+   * @param <T> the type parameter
+   * @param obj the obj
+   * @return the t
+   */
   @org.jetbrains.annotations.Nullable
   @RefAware
   public static <T extends ReferenceCounting> T get(@RefIgnore T obj) {
@@ -101,6 +136,11 @@ public class CudnnHandle extends CudaDevice {
     else return (T) obj.addRef();
   }
 
+  /**
+   * Call.
+   *
+   * @param fn the fn
+   */
   public @RefAware
   void call(@Nonnull @RefAware final RefConsumer<CudnnHandle> fn) {
     try {
@@ -120,6 +160,13 @@ public class CudnnHandle extends CudaDevice {
     }
   }
 
+  /**
+   * Call t.
+   *
+   * @param <T> the type parameter
+   * @param fn  the fn
+   * @return the t
+   */
   @Nonnull
   public @RefAware
   <T> T call(@Nonnull @RefAware final RefFunction<CudnnHandle, T> fn) {
@@ -140,6 +187,13 @@ public class CudnnHandle extends CudaDevice {
     }
   }
 
+  /**
+   * Call t.
+   *
+   * @param <T> the type parameter
+   * @param fn  the fn
+   * @return the t
+   */
   @Nonnull
   public @RefAware
   <T> T call(@Nonnull @RefAware final RefSupplier<T> fn) {
@@ -160,6 +214,13 @@ public class CudnnHandle extends CudaDevice {
     }
   }
 
+  /**
+   * Add cuda tensor list.
+   *
+   * @param left  the left
+   * @param right the right
+   * @return the cuda tensor list
+   */
   @Nonnull
   public CudaTensorList add(@Nonnull final CudaTensorList left, @Nonnull final CudaTensorList right) {
     assert CudaDevice.isThreadDeviceId(getDeviceId());
@@ -205,6 +266,13 @@ public class CudnnHandle extends CudaDevice {
         outputDescriptor, precision), length, dimensions, precision);
   }
 
+  /**
+   * Add in place cuda tensor list.
+   *
+   * @param left  the left
+   * @param right the right
+   * @return the cuda tensor list
+   */
   @Nonnull
   public CudaTensorList addInPlace(@Nullable final CudaTensorList left, @Nullable final TensorList right) {
     assert CudaDevice.isThreadDeviceId(getDeviceId());
@@ -235,6 +303,15 @@ public class CudnnHandle extends CudaDevice {
     return left;
   }
 
+  /**
+   * Gets tensor.
+   *
+   * @param data       the data
+   * @param precision  the precision
+   * @param memoryType the memory type
+   * @param dense      the dense
+   * @return the tensor
+   */
   @Nonnull
   public CudaTensor getTensor(@Nonnull final TensorList data, @Nonnull final Precision precision,
                               @Nonnull final MemoryType memoryType, final boolean dense) {
@@ -319,6 +396,14 @@ public class CudnnHandle extends CudaDevice {
     }
   }
 
+  /**
+   * Gets tensor.
+   *
+   * @param data       the data
+   * @param memoryType the memory type
+   * @param dense      the dense
+   * @return the tensor
+   */
   @Nonnull
   public CudaTensor getTensor(@Nonnull final CudaTensorList data, @Nonnull final MemoryType memoryType,
                               final boolean dense) {
@@ -328,6 +413,13 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Dense filter cuda tensor.
+   *
+   * @param result the result
+   * @param dense  the dense
+   * @return the cuda tensor
+   */
   public CudaTensor denseFilter(CudaTensor result, boolean dense) {
     if (dense || CudaSettings.INSTANCE().allDense) {
       return getDense(result);
@@ -336,6 +428,12 @@ public class CudnnHandle extends CudaDevice {
     }
   }
 
+  /**
+   * Gets dense.
+   *
+   * @param result the result
+   * @return the dense
+   */
   @NotNull
   public CudaTensor getDense(CudaTensor result) {
     CudaTensor dense = result.getDense(this.addRef());
@@ -343,6 +441,14 @@ public class CudnnHandle extends CudaDevice {
     return dense;
   }
 
+  /**
+   * Add and free tensor list.
+   *
+   * @param precision the precision
+   * @param left      the left
+   * @param right     the right
+   * @return the tensor list
+   */
   @Nonnull
   public TensorList addAndFree(@Nonnull final Precision precision, @Nonnull final TensorList left, @Nonnull final TensorList right) {
     assert CudaDevice.isThreadDeviceId(getDeviceId());
@@ -410,6 +516,18 @@ public class CudnnHandle extends CudaDevice {
         length, dimensions, precision);
   }
 
+  /**
+   * Cudnn activation forward int.
+   *
+   * @param activationDesc the activation desc
+   * @param alpha          the alpha
+   * @param xDesc          the x desc
+   * @param x              the x
+   * @param beta           the beta
+   * @param yDesc          the y desc
+   * @param y              the y
+   * @return the int
+   */
   public int cudnnActivationForward(final cudnnActivationDescriptor activationDesc, final CudaPointer alpha,
                                     final cudnnTensorDescriptor xDesc, final CudaPointer x, final CudaPointer beta, final cudnnTensorDescriptor yDesc,
                                     final CudaPointer y) {
@@ -421,6 +539,16 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn add tensor.
+   *
+   * @param alpha the alpha
+   * @param aDesc the a desc
+   * @param A     the a
+   * @param beta  the beta
+   * @param cDesc the c desc
+   * @param C     the c
+   */
   public void cudnnAddTensor(final CudaPointer alpha, final cudnnTensorDescriptor aDesc, final CudaPointer A,
                              final CudaPointer beta, final cudnnTensorDescriptor cDesc, final CudaPointer C) {
     assert CudaDevice.isThreadDeviceId(getDeviceId());
@@ -431,6 +559,16 @@ public class CudnnHandle extends CudaDevice {
     CudaSystem.handle(result);
   }
 
+  /**
+   * Cudnn convolution backward bias.
+   *
+   * @param alpha  the alpha
+   * @param dyDesc the dy desc
+   * @param dy     the dy
+   * @param beta   the beta
+   * @param dbDesc the db desc
+   * @param db     the db
+   */
   public void cudnnConvolutionBackwardBias(final CudaPointer alpha, final cudnnTensorDescriptor dyDesc,
                                            final CudaPointer dy, final CudaPointer beta, final cudnnTensorDescriptor dbDesc, final CudaPointer db) {
     assert CudaDevice.isThreadDeviceId(getDeviceId());
@@ -441,6 +579,23 @@ public class CudnnHandle extends CudaDevice {
     log("cudnnConvolutionBackwardBias", result, new Object[]{this.addRef(), alpha, dyDesc, dy, beta, dbDesc, db});
   }
 
+  /**
+   * Cudnn convolution backward data int.
+   *
+   * @param alpha                the alpha
+   * @param wDesc                the w desc
+   * @param w                    the w
+   * @param dyDesc               the dy desc
+   * @param dy                   the dy
+   * @param convDesc             the conv desc
+   * @param algo                 the algo
+   * @param workSpace            the work space
+   * @param workSpaceSizeInBytes the work space size in bytes
+   * @param beta                 the beta
+   * @param dxDesc               the dx desc
+   * @param dx                   the dx
+   * @return the int
+   */
   public int cudnnConvolutionBackwardData(final CudaPointer alpha, final cudnnFilterDescriptor wDesc,
                                           final CudaPointer w, final cudnnTensorDescriptor dyDesc, final CudaPointer dy,
                                           final cudnnConvolutionDescriptor convDesc, final int algo, final CudaPointer workSpace,
@@ -457,6 +612,23 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn convolution backward filter int.
+   *
+   * @param alpha                the alpha
+   * @param xDesc                the x desc
+   * @param x                    the x
+   * @param dyDesc               the dy desc
+   * @param dy                   the dy
+   * @param convDesc             the conv desc
+   * @param algo                 the algo
+   * @param workSpace            the work space
+   * @param workSpaceSizeInBytes the work space size in bytes
+   * @param beta                 the beta
+   * @param dwDesc               the dw desc
+   * @param dw                   the dw
+   * @return the int
+   */
   public int cudnnConvolutionBackwardFilter(final CudaPointer alpha, final cudnnTensorDescriptor xDesc,
                                             final CudaPointer x, final cudnnTensorDescriptor dyDesc, final CudaPointer dy,
                                             final cudnnConvolutionDescriptor convDesc, final int algo, final CudaPointer workSpace,
@@ -473,6 +645,23 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn convolution forward int.
+   *
+   * @param alpha                the alpha
+   * @param xDesc                the x desc
+   * @param x                    the x
+   * @param wDesc                the w desc
+   * @param w                    the w
+   * @param convDesc             the conv desc
+   * @param algo                 the algo
+   * @param workSpace            the work space
+   * @param workSpaceSizeInBytes the work space size in bytes
+   * @param beta                 the beta
+   * @param yDesc                the y desc
+   * @param y                    the y
+   * @return the int
+   */
   public int cudnnConvolutionForward(final CudaPointer alpha, final cudnnTensorDescriptor xDesc, final CudaPointer x,
                                      final cudnnFilterDescriptor wDesc, final CudaPointer w, final cudnnConvolutionDescriptor convDesc, final int algo,
                                      final CudaPointer workSpace, final long workSpaceSizeInBytes, final CudaPointer beta,
@@ -487,6 +676,28 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn convolution bias activation forward int.
+   *
+   * @param alpha                the alpha
+   * @param xDesc                the x desc
+   * @param x                    the x
+   * @param wDesc                the w desc
+   * @param w                    the w
+   * @param convDesc             the conv desc
+   * @param algo                 the algo
+   * @param workSpace            the work space
+   * @param workSpaceSizeInBytes the work space size in bytes
+   * @param beta                 the beta
+   * @param zDesc                the z desc
+   * @param z                    the z
+   * @param biasDesc             the bias desc
+   * @param bias                 the bias
+   * @param activationDesc       the activation desc
+   * @param yDesc                the y desc
+   * @param y                    the y
+   * @return the int
+   */
   public int cudnnConvolutionBiasActivationForward(final CudaPointer alpha, final cudnnTensorDescriptor xDesc,
                                                    final CudaPointer x, final cudnnFilterDescriptor wDesc, final CudaPointer w,
                                                    final cudnnConvolutionDescriptor convDesc, final int algo, final CudaPointer workSpace,
@@ -507,6 +718,21 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn op tensor int.
+   *
+   * @param opTensorDesc the op tensor desc
+   * @param alpha1       the alpha 1
+   * @param aDesc        the a desc
+   * @param A            the a
+   * @param alpha2       the alpha 2
+   * @param bDesc        the b desc
+   * @param B            the b
+   * @param beta         the beta
+   * @param cDesc        the c desc
+   * @param C            the c
+   * @return the int
+   */
   public int cudnnOpTensor(final cudnnOpTensorDescriptor opTensorDesc, final CudaPointer alpha1,
                            final cudnnTensorDescriptor aDesc, final CudaPointer A, final CudaPointer alpha2,
                            final cudnnTensorDescriptor bDesc, final CudaPointer B, final CudaPointer beta, final cudnnTensorDescriptor cDesc,
@@ -521,6 +747,22 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn reduce tensor int.
+   *
+   * @param reduceTensorDesc     the reduce tensor desc
+   * @param indices              the indices
+   * @param indicesSizeInBytes   the indices size in bytes
+   * @param workspace            the workspace
+   * @param workspaceSizeInBytes the workspace size in bytes
+   * @param alpha                the alpha
+   * @param aDesc                the a desc
+   * @param A                    the a
+   * @param beta                 the beta
+   * @param cDesc                the c desc
+   * @param C                    the c
+   * @return the int
+   */
   public int cudnnReduceTensor(cudnnReduceTensorDescriptor reduceTensorDesc, Pointer indices, long indicesSizeInBytes,
                                Pointer workspace, long workspaceSizeInBytes, Pointer alpha, cudnnTensorDescriptor aDesc, Pointer A, Pointer beta,
                                cudnnTensorDescriptor cDesc, Pointer C) {
@@ -534,6 +776,22 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn pooling backward int.
+   *
+   * @param poolingDesc the pooling desc
+   * @param alpha       the alpha
+   * @param yDesc       the y desc
+   * @param y           the y
+   * @param dyDesc      the dy desc
+   * @param dy          the dy
+   * @param xDesc       the x desc
+   * @param x           the x
+   * @param beta        the beta
+   * @param dxDesc      the dx desc
+   * @param dx          the dx
+   * @return the int
+   */
   public int cudnnPoolingBackward(final cudnnPoolingDescriptor poolingDesc, final CudaPointer alpha,
                                   final cudnnTensorDescriptor yDesc, final CudaPointer y, final cudnnTensorDescriptor dyDesc, final CudaPointer dy,
                                   final cudnnTensorDescriptor xDesc, final CudaPointer x, final CudaPointer beta,
@@ -548,6 +806,18 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn pooling forward int.
+   *
+   * @param poolingDesc the pooling desc
+   * @param alpha       the alpha
+   * @param xDesc       the x desc
+   * @param x           the x
+   * @param beta        the beta
+   * @param yDesc       the y desc
+   * @param y           the y
+   * @return the int
+   */
   public int cudnnPoolingForward(final cudnnPoolingDescriptor poolingDesc, final CudaPointer alpha,
                                  final cudnnTensorDescriptor xDesc, final CudaPointer x, final CudaPointer beta, final cudnnTensorDescriptor yDesc,
                                  final CudaPointer y) {
@@ -559,6 +829,19 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn lrn cross channel forward int.
+   *
+   * @param normDesc the norm desc
+   * @param lrnMode  the lrn mode
+   * @param alpha    the alpha
+   * @param xDesc    the x desc
+   * @param x        the x
+   * @param beta     the beta
+   * @param yDesc    the y desc
+   * @param y        the y
+   * @return the int
+   */
   public int cudnnLRNCrossChannelForward(final cudnnLRNDescriptor normDesc, final int lrnMode, final CudaPointer alpha,
                                          final cudnnTensorDescriptor xDesc, final CudaPointer x, final CudaPointer beta, final cudnnTensorDescriptor yDesc,
                                          final CudaPointer y) {
@@ -573,6 +856,23 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn lrn cross channel backward int.
+   *
+   * @param normDesc the norm desc
+   * @param lrnMode  the lrn mode
+   * @param alpha    the alpha
+   * @param yDesc    the y desc
+   * @param y        the y
+   * @param dyDesc   the dy desc
+   * @param dy       the dy
+   * @param xDesc    the x desc
+   * @param x        the x
+   * @param beta     the beta
+   * @param dxDesc   the dx desc
+   * @param dx       the dx
+   * @return the int
+   */
   public int cudnnLRNCrossChannelBackward(cudnnLRNDescriptor normDesc, int lrnMode, Pointer alpha,
                                           cudnnTensorDescriptor yDesc, Pointer y, cudnnTensorDescriptor dyDesc, Pointer dy, cudnnTensorDescriptor xDesc,
                                           Pointer x, Pointer beta, cudnnTensorDescriptor dxDesc, Pointer dx) {
@@ -588,6 +888,16 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn set lrn descriptor int.
+   *
+   * @param poolingDesc the pooling desc
+   * @param n           the n
+   * @param alpha       the alpha
+   * @param beta        the beta
+   * @param k           the k
+   * @return the int
+   */
   public int cudnnSetLRNDescriptor(final cudnnLRNDescriptor poolingDesc, final int n, final double alpha,
                                    final double beta, final double k) {
     assert CudaDevice.isThreadDeviceId(getDeviceId());
@@ -598,6 +908,12 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn create lrn descriptor int.
+   *
+   * @param poolingDesc the pooling desc
+   * @return the int
+   */
   public int cudnnCreateLRNDescriptor(final cudnnLRNDescriptor poolingDesc) {
     assert CudaDevice.isThreadDeviceId(getDeviceId());
     long startTime = RefSystem.nanoTime();
@@ -607,6 +923,12 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn destroy lrn descriptor int.
+   *
+   * @param poolingDesc the pooling desc
+   * @return the int
+   */
   public int cudnnDestroyLRNDescriptor(final cudnnLRNDescriptor poolingDesc) {
     assert CudaDevice.isThreadDeviceId(getDeviceId());
     long startTime = RefSystem.nanoTime();
@@ -616,6 +938,17 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Allocate backward filter workspace cuda memory.
+   *
+   * @param srcTensorDesc the src tensor desc
+   * @param filterDesc    the filter desc
+   * @param convDesc      the conv desc
+   * @param dstTensorDesc the dst tensor desc
+   * @param algorithm     the algorithm
+   * @param minSize       the min size
+   * @return the cuda memory
+   */
   @Nonnull
   public CudaMemory allocateBackwardFilterWorkspace(final cudnnTensorDescriptor srcTensorDesc,
                                                     final cudnnFilterDescriptor filterDesc, final cudnnConvolutionDescriptor convDesc,
@@ -633,6 +966,17 @@ public class CudnnHandle extends CudaDevice {
     return allocate(Math.max(minSize, size), MemoryType.Device, true);
   }
 
+  /**
+   * Allocate forward workspace cuda memory.
+   *
+   * @param srcTensorDesc the src tensor desc
+   * @param filterDesc    the filter desc
+   * @param convDesc      the conv desc
+   * @param dstTensorDesc the dst tensor desc
+   * @param algorithm     the algorithm
+   * @param minSize       the min size
+   * @return the cuda memory
+   */
   @Nonnull
   public CudaMemory allocateForwardWorkspace(final cudnnTensorDescriptor srcTensorDesc,
                                              final cudnnFilterDescriptor filterDesc, final cudnnConvolutionDescriptor convDesc,
@@ -649,6 +993,16 @@ public class CudnnHandle extends CudaDevice {
     return this.allocate(Math.max(minSize, size), MemoryType.Device, true);
   }
 
+  /**
+   * Gets backward data algorithm.
+   *
+   * @param dyDesc             the dy desc
+   * @param filterDesc         the filter desc
+   * @param convDesc           the conv desc
+   * @param dxDesc             the dx desc
+   * @param memoryLimitInBytes the memory limit in bytes
+   * @return the backward data algorithm
+   */
   public int getBackwardDataAlgorithm(final cudnnTensorDescriptor dyDesc, final cudnnFilterDescriptor filterDesc,
                                       final cudnnConvolutionDescriptor convDesc, final cudnnTensorDescriptor dxDesc, final long memoryLimitInBytes) {
     long startTime = RefSystem.nanoTime();
@@ -662,6 +1016,16 @@ public class CudnnHandle extends CudaDevice {
     return algoArray[0];
   }
 
+  /**
+   * Gets backward filter algorithm.
+   *
+   * @param inputDesc          the input desc
+   * @param filterDesc         the filter desc
+   * @param convDesc           the conv desc
+   * @param outputDesc         the output desc
+   * @param memoryLimitInBytes the memory limit in bytes
+   * @return the backward filter algorithm
+   */
   public int getBackwardFilterAlgorithm(final cudnnTensorDescriptor inputDesc, final cudnnFilterDescriptor filterDesc,
                                         final cudnnConvolutionDescriptor convDesc, final cudnnTensorDescriptor outputDesc,
                                         final long memoryLimitInBytes) {
@@ -679,6 +1043,16 @@ public class CudnnHandle extends CudaDevice {
     return algoArray[0];
   }
 
+  /**
+   * Gets forward algorithm.
+   *
+   * @param srcTensorDesc      the src tensor desc
+   * @param filterDesc         the filter desc
+   * @param convDesc           the conv desc
+   * @param dstTensorDesc      the dst tensor desc
+   * @param memoryLimitInBytes the memory limit in bytes
+   * @return the forward algorithm
+   */
   public int getForwardAlgorithm(final cudnnTensorDescriptor srcTensorDesc, final cudnnFilterDescriptor filterDesc,
                                  final cudnnConvolutionDescriptor convDesc, final cudnnTensorDescriptor dstTensorDesc,
                                  final long memoryLimitInBytes) {
@@ -695,6 +1069,22 @@ public class CudnnHandle extends CudaDevice {
     return algoArray[0];
   }
 
+  /**
+   * Cudnn activation backward int.
+   *
+   * @param activationDesc the activation desc
+   * @param alpha          the alpha
+   * @param yDesc          the y desc
+   * @param y              the y
+   * @param dyDesc         the dy desc
+   * @param dy             the dy
+   * @param xDesc          the x desc
+   * @param x              the x
+   * @param beta           the beta
+   * @param dxDesc         the dx desc
+   * @param dx             the dx
+   * @return the int
+   */
   public int cudnnActivationBackward(final cudnnActivationDescriptor activationDesc, final CudaPointer alpha,
                                      final cudnnTensorDescriptor yDesc, final CudaPointer y, final cudnnTensorDescriptor dyDesc, final CudaPointer dy,
                                      final cudnnTensorDescriptor xDesc, final CudaPointer x, final CudaPointer beta,
@@ -710,6 +1100,16 @@ public class CudnnHandle extends CudaDevice {
 
   /**
    * Softmax functions: All of the form "output = alphaList * Op(inputs) + beta * output"
+   *
+   * @param algo  the algo
+   * @param mode  the mode
+   * @param alpha the alpha
+   * @param xDesc the x desc
+   * @param x     the x
+   * @param beta  the beta
+   * @param yDesc the y desc
+   * @param y     the y
+   * @return the int
    */
   public int cudnnSoftmaxForward(int algo, int mode, CudaPointer alpha, cudnnTensorDescriptor xDesc, CudaPointer x,
                                  CudaPointer beta, cudnnTensorDescriptor yDesc, CudaPointer y) {
@@ -720,6 +1120,21 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn softmax backward int.
+   *
+   * @param algo   the algo
+   * @param mode   the mode
+   * @param alpha  the alpha
+   * @param yDesc  the y desc
+   * @param y      the y
+   * @param dyDesc the dy desc
+   * @param dy     the dy
+   * @param beta   the beta
+   * @param dxDesc the dx desc
+   * @param dx     the dx
+   * @return the int
+   */
   public int cudnnSoftmaxBackward(int algo, int mode, CudaPointer alpha, cudnnTensorDescriptor yDesc, CudaPointer y,
                                   cudnnTensorDescriptor dyDesc, CudaPointer dy, CudaPointer beta, cudnnTensorDescriptor dxDesc, CudaPointer dx) {
     long startTime = RefSystem.nanoTime();
@@ -731,6 +1146,17 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn transform tensor int.
+   *
+   * @param alpha the alpha
+   * @param xDesc the x desc
+   * @param x     the x
+   * @param beta  the beta
+   * @param yDesc the y desc
+   * @param y     the y
+   * @return the int
+   */
   public int cudnnTransformTensor(final CudaPointer alpha, final cudnnTensorDescriptor xDesc, final CudaPointer x,
                                   final CudaPointer beta, final cudnnTensorDescriptor yDesc, final CudaPointer y) {
     assert CudaDevice.isThreadDeviceId(getDeviceId());
@@ -741,6 +1167,14 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Cudnn set tensor int.
+   *
+   * @param yDesc    the y desc
+   * @param y        the y
+   * @param valuePtr the value ptr
+   * @return the int
+   */
   public int cudnnSetTensor(cudnnTensorDescriptor yDesc, CudaPointer y, CudaPointer valuePtr) {
     assert CudaDevice.isThreadDeviceId(getDeviceId());
     long startTime = RefSystem.nanoTime();
@@ -750,6 +1184,17 @@ public class CudnnHandle extends CudaDevice {
     return result;
   }
 
+  /**
+   * Allocate backward data workspace cuda memory.
+   *
+   * @param dxDesc     the dx desc
+   * @param filterDesc the filter desc
+   * @param convDesc   the conv desc
+   * @param dyDesc     the dy desc
+   * @param algorithm  the algorithm
+   * @param minSize    the min size
+   * @return the cuda memory
+   */
   @Nonnull
   public CudaMemory allocateBackwardDataWorkspace(final cudnnTensorDescriptor dxDesc,
                                                   final cudnnFilterDescriptor filterDesc, final cudnnConvolutionDescriptor convDesc,
@@ -774,6 +1219,11 @@ public class CudnnHandle extends CudaDevice {
     return this.allocate(Math.max(minSize, size), MemoryType.Device, true);
   }
 
+  /**
+   * Cudnn create reduce tensor descriptor.
+   *
+   * @param reduceTensorDesc the reduce tensor desc
+   */
   public void cudnnCreateReduceTensorDescriptor(cudnnReduceTensorDescriptor reduceTensorDesc) {
     long startTime = RefSystem.nanoTime();
     final int result = JCudnn.cudnnCreateReduceTensorDescriptor(reduceTensorDesc);
@@ -782,6 +1232,16 @@ public class CudnnHandle extends CudaDevice {
     log("cudnnCreateReduceTensorDescriptor", result, new Object[]{reduceTensorDesc});
   }
 
+  /**
+   * Cudnn set reduce tensor descriptor.
+   *
+   * @param reduceTensorDesc        the reduce tensor desc
+   * @param reduceTensorOp          the reduce tensor op
+   * @param reduceTensorCompType    the reduce tensor comp type
+   * @param reduceTensorNanOpt      the reduce tensor nan opt
+   * @param reduceTensorIndices     the reduce tensor indices
+   * @param reduceTensorIndicesType the reduce tensor indices type
+   */
   public void cudnnSetReduceTensorDescriptor(cudnnReduceTensorDescriptor reduceTensorDesc, int reduceTensorOp,
                                              int reduceTensorCompType, int reduceTensorNanOpt, int reduceTensorIndices, int reduceTensorIndicesType) {
     long startTime = RefSystem.nanoTime();
@@ -799,6 +1259,16 @@ public class CudnnHandle extends CudaDevice {
         + Long.toHexString(RefSystem.identityHashCode(this.addRef()));
   }
 
+  /**
+   * Cudnn create reduce tensor descriptor cuda resource.
+   *
+   * @param reduceTensorOp          the reduce tensor op
+   * @param reduceTensorCompType    the reduce tensor comp type
+   * @param reduceTensorNanOpt      the reduce tensor nan opt
+   * @param reduceTensorIndices     the reduce tensor indices
+   * @param reduceTensorIndicesType the reduce tensor indices type
+   * @return the cuda resource
+   */
   @Nonnull
   public CudaResource<cudnnReduceTensorDescriptor> cudnnCreateReduceTensorDescriptor(int reduceTensorOp,
                                                                                      int reduceTensorCompType, int reduceTensorNanOpt, int reduceTensorIndices, int reduceTensorIndicesType) {
@@ -824,6 +1294,9 @@ public class CudnnHandle extends CudaDevice {
     CudaSystem.handle(result);
   }
 
+  /**
+   * Cleanup.
+   */
   protected void cleanup() {
     ArrayList<CudaResourceBase> objsToFree = new ArrayList<>();
     cleanupNative.drainTo(objsToFree);

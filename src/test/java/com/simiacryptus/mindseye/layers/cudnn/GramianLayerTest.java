@@ -29,8 +29,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+/**
+ * The type Gramian layer test.
+ */
 public abstract class GramianLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * Instantiates a new Gramian layer test.
+   */
   public GramianLayerTest() {
     this.tolerance = 1e-2;
     testingBatchSize = 1;
@@ -114,7 +120,13 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
 //    super.allTests(log);
 //  }
 
+  /**
+   * The type Image.
+   */
   public static class Image extends GramianLayerTest {
+    /**
+     * Instantiates a new Image.
+     */
     public Image() {
       super();
     }
@@ -127,7 +139,13 @@ public abstract class GramianLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Deep.
+   */
   public static class Deep extends GramianLayerTest {
+    /**
+     * Instantiates a new Deep.
+     */
     public Deep() {
       super();
     }

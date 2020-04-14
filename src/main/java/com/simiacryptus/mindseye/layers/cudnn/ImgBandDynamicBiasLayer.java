@@ -35,19 +35,35 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Img band dynamic bias layer.
+ */
 @SuppressWarnings("serial")
 public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
+  /**
+   * Instantiates a new Img band dynamic bias layer.
+   */
   public ImgBandDynamicBiasLayer() {
   }
 
+  /**
+   * Instantiates a new Img band dynamic bias layer.
+   *
+   * @param id the id
+   */
   protected ImgBandDynamicBiasLayer(@Nonnull final JsonObject id) {
     super(id);
     this.precision = Precision.valueOf(id.getAsJsonPrimitive("precision").getAsString());
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return null;
@@ -63,6 +79,13 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
     this.precision = precision;
   }
 
+  /**
+   * From json img band dynamic bias layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img band dynamic bias layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgBandDynamicBiasLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -210,6 +233,15 @@ public class ImgBandDynamicBiasLayer extends LayerBase implements MultiPrecision
     private boolean inputAlive;
     private boolean alive;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param bias                 the bias
+     * @param biasinputAccumulator the biasinput accumulator
+     * @param biasinputAlive       the biasinput alive
+     * @param inputAccumulator     the input accumulator
+     * @param inputAlive           the input alive
+     */
     public Accumulator(Tensor bias, Result.Accumulator biasinputAccumulator, boolean biasinputAlive, Result.Accumulator inputAccumulator, boolean inputAlive) {
       this.bias = bias;
       this.biasinputAccumulator = biasinputAccumulator;

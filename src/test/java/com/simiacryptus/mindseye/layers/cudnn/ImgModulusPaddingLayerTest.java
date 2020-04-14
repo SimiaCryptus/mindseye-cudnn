@@ -24,11 +24,27 @@ import org.junit.jupiter.api.Disabled;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Img modulus padding layer test.
+ */
 public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Modulus.
+   */
   final int modulus;
+  /**
+   * The Offset.
+   */
   final int offset;
 
+  /**
+   * Instantiates a new Img modulus padding layer test.
+   *
+   * @param inputSize the input size
+   * @param modulus   the modulus
+   * @param offset    the offset
+   */
   public ImgModulusPaddingLayerTest(int inputSize, int modulus, int offset) {
     this.modulus = modulus;
     this.offset = offset;
@@ -63,7 +79,13 @@ public abstract class ImgModulusPaddingLayerTest extends CudnnLayerTestBase {
     super.batchingTest();
   }
 
+  /**
+   * The type Basic.
+   */
   public static class Basic extends ImgModulusPaddingLayerTest {
+    /**
+     * Instantiates a new Basic.
+     */
     public Basic() {
       super(2, 3, 0);
     }

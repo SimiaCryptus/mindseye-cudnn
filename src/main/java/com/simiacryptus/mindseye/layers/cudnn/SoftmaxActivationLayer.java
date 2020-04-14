@@ -39,6 +39,9 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Softmax activation layer.
+ */
 @SuppressWarnings("serial")
 public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(SoftmaxActivationLayer.class);
@@ -46,9 +49,17 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision 
   private SoftmaxMode mode = SoftmaxMode.INSTANCE;
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
+  /**
+   * Instantiates a new Softmax activation layer.
+   */
   public SoftmaxActivationLayer() {
   }
 
+  /**
+   * Instantiates a new Softmax activation layer.
+   *
+   * @param json the json
+   */
   protected SoftmaxActivationLayer(@Nonnull final JsonObject json) {
     super(json);
     precision = Precision.valueOf(json.get("precision").getAsString());
@@ -56,14 +67,29 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision 
     mode = SoftmaxMode.valueOf(json.get("mode").getAsString());
   }
 
+  /**
+   * Gets algorithm.
+   *
+   * @return the algorithm
+   */
   public SoftmaxAlgorithm getAlgorithm() {
     return algorithm;
   }
 
+  /**
+   * Sets algorithm.
+   *
+   * @param algorithm the algorithm
+   */
   public void setAlgorithm(SoftmaxAlgorithm algorithm) {
     this.algorithm = algorithm;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     assert algorithm != SoftmaxAlgorithm.LOG;
@@ -72,10 +98,20 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision 
     return this.as(SoftmaxLayer.class);
   }
 
+  /**
+   * Gets mode.
+   *
+   * @return the mode
+   */
   public SoftmaxMode getMode() {
     return mode;
   }
 
+  /**
+   * Sets mode.
+   *
+   * @param mode the mode
+   */
   public void setMode(SoftmaxMode mode) {
     this.mode = mode;
   }
@@ -90,6 +126,13 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision 
     this.precision = precision;
   }
 
+  /**
+   * From json softmax activation layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the softmax activation layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static SoftmaxActivationLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -195,10 +238,26 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision 
     }, inputData.addRef()), inputData);
   }
 
+  /**
+   * The enum Softmax algorithm.
+   */
   public enum SoftmaxAlgorithm {
-    FAST(cudnnSoftmaxAlgorithm.CUDNN_SOFTMAX_FAST), ACCURATE(cudnnSoftmaxAlgorithm.CUDNN_SOFTMAX_ACCURATE),
+    /**
+     * Fast softmax algorithm.
+     */
+    FAST(cudnnSoftmaxAlgorithm.CUDNN_SOFTMAX_FAST),
+    /**
+     * Accurate softmax algorithm.
+     */
+    ACCURATE(cudnnSoftmaxAlgorithm.CUDNN_SOFTMAX_ACCURATE),
+    /**
+     * Log softmax algorithm.
+     */
     LOG(cudnnSoftmaxAlgorithm.CUDNN_SOFTMAX_LOG);
 
+    /**
+     * The Code.
+     */
     public final int code;
 
     SoftmaxAlgorithm(final int code) {
@@ -206,9 +265,22 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision 
     }
   }
 
+  /**
+   * The enum Softmax mode.
+   */
   public enum SoftmaxMode {
-    CHANNEL(cudnnSoftmaxMode.CUDNN_SOFTMAX_MODE_CHANNEL), INSTANCE(cudnnSoftmaxMode.CUDNN_SOFTMAX_MODE_INSTANCE);
+    /**
+     * Channel softmax mode.
+     */
+    CHANNEL(cudnnSoftmaxMode.CUDNN_SOFTMAX_MODE_CHANNEL),
+    /**
+     * Instance softmax mode.
+     */
+    INSTANCE(cudnnSoftmaxMode.CUDNN_SOFTMAX_MODE_INSTANCE);
 
+    /**
+     * The Code.
+     */
     public final int code;
 
     SoftmaxMode(final int code) {
@@ -228,6 +300,19 @@ public class SoftmaxActivationLayer extends LayerBase implements MultiPrecision 
     private Result.Accumulator accumulator;
     private boolean alive;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param algorithm   the algorithm
+     * @param mode        the mode
+     * @param precision   the precision
+     * @param inputData   the input data
+     * @param outPtr      the out ptr
+     * @param inputSize   the input size
+     * @param length      the length
+     * @param accumulator the accumulator
+     * @param alive       the alive
+     */
     public Accumulator(SoftmaxAlgorithm algorithm, SoftmaxMode mode, Precision precision, TensorList inputData, CudaTensor outPtr, int[] inputSize, int length, Result.Accumulator accumulator, boolean alive) {
       this.inputData = inputData;
       this.outPtr = outPtr;

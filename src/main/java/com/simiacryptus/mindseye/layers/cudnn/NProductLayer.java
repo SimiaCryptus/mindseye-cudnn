@@ -42,19 +42,35 @@ import java.util.function.IntFunction;
 
 import static com.simiacryptus.mindseye.lang.Result.getData;
 
+/**
+ * The type N product layer.
+ */
 @SuppressWarnings("serial")
 public class NProductLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
+  /**
+   * Instantiates a new N product layer.
+   */
   public NProductLayer() {
   }
 
+  /**
+   * Instantiates a new N product layer.
+   *
+   * @param id the id
+   */
   protected NProductLayer(@Nonnull final JsonObject id) {
     super(id);
     this.precision = Precision.valueOf(id.getAsJsonPrimitive("precision").getAsString());
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(ProductInputsLayer.class);
@@ -70,6 +86,13 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * From json n product layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the n product layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static NProductLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -198,6 +221,15 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
     private final Result[] inObj;
     private Precision precision;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param precision  the precision
+     * @param inLength   the in length
+     * @param length     the length
+     * @param dimensions the dimensions
+     * @param inObj      the in obj
+     */
     public Accumulator(Precision precision, int inLength, int length, int[] dimensions, Result... inObj) {
       this.inLength = inLength;
       this.length = length;

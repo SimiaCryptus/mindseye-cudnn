@@ -24,8 +24,14 @@ import org.junit.jupiter.api.Disabled;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Img zero padding layer test.
+ */
 public abstract class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * Instantiates a new Img zero padding layer test.
+   */
   public ImgZeroPaddingLayerTest() {
   }
 
@@ -58,6 +64,9 @@ public abstract class ImgZeroPaddingLayerTest extends CudnnLayerTestBase {
     super.batchingTest();
   }
 
+  /**
+   * The type Basic.
+   */
   public static class Basic extends ImgZeroPaddingLayerTest {
 
   }

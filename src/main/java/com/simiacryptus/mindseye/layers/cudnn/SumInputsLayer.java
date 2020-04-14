@@ -39,22 +39,38 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * The type Sum inputs layer.
+ */
 @SuppressWarnings("serial")
 public class SumInputsLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private boolean parallel = true;
 
+  /**
+   * Instantiates a new Sum inputs layer.
+   */
   public SumInputsLayer() {
     super();
   }
 
+  /**
+   * Instantiates a new Sum inputs layer.
+   *
+   * @param json the json
+   */
   protected SumInputsLayer(@Nonnull final JsonObject json) {
     super(json);
     precision = Precision.valueOf(json.get("precision").getAsString());
     setParallel(json.get("parallel").getAsBoolean());
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return new com.simiacryptus.mindseye.layers.java.SumInputsLayer();
@@ -70,20 +86,43 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Is parallel boolean.
+   *
+   * @return the boolean
+   */
   public boolean isParallel() {
     return parallel;
   }
 
+  /**
+   * Sets parallel.
+   *
+   * @param parallel the parallel
+   */
   public void setParallel(boolean parallel) {
     this.parallel = parallel;
   }
 
+  /**
+   * From json sum inputs layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the sum inputs layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static SumInputsLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new SumInputsLayer(json);
   }
 
+  /**
+   * Combine pipeline network.
+   *
+   * @param networks the networks
+   * @return the pipeline network
+   */
   public static PipelineNetwork combine(@Nonnull PipelineNetwork... networks) {
     if (1 == networks.length) {
       PipelineNetwork net0 = networks[0].addRef();
@@ -187,6 +226,12 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
     private final Result[] inObj;
     private boolean parallel;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param parallel the parallel
+     * @param inObj    the in obj
+     */
     public Accumulator(boolean parallel, Result... inObj) {
       this.inObj = inObj;
       this.parallel = parallel;

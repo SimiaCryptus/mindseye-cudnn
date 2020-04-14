@@ -37,6 +37,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+/**
+ * The type Img min size layer.
+ */
 @SuppressWarnings("serial")
 public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgMinSizeLayer.class);
@@ -48,11 +51,22 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
   private ImgMinSizeLayer() {
   }
 
+  /**
+   * Instantiates a new Img min size layer.
+   *
+   * @param sizeX the size x
+   * @param sizeY the size y
+   */
   public ImgMinSizeLayer(int sizeX, int sizeY) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
   }
 
+  /**
+   * Instantiates a new Img min size layer.
+   *
+   * @param json the json
+   */
   protected ImgMinSizeLayer(@Nonnull final JsonObject json) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
@@ -70,6 +84,13 @@ public class ImgMinSizeLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * From json img min size layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img min size layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgMinSizeLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {

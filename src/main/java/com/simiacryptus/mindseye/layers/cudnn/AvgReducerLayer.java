@@ -36,20 +36,36 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
+/**
+ * The type Avg reducer layer.
+ */
 @SuppressWarnings("serial")
 public class AvgReducerLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
+  /**
+   * Instantiates a new Avg reducer layer.
+   */
   public AvgReducerLayer() {
     super();
   }
 
+  /**
+   * Instantiates a new Avg reducer layer.
+   *
+   * @param json the json
+   */
   protected AvgReducerLayer(@Nonnull final JsonObject json) {
     super(json);
     precision = Precision.valueOf(json.get("precision").getAsString());
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     throw new RuntimeException("Not Implemented");
@@ -65,6 +81,13 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * From json avg reducer layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the avg reducer layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static AvgReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -161,6 +184,13 @@ public class AvgReducerLayer extends LayerBase implements MultiPrecision {
     private final int[] inputSize;
     private Result.Accumulator accumulator;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param length      the length
+     * @param inputSize   the input size
+     * @param accumulator the accumulator
+     */
     public Accumulator(int length, int[] inputSize, Result.Accumulator accumulator) {
       this.length = length;
       this.inputSize = inputSize;

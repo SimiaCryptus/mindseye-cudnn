@@ -28,11 +28,26 @@ import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 
+/**
+ * The enum Precision.
+ */
 public enum Precision {
+  /**
+   * Double precision.
+   */
   Double(cudnnDataType.CUDNN_DATA_DOUBLE, Sizeof.DOUBLE),
+  /**
+   * Float precision.
+   */
   Float(cudnnDataType.CUDNN_DATA_FLOAT, Sizeof.FLOAT);
 
+  /**
+   * The Code.
+   */
   public final int code;
+  /**
+   * The Size.
+   */
   public final int size;
 
   Precision(final int code, final int size) {
@@ -40,15 +55,33 @@ public enum Precision {
     this.size = size;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     throw new RuntimeException("Not Implemented");
   }
 
+  /**
+   * Get doubles double [ ].
+   *
+   * @param data the data
+   * @return the double [ ]
+   */
   public static double[] getDoubles(@Nonnull final float[] data) {
     return copy(data, new double[data.length]);
   }
 
+  /**
+   * Copy double [ ].
+   *
+   * @param from    the from
+   * @param doubles the doubles
+   * @return the double [ ]
+   */
   public static double[] copy(@Nonnull float[] from, double[] doubles) {
     for (int i = 0; i < from.length; i++) {
       doubles[i] = from[i];
@@ -56,10 +89,23 @@ public enum Precision {
     return doubles;
   }
 
+  /**
+   * Get floats float [ ].
+   *
+   * @param data the data
+   * @return the float [ ]
+   */
   public static float[] getFloats(@Nonnull final double[] data) {
     return copy(data, new float[data.length]);
   }
 
+  /**
+   * Copy float [ ].
+   *
+   * @param from the from
+   * @param to   the to
+   * @return the float [ ]
+   */
   public static float[] copy(@Nonnull double[] from, float[] to) {
     for (int i = 0; i < from.length; i++) {
       to[i] = (float) from[i];
@@ -67,18 +113,38 @@ public enum Precision {
     return to;
   }
 
+  /**
+   * Copy.
+   *
+   * @param from      the from
+   * @param to        the to
+   * @param precision the precision
+   */
   public static void copy(@Nonnull double[] from, @Nonnull byte[] to, Precision precision) {
     if (precision == Float) copyFloats(from, to);
     else if (precision == Double) copyDoubles(from, to);
     else throw new RuntimeException();
   }
 
+  /**
+   * Copy.
+   *
+   * @param from      the from
+   * @param to        the to
+   * @param precision the precision
+   */
   public static void copy(@Nonnull byte[] from, @Nonnull double[] to, Precision precision) {
     if (precision == Float) copyFloats(from, to);
     else if (precision == Double) copyDoubles(from, to);
     else throw new RuntimeException();
   }
 
+  /**
+   * Copy doubles.
+   *
+   * @param from the from
+   * @param to   the to
+   */
   public static void copyDoubles(@Nonnull double[] from, @Nonnull byte[] to) {
     @Nonnull DoubleBuffer inBuffer = DoubleBuffer.wrap(from);
     @Nonnull DoubleBuffer outBuffer = ByteBuffer.wrap(to).asDoubleBuffer();
@@ -87,6 +153,12 @@ public enum Precision {
     }
   }
 
+  /**
+   * Copy doubles.
+   *
+   * @param from the from
+   * @param to   the to
+   */
   public static void copyDoubles(@Nonnull byte[] from, @Nonnull double[] to) {
     @Nonnull DoubleBuffer inBuffer = ByteBuffer.wrap(from).asDoubleBuffer();
     @Nonnull DoubleBuffer outBuffer = DoubleBuffer.wrap(to);
@@ -95,6 +167,12 @@ public enum Precision {
     }
   }
 
+  /**
+   * Copy floats.
+   *
+   * @param from the from
+   * @param to   the to
+   */
   public static void copyFloats(@Nonnull double[] from, @Nonnull byte[] to) {
     @Nonnull DoubleBuffer inBuffer = DoubleBuffer.wrap(from);
     @Nonnull FloatBuffer outBuffer = ByteBuffer.wrap(to).asFloatBuffer();
@@ -103,6 +181,12 @@ public enum Precision {
     }
   }
 
+  /**
+   * Copy floats.
+   *
+   * @param from the from
+   * @param to   the to
+   */
   public static void copyFloats(@Nonnull byte[] from, @Nonnull double[] to) {
     @Nonnull FloatBuffer inBuffer = ByteBuffer.wrap(from).asFloatBuffer();
     @Nonnull DoubleBuffer outBuffer = DoubleBuffer.wrap(to);
@@ -111,6 +195,12 @@ public enum Precision {
     }
   }
 
+  /**
+   * Gets pointer.
+   *
+   * @param data the data
+   * @return the pointer
+   */
   @Nonnull
   public CudaPointer getPointer(@Nonnull final double... data) {
     switch (this) {
@@ -123,6 +213,12 @@ public enum Precision {
     }
   }
 
+  /**
+   * Gets pointer.
+   *
+   * @param data the data
+   * @return the pointer
+   */
   @Nonnull
   public CudaPointer getPointer(@Nonnull final float... data) {
     switch (this) {

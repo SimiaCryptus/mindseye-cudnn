@@ -40,6 +40,9 @@ import java.util.UUID;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntToDoubleFunction;
 
+/**
+ * The type Img band bias layer.
+ */
 @SuppressWarnings("serial")
 public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
 
@@ -47,18 +50,39 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
   @Nullable
   private Tensor bias;
 
+  /**
+   * Instantiates a new Img band bias layer.
+   *
+   * @param bands the bands
+   */
   public ImgBandBiasLayer(int bands) {
     this(new Tensor(1, 1, bands));
   }
 
+  /**
+   * Instantiates a new Img band bias layer.
+   *
+   * @param values the values
+   */
   public ImgBandBiasLayer(double... values) {
     this(new Tensor(values, new int[]{1, 1, values.length}));
   }
 
+  /**
+   * Instantiates a new Img band bias layer.
+   *
+   * @param bias the bias
+   */
   public ImgBandBiasLayer(@Nullable final Tensor bias) {
     setBias(bias);
   }
 
+  /**
+   * Instantiates a new Img band bias layer.
+   *
+   * @param id the id
+   * @param rs the rs
+   */
   protected ImgBandBiasLayer(@Nonnull final JsonObject id, final Map<CharSequence, byte[]> rs) {
     super(id);
     this.precision = Precision.valueOf(id.getAsJsonPrimitive("precision").getAsString());
@@ -67,18 +91,33 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
     this.bias = Tensor.fromJson(id.get("bias"), rs);
   }
 
+  /**
+   * Get bias double [ ].
+   *
+   * @return the double [ ]
+   */
   @Nonnull
   public double[] getBias() {
     assert bias != null;
     return bias.getData();
   }
 
+  /**
+   * Sets bias.
+   *
+   * @param bias the bias
+   */
   public void setBias(@Nullable Tensor bias) {
     if (null != this.bias)
       this.bias.freeRef();
     this.bias = bias;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(ProductInputsLayer.class);
@@ -94,11 +133,23 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Sets weights.
+   *
+   * @param f the f
+   */
   public void setWeights(@Nonnull IntToDoubleFunction f) {
     assert bias != null;
     bias.setByCoord(c -> f.applyAsDouble(c.getIndex()));
   }
 
+  /**
+   * From json img band bias layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img band bias layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgBandBiasLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -173,10 +224,20 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
     return RefArrays.asList(bias.getData());
   }
 
+  /**
+   * Add weights.
+   *
+   * @param f the f
+   */
   public void addWeights(@Nonnull DoubleSupplier f) {
     Util.add(f, getBias());
   }
 
+  /**
+   * Set.
+   *
+   * @param tensor the tensor
+   */
   public void set(@Nullable Tensor tensor) {
     assert bias != null;
     bias.set(tensor);
@@ -253,6 +314,16 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
     private Result.Accumulator accumulator;
     private boolean alive;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param id          the id
+     * @param bias        the bias
+     * @param precision   the precision
+     * @param frozen      the frozen
+     * @param accumulator the accumulator
+     * @param alive       the alive
+     */
     public Accumulator(UUID id, Tensor bias, Precision precision, boolean frozen, Result.Accumulator accumulator, boolean alive) {
       this.id = id;
       this.bias = bias;

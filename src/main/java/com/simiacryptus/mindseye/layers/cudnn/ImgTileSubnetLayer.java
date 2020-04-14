@@ -34,6 +34,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * The type Img tile subnet layer.
+ */
 @SuppressWarnings("serial")
 public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
 
@@ -45,6 +48,15 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private boolean parallel = true;
 
+  /**
+   * Instantiates a new Img tile subnet layer.
+   *
+   * @param subnetwork the subnetwork
+   * @param width      the width
+   * @param height     the height
+   * @param strideX    the stride x
+   * @param strideY    the stride y
+   */
   public ImgTileSubnetLayer(final Layer subnetwork, final int width, final int height, final int strideX,
                             final int strideY) {
     super(subnetwork);
@@ -54,10 +66,23 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
     this.strideY = strideY;
   }
 
+  /**
+   * Instantiates a new Img tile subnet layer.
+   *
+   * @param subnetwork the subnetwork
+   * @param width      the width
+   * @param height     the height
+   */
   public ImgTileSubnetLayer(final Layer subnetwork, final int width, final int height) {
     this(subnetwork, width, height, width, height);
   }
 
+  /**
+   * Instantiates a new Img tile subnet layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   */
   protected ImgTileSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
@@ -78,10 +103,20 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Is parallel boolean.
+   *
+   * @return the boolean
+   */
   public boolean isParallel() {
     return parallel;
   }
 
+  /**
+   * Sets parallel.
+   *
+   * @param parallel the parallel
+   */
   public void setParallel(boolean parallel) {
     this.parallel = parallel;
   }
@@ -94,6 +129,13 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
     inner.freeRef();
   }
 
+  /**
+   * From json img tile subnet layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img tile subnet layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgTileSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -213,6 +255,21 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
     private Precision precision;
     private Result.Accumulator accumulator;
 
+    /**
+     * Instantiates a new Tile accumulator.
+     *
+     * @param precision      the precision
+     * @param passback       the passback
+     * @param tileDimensions the tile dimensions
+     * @param positionX      the position x
+     * @param positionY      the position y
+     * @param counter        the counter
+     * @param rows           the rows
+     * @param cols           the cols
+     * @param length         the length
+     * @param inputDims      the input dims
+     * @param accumulator    the accumulator
+     */
     public TileAccumulator(Precision precision, CudaTensor passback, int[] tileDimensions, int positionX, int positionY, AtomicInteger counter, int rows, int cols, int length, int[] inputDims, Result.Accumulator accumulator) {
       this.passback = passback;
       this.tileDimensions = tileDimensions;
@@ -256,6 +313,11 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
 
     private Result.Accumulator accumulator;
 
+    /**
+     * Instantiates a new Main accumulator.
+     *
+     * @param accumulator the accumulator
+     */
     public MainAccumulator(Result.Accumulator accumulator) {
       this.accumulator = accumulator;
     }

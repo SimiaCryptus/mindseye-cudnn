@@ -34,6 +34,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+/**
+ * The type Band reducer layer.
+ */
 @SuppressWarnings("serial")
 public class BandReducerLayer extends LayerBase implements MultiPrecision {
 
@@ -41,10 +44,18 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision {
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private double alpha = 1.0;
 
+  /**
+   * Instantiates a new Band reducer layer.
+   */
   public BandReducerLayer() {
     super();
   }
 
+  /**
+   * Instantiates a new Band reducer layer.
+   *
+   * @param json the json
+   */
   protected BandReducerLayer(@Nonnull final JsonObject json) {
     super(json);
     mode = RefUtil.get(RefArrays.stream(PoolingLayer.PoolingMode.values()).filter(i -> i.id == json.get("mode").getAsInt())
@@ -53,23 +64,48 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision {
     alpha = json.get("alpha").getAsDouble();
   }
 
+  /**
+   * Gets alpha.
+   *
+   * @return the alpha
+   */
   public double getAlpha() {
     return alpha;
   }
 
+  /**
+   * Sets alpha.
+   *
+   * @param alpha the alpha
+   */
   public void setAlpha(double alpha) {
     this.alpha = alpha;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     throw new RuntimeException("Not Implemented");
   }
 
+  /**
+   * Gets mode.
+   *
+   * @return the mode
+   */
   public PoolingMode getMode() {
     return mode;
   }
 
+  /**
+   * Sets mode.
+   *
+   * @param mode the mode
+   */
   public void setMode(PoolingMode mode) {
     this.mode = mode;
   }
@@ -84,6 +120,13 @@ public class BandReducerLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * From json band reducer layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the band reducer layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static BandReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {

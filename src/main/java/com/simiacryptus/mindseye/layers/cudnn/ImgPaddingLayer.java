@@ -38,6 +38,9 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Img padding layer.
+ */
 @SuppressWarnings("serial")
 public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgPaddingLayer.class);
@@ -51,6 +54,12 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
   private ImgPaddingLayer() {
   }
 
+  /**
+   * Instantiates a new Img padding layer.
+   *
+   * @param sizeX the size x
+   * @param sizeY the size y
+   */
   public ImgPaddingLayer(int sizeX, int sizeY) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
@@ -58,6 +67,11 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     assert 0 < sizeY;
   }
 
+  /**
+   * Instantiates a new Img padding layer.
+   *
+   * @param json the json
+   */
   protected ImgPaddingLayer(@Nonnull final JsonObject json) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
@@ -70,15 +84,30 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     assert 0 < sizeY;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(com.simiacryptus.mindseye.layers.java.ImgCropLayer.class);
   }
 
+  /**
+   * Gets horizontal align.
+   *
+   * @return the horizontal align
+   */
   public Alignment getHorizontalAlign() {
     return horizontalAlign;
   }
 
+  /**
+   * Sets horizontal align.
+   *
+   * @param horizontalAlign the horizontal align
+   */
   public void setHorizontalAlign(Alignment horizontalAlign) {
     this.horizontalAlign = horizontalAlign;
   }
@@ -93,28 +122,67 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Gets vertical align.
+   *
+   * @return the vertical align
+   */
   public Alignment getVerticalAlign() {
     return verticalAlign;
   }
 
+  /**
+   * Sets vertical align.
+   *
+   * @param verticalAlign the vertical align
+   */
   public void setVerticalAlign(Alignment verticalAlign) {
     this.verticalAlign = verticalAlign;
   }
 
+  /**
+   * Is round up boolean.
+   *
+   * @return the boolean
+   */
   public boolean isRoundUp() {
     return roundUp;
   }
 
+  /**
+   * Sets round up.
+   *
+   * @param roundUp the round up
+   */
   public void setRoundUp(boolean roundUp) {
     this.roundUp = roundUp;
   }
 
+  /**
+   * From json img padding layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img padding layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgPaddingLayer(json);
   }
 
+  /**
+   * Add.
+   *
+   * @param gpu               the gpu
+   * @param input             the input
+   * @param input_dimensions  the input dimensions
+   * @param output_dimensions the output dimensions
+   * @param offset            the offset
+   * @param length            the length
+   * @param precision         the precision
+   * @param output_memory     the output memory
+   */
   public static void add(@Nonnull CudnnHandle gpu, @Nullable CudaTensor input, @Nonnull int[] input_dimensions, @Nonnull int[] output_dimensions,
                          @Nonnull int[] offset, int length, @Nonnull Precision precision, @Nullable CudaMemory output_memory) {
     CopyParams copyParams = getCopyParams(gpu, input, input_dimensions,
@@ -135,6 +203,18 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     copyParams.freeRef();
   }
 
+  /**
+   * Set.
+   *
+   * @param gpu               the gpu
+   * @param input             the input
+   * @param input_dimensions  the input dimensions
+   * @param output_dimensions the output dimensions
+   * @param offset            the offset
+   * @param length            the length
+   * @param precision         the precision
+   * @param output_memory     the output memory
+   */
   public static void set(@Nonnull CudnnHandle gpu, @Nullable CudaTensor input, @Nonnull int[] input_dimensions, @Nonnull int[] output_dimensions,
                          @Nonnull int[] offset, int length, @Nonnull Precision precision, @Nullable CudaMemory output_memory) {
     CopyParams copyParams = getCopyParams(gpu, input, input_dimensions,
@@ -155,6 +235,19 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     copyParams.freeRef();
   }
 
+  /**
+   * Gets copy params.
+   *
+   * @param gpu               the gpu
+   * @param input             the input
+   * @param input_dimensions  the input dimensions
+   * @param output_dimensions the output dimensions
+   * @param offset            the offset
+   * @param length            the length
+   * @param precision         the precision
+   * @param output_memory     the output memory
+   * @return the copy params
+   */
   @Nullable
   public static CopyParams getCopyParams(@Nonnull CudnnHandle gpu, @Nullable CudaTensor input, int[] input_dimensions,
                                          int[] output_dimensions, int[] offset, int length, @Nonnull Precision precision, @Nullable CudaMemory output_memory) {
@@ -262,6 +355,14 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     return copyParams;
   }
 
+  /**
+   * Half int.
+   *
+   * @param i         the
+   * @param alignment the alignment
+   * @param roundUp   the round up
+   * @return the int
+   */
   public static int half(int i, Alignment alignment, boolean roundUp) {
     if (alignment == Alignment.Left)
       return 0;
@@ -275,6 +376,21 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
       return (i - 1) / 2;
   }
 
+  /**
+   * Copy condense cuda tensor.
+   *
+   * @param gpu             the gpu
+   * @param inputTensor     the input tensor
+   * @param dimIn           the dim in
+   * @param dimOut          the dim out
+   * @param length          the length
+   * @param dirty           the dirty
+   * @param precision       the precision
+   * @param horizontalAlign the horizontal align
+   * @param verticalAlign   the vertical align
+   * @param roundUp         the round up
+   * @return the cuda tensor
+   */
   @Nullable
   public static CudaTensor copy_condense(@Nonnull CudnnHandle gpu, @Nullable CudaTensor inputTensor, @Nonnull int[] dimIn, @Nonnull int[] dimOut, int length,
                                          boolean dirty, Precision precision, Alignment horizontalAlign, Alignment verticalAlign, boolean roundUp) {
@@ -334,6 +450,15 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     }
   }
 
+  /**
+   * Simple descriptor cuda device . cuda tensor descriptor.
+   *
+   * @param length    the length
+   * @param dimOut    the dim out
+   * @param gpu       the gpu
+   * @param precision the precision
+   * @return the cuda device . cuda tensor descriptor
+   */
   public static CudaDevice.CudaTensorDescriptor simpleDescriptor(int length, int[] dimOut, @Nonnull CudnnHandle gpu, Precision precision) {
     CudaDevice.CudaTensorDescriptor tensorDescriptor = gpu.newTensorDescriptor(precision, //
         length, //
@@ -381,6 +506,17 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     return new Result(outputData, accumulator, isAlive);
   }
 
+  /**
+   * Copy expand cuda tensor.
+   *
+   * @param gpu         the gpu
+   * @param inputTensor the input tensor
+   * @param dimIn       the dim in
+   * @param dimOut      the dim out
+   * @param length      the length
+   * @param dirty       the dirty
+   * @return the cuda tensor
+   */
   @Nullable
   public CudaTensor copy_expand(@Nonnull CudnnHandle gpu, @Nullable CudaTensor inputTensor, @Nonnull int[] dimIn, @Nonnull int[] dimOut, int length,
                                 boolean dirty) {
@@ -495,60 +631,132 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
   }
 
   private static class CopyParams extends ReferenceCountingBase {
+    /**
+     * The Gpu.
+     */
     public final CudnnHandle gpu;
+    /**
+     * The Length.
+     */
     public int length;
+    /**
+     * The Precision.
+     */
     public Precision precision;
+    /**
+     * The Input offset.
+     */
     public int input_offset;
+    /**
+     * The Output offset.
+     */
     public int output_offset;
+    /**
+     * The Input memory.
+     */
     @Nullable
     public CudaMemory input_memory;
+    /**
+     * The Input view descriptor.
+     */
     public CudaDevice.CudaTensorDescriptor input_view_descriptor;
+    /**
+     * The Output memory.
+     */
     @Nullable
     public CudaMemory output_memory;
     private CudaDevice.CudaTensorDescriptor output_view_descriptor;
 
+    /**
+     * Instantiates a new Copy params.
+     *
+     * @param gpu the gpu
+     */
     public CopyParams(CudnnHandle gpu) {
       this.gpu = gpu;
     }
 
+    /**
+     * Sets input memory.
+     *
+     * @param input_memory the input memory
+     */
     public void setInput_memory(@Nullable CudaMemory input_memory) {
       if (null != this.input_memory)
         this.input_memory.freeRef();
       this.input_memory = input_memory;
     }
 
+    /**
+     * Sets input offset.
+     *
+     * @param input_offset the input offset
+     */
     public void setInput_offset(int input_offset) {
       this.input_offset = input_offset;
     }
 
+    /**
+     * Sets input view descriptor.
+     *
+     * @param input_view_descriptor the input view descriptor
+     */
     public void setInput_view_descriptor(CudaDevice.CudaTensorDescriptor input_view_descriptor) {
       if (null != this.input_view_descriptor)
         this.input_view_descriptor.freeRef();
       this.input_view_descriptor = input_view_descriptor;
     }
 
+    /**
+     * Sets length.
+     *
+     * @param length the length
+     */
     public void setLength(int length) {
       this.length = length;
     }
 
+    /**
+     * Sets output memory.
+     *
+     * @param output_memory the output memory
+     */
     public void setOutput_memory(@Nullable CudaMemory output_memory) {
       if (null != this.output_memory)
         this.output_memory.freeRef();
       this.output_memory = output_memory;
     }
 
+    /**
+     * Sets output offset.
+     *
+     * @param output_offset the output offset
+     */
     public void setOutput_offset(int output_offset) {
       this.output_offset = output_offset;
     }
 
+    /**
+     * Sets output view descriptor.
+     *
+     * @param output_view_descriptor the output view descriptor
+     */
     public void setOutput_view_descriptor(CudaDevice.CudaTensorDescriptor output_view_descriptor) {
       this.output_view_descriptor = output_view_descriptor;
     }
 
+    /**
+     * Sets precision.
+     *
+     * @param precision the precision
+     */
     public void setPrecision(Precision precision) {
       this.precision = precision;
     }
 
+    /**
+     * Set.
+     */
     public void set() {
       assert this.input_view_descriptor != null;
       final CudaDevice.CudaTensorDescriptor input_view_descriptor = this.input_view_descriptor.addRef();
@@ -568,6 +776,9 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
       output_memory.dirty();
     }
 
+    /**
+     * Add.
+     */
     public void add() {
       assert this.input_view_descriptor != null;
       final CudaDevice.CudaTensorDescriptor input_view_descriptor = this.input_view_descriptor.addRef();
@@ -626,6 +837,21 @@ public class ImgPaddingLayer extends LayerBase implements MultiPrecision {
     private Result.Accumulator accumulator;
     private boolean alive;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param output_dimensions the output dimensions
+     * @param output_length     the output length
+     * @param length            the length
+     * @param dimOut            the dim out
+     * @param dimIn             the dim in
+     * @param precision         the precision
+     * @param horizontalAlign   the horizontal align
+     * @param verticalAlign     the vertical align
+     * @param roundUp           the round up
+     * @param accumulator       the accumulator
+     * @param alive             the alive
+     */
     public Accumulator(int[] output_dimensions, int output_length, int length, int[] dimOut, int[] dimIn, Precision precision, Alignment horizontalAlign, Alignment verticalAlign, boolean roundUp, Result.Accumulator accumulator, boolean alive) {
       this.output_dimensions = output_dimensions;
       this.output_length = output_length;

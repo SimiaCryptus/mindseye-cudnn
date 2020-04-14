@@ -38,6 +38,9 @@ import java.util.function.IntUnaryOperator;
 
 import static com.simiacryptus.mindseye.lang.Result.getData;
 
+/**
+ * The type Img concat layer.
+ */
 @SuppressWarnings("serial")
 public class ImgConcatLayer extends LayerBase implements MultiPrecision {
 
@@ -45,9 +48,17 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private boolean parallel = true;
 
+  /**
+   * Instantiates a new Img concat layer.
+   */
   public ImgConcatLayer() {
   }
 
+  /**
+   * Instantiates a new Img concat layer.
+   *
+   * @param json the json
+   */
   protected ImgConcatLayer(@Nonnull final JsonObject json) {
     super(json);
     maxBands = json.get("maxBands").getAsInt();
@@ -55,15 +66,30 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
     this.parallel = json.get("parallel").getAsBoolean();
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(com.simiacryptus.mindseye.layers.java.ImgConcatLayer.class);
   }
 
+  /**
+   * Gets max bands.
+   *
+   * @return the max bands
+   */
   public int getMaxBands() {
     return maxBands;
   }
 
+  /**
+   * Sets max bands.
+   *
+   * @param maxBands the max bands
+   */
   public void setMaxBands(int maxBands) {
     this.maxBands = maxBands;
   }
@@ -78,20 +104,43 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Is parallel boolean.
+   *
+   * @return the boolean
+   */
   public boolean isParallel() {
     return parallel;
   }
 
+  /**
+   * Sets parallel.
+   *
+   * @param parallel the parallel
+   */
   public void setParallel(boolean parallel) {
     this.parallel = parallel;
   }
 
+  /**
+   * From json img concat layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img concat layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgConcatLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgConcatLayer(json);
   }
 
+  /**
+   * Eval tensor.
+   *
+   * @param featureImage the feature image
+   * @return the tensor
+   */
   @Nonnull
   public static Tensor eval(@Nonnull final RefList<Tensor> featureImage) {
     ImgConcatLayer layer = new ImgConcatLayer();
@@ -272,6 +321,16 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
     private int maxBands;
     private Precision precision;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param outputDimensions the output dimensions
+     * @param length           the length
+     * @param precision        the precision
+     * @param maxBands         the max bands
+     * @param parallel         the parallel
+     * @param inObj            the in obj
+     */
     public Accumulator(int[] outputDimensions, int length, Precision precision, int maxBands, boolean parallel, Result... inObj) {
       this.outputDimensions = outputDimensions;
       this.length = length;

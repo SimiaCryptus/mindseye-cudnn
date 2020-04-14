@@ -35,19 +35,35 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Gate bias layer.
+ */
 @SuppressWarnings("serial")
 public class GateBiasLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
+  /**
+   * Instantiates a new Gate bias layer.
+   */
   public GateBiasLayer() {
   }
 
+  /**
+   * Instantiates a new Gate bias layer.
+   *
+   * @param id the id
+   */
   protected GateBiasLayer(@Nonnull final JsonObject id) {
     super(id);
     this.precision = Precision.valueOf(id.getAsJsonPrimitive("precision").getAsString());
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(ProductInputsLayer.class);
@@ -63,6 +79,13 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * From json gate bias layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the gate bias layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static GateBiasLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -183,6 +206,19 @@ public class GateBiasLayer extends LayerBase implements MultiPrecision {
     private boolean rightAlive;
     private Result.Accumulator rightAccumulator;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param rightData        the right data
+     * @param rightDimensions  the right dimensions
+     * @param leftDimensions   the left dimensions
+     * @param length           the length
+     * @param precision        the precision
+     * @param leftAccumulator  the left accumulator
+     * @param leftAlive        the left alive
+     * @param rightAlive       the right alive
+     * @param rightAccumulator the right accumulator
+     */
     public Accumulator(TensorList rightData, int[] rightDimensions, int[] leftDimensions, int length, Precision precision, Result.Accumulator leftAccumulator, boolean leftAlive, boolean rightAlive, Result.Accumulator rightAccumulator) {
       this.rightData = rightData;
       this.rightDimensions = rightDimensions;

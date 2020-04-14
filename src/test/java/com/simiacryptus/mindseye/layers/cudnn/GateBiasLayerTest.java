@@ -26,10 +26,21 @@ import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Gate bias layer test.
+ */
 public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Precision.
+   */
   final Precision precision;
 
+  /**
+   * Instantiates a new Gate bias layer test.
+   *
+   * @param precision the precision
+   */
   public GateBiasLayerTest(final Precision precision) {
     this.precision = precision;
   }
@@ -56,13 +67,25 @@ public abstract class GateBiasLayerTest extends CudnnLayerTestBase {
     return new int[][]{{4, 4, 3}, {1, 1, 3}};
   }
 
+  /**
+   * The type Double.
+   */
   public static class Double extends GateBiasLayerTest {
+    /**
+     * Instantiates a new Double.
+     */
     public Double() {
       super(Precision.Double);
     }
   }
 
+  /**
+   * The type Float.
+   */
   public static class Float extends GateBiasLayerTest {
+    /**
+     * Instantiates a new Float.
+     */
     public Float() {
       super(Precision.Float);
     }

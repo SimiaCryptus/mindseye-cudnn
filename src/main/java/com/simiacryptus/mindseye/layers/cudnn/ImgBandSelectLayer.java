@@ -34,6 +34,9 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Img band select layer.
+ */
 @SuppressWarnings("serial")
 public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
 
@@ -41,11 +44,22 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
   private int to;
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
+  /**
+   * Instantiates a new Img band select layer.
+   *
+   * @param from the from
+   * @param to   the to
+   */
   public ImgBandSelectLayer(int from, int to) {
     this.setFrom(from);
     this.setTo(to);
   }
 
+  /**
+   * Instantiates a new Img band select layer.
+   *
+   * @param json the json
+   */
   protected ImgBandSelectLayer(@Nonnull final JsonObject json) {
     super(json);
     setFrom(json.get("from").getAsInt());
@@ -53,16 +67,31 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
     precision = Precision.valueOf(json.get("precision").getAsString());
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return new com.simiacryptus.mindseye.layers.java.ImgBandSelectLayer(
         RefIntStream.range(getFrom(), getTo()).toArray());
   }
 
+  /**
+   * Gets from.
+   *
+   * @return the from
+   */
   public int getFrom() {
     return from;
   }
 
+  /**
+   * Sets from.
+   *
+   * @param from the from
+   */
   public void setFrom(final int from) {
     this.from = from;
   }
@@ -77,14 +106,31 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Gets to.
+   *
+   * @return the to
+   */
   public int getTo() {
     return to;
   }
 
+  /**
+   * Sets to.
+   *
+   * @param to the to
+   */
   public void setTo(int to) {
     this.to = to;
   }
 
+  /**
+   * From json img band select layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img band select layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgBandSelectLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -186,6 +232,17 @@ public class ImgBandSelectLayer extends LayerBase implements MultiPrecision {
     private Result.Accumulator accumulator;
     private boolean alive;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param outputDimensions the output dimensions
+     * @param length           the length
+     * @param inputDimensions  the input dimensions
+     * @param precision        the precision
+     * @param from             the from
+     * @param accumulator      the accumulator
+     * @param alive            the alive
+     */
     public Accumulator(int[] outputDimensions, int length, int[] inputDimensions, Precision precision, int from, Result.Accumulator accumulator, boolean alive) {
       this.outputDimensions = outputDimensions;
       this.length = length;

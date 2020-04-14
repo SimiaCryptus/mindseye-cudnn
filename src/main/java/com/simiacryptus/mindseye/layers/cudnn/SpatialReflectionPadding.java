@@ -35,6 +35,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+/**
+ * The type Spatial reflection padding.
+ */
 @SuppressWarnings("serial")
 public class SpatialReflectionPadding extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(SpatialReflectionPadding.class);
@@ -48,6 +51,12 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
   private SpatialReflectionPadding() {
   }
 
+  /**
+   * Instantiates a new Spatial reflection padding.
+   *
+   * @param sizeX the size x
+   * @param sizeY the size y
+   */
   public SpatialReflectionPadding(int sizeX, int sizeY) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
@@ -55,6 +64,11 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
     assert 0 < sizeY;
   }
 
+  /**
+   * Instantiates a new Spatial reflection padding.
+   *
+   * @param json the json
+   */
   protected SpatialReflectionPadding(@Nonnull final JsonObject json) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
@@ -67,15 +81,30 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
     assert 0 < sizeY;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(com.simiacryptus.mindseye.layers.java.ImgCropLayer.class);
   }
 
+  /**
+   * Gets horizontal align.
+   *
+   * @return the horizontal align
+   */
   public Alignment getHorizontalAlign() {
     return horizontalAlign;
   }
 
+  /**
+   * Sets horizontal align.
+   *
+   * @param horizontalAlign the horizontal align
+   */
   public void setHorizontalAlign(Alignment horizontalAlign) {
     this.horizontalAlign = horizontalAlign;
   }
@@ -90,28 +119,62 @@ public class SpatialReflectionPadding extends LayerBase implements MultiPrecisio
     this.precision = precision;
   }
 
+  /**
+   * Gets vertical align.
+   *
+   * @return the vertical align
+   */
   public Alignment getVerticalAlign() {
     return verticalAlign;
   }
 
+  /**
+   * Sets vertical align.
+   *
+   * @param verticalAlign the vertical align
+   */
   public void setVerticalAlign(Alignment verticalAlign) {
     this.verticalAlign = verticalAlign;
   }
 
+  /**
+   * Is round up boolean.
+   *
+   * @return the boolean
+   */
   public boolean isRoundUp() {
     return roundUp;
   }
 
+  /**
+   * Sets round up.
+   *
+   * @param roundUp the round up
+   */
   public void setRoundUp(boolean roundUp) {
     this.roundUp = roundUp;
   }
 
+  /**
+   * From json spatial reflection padding.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the spatial reflection padding
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static SpatialReflectionPadding fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new SpatialReflectionPadding(json);
   }
 
+  /**
+   * Half int.
+   *
+   * @param i         the
+   * @param alignment the alignment
+   * @return the int
+   */
   public int half(int i, Alignment alignment) {
     if (alignment == Alignment.Left)
       return 0;

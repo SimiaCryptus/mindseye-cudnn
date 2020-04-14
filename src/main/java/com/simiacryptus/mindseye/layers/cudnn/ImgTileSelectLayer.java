@@ -36,6 +36,9 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Img tile select layer.
+ */
 @SuppressWarnings("serial")
 public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgTileSelectLayer.class);
@@ -50,10 +53,27 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
   private ImgTileSelectLayer() {
   }
 
+  /**
+   * Instantiates a new Img tile select layer.
+   *
+   * @param sizeX     the size x
+   * @param sizeY     the size y
+   * @param positionX the position x
+   * @param positionY the position y
+   */
   public ImgTileSelectLayer(int sizeX, int sizeY, final int positionX, final int positionY) {
     this(sizeX, sizeY, positionX, positionY, Precision.Float);
   }
 
+  /**
+   * Instantiates a new Img tile select layer.
+   *
+   * @param sizeX     the size x
+   * @param sizeY     the size y
+   * @param positionX the position x
+   * @param positionY the position y
+   * @param precision the precision
+   */
   public ImgTileSelectLayer(int sizeX, int sizeY, final int positionX, final int positionY,
                             @Nonnull Precision precision) {
     this.sizeY = sizeY;
@@ -63,6 +83,11 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Instantiates a new Img tile select layer.
+   *
+   * @param json the json
+   */
   protected ImgTileSelectLayer(@Nonnull final JsonObject json) {
     super(json);
     sizeY = json.get("sizeY").getAsInt();
@@ -72,6 +97,11 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(com.simiacryptus.mindseye.layers.java.ImgTileSelectLayer.class);
@@ -88,12 +118,32 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * From json img tile select layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img tile select layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgTileSelectLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgTileSelectLayer(json);
   }
 
+  /**
+   * Copy cuda tensor.
+   *
+   * @param gpu              the gpu
+   * @param input            the input
+   * @param inputDimensions  the input dimensions
+   * @param outputDimensions the output dimensions
+   * @param precision        the precision
+   * @param positionX        the position x
+   * @param positionY        the position y
+   * @param dirty            the dirty
+   * @return the cuda tensor
+   */
   @Nonnull
   public static CudaTensor copy(@Nonnull final CudnnHandle gpu, @Nonnull final TensorList input, @Nonnull final int[] inputDimensions,
                                 @Nonnull final int[] outputDimensions, @Nonnull Precision precision, final int positionX, final int positionY,
@@ -104,6 +154,17 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
             MemoryType.Managed.ifEnabled(), dirty));
   }
 
+  /**
+   * Copy.
+   *
+   * @param gpu             the gpu
+   * @param input           the input
+   * @param inputDimensions the input dimensions
+   * @param positionX       the position x
+   * @param positionY       the position y
+   * @param precision       the precision
+   * @param output          the output
+   */
   public static void copy(@Nonnull final CudnnHandle gpu, @Nonnull final TensorList input, @Nonnull final int[] inputDimensions,
                           final int positionX, final int positionY, @Nonnull Precision precision, @Nonnull final CudaTensor output) {
     RefUtil.freeRef(copy(
@@ -114,6 +175,19 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     output.freeRef();
   }
 
+  /**
+   * Copy cuda tensor.
+   *
+   * @param gpu              the gpu
+   * @param input            the input
+   * @param inputDimensions  the input dimensions
+   * @param outputDimensions the output dimensions
+   * @param positionX        the position x
+   * @param positionY        the position y
+   * @param precision        the precision
+   * @param outputPtr        the output ptr
+   * @return the cuda tensor
+   */
   @Nonnull
   public static CudaTensor copy(@Nonnull final CudnnHandle gpu, @Nonnull final TensorList input, @Nonnull final int[] inputDimensions,
                                 @Nonnull final int[] outputDimensions, final int positionX, final int positionY, @Nonnull final Precision precision,
@@ -217,6 +291,14 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     return new CudaTensor(outputPtr, passbackDescriptor, precision);
   }
 
+  /**
+   * Get view dimensions int [ ].
+   *
+   * @param sourceDimensions      the source dimensions
+   * @param destinationDimensions the destination dimensions
+   * @param offset                the offset
+   * @return the int [ ]
+   */
   @Nonnull
   public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions, int[] offset) {
     @Nonnull final int[] viewDim = new int[3];
@@ -330,6 +412,18 @@ public class ImgTileSelectLayer extends LayerBase implements MultiPrecision {
     private Result.Accumulator accumulator;
     private boolean alive;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param imgTileSelectLayer the img tile select layer
+     * @param outputDimensions   the output dimensions
+     * @param length             the length
+     * @param dimOut             the dim out
+     * @param dimIn              the dim in
+     * @param precision          the precision
+     * @param accumulator        the accumulator
+     * @param alive              the alive
+     */
     public Accumulator(ImgTileSelectLayer imgTileSelectLayer, int[] outputDimensions, int length, int[] dimOut, int[] dimIn, Precision precision, Result.Accumulator accumulator, boolean alive) {
       this.imgTileSelectLayer = imgTileSelectLayer;
       this.outputDimensions = outputDimensions;

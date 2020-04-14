@@ -38,18 +38,34 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Activation layer.
+ */
 @SuppressWarnings("serial")
 public class ActivationLayer extends LayerBase implements MultiPrecision {
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(ActivationLayer.class);
+  /**
+   * The Mode.
+   */
   final int mode;
   private double alpha = 1.0;
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
+  /**
+   * Instantiates a new Activation layer.
+   *
+   * @param id the id
+   */
   public ActivationLayer(final int id) {
     mode = id;
   }
 
+  /**
+   * Instantiates a new Activation layer.
+   *
+   * @param json the json
+   */
   protected ActivationLayer(@Nonnull final JsonObject json) {
     super(json);
     mode = json.getAsJsonPrimitive("mode").getAsInt();
@@ -57,18 +73,38 @@ public class ActivationLayer extends LayerBase implements MultiPrecision {
     precision = Precision.valueOf(json.get("precision").getAsString());
   }
 
+  /**
+   * Instantiates a new Activation layer.
+   *
+   * @param mode the mode
+   */
   public ActivationLayer(@Nonnull final Mode mode) {
     this(mode.id);
   }
 
+  /**
+   * Gets alpha.
+   *
+   * @return the alpha
+   */
   public double getAlpha() {
     return alpha;
   }
 
+  /**
+   * Sets alpha.
+   *
+   * @param alpha the alpha
+   */
   public void setAlpha(double alpha) {
     this.alpha = alpha;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     if (mode == Mode.SIGMOID.id) {
@@ -98,6 +134,13 @@ public class ActivationLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * From json activation layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the activation layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ActivationLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -208,9 +251,22 @@ public class ActivationLayer extends LayerBase implements MultiPrecision {
     }, inputData.addRef(), inputResult), inputData);
   }
 
+  /**
+   * The enum Mode.
+   */
   public enum Mode {
-    RELU(cudnnActivationMode.CUDNN_ACTIVATION_RELU), SIGMOID(cudnnActivationMode.CUDNN_ACTIVATION_SIGMOID);
+    /**
+     * Relu mode.
+     */
+    RELU(cudnnActivationMode.CUDNN_ACTIVATION_RELU),
+    /**
+     * Sigmoid mode.
+     */
+    SIGMOID(cudnnActivationMode.CUDNN_ACTIVATION_SIGMOID);
 
+    /**
+     * The Id.
+     */
     public final int id;
 
     Mode(final int id) {
@@ -230,6 +286,19 @@ public class ActivationLayer extends LayerBase implements MultiPrecision {
     private Result.Accumulator accumulator;
     private boolean alive;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param inputData   the input data
+     * @param outPtr      the out ptr
+     * @param length      the length
+     * @param inputSize   the input size
+     * @param precision   the precision
+     * @param alpha       the alpha
+     * @param mode        the mode
+     * @param accumulator the accumulator
+     * @param alive       the alive
+     */
     public Accumulator(TensorList inputData, CudaTensor outPtr, int length, int[] inputSize, Precision precision,
                        double alpha, int mode, Result.Accumulator accumulator, boolean alive) {
       this.inputData = inputData;

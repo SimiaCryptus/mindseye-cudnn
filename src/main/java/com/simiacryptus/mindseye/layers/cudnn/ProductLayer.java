@@ -36,26 +36,47 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Product layer.
+ */
 @SuppressWarnings("serial")
 public class ProductLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private boolean bypassOnError = false;
 
+  /**
+   * Instantiates a new Product layer.
+   */
   public ProductLayer() {
     this(UUID.randomUUID());
   }
 
+  /**
+   * Instantiates a new Product layer.
+   *
+   * @param id the id
+   */
   public ProductLayer(UUID id) {
     super(id, "ProductLayer");
   }
 
+  /**
+   * Instantiates a new Product layer.
+   *
+   * @param json the json
+   */
   protected ProductLayer(@Nonnull final JsonObject json) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
     this.setBypassOnError(json.getAsJsonPrimitive("bypassOnError").getAsBoolean());
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(ProductInputsLayer.class);
@@ -71,14 +92,31 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Is bypass on error boolean.
+   *
+   * @return the boolean
+   */
   public boolean isBypassOnError() {
     return bypassOnError;
   }
 
+  /**
+   * Sets bypass on error.
+   *
+   * @param bypassOnError the bypass on error
+   */
   public void setBypassOnError(boolean bypassOnError) {
     this.bypassOnError = bypassOnError;
   }
 
+  /**
+   * From json product layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the product layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ProductLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -227,6 +265,20 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
     private Result.Accumulator rightAccumulator;
     private @NotNull TensorList leftData;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param precision        the precision
+     * @param leftData         the left data
+     * @param rightData        the right data
+     * @param length           the length
+     * @param leftDimensions   the left dimensions
+     * @param rightDimensions  the right dimensions
+     * @param leftAccumulator  the left accumulator
+     * @param leftAlive        the left alive
+     * @param rightAccumulator the right accumulator
+     * @param rightAlive       the right alive
+     */
     public Accumulator(Precision precision, @NotNull TensorList leftData, TensorList rightData, int length, int[] leftDimensions, int[] rightDimensions, Result.Accumulator leftAccumulator, boolean leftAlive, Result.Accumulator rightAccumulator, boolean rightAlive) {
       this.rightData = rightData;
       this.length = length;

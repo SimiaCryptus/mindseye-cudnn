@@ -26,11 +26,23 @@ import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Band reducer layer test.
+ */
 public abstract class BandReducerLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Precision.
+   */
   final Precision precision;
   private final double alpha;
 
+  /**
+   * Instantiates a new Band reducer layer test.
+   *
+   * @param precision the precision
+   * @param alpha     the alpha
+   */
   public BandReducerLayerTest(final Precision precision, final double alpha) {
     this.precision = precision;
     this.alpha = alpha;
@@ -61,19 +73,37 @@ public abstract class BandReducerLayerTest extends CudnnLayerTestBase {
     return new int[][]{{2, 2, 1}};
   }
 
+  /**
+   * The type Double.
+   */
   public static class Double extends BandReducerLayerTest {
+    /**
+     * Instantiates a new Double.
+     */
     public Double() {
       super(Precision.Double, 1.0);
     }
   }
 
+  /**
+   * The type Negative.
+   */
   public static class Negative extends BandReducerLayerTest {
+    /**
+     * Instantiates a new Negative.
+     */
     public Negative() {
       super(Precision.Double, -5.0);
     }
   }
 
+  /**
+   * The type Asymmetric.
+   */
   public static class Asymmetric extends BandReducerLayerTest {
+    /**
+     * Instantiates a new Asymmetric.
+     */
     public Asymmetric() {
       super(Precision.Double, 1.0);
     }
@@ -91,7 +121,13 @@ public abstract class BandReducerLayerTest extends CudnnLayerTestBase {
     }
   }
 
+  /**
+   * The type Float.
+   */
   public static class Float extends BandReducerLayerTest {
+    /**
+     * Instantiates a new Float.
+     */
     public Float() {
       super(Precision.Float, 1.0);
     }

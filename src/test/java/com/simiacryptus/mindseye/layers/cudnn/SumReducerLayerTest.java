@@ -26,10 +26,21 @@ import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Sum reducer layer test.
+ */
 public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Precision.
+   */
   final Precision precision;
 
+  /**
+   * Instantiates a new Sum reducer layer test.
+   *
+   * @param precision the precision
+   */
   public SumReducerLayerTest(final Precision precision) {
     this.precision = precision;
   }
@@ -56,14 +67,26 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
     return new int[][]{{8, 8, 1}};
   }
 
+  /**
+   * The type Double.
+   */
   public static class Double extends SumReducerLayerTest {
+    /**
+     * Instantiates a new Double.
+     */
     public Double() {
       super(Precision.Double);
     }
 
   }
 
+  /**
+   * The type Asymmetric.
+   */
   public static class Asymmetric extends SumReducerLayerTest {
+    /**
+     * Instantiates a new Asymmetric.
+     */
     public Asymmetric() {
       super(Precision.Double);
     }
@@ -82,7 +105,13 @@ public abstract class SumReducerLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Float.
+   */
   public static class Float extends SumReducerLayerTest {
+    /**
+     * Instantiates a new Float.
+     */
     public Float() {
       super(Precision.Float);
     }

@@ -39,6 +39,9 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Binary sum layer.
+ */
 @SuppressWarnings("serial")
 public class BinarySumLayer extends LayerBase implements MultiPrecision {
 
@@ -46,15 +49,29 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private double rightFactor;
 
+  /**
+   * Instantiates a new Binary sum layer.
+   */
   public BinarySumLayer() {
     this(1.0, 1.0);
   }
 
+  /**
+   * Instantiates a new Binary sum layer.
+   *
+   * @param leftFactor  the left factor
+   * @param rightFactor the right factor
+   */
   public BinarySumLayer(final double leftFactor, final double rightFactor) {
     this.leftFactor = leftFactor;
     this.rightFactor = rightFactor;
   }
 
+  /**
+   * Instantiates a new Binary sum layer.
+   *
+   * @param json the json
+   */
   protected BinarySumLayer(@Nonnull final JsonObject json) {
     super(json);
     rightFactor = json.get("rightFactor").getAsDouble();
@@ -62,6 +79,11 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
     precision = Precision.valueOf(json.get("precision").getAsString());
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     @Nonnull
@@ -79,10 +101,20 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
     return network;
   }
 
+  /**
+   * Gets left factor.
+   *
+   * @return the left factor
+   */
   public double getLeftFactor() {
     return leftFactor;
   }
 
+  /**
+   * Sets left factor.
+   *
+   * @param leftFactor the left factor
+   */
   public void setLeftFactor(final double leftFactor) {
     this.leftFactor = leftFactor;
   }
@@ -97,14 +129,31 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Gets right factor.
+   *
+   * @return the right factor
+   */
   public double getRightFactor() {
     return rightFactor;
   }
 
+  /**
+   * Sets right factor.
+   *
+   * @param rightFactor the right factor
+   */
   public void setRightFactor(final double rightFactor) {
     this.rightFactor = rightFactor;
   }
 
+  /**
+   * From json binary sum layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the binary sum layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static BinarySumLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -277,6 +326,19 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
     private boolean leftAlive;
     private boolean rightAlive;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param dimensions       the dimensions
+     * @param length           the length
+     * @param precision        the precision
+     * @param leftFactor       the left factor
+     * @param rightFactor      the right factor
+     * @param leftAccumulator  the left accumulator
+     * @param rightAccumulator the right accumulator
+     * @param leftAlive        the left alive
+     * @param rightAlive       the right alive
+     */
     public Accumulator(int[] dimensions, int length, Precision precision, double leftFactor, double rightFactor, Result.Accumulator leftAccumulator, Result.Accumulator rightAccumulator, boolean leftAlive, boolean rightAlive) {
       this.dimensions = dimensions;
       this.length = length;

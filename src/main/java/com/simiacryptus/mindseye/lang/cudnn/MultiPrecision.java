@@ -24,12 +24,31 @@ import com.simiacryptus.mindseye.network.DAGNetwork;
 
 import javax.annotation.Nullable;
 
+/**
+ * The interface Multi precision.
+ */
 public interface MultiPrecision {
+  /**
+   * Gets precision.
+   *
+   * @return the precision
+   */
   @Nullable
   Precision getPrecision();
 
+  /**
+   * Sets precision.
+   *
+   * @param precision the precision
+   */
   void setPrecision(Precision precision);
 
+  /**
+   * Sets precision.
+   *
+   * @param network   the network
+   * @param precision the precision
+   */
   static void setPrecision(final Layer network, final Precision precision) {
     try {
       if (network instanceof DAGNetwork) {

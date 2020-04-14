@@ -37,8 +37,14 @@ import javax.annotation.Nullable;
 
 import static jcuda.runtime.JCuda.*;
 
+/**
+ * The enum Memory type.
+ */
 public enum MemoryType {
 
+  /**
+   * The Managed.
+   */
   Managed {
     @Nonnull
     public CudaPointer alloc(final long size, @Nonnull final CudaDevice cudaDevice) {
@@ -64,6 +70,9 @@ public enum MemoryType {
       return CudaSettings.INSTANCE().enableManaged ? this : Device;
     }
   },
+  /**
+   * The Device.
+   */
   Device {
     @Nonnull
     public CudaPointer alloc(final long size, @Nonnull final CudaDevice cudaDevice) {
@@ -83,6 +92,9 @@ public enum MemoryType {
       CudaDevice.cudaFree(deviceId, ptr);
     }
   },
+  /**
+   * The Host.
+   */
   Host {
     @Nonnull
     public CudaPointer alloc(final long size, @Nonnull final CudaDevice cudaDevice) {
@@ -108,6 +120,9 @@ public enum MemoryType {
       CudaSystem.cudaFreeHost(ptr);
     }
   },
+  /**
+   * The Host writeable.
+   */
   HostWriteable {
     @Nonnull
     public CudaPointer alloc(final long size, @Nonnull final CudaDevice cudaDevice) {
@@ -134,9 +149,19 @@ public enum MemoryType {
     }
   };
 
+  /**
+   * The constant logger.
+   */
   protected static final Logger logger = LoggerFactory.getLogger(MemoryType.class);
   private static final RefMap<MemoryType, RefMap<Integer, RecycleBin<ReferenceWrapper<CudaPointer>>>> cache = new RefConcurrentHashMap<>();
 
+  /**
+   * Recycle.
+   *
+   * @param ptr      the ptr
+   * @param deviceId the device id
+   * @param length   the length
+   */
   public void recycle(CudaPointer ptr, int deviceId, final long length) {
     logger.debug(RefString.format("Recycle %s %s (%s bytes) in device %s via %s", name(),
         Integer.toHexString(RefSystem.identityHashCode(ptr)), length, deviceId,
@@ -150,17 +175,35 @@ public enum MemoryType {
     }), length);
   }
 
+  /**
+   * If enabled memory type.
+   *
+   * @return the memory type
+   */
   @Nonnull
   public MemoryType ifEnabled() {
     return this;
   }
 
+  /**
+   * Purge double.
+   *
+   * @param device the device
+   * @return the double
+   */
   public double purge(final int device) {
     double clear = get(device).clear();
     logger.debug(RefString.format("Purged %e bytes from pool for %s (device %s)", clear, this, device));
     return clear;
   }
 
+  /**
+   * Alloc cached cuda pointer.
+   *
+   * @param size       the size
+   * @param cudaDevice the cuda device
+   * @return the cuda pointer
+   */
   public CudaPointer allocCached(final long size, @Nonnull final CudaDevice cudaDevice) {
     RecycleBin<ReferenceWrapper<CudaPointer>> recycleBin = get(cudaDevice.deviceId);
     cudaDevice.freeRef();
@@ -169,11 +212,30 @@ public enum MemoryType {
     return wrapper.unwrap();
   }
 
+  /**
+   * Alloc cuda pointer.
+   *
+   * @param size       the size
+   * @param cudaDevice the cuda device
+   * @return the cuda pointer
+   */
   @Nonnull
   public abstract CudaPointer alloc(final long size, final CudaDevice cudaDevice);
 
+  /**
+   * Free.
+   *
+   * @param ptr      the ptr
+   * @param deviceId the device id
+   */
   abstract void free(CudaPointer ptr, int deviceId);
 
+  /**
+   * Get recycle bin.
+   *
+   * @param device the device
+   * @return the recycle bin
+   */
   @Nullable
   protected RecycleBin<ReferenceWrapper<CudaPointer>> get(int device) {
     RefMap<Integer, RecycleBin<ReferenceWrapper<CudaPointer>>> temp_76_0002 = cache.computeIfAbsent(this,

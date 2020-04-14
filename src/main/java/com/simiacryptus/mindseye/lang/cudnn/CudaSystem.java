@@ -51,93 +51,323 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+/**
+ * The type Cuda system.
+ */
 public class CudaSystem extends ReferenceCountingBase {
 
+  /**
+   * The constant apiLog.
+   */
   public static final RefHashSet<RefConsumer<String>> apiLog = new RefHashSet<>();
+  /**
+   * The constant gpuGeneration.
+   */
   @Nonnull
   public static final AtomicInteger gpuGeneration = new AtomicInteger(0);
+  /**
+   * The constant logger.
+   */
   protected static final Logger logger = LoggerFactory.getLogger(CudaSystem.class);
+  /**
+   * The constant propertyCache.
+   */
   protected static final RefMap<Integer, cudaDeviceProp> propertyCache = new RefConcurrentHashMap<>();
+  /**
+   * The constant currentDeviceId.
+   */
   protected static final ThreadLocal<Integer> currentDeviceId = new ThreadLocal<Integer>();
+  /**
+   * The constant logThread.
+   */
   protected static final ExecutorService logThread = Executors
       .newSingleThreadExecutor(new ThreadFactoryBuilder().setDaemon(true).build());
+  /**
+   * The constant start.
+   */
   protected static final long start = RefSystem.nanoTime();
+  /**
+   * The constant createPoolingDescriptor_execution.
+   */
   protected static final DoubleStatistics createPoolingDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant createLRNDescriptor_execution.
+   */
   protected static final DoubleStatistics createLRNDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant cudaDeviceReset_execution.
+   */
   protected static final DoubleStatistics cudaDeviceReset_execution = new DoubleStatistics();
+  /**
+   * The constant cudaFree_execution.
+   */
   protected static final DoubleStatistics cudaFree_execution = new DoubleStatistics();
+  /**
+   * The constant cudaMalloc_execution.
+   */
   protected static final DoubleStatistics cudaMalloc_execution = new DoubleStatistics();
+  /**
+   * The constant cudaDeviceSynchronize_execution.
+   */
   protected static final DoubleStatistics cudaDeviceSynchronize_execution = new DoubleStatistics();
+  /**
+   * The constant cudaSetDeviceFlags_execution.
+   */
   protected static final DoubleStatistics cudaSetDeviceFlags_execution = new DoubleStatistics();
+  /**
+   * The constant cudaMallocManaged_execution.
+   */
   protected static final DoubleStatistics cudaMallocManaged_execution = new DoubleStatistics();
+  /**
+   * The constant cudaHostAlloc_execution.
+   */
   protected static final DoubleStatistics cudaHostAlloc_execution = new DoubleStatistics();
+  /**
+   * The constant cudaFreeHost_execution.
+   */
   protected static final DoubleStatistics cudaFreeHost_execution = new DoubleStatistics();
+  /**
+   * The constant cudaDeviceGetLimit_execution.
+   */
   protected static final DoubleStatistics cudaDeviceGetLimit_execution = new DoubleStatistics();
+  /**
+   * The constant cudaDeviceSetLimit_execution.
+   */
   protected static final DoubleStatistics cudaDeviceSetLimit_execution = new DoubleStatistics();
+  /**
+   * The constant cudaMemcpyAsync_execution.
+   */
   protected static final DoubleStatistics cudaMemcpyAsync_execution = new DoubleStatistics();
+  /**
+   * The constant cudaMemcpy_execution.
+   */
   protected static final DoubleStatistics cudaMemcpy_execution = new DoubleStatistics();
+  /**
+   * The constant cudaMemset_execution.
+   */
   protected static final DoubleStatistics cudaMemset_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnSoftmaxForward_execution.
+   */
   protected static final DoubleStatistics cudnnSoftmaxForward_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnSoftmaxBackward_execution.
+   */
   protected static final DoubleStatistics cudnnSoftmaxBackward_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnCreateReduceTensorDescriptor_execution.
+   */
   protected static final DoubleStatistics cudnnCreateReduceTensorDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnSetReduceTensorDescriptor_execution.
+   */
   protected static final DoubleStatistics cudnnSetReduceTensorDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnActivationBackward_execution.
+   */
   protected static final DoubleStatistics cudnnActivationBackward_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnActivationForward_execution.
+   */
   protected static final DoubleStatistics cudnnActivationForward_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnAddTensor_execution.
+   */
   protected static final DoubleStatistics cudnnAddTensor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnConvolutionBackwardBias_execution.
+   */
   protected static final DoubleStatistics cudnnConvolutionBackwardBias_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnConvolutionBackwardData_execution.
+   */
   protected static final DoubleStatistics cudnnConvolutionBackwardData_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnConvolutionBackwardFilter_execution.
+   */
   protected static final DoubleStatistics cudnnConvolutionBackwardFilter_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnConvolutionForward_execution.
+   */
   protected static final DoubleStatistics cudnnConvolutionForward_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnConvolutionBiasActivationForward_execution.
+   */
   protected static final DoubleStatistics cudnnConvolutionBiasActivationForward_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnDestroyActivationDescriptor_execution.
+   */
   protected static final DoubleStatistics cudnnDestroyActivationDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnDestroyConvolutionDescriptor_execution.
+   */
   protected static final DoubleStatistics cudnnDestroyConvolutionDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnDestroyFilterDescriptor_execution.
+   */
   protected static final DoubleStatistics cudnnDestroyFilterDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnDestroyOpTensorDescriptor_execution.
+   */
   protected static final DoubleStatistics cudnnDestroyOpTensorDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnDestroyPoolingDescriptor_execution.
+   */
   protected static final DoubleStatistics cudnnDestroyPoolingDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnDestroyTensorDescriptor_execution.
+   */
   protected static final DoubleStatistics cudnnDestroyTensorDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnGetPoolingNdForwardOutputDim_execution.
+   */
   protected static final DoubleStatistics cudnnGetPoolingNdForwardOutputDim_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnOpTensor_execution.
+   */
   protected static final DoubleStatistics cudnnOpTensor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnReduceTensor_execution.
+   */
   protected static final DoubleStatistics cudnnReduceTensor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnPoolingBackward_execution.
+   */
   protected static final DoubleStatistics cudnnPoolingBackward_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnPoolingForward_execution.
+   */
   protected static final DoubleStatistics cudnnPoolingForward_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnSetLRNDescriptor_execution.
+   */
   protected static final DoubleStatistics cudnnSetLRNDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnCreateLRNDescriptor_execution.
+   */
   protected static final DoubleStatistics cudnnCreateLRNDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnDestroyLRNDescriptor_execution.
+   */
   protected static final DoubleStatistics cudnnDestroyLRNDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnLRNCrossChannelForward_execution.
+   */
   protected static final DoubleStatistics cudnnLRNCrossChannelForward_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnLRNCrossChannelBackward_execution.
+   */
   protected static final DoubleStatistics cudnnLRNCrossChannelBackward_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnTransformTensor_execution.
+   */
   protected static final DoubleStatistics cudnnTransformTensor_execution = new DoubleStatistics();
+  /**
+   * The constant cudnnSetTensor_execution.
+   */
   protected static final DoubleStatistics cudnnSetTensor_execution = new DoubleStatistics();
+  /**
+   * The constant deviceCount_execution.
+   */
   protected static final DoubleStatistics deviceCount_execution = new DoubleStatistics();
+  /**
+   * The constant setDevice_execution.
+   */
   protected static final DoubleStatistics setDevice_execution = new DoubleStatistics();
+  /**
+   * The constant getDeviceProperties_execution.
+   */
   protected static final DoubleStatistics getDeviceProperties_execution = new DoubleStatistics();
+  /**
+   * The constant getOutputDims_execution.
+   */
   protected static final DoubleStatistics getOutputDims_execution = new DoubleStatistics();
+  /**
+   * The constant newActivationDescriptor_execution.
+   */
   protected static final DoubleStatistics newActivationDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant newConvolutionNdDescriptor_execution.
+   */
   protected static final DoubleStatistics newConvolutionNdDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant newConvolutions2dDescriptor_execution.
+   */
   protected static final DoubleStatistics newConvolutions2dDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant newFilterDescriptor_execution.
+   */
   protected static final DoubleStatistics newFilterDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant newOpDescriptor_execution.
+   */
   protected static final DoubleStatistics newOpDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant newTensorDescriptor_execution.
+   */
   protected static final DoubleStatistics newTensorDescriptor_execution = new DoubleStatistics();
+  /**
+   * The constant allocateBackwardDataWorkspace_execution.
+   */
   protected static final DoubleStatistics allocateBackwardDataWorkspace_execution = new DoubleStatistics();
+  /**
+   * The constant allocateBackwardFilterWorkspace_execution.
+   */
   protected static final DoubleStatistics allocateBackwardFilterWorkspace_execution = new DoubleStatistics();
+  /**
+   * The constant allocateForwardWorkspace_execution.
+   */
   protected static final DoubleStatistics allocateForwardWorkspace_execution = new DoubleStatistics();
+  /**
+   * The constant getBackwardDataAlgorithm_execution.
+   */
   protected static final DoubleStatistics getBackwardDataAlgorithm_execution = new DoubleStatistics();
+  /**
+   * The constant getBackwardFilterAlgorithm_execution.
+   */
   protected static final DoubleStatistics getBackwardFilterAlgorithm_execution = new DoubleStatistics();
+  /**
+   * The constant cudaStreamCreate_execution.
+   */
   protected static final DoubleStatistics cudaStreamCreate_execution = new DoubleStatistics();
+  /**
+   * The constant cudaStreamDestroy_execution.
+   */
   protected static final DoubleStatistics cudaStreamDestroy_execution = new DoubleStatistics();
+  /**
+   * The constant cudaStreamSynchronize_execution.
+   */
   protected static final DoubleStatistics cudaStreamSynchronize_execution = new DoubleStatistics();
+  /**
+   * The constant getForwardAlgorithm_execution.
+   */
   protected static final DoubleStatistics getForwardAlgorithm_execution = new DoubleStatistics();
+  /**
+   * The constant handlePools.
+   */
   protected static final RefConcurrentHashMap<Integer, ResourcePool<CudnnHandle>> handlePools = new RefConcurrentHashMap<>();
   private static final Map<Integer, Long> syncTimes = new HashMap<>();
   private static final long COPY_BLOCK_SIZE = Long.MAX_VALUE;
   private static volatile Integer cachedDeviceCount = init();
   private static volatile StaticResourcePool<CudnnHandle> pool;
+  /**
+   * The Execution thread.
+   */
   protected final ExecutorService executionThread = CoreSettings.INSTANCE().singleThreaded
       ? MoreExecutors.newDirectExecutorService()
       : Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat(toString()).build());
 
+  /**
+   * Instantiates a new Cuda system.
+   */
   protected CudaSystem() {
   }
 
+  /**
+   * Gets cached device count.
+   *
+   * @return the cached device count
+   */
   public static int getCachedDeviceCount() {
     if (null == cachedDeviceCount) {
       synchronized (CudaSystem.class) {
@@ -161,6 +391,11 @@ public class CudaSystem extends ReferenceCountingBase {
     return deviceCount;
   }
 
+  /**
+   * Gets execution statistics.
+   *
+   * @return the execution statistics
+   */
   @Nonnull
   @RefIgnore
   public static HashMap<CharSequence, Map<CharSequence, CharSequence>> getExecutionStatistics() {
@@ -227,14 +462,29 @@ public class CudaSystem extends ReferenceCountingBase {
     return map;
   }
 
+  /**
+   * Gets thread device id.
+   *
+   * @return the thread device id
+   */
   public static Integer getThreadDeviceId() {
     return CudaSystem.currentDeviceId.get();
   }
 
+  /**
+   * Is enabled boolean.
+   *
+   * @return the boolean
+   */
   public static boolean isEnabled() {
     return 0 < getCachedDeviceCount();
   }
 
+  /**
+   * Print header.
+   *
+   * @param out the out
+   */
   public static void printHeader(@Nonnull PrintStream out) {
     @Nonnull
     int[] runtimeVersion = {0};
@@ -273,6 +523,11 @@ public class CudaSystem extends ReferenceCountingBase {
     });
   }
 
+  /**
+   * Cuda device reset int.
+   *
+   * @return the int
+   */
   public static int cudaDeviceReset() {
     long startTime = RefSystem.nanoTime();
     final int result = JCuda.cudaDeviceReset();
@@ -282,6 +537,13 @@ public class CudaSystem extends ReferenceCountingBase {
     return result;
   }
 
+  /**
+   * Cuda malloc int.
+   *
+   * @param devPtr the dev ptr
+   * @param size   the size
+   * @return the int
+   */
   public static int cudaMalloc(final CudaPointer devPtr, final long size) {
     long startTime = RefSystem.nanoTime();
     final int result = JCuda.cudaMalloc(devPtr, size);
@@ -291,6 +553,14 @@ public class CudaSystem extends ReferenceCountingBase {
     return result;
   }
 
+  /**
+   * Cuda malloc managed int.
+   *
+   * @param devPtr the dev ptr
+   * @param size   the size
+   * @param flags  the flags
+   * @return the int
+   */
   public static int cudaMallocManaged(final CudaPointer devPtr, final long size, int flags) {
     long startTime = RefSystem.nanoTime();
     final int result = JCuda.cudaMallocManaged(devPtr, size, flags);
@@ -300,6 +570,12 @@ public class CudaSystem extends ReferenceCountingBase {
     return result;
   }
 
+  /**
+   * Cuda set device flags int.
+   *
+   * @param flags the flags
+   * @return the int
+   */
   public static int cudaSetDeviceFlags(int flags) {
     long startTime = RefSystem.nanoTime();
     final int result = JCuda.cudaSetDeviceFlags(flags);
@@ -309,6 +585,14 @@ public class CudaSystem extends ReferenceCountingBase {
     return result;
   }
 
+  /**
+   * Cuda host alloc int.
+   *
+   * @param devPtr the dev ptr
+   * @param size   the size
+   * @param flags  the flags
+   * @return the int
+   */
   public static int cudaHostAlloc(final CudaPointer devPtr, final long size, int flags) {
     long startTime = RefSystem.nanoTime();
     final int result = JCuda.cudaHostAlloc(devPtr, size, flags);
@@ -318,6 +602,11 @@ public class CudaSystem extends ReferenceCountingBase {
     return result;
   }
 
+  /**
+   * Cuda free host.
+   *
+   * @param devPtr the dev ptr
+   */
   public static void cudaFreeHost(final CudaPointer devPtr) {
     long startTime = RefSystem.nanoTime();
     final int result = JCuda.cudaFreeHost(devPtr);
@@ -326,6 +615,12 @@ public class CudaSystem extends ReferenceCountingBase {
     handle(result);
   }
 
+  /**
+   * Cuda device get limit long.
+   *
+   * @param limit the limit
+   * @return the long
+   */
   public static long cudaDeviceGetLimit(final int limit) {
     long startTime = RefSystem.nanoTime();
     @Nonnull
@@ -336,6 +631,12 @@ public class CudaSystem extends ReferenceCountingBase {
     return pValue[0];
   }
 
+  /**
+   * Cuda device set limit.
+   *
+   * @param limit the limit
+   * @param value the value
+   */
   public static void cudaDeviceSetLimit(final int limit, long value) {
     long startTime = RefSystem.nanoTime();
     final int result = JCuda.cudaDeviceSetLimit(limit, value);
@@ -344,6 +645,14 @@ public class CudaSystem extends ReferenceCountingBase {
     handle(result);
   }
 
+  /**
+   * Cuda memcpy.
+   *
+   * @param dst                 the dst
+   * @param src                 the src
+   * @param count               the count
+   * @param cudaMemcpyKind_kind the cuda memcpy kind kind
+   */
   public static void cudaMemcpy(@Nonnull final CudaPointer dst, @Nonnull final CudaPointer src, final long count,
                                 final int cudaMemcpyKind_kind) {
     long startTime = RefSystem.nanoTime();
@@ -353,6 +662,15 @@ public class CudaSystem extends ReferenceCountingBase {
     handle(result);
   }
 
+  /**
+   * Cuda memcpy async.
+   *
+   * @param dst                 the dst
+   * @param src                 the src
+   * @param count               the count
+   * @param cudaMemcpyKind_kind the cuda memcpy kind kind
+   * @param stream              the stream
+   */
   public static void cudaMemcpyAsync(final CudaPointer dst, final CudaPointer src, final long count,
                                      final int cudaMemcpyKind_kind, cudaStream_t stream) {
     long startTime = RefSystem.nanoTime();
@@ -362,6 +680,11 @@ public class CudaSystem extends ReferenceCountingBase {
     handle(result);
   }
 
+  /**
+   * Cuda stream create cuda resource.
+   *
+   * @return the cuda resource
+   */
   @Nonnull
   public static CudaResource<cudaStream_t> cudaStreamCreate() {
     long startTime = RefSystem.nanoTime();
@@ -374,6 +697,12 @@ public class CudaSystem extends ReferenceCountingBase {
     return new CudaStream(stream);
   }
 
+  /**
+   * Cuda stream destroy int.
+   *
+   * @param stream the stream
+   * @return the int
+   */
   public static int cudaStreamDestroy(cudaStream_t stream) {
     long startTime = RefSystem.nanoTime();
     int result = JCuda.cudaStreamDestroy(stream);
@@ -383,6 +712,11 @@ public class CudaSystem extends ReferenceCountingBase {
     return result;
   }
 
+  /**
+   * Cuda stream synchronize.
+   *
+   * @param stream the stream
+   */
   public static void cudaStreamSynchronize(cudaStream_t stream) {
     long startTime = RefSystem.nanoTime();
     int result = JCuda.cudaStreamSynchronize(stream);
@@ -391,6 +725,13 @@ public class CudaSystem extends ReferenceCountingBase {
     handle(result);
   }
 
+  /**
+   * Cuda memset.
+   *
+   * @param mem   the mem
+   * @param c     the c
+   * @param count the count
+   */
   public static void cudaMemset(final CudaPointer mem, final int c, final long count) {
     long startTime = RefSystem.nanoTime();
     final int result = JCuda.cudaMemset(mem, c, count);
@@ -400,6 +741,12 @@ public class CudaSystem extends ReferenceCountingBase {
     handle(result);
   }
 
+  /**
+   * Cudnn destroy activation descriptor int.
+   *
+   * @param activationDesc the activation desc
+   * @return the int
+   */
   public static int cudnnDestroyActivationDescriptor(final cudnnActivationDescriptor activationDesc) {
     long startTime = RefSystem.nanoTime();
     final int result = JCudnn.cudnnDestroyActivationDescriptor(activationDesc);
@@ -409,6 +756,12 @@ public class CudaSystem extends ReferenceCountingBase {
     return result;
   }
 
+  /**
+   * Cudnn destroy convolution descriptor int.
+   *
+   * @param convDesc the conv desc
+   * @return the int
+   */
   public static int cudnnDestroyConvolutionDescriptor(final cudnnConvolutionDescriptor convDesc) {
     long startTime = RefSystem.nanoTime();
     final int result = JCudnn.cudnnDestroyConvolutionDescriptor(convDesc);
@@ -418,6 +771,12 @@ public class CudaSystem extends ReferenceCountingBase {
     return result;
   }
 
+  /**
+   * Cudnn destroy filter descriptor int.
+   *
+   * @param filterDesc the filter desc
+   * @return the int
+   */
   public static int cudnnDestroyFilterDescriptor(final cudnnFilterDescriptor filterDesc) {
     long startTime = RefSystem.nanoTime();
     final int result = JCudnn.cudnnDestroyFilterDescriptor(filterDesc);
@@ -427,6 +786,12 @@ public class CudaSystem extends ReferenceCountingBase {
     return result;
   }
 
+  /**
+   * Cudnn destroy op tensor descriptor int.
+   *
+   * @param opTensorDesc the op tensor desc
+   * @return the int
+   */
   public static int cudnnDestroyOpTensorDescriptor(final cudnnOpTensorDescriptor opTensorDesc) {
     long startTime = RefSystem.nanoTime();
     final int result = JCudnn.cudnnDestroyOpTensorDescriptor(opTensorDesc);
@@ -436,6 +801,12 @@ public class CudaSystem extends ReferenceCountingBase {
     return result;
   }
 
+  /**
+   * Cudnn destroy pooling descriptor int.
+   *
+   * @param poolingDesc the pooling desc
+   * @return the int
+   */
   public static int cudnnDestroyPoolingDescriptor(final cudnnPoolingDescriptor poolingDesc) {
     long startTime = RefSystem.nanoTime();
     final int result = JCudnn.cudnnDestroyPoolingDescriptor(poolingDesc);
@@ -445,6 +816,12 @@ public class CudaSystem extends ReferenceCountingBase {
     return result;
   }
 
+  /**
+   * Cudnn destroy tensor descriptor int.
+   *
+   * @param tensorDesc the tensor desc
+   * @return the int
+   */
   public static int cudnnDestroyTensorDescriptor(final cudnnTensorDescriptor tensorDesc) {
     long startTime = RefSystem.nanoTime();
     final int result = JCudnn.cudnnDestroyTensorDescriptor(tensorDesc);
@@ -454,6 +831,15 @@ public class CudaSystem extends ReferenceCountingBase {
     return result;
   }
 
+  /**
+   * Cudnn get pooling nd forward output dim int.
+   *
+   * @param poolingDesc      the pooling desc
+   * @param inputTensorDesc  the input tensor desc
+   * @param nbDims           the nb dims
+   * @param outputTensorDimA the output tensor dim a
+   * @return the int
+   */
   public static int cudnnGetPoolingNdForwardOutputDim(final cudnnPoolingDescriptor poolingDesc,
                                                       final cudnnTensorDescriptor inputTensorDesc, final int nbDims, final int[] outputTensorDimA) {
     long startTime = RefSystem.nanoTime();
@@ -465,6 +851,11 @@ public class CudaSystem extends ReferenceCountingBase {
     return result;
   }
 
+  /**
+   * Device count int.
+   *
+   * @return the int
+   */
   public static int deviceCount() {
     long startTime = RefSystem.nanoTime();
     @Nonnull final int[] deviceCount = new int[1];
@@ -475,6 +866,11 @@ public class CudaSystem extends ReferenceCountingBase {
     return deviceCount[0];
   }
 
+  /**
+   * Handle.
+   *
+   * @param returnCode the return code
+   */
   public static void handle(final int returnCode) {
     if (returnCode != cudnnStatus.CUDNN_STATUS_SUCCESS) {
       CudaError cudaError = new CudaError("returnCode = " + cudnnStatus.stringFor(returnCode));
@@ -483,6 +879,14 @@ public class CudaSystem extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Get output dims int [ ].
+   *
+   * @param srcTensorDesc the src tensor desc
+   * @param filterDesc    the filter desc
+   * @param convDesc      the conv desc
+   * @return the int [ ]
+   */
   @Nonnull
   public static int[] getOutputDims(final cudnnTensorDescriptor srcTensorDesc, final cudnnFilterDescriptor filterDesc,
                                     final cudnnConvolutionDescriptor convDesc) {
@@ -497,15 +901,32 @@ public class CudaSystem extends ReferenceCountingBase {
     return tensorOuputDims;
   }
 
+  /**
+   * Add log.
+   *
+   * @param log the log
+   */
   public static void addLog(@Nonnull PrintStream log) {
     printHeader(log);
     apiLog.add(s -> log.println(s));
   }
 
+  /**
+   * Add log.
+   *
+   * @param log the log
+   */
   public static void addLog(@Nonnull RefConsumer<String> log) {
     apiLog.add(log);
   }
 
+  /**
+   * Log.
+   *
+   * @param method the method
+   * @param result the result
+   * @param args   the args
+   */
   public static void log(final CharSequence method, @RefAware final Object result, @Nullable @RefAware final Object[] args) {
     if (CudaSystem.apiLog.isEmpty()) {
       RefUtil.freeRef(result);
@@ -532,11 +953,23 @@ public class CudaSystem extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Is thread device id boolean.
+   *
+   * @param deviceId the device id
+   * @return the boolean
+   */
   public static boolean isThreadDeviceId(int deviceId) {
     Integer integer = getThreadDeviceId();
     return integer != null && deviceId == integer;
   }
 
+  /**
+   * With device.
+   *
+   * @param deviceId the device id
+   * @param fn       the fn
+   */
   public static void withDevice(int deviceId, @Nonnull @RefAware final RefConsumer<CudnnHandle> fn) {
     CudnnHandle threadlocal = CudnnHandle.threadContext.get();
     final Integer incumbantDevice = getThreadDeviceId();
@@ -569,6 +1002,14 @@ public class CudaSystem extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * With device t.
+   *
+   * @param <T>      the type parameter
+   * @param deviceId the device id
+   * @param fn       the fn
+   * @return the t
+   */
   public static <T> T withDevice(int deviceId, @Nonnull RefFunction<CudnnHandle, T> fn) {
     CudnnHandle threadlocal = CudnnHandle.threadContext.get();
     final Integer incumbantDevice = getThreadDeviceId();
@@ -601,6 +1042,12 @@ public class CudaSystem extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Run.
+   *
+   * @param fn    the fn
+   * @param hints the hints
+   */
   public static void run(@Nonnull @RefAware final RefConsumer<CudnnHandle> fn, @Nonnull @RefAware Object... hints) {
     CudnnHandle threadlocal = CudnnHandle.threadContext.get();
     final Integer incumbantDevice = getThreadDeviceId();
@@ -635,6 +1082,14 @@ public class CudaSystem extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Run t.
+   *
+   * @param <T>   the type parameter
+   * @param fn    the fn
+   * @param hints the hints
+   * @return the t
+   */
   public static <T> T run(@Nonnull @RefAware final RefFunction<CudnnHandle, T> fn, @Nonnull @RefAware Object... hints) {
     CudnnHandle threadLocal = CudnnHandle.threadContext.get();
     final Integer incumbentDevice = getThreadDeviceId();
@@ -671,6 +1126,12 @@ public class CudaSystem extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Choose device int.
+   *
+   * @param hints the hints
+   * @return the int
+   */
   public static int chooseDevice(@Nonnull @RefAware final Object[] hints) {
     RefSet<Integer> devices = RefArrays.stream(hints).map(hint -> {
       try {
@@ -721,6 +1182,12 @@ public class CudaSystem extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Synchronize.
+   *
+   * @param time   the time
+   * @param device the device
+   */
   public static void synchronize(long time, int device) {
     long startTime = RefSystem.nanoTime();
     Long val = syncTimes.get(device);
@@ -741,6 +1208,11 @@ public class CudaSystem extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Cuda device synchronize long.
+   *
+   * @return the long
+   */
   public static long cudaDeviceSynchronize() {
     long startTime = RefSystem.nanoTime();
     final int result = JCuda.cudaDeviceSynchronize();
@@ -751,6 +1223,12 @@ public class CudaSystem extends ReferenceCountingBase {
     return startTime;
   }
 
+  /**
+   * Gets pool.
+   *
+   * @param deviceId the device id
+   * @return the pool
+   */
   @NotNull
   public static ResourcePool<CudnnHandle> getPool(final int deviceId) {
     assert deviceId >= 0;
@@ -759,6 +1237,11 @@ public class CudaSystem extends ReferenceCountingBase {
     return pool;
   }
 
+  /**
+   * Init int.
+   *
+   * @return the int
+   */
   static int init() {
     if (CudaSettings.INSTANCE().disable) {
       CudaDevice.logger.warn("Disabled CudaSystem");
@@ -770,6 +1253,12 @@ public class CudaSystem extends ReferenceCountingBase {
     return deviceCount;
   }
 
+  /**
+   * To map hash map.
+   *
+   * @param obj the obj
+   * @return the hash map
+   */
   @Nonnull
   protected static HashMap<CharSequence, CharSequence> toMap(@Nonnull DoubleStatistics obj) {
     @Nonnull
@@ -784,6 +1273,12 @@ public class CudaSystem extends ReferenceCountingBase {
     return map;
   }
 
+  /**
+   * Render to log char sequence.
+   *
+   * @param obj the obj
+   * @return the char sequence
+   */
   protected static CharSequence renderToLog(final Object obj) {
     if (obj instanceof int[]) {
       if (((int[]) obj).length < 10) {
@@ -835,13 +1330,26 @@ public class CudaSystem extends ReferenceCountingBase {
   }
 
 
+  /**
+   * The interface Cuda device resource.
+   */
   public interface CudaDeviceResource {
+    /**
+     * Gets device id.
+     *
+     * @return the device id
+     */
     int getDeviceId();
   }
 
   private static class HandlePool extends ResourcePool<CudnnHandle> {
     private final Integer deviceId;
 
+    /**
+     * Instantiates a new Handle pool.
+     *
+     * @param deviceId the device id
+     */
     public HandlePool(Integer deviceId) {
       super(CudaSettings.INSTANCE().handlesPerDevice);
       this.deviceId = deviceId;

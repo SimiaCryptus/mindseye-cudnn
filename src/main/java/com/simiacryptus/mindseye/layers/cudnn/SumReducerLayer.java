@@ -36,20 +36,36 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
+/**
+ * The type Sum reducer layer.
+ */
 @SuppressWarnings("serial")
 public class SumReducerLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
+  /**
+   * Instantiates a new Sum reducer layer.
+   */
   public SumReducerLayer() {
     super();
   }
 
+  /**
+   * Instantiates a new Sum reducer layer.
+   *
+   * @param json the json
+   */
   protected SumReducerLayer(@Nonnull final JsonObject json) {
     super(json);
     precision = Precision.valueOf(json.get("precision").getAsString());
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     throw new RuntimeException("Not Implemented");
@@ -65,6 +81,13 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * From json sum reducer layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the sum reducer layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static SumReducerLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -159,6 +182,13 @@ public class SumReducerLayer extends LayerBase implements MultiPrecision {
     private final int[] inputSize;
     private Result.Accumulator accumulator;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param length      the length
+     * @param inputSize   the input size
+     * @param accumulator the accumulator
+     */
     public Accumulator(int length, int[] inputSize, Result.Accumulator accumulator) {
       this.length = length;
       this.inputSize = inputSize;

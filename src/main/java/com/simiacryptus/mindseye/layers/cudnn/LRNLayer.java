@@ -38,6 +38,9 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Lrn layer.
+ */
 @SuppressWarnings("serial")
 public class LRNLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(LRNLayer.class);
@@ -51,10 +54,23 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
   private LRNLayer() {
   }
 
+  /**
+   * Instantiates a new Lrn layer.
+   *
+   * @param width the width
+   */
   public LRNLayer(int width) {
     this(width, 1e-4, 0.75, 2.0);
   }
 
+  /**
+   * Instantiates a new Lrn layer.
+   *
+   * @param width the width
+   * @param alpha the alpha
+   * @param beta  the beta
+   * @param k     the k
+   */
   public LRNLayer(int width, double alpha, double beta, double k) {
     this.setWidth(width);
     setAlpha(alpha);
@@ -62,6 +78,11 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
     setK(k);
   }
 
+  /**
+   * Instantiates a new Lrn layer.
+   *
+   * @param json the json
+   */
   protected LRNLayer(@Nonnull final JsonObject json) {
     super(json);
     setWidth(json.get("width").getAsInt());
@@ -78,31 +99,66 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
     assert 0 < getAlpha();
   }
 
+  /**
+   * Gets alpha.
+   *
+   * @return the alpha
+   */
   public double getAlpha() {
     return alpha;
   }
 
+  /**
+   * Sets alpha.
+   *
+   * @param alpha the alpha
+   */
   public void setAlpha(double alpha) {
     this.alpha = alpha;
   }
 
+  /**
+   * Gets beta.
+   *
+   * @return the beta
+   */
   public double getBeta() {
     return beta;
   }
 
+  /**
+   * Sets beta.
+   *
+   * @param beta the beta
+   */
   public void setBeta(double beta) {
     this.beta = beta;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return null;
   }
 
+  /**
+   * Gets k.
+   *
+   * @return the k
+   */
   public double getK() {
     return k;
   }
 
+  /**
+   * Sets k.
+   *
+   * @param k the k
+   */
   public void setK(double k) {
     this.k = k;
   }
@@ -117,14 +173,31 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Gets width.
+   *
+   * @return the width
+   */
   public int getWidth() {
     return width;
   }
 
+  /**
+   * Sets width.
+   *
+   * @param width the width
+   */
   public void setWidth(int width) {
     this.width = width;
   }
 
+  /**
+   * From json lrn layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the lrn layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static LRNLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -238,6 +311,22 @@ public class LRNLayer extends LayerBase implements MultiPrecision {
     private Result.Accumulator accumulator;
     private boolean alive;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param outputData  the output data
+     * @param inputData   the input data
+     * @param length      the length
+     * @param inputSize   the input size
+     * @param inputDims   the input dims
+     * @param precision   the precision
+     * @param width       the width
+     * @param alpha       the alpha
+     * @param beta        the beta
+     * @param k           the k
+     * @param accumulator the accumulator
+     * @param alive       the alive
+     */
     public Accumulator(CudaTensor outputData, TensorList inputData, int length, int[] inputSize, int inputDims, Precision precision, int width, double alpha, double beta, double k, Result.Accumulator accumulator, boolean alive) {
       this.outputData = outputData;
       this.inputData = inputData;

@@ -24,6 +24,9 @@ import com.simiacryptus.mindseye.test.LayerTestBase;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Cudnn layer test base.
+ */
 public abstract class CudnnLayerTestBase extends LayerTestBase {
 
 //  @Override

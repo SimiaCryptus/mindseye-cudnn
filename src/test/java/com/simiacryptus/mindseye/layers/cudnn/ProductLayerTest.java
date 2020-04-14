@@ -26,10 +26,21 @@ import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Product layer test.
+ */
 public abstract class ProductLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Precision.
+   */
   final Precision precision;
 
+  /**
+   * Instantiates a new Product layer test.
+   *
+   * @param precision the precision
+   */
   public ProductLayerTest(final Precision precision) {
     this.precision = precision;
   }
@@ -56,7 +67,13 @@ public abstract class ProductLayerTest extends CudnnLayerTestBase {
     return new int[][]{{4, 4, 3}, {1, 1, 3}};
   }
 
+  /**
+   * The type Mask.
+   */
   public static class Mask extends ProductLayerTest {
+    /**
+     * Instantiates a new Mask.
+     */
     public Mask() {
       super(Precision.Double);
     }
@@ -75,14 +92,26 @@ public abstract class ProductLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Double.
+   */
   public static class Double extends ProductLayerTest {
+    /**
+     * Instantiates a new Double.
+     */
     public Double() {
       super(Precision.Double);
     }
 
   }
 
+  /**
+   * The type Float.
+   */
   public static class Float extends ProductLayerTest {
+    /**
+     * Instantiates a new Float.
+     */
     public Float() {
       super(Precision.Float);
     }

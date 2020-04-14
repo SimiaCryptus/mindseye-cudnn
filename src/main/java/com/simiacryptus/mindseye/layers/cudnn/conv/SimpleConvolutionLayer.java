@@ -40,9 +40,15 @@ import java.util.UUID;
 import java.util.function.DoubleSupplier;
 import java.util.function.ToDoubleFunction;
 
+/**
+ * The type Simple convolution layer.
+ */
 @SuppressWarnings("serial")
 public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision {
 
+  /**
+   * The Log.
+   */
   static final Logger log = LoggerFactory.getLogger(SimpleConvolutionLayer.class);
   @Nonnull
   private final Tensor kernel;
@@ -54,14 +60,30 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
   private int strideX = 1;
   private int strideY = 1;
 
+  /**
+   * Instantiates a new Simple convolution layer.
+   */
   protected SimpleConvolutionLayer() {
     this(null);
   }
 
+  /**
+   * Instantiates a new Simple convolution layer.
+   *
+   * @param width  the width
+   * @param height the height
+   * @param bands  the bands
+   */
   public SimpleConvolutionLayer(final int width, final int height, final int bands) {
     this(new Tensor(width, height, bands));
   }
 
+  /**
+   * Instantiates a new Simple convolution layer.
+   *
+   * @param json      the json
+   * @param resources the resources
+   */
   protected SimpleConvolutionLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
     super(json);
     kernel = Tensor.fromJson(json.get("filter"), resources);
@@ -73,6 +95,11 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     ObjectRegistry.register(addRef());
   }
 
+  /**
+   * Instantiates a new Simple convolution layer.
+   *
+   * @param kernel the kernel
+   */
   protected SimpleConvolutionLayer(@Nonnull final Tensor kernel) {
     super();
     @Nonnull
@@ -102,32 +129,70 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     ObjectRegistry.register(addRef());
   }
 
+  /**
+   * Instantiates a new Simple convolution layer.
+   *
+   * @param width       the width
+   * @param height      the height
+   * @param inputBands  the input bands
+   * @param outputBands the output bands
+   */
   public SimpleConvolutionLayer(int width, int height, int inputBands, int outputBands) {
     this(width, height, inputBands * outputBands);
   }
 
+  /**
+   * Gets kernel.
+   *
+   * @return the kernel
+   */
   @Nullable
   public Tensor getKernel() {
     return kernel.addRef();
   }
 
+  /**
+   * Get kernel dimensions int [ ].
+   *
+   * @return the int [ ]
+   */
   @Nonnull
   public int[] getKernelDimensions() {
     return kernel.getDimensions();
   }
 
+  /**
+   * Gets padding x.
+   *
+   * @return the padding x
+   */
   public int getPaddingX() {
     return paddingX;
   }
 
+  /**
+   * Sets padding x.
+   *
+   * @param paddingX the padding x
+   */
   public void setPaddingX(int paddingX) {
     this.paddingX = paddingX;
   }
 
+  /**
+   * Gets padding y.
+   *
+   * @return the padding y
+   */
   public int getPaddingY() {
     return paddingY;
   }
 
+  /**
+   * Sets padding y.
+   *
+   * @param paddingY the padding y
+   */
   public void setPaddingY(int paddingY) {
     this.paddingY = paddingY;
   }
@@ -143,32 +208,70 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     this.precision = precision;
   }
 
+  /**
+   * Gets stride x.
+   *
+   * @return the stride x
+   */
   public int getStrideX() {
     return strideX;
   }
 
+  /**
+   * Sets stride x.
+   *
+   * @param strideX the stride x
+   */
   public void setStrideX(int strideX) {
     this.strideX = strideX;
   }
 
+  /**
+   * Gets stride y.
+   *
+   * @return the stride y
+   */
   public int getStrideY() {
     return strideY;
   }
 
+  /**
+   * Sets stride y.
+   *
+   * @param strideY the stride y
+   */
   public void setStrideY(int strideY) {
     this.strideY = strideY;
   }
 
+  /**
+   * Sets weights log.
+   *
+   * @param f the f
+   */
   public void setWeightsLog(double f) {
     set(() -> Math.pow(10, f) * (Math.random() - 0.5));
   }
 
+  /**
+   * From json simple convolution layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the simple convolution layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static SimpleConvolutionLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new SimpleConvolutionLayer(json, rs);
   }
 
+  /**
+   * Reverse int [ ].
+   *
+   * @param array the array
+   * @return the int [ ]
+   */
   @Nonnull
   public static int[] reverse(@Nonnull int... array) {
     for (int i = 0; i < array.length / 2; i++) {
@@ -179,6 +282,23 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     return array;
   }
 
+  /**
+   * Bck cuda tensor list.
+   *
+   * @param precision        the precision
+   * @param strideX          the stride x
+   * @param strideY          the stride y
+   * @param gpu              the gpu
+   * @param paddingX         the padding x
+   * @param paddingY         the padding y
+   * @param inputLength      the input length
+   * @param inputDims        the input dims
+   * @param kernelDimensions the kernel dimensions
+   * @param outputSize       the output size
+   * @param delta            the delta
+   * @param filterPtr        the filter ptr
+   * @return the cuda tensor list
+   */
   @Nullable
   public static CudaTensorList bck(Precision precision, int strideX, int strideY, @Nonnull CudnnHandle gpu, int paddingX, int paddingY, int inputLength, @Nonnull int[] inputDims,
                                    int[] kernelDimensions, int[] outputSize, @Nullable TensorList delta, @Nonnull CudaMemory filterPtr) {
@@ -227,6 +347,23 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     }
   }
 
+  /**
+   * Fwd cuda tensor list.
+   *
+   * @param precision        the precision
+   * @param strideX          the stride x
+   * @param strideY          the stride y
+   * @param gpu              the gpu
+   * @param paddingX         the padding x
+   * @param paddingY         the padding y
+   * @param inputLength      the input length
+   * @param inputDims        the input dims
+   * @param kernelDimensions the kernel dimensions
+   * @param outputSize       the output size
+   * @param inputData        the input data
+   * @param filterPtr        the filter ptr
+   * @return the cuda tensor list
+   */
   @Nullable
   public static CudaTensorList fwd(Precision precision, int strideX, int strideY, @Nonnull CudnnHandle gpu, int paddingX, int paddingY, int inputLength, int[] inputDims,
                                    int[] kernelDimensions, int[] outputSize, @Nullable TensorList inputData, @Nonnull CudaMemory filterPtr) {
@@ -288,6 +425,16 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     }
   }
 
+  /**
+   * Gets forward algorithm.
+   *
+   * @param gpu                   the gpu
+   * @param inputTensor           the input tensor
+   * @param filterDescriptor      the filter descriptor
+   * @param convolutionDescriptor the convolution descriptor
+   * @param outputDescriptor      the output descriptor
+   * @return the forward algorithm
+   */
   public static int getForwardAlgorithm(@Nonnull final CudnnHandle gpu, @Nonnull final CudaTensor inputTensor,
                                         @Nonnull final CudaResource<cudnnFilterDescriptor> filterDescriptor,
                                         @Nonnull final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor,
@@ -304,6 +451,16 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     return gpuForwardAlgorithm;
   }
 
+  /**
+   * Gets backward filter algorithm.
+   *
+   * @param gpu                   the gpu
+   * @param deltaTensor           the delta tensor
+   * @param inputTensor           the input tensor
+   * @param filterDescriptor      the filter descriptor
+   * @param convolutionDescriptor the convolution descriptor
+   * @return the backward filter algorithm
+   */
   public static int getBackwardFilterAlgorithm(@Nonnull final CudnnHandle gpu, @Nonnull final CudaTensor deltaTensor,
                                                @Nonnull final CudaTensor inputTensor, @Nonnull final CudaResource<cudnnFilterDescriptor> filterDescriptor,
                                                @Nonnull final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor) {
@@ -318,6 +475,16 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     return backwardFilterAlgorithm;
   }
 
+  /**
+   * Gets backward data algorithm.
+   *
+   * @param gpu                   the gpu
+   * @param dyDescriptor          the dy descriptor
+   * @param filterDescriptor      the filter descriptor
+   * @param convolutionDescriptor the convolution descriptor
+   * @param dxDescriptor          the dx descriptor
+   * @return the backward data algorithm
+   */
   public static int getBackwardDataAlgorithm(@Nonnull final CudnnHandle gpu, final CudaDevice.CudaTensorDescriptor dyDescriptor,
                                              @Nullable final CudaResource<cudnnFilterDescriptor> filterDescriptor,
                                              @Nullable final CudaResource<cudnnConvolutionDescriptor> convolutionDescriptor,
@@ -456,6 +623,12 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     return new Result(data, accumulator, inputAlive || !isFrozen());
   }
 
+  /**
+   * Evict device data long.
+   *
+   * @param deviceId the device id
+   * @return the long
+   */
   public long evictDeviceData(final int deviceId) {
     synchronized (gpuFilters) {
       assert gpuFilters != null;
@@ -494,6 +667,12 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     return json;
   }
 
+  /**
+   * Get output size int [ ].
+   *
+   * @param inputSize the input size
+   * @return the int [ ]
+   */
   public int[] getOutputSize(final int... inputSize) {
     @Nonnull final int[] kernelSize = getKernelDimensions();
     if (kernelSize.length > inputSize.length) {
@@ -525,6 +704,11 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     }
   }
 
+  /**
+   * Set.
+   *
+   * @param f the f
+   */
   public void set(@Nonnull DoubleSupplier f) {
     kernel.coordStream(true).parallel().forEach(c -> {
       kernel.set(c, f.getAsDouble());
@@ -533,6 +717,11 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     gpuFilters.clear();
   }
 
+  /**
+   * Set.
+   *
+   * @param f the f
+   */
   public void set(@Nonnull ToDoubleFunction<Coordinate> f) {
     kernel.coordStream(true).parallel().forEach(c -> {
       kernel.set(c, f.applyAsDouble(c));
@@ -547,11 +736,22 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     return RefArrays.asList(kernel.getData());
   }
 
+  /**
+   * Sets padding xy.
+   *
+   * @param x the x
+   * @param y the y
+   */
   public void setPaddingXY(int x, int y) {
     setPaddingX(x);
     setPaddingY(y);
   }
 
+  /**
+   * Set.
+   *
+   * @param kernel the kernel
+   */
   public void set(@Nonnull Tensor kernel) {
     assert kernel.rms() > 0;
     this.kernel.set(kernel);
@@ -572,6 +772,12 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     return true;
   }
 
+  /**
+   * Sets stride xy.
+   *
+   * @param x the x
+   * @param y the y
+   */
   public void setStrideXY(int x, int y) {
     setStrideX(x);
     setStrideY(y);
@@ -633,6 +839,27 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
     private boolean frozen;
     private RefMap<Integer, CudaMemory> gpuFilters;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param precision        the precision
+     * @param strideX          the stride x
+     * @param strideY          the stride y
+     * @param inputData        the input data
+     * @param inputLength      the input length
+     * @param outputSize       the output size
+     * @param inputDims        the input dims
+     * @param kernelDimensions the kernel dimensions
+     * @param paddingY         the padding y
+     * @param paddingX         the padding x
+     * @param kernelLength     the kernel length
+     * @param kernel           the kernel
+     * @param alive            the alive
+     * @param accumulator      the accumulator
+     * @param id               the id
+     * @param frozen           the frozen
+     * @param gpuFilters       the gpu filters
+     */
     public Accumulator(Precision precision, int strideX, int strideY, TensorList inputData, int inputLength, int[] outputSize, int[] inputDims, int[] kernelDimensions, int paddingY, int paddingX, int kernelLength, Tensor kernel, boolean alive, Result.Accumulator accumulator, UUID id, boolean frozen, RefMap<Integer, CudaMemory> gpuFilters) {
       this.inputData = inputData;
       this.inputLength = inputLength;

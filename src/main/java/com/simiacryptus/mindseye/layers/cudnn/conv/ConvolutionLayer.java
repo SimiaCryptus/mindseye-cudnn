@@ -41,6 +41,9 @@ import java.util.function.DoubleSupplier;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.ToDoubleFunction;
 
+/**
+ * The type Convolution layer.
+ */
 @SuppressWarnings("serial")
 public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explodable {
 
@@ -57,10 +60,21 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private int batchBands = 0;
 
+  /**
+   * Instantiates a new Convolution layer.
+   */
   protected ConvolutionLayer() {
     this(1, 1, 1, 1);
   }
 
+  /**
+   * Instantiates a new Convolution layer.
+   *
+   * @param width       the width
+   * @param height      the height
+   * @param inputBands  the input bands
+   * @param outputBands the output bands
+   */
   public ConvolutionLayer(final int width, final int height, final int inputBands, final int outputBands) {
     super();
     assert 0 < width;
@@ -82,6 +96,12 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     setBatchBands((int) Math.sqrt(CudaSettings.INSTANCE().maxFilterElements / (width * height)));
   }
 
+  /**
+   * Instantiates a new Convolution layer.
+   *
+   * @param json      the json
+   * @param resources the resources
+   */
   protected ConvolutionLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
     super(json);
     this.kernel = Tensor.fromJson(json.get("filter"), resources);
@@ -104,25 +124,50 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     this.outputBands = json.get("outputBands").getAsInt();
   }
 
+  /**
+   * Gets batch bands.
+   *
+   * @return the batch bands
+   */
   public int getBatchBands() {
     return batchBands;
   }
 
+  /**
+   * Sets batch bands.
+   *
+   * @param batchBands the batch bands
+   */
   public void setBatchBands(int batchBands) {
     this.batchBands = batchBands;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return null;
     //    return this.as(com.simiacryptus.mindseye.layers.aparapi.ConvolutionLayer.class);
   }
 
+  /**
+   * Gets convolution params.
+   *
+   * @return the convolution params
+   */
   @Nonnull
   public ConvolutionParams getConvolutionParams() {
     return new ConvolutionParams(inputBands, outputBands, precision, strideX, strideY, paddingX, paddingY, getKernelDimensions());
   }
 
+  /**
+   * Gets exploded network.
+   *
+   * @return the exploded network
+   */
   @Nonnull
   public ExplodedConvolutionGrid getExplodedNetwork() {
     assertAlive();
@@ -138,11 +183,21 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     return grid;
   }
 
+  /**
+   * Gets kernel.
+   *
+   * @return the kernel
+   */
   @Nullable
   public Tensor getKernel() {
     return kernel.addRef();
   }
 
+  /**
+   * Get kernel dimensions int [ ].
+   *
+   * @return the int [ ]
+   */
   public int[] getKernelDimensions() {
     assert kernel != null;
     return kernel.getDimensions();
@@ -161,20 +216,40 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     }
   }
 
+  /**
+   * Gets padding x.
+   *
+   * @return the padding x
+   */
   @Nullable
   public Integer getPaddingX() {
     return paddingX;
   }
 
+  /**
+   * Sets padding x.
+   *
+   * @param paddingX the padding x
+   */
   public void setPaddingX(Integer paddingX) {
     this.paddingX = paddingX;
   }
 
+  /**
+   * Gets padding y.
+   *
+   * @return the padding y
+   */
   @Nullable
   public Integer getPaddingY() {
     return paddingY;
   }
 
+  /**
+   * Sets padding y.
+   *
+   * @param paddingY the padding y
+   */
   public void setPaddingY(Integer paddingY) {
     this.paddingY = paddingY;
   }
@@ -189,27 +264,59 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     this.precision = precision;
   }
 
+  /**
+   * Gets stride x.
+   *
+   * @return the stride x
+   */
   public int getStrideX() {
     return strideX;
   }
 
+  /**
+   * Sets stride x.
+   *
+   * @param strideX the stride x
+   */
   public void setStrideX(int strideX) {
     this.strideX = strideX;
   }
 
+  /**
+   * Gets stride y.
+   *
+   * @return the stride y
+   */
   public int getStrideY() {
     return strideY;
   }
 
+  /**
+   * Sets stride y.
+   *
+   * @param strideY the stride y
+   */
   public void setStrideY(int strideY) {
     this.strideY = strideY;
   }
 
+  /**
+   * Sets by coord.
+   *
+   * @param coordinateToDoubleFunction the coordinate to double function
+   */
   public void setByCoord(ToDoubleFunction<Coordinate> coordinateToDoubleFunction) {
     kernel.setByCoord(coordinateToDoubleFunction);
     assert kernel.rms() > 0;
   }
 
+  /**
+   * From json convolution layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the convolution layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ConvolutionLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -285,15 +392,30 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     return json;
   }
 
+  /**
+   * Set.
+   *
+   * @param f the f
+   */
   public void set(@Nonnull DoubleSupplier f) {
     set(i -> f.getAsDouble());
   }
 
+  /**
+   * Set.
+   *
+   * @param tensor the tensor
+   */
   public void set(@Nonnull Tensor tensor) {
     kernel.set(tensor);
     assert kernel.rms() > 0;
   }
 
+  /**
+   * Set.
+   *
+   * @param f the f
+   */
   public void set(@Nonnull IntToDoubleFunction f) {
     kernel.set(f);
     assert kernel.rms() > 0;
@@ -305,11 +427,23 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     return RefArrays.asList(kernel.getData());
   }
 
+  /**
+   * Sets stride xy.
+   *
+   * @param x the x
+   * @param y the y
+   */
   public void setStrideXY(int x, int y) {
     setStrideX(x);
     setStrideY(y);
   }
 
+  /**
+   * Sets padding xy.
+   *
+   * @param x the x
+   * @param y the y
+   */
   public void setPaddingXY(Integer x, Integer y) {
     setPaddingX(x);
     setPaddingY(y);
@@ -336,6 +470,15 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     private Result.Accumulator accumulator;
     private UUID id;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param kernel      the kernel
+     * @param grid        the grid
+     * @param frozen      the frozen
+     * @param accumulator the accumulator
+     * @param id          the id
+     */
     public Accumulator(Tensor kernel, ExplodedConvolutionGrid grid, boolean frozen, Result.Accumulator accumulator, UUID id) {
       this.kernel = kernel;
       this.grid = grid;

@@ -38,6 +38,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+/**
+ * The type Img modulus padding subnet layer.
+ */
 @SuppressWarnings("serial")
 public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgModulusPaddingSubnetLayer.class);
@@ -51,6 +54,15 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
   private ImgModulusPaddingSubnetLayer() {
   }
 
+  /**
+   * Instantiates a new Img modulus padding subnet layer.
+   *
+   * @param sizeX   the size x
+   * @param sizeY   the size y
+   * @param offsetX the offset x
+   * @param offsetY the offset y
+   * @param inner   the inner
+   */
   public ImgModulusPaddingSubnetLayer(int sizeX, int sizeY, int offsetX, int offsetY, Layer inner) {
     super(inner);
     this.sizeX = sizeX;
@@ -59,10 +71,23 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     this.offsetY = offsetY;
   }
 
+  /**
+   * Instantiates a new Img modulus padding subnet layer.
+   *
+   * @param sizeX the size x
+   * @param sizeY the size y
+   * @param inner the inner
+   */
   public ImgModulusPaddingSubnetLayer(int sizeX, int sizeY, Layer inner) {
     this(sizeX, sizeY, 0, 0, inner);
   }
 
+  /**
+   * Instantiates a new Img modulus padding subnet layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   */
   protected ImgModulusPaddingSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     sizeX = json.get("sizeX").getAsInt();
@@ -72,10 +97,20 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
+  /**
+   * Gets offset x.
+   *
+   * @return the offset x
+   */
   public int getOffsetX() {
     return offsetX;
   }
 
+  /**
+   * Sets offset x.
+   *
+   * @param offsetX the offset x
+   */
   public void setOffsetX(int offsetX) {
     this.offsetX = offsetX;
   }
@@ -90,6 +125,13 @@ public class ImgModulusPaddingSubnetLayer extends WrapperLayer implements MultiP
     this.precision = precision;
   }
 
+  /**
+   * From json img modulus padding subnet layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img modulus padding subnet layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgModulusPaddingSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {

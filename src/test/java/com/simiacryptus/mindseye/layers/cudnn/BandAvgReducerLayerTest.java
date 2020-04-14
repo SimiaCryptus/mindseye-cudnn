@@ -26,13 +26,27 @@ import com.simiacryptus.mindseye.test.unit.SingleDerivativeTester;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Band avg reducer layer test.
+ */
 public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Precision.
+   */
   final Precision precision;
   private final double alpha;
   private final int smallSize;
   private final int largeSize;
 
+  /**
+   * Instantiates a new Band avg reducer layer test.
+   *
+   * @param precision the precision
+   * @param alpha     the alpha
+   * @param smallSize the small size
+   * @param largeSize the large size
+   */
   public BandAvgReducerLayerTest(final Precision precision, final double alpha, final int smallSize,
                                  final int largeSize) {
     this.precision = precision;
@@ -72,21 +86,39 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
     return new int[][]{{smallSize, smallSize, 1}};
   }
 
+  /**
+   * The type Double.
+   */
   public static class Double extends BandAvgReducerLayerTest {
+    /**
+     * Instantiates a new Double.
+     */
     public Double() {
       super(Precision.Double, 1.0, 8, 1200);
     }
 
   }
 
+  /**
+   * The type Negative.
+   */
   public static class Negative extends BandAvgReducerLayerTest {
+    /**
+     * Instantiates a new Negative.
+     */
     public Negative() {
       super(Precision.Double, -5.0, 8, 1200);
     }
 
   }
 
+  /**
+   * The type Asymmetric.
+   */
   public static class Asymmetric extends BandAvgReducerLayerTest {
+    /**
+     * Instantiates a new Asymmetric.
+     */
     public Asymmetric() {
       super(Precision.Double, 1.0, 4, 1200);
     }
@@ -105,7 +137,13 @@ public abstract class BandAvgReducerLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Float.
+   */
   public static class Float extends BandAvgReducerLayerTest {
+    /**
+     * Instantiates a new Float.
+     */
     public Float() {
       super(Precision.Float, 1.0, 4, 1200);
     }

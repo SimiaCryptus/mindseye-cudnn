@@ -27,6 +27,9 @@ import org.junit.jupiter.api.AfterEach;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Img tile subnet layer test.
+ */
 public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
 
   @RefIgnore
@@ -68,12 +71,18 @@ public abstract class ImgTileSubnetLayerTest extends CudnnLayerTestBase {
     return new int[][]{{5, 5, 1}};
   }
 
+  /**
+   * Cleanup.
+   */
   @AfterEach
   void cleanup() {
     if (null != convolutionLayer)
       convolutionLayer.freeRef();
   }
 
+  /**
+   * The type Basic.
+   */
   public static class Basic extends ImgTileSubnetLayerTest {
 
     @Nullable

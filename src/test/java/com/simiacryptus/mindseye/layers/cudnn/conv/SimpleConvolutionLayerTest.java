@@ -32,16 +32,42 @@ import org.junit.jupiter.api.Disabled;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Simple convolution layer test.
+ */
 public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Radius.
+   */
   public final int radius;
+  /**
+   * The Bands.
+   */
   public final int bands;
+  /**
+   * The Layer.
+   */
   @Nullable
   @RefIgnore
   final SimpleConvolutionLayer layer;
+  /**
+   * The Large size.
+   */
   public int largeSize;
+  /**
+   * The Small size.
+   */
   public int smallSize;
 
+  /**
+   * Instantiates a new Simple convolution layer test.
+   *
+   * @param radius    the radius
+   * @param bands     the bands
+   * @param precision the precision
+   * @param stride    the stride
+   */
   protected SimpleConvolutionLayerTest(final int radius, final int bands, final Precision precision, int stride) {
     this.radius = radius;
     this.bands = bands;
@@ -86,20 +112,35 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     super.trainingTest();
   }
 
+  /**
+   * Cleanup.
+   */
   @AfterEach
   void cleanup() {
     if (null != layer)
       layer.freeRef();
   }
 
+  /**
+   * The type Basic.
+   */
   public static class Basic extends SimpleConvolutionLayerTest {
+    /**
+     * Instantiates a new Basic.
+     */
     public Basic() {
       super(1, 1, Precision.Double, 1);
     }
 
   }
 
+  /**
+   * The type Image.
+   */
   public static class Image extends SimpleConvolutionLayerTest {
+    /**
+     * Instantiates a new Image.
+     */
     public Image() {
       super(3, 3, Precision.Double, 1);
       largeSize = 1200;
@@ -108,7 +149,13 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Image float.
+   */
   public static class Image_Float extends SimpleConvolutionLayerTest {
+    /**
+     * Instantiates a new Image float.
+     */
     public Image_Float() {
       super(3, 3, Precision.Float, 1);
       tolerance = 1e-2;
@@ -121,14 +168,26 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Matrix.
+   */
   public static class Matrix extends SimpleConvolutionLayerTest {
+    /**
+     * Instantiates a new Matrix.
+     */
     public Matrix() {
       super(3, 1, Precision.Double, 1);
     }
 
   }
 
+  /**
+   * The type Multi band.
+   */
   public static class MultiBand extends SimpleConvolutionLayerTest {
+    /**
+     * Instantiates a new Multi band.
+     */
     public MultiBand() {
       super(1, 3, Precision.Double, 1);
       smallSize = 8;
@@ -136,7 +195,13 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Bug control.
+   */
   public abstract static class Bug_Control extends SimpleConvolutionLayerTest {
+    /**
+     * Instantiates a new Bug control.
+     */
     protected Bug_Control() {
       super(3, 8, Precision.Double, 1);
     }
@@ -178,7 +243,13 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Padding bug.
+   */
   public static class PaddingBug extends Image {
+    /**
+     * Instantiates a new Padding bug.
+     */
     public PaddingBug() {
       super();
       assert layer != null;
@@ -187,7 +258,13 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Span bug.
+   */
   public static class SpanBug extends Image {
+    /**
+     * Instantiates a new Span bug.
+     */
     public SpanBug() {
       assert layer != null;
       layer.setStrideX(2);
@@ -197,14 +274,30 @@ public abstract class SimpleConvolutionLayerTest extends CudnnLayerTestBase {
     }
   }
 
+  /**
+   * The type Big 0.
+   */
   public static class Big0 extends Big {
+    /**
+     * Instantiates a new Big 0.
+     */
     public Big0() {
       super(1, 2048, Precision.Double);
     }
 
   }
 
+  /**
+   * The type Big.
+   */
   public abstract static class Big extends SimpleConvolutionLayerTest {
+    /**
+     * Instantiates a new Big.
+     *
+     * @param radius  the radius
+     * @param bands   the bands
+     * @param aDouble the a double
+     */
     public Big(int radius, int bands, Precision aDouble) {
       super(radius, bands, aDouble, 1);
     }

@@ -37,6 +37,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+/**
+ * The type Img zero padding layer.
+ */
 @SuppressWarnings("serial")
 public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgZeroPaddingLayer.class);
@@ -48,12 +51,23 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
   private ImgZeroPaddingLayer() {
   }
 
+  /**
+   * Instantiates a new Img zero padding layer.
+   *
+   * @param sizeX the size x
+   * @param sizeY the size y
+   */
   public ImgZeroPaddingLayer(int sizeX, int sizeY) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
     assert sizeY != 0 || sizeX != 0;
   }
 
+  /**
+   * Instantiates a new Img zero padding layer.
+   *
+   * @param json the json
+   */
   protected ImgZeroPaddingLayer(@Nonnull final JsonObject json) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
@@ -72,6 +86,13 @@ public class ImgZeroPaddingLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * From json img zero padding layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img zero padding layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgZeroPaddingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {

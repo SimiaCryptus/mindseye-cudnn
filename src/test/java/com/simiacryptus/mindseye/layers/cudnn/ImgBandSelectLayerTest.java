@@ -28,16 +28,36 @@ import org.junit.jupiter.api.AfterEach;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Img band select layer test.
+ */
 public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Precision.
+   */
   final Precision precision;
+  /**
+   * The Layer.
+   */
   @Nonnull
   @RefIgnore
   final ImgBandSelectLayer layer;
+  /**
+   * The Input bands.
+   */
   final int inputBands;
   private final int smallSize;
   private final int largeSize;
 
+  /**
+   * Instantiates a new Img band select layer test.
+   *
+   * @param precision  the precision
+   * @param inputBands the input bands
+   * @param fromBand   the from band
+   * @param toBand     the to band
+   */
   public ImgBandSelectLayerTest(final Precision precision, int inputBands, final int fromBand, int toBand) {
     this.precision = precision;
     ImgBandSelectLayer temp_20_0002 = new ImgBandSelectLayer(fromBand, toBand);
@@ -98,19 +118,34 @@ public abstract class ImgBandSelectLayerTest extends CudnnLayerTestBase {
     return new int[][]{{smallSize, smallSize, inputBands}};
   }
 
+  /**
+   * Cleanup.
+   */
   @AfterEach
   void cleanup() {
     if (null != layer)
       layer.freeRef();
   }
 
+  /**
+   * The type Double.
+   */
   public static class Double extends ImgBandSelectLayerTest {
+    /**
+     * Instantiates a new Double.
+     */
     public Double() {
       super(Precision.Double, 5, 2, 4);
     }
   }
 
+  /**
+   * The type Float.
+   */
   public static class Float extends ImgBandSelectLayerTest {
+    /**
+     * Instantiates a new Float.
+     */
     public Float() {
       super(Precision.Float, 2, 0, 1);
     }

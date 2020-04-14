@@ -39,6 +39,9 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Pooling layer.
+ */
 @SuppressWarnings("serial")
 public class PoolingLayer extends LayerBase implements MultiPrecision {
 
@@ -52,14 +55,28 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
   private int windowY = 2;
   private double alpha = 1.0;
 
+  /**
+   * Instantiates a new Pooling layer.
+   */
   public PoolingLayer() {
     super();
   }
 
+  /**
+   * Instantiates a new Pooling layer.
+   *
+   * @param id   the id
+   * @param name the name
+   */
   public PoolingLayer(UUID id, String name) {
     super(id, name);
   }
 
+  /**
+   * Instantiates a new Pooling layer.
+   *
+   * @param json the json
+   */
   protected PoolingLayer(@Nonnull final JsonObject json) {
     super(json);
     mode = RefUtil.get(RefArrays.stream(PoolingMode.values()).filter(i -> i.id == json.get("mode").getAsInt()).findFirst());
@@ -73,14 +90,29 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
     precision = Precision.valueOf(json.get("precision").getAsString());
   }
 
+  /**
+   * Gets alpha.
+   *
+   * @return the alpha
+   */
   public double getAlpha() {
     return alpha;
   }
 
+  /**
+   * Sets alpha.
+   *
+   * @param alpha the alpha
+   */
   public void setAlpha(double alpha) {
     this.alpha = alpha;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     if (mode == PoolingMode.Max)
@@ -91,10 +123,20 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
       throw new RuntimeException("Not Implemented");
   }
 
+  /**
+   * Gets mode.
+   *
+   * @return the mode
+   */
   public PoolingMode getMode() {
     return mode;
   }
 
+  /**
+   * Sets mode.
+   *
+   * @param mode the mode
+   */
   public void setMode(PoolingMode mode) {
     this.mode = mode;
   }
@@ -105,18 +147,38 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
     return RefString.format("%sPooling [%d/%d x %d/%d]", mode.name(), windowX, windowY, strideX, strideY);
   }
 
+  /**
+   * Gets padding x.
+   *
+   * @return the padding x
+   */
   public int getPaddingX() {
     return paddingX;
   }
 
+  /**
+   * Sets padding x.
+   *
+   * @param paddingX the padding x
+   */
   public void setPaddingX(int paddingX) {
     this.paddingX = paddingX;
   }
 
+  /**
+   * Gets padding y.
+   *
+   * @return the padding y
+   */
   public int getPaddingY() {
     return paddingY;
   }
 
+  /**
+   * Sets padding y.
+   *
+   * @param paddingY the padding y
+   */
   public void setPaddingY(int paddingY) {
     this.paddingY = paddingY;
   }
@@ -131,44 +193,99 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Gets stride x.
+   *
+   * @return the stride x
+   */
   public int getStrideX() {
     return strideX;
   }
 
+  /**
+   * Sets stride x.
+   *
+   * @param strideX the stride x
+   */
   public void setStrideX(int strideX) {
     this.strideX = strideX;
   }
 
+  /**
+   * Gets stride y.
+   *
+   * @return the stride y
+   */
   public int getStrideY() {
     return strideY;
   }
 
+  /**
+   * Sets stride y.
+   *
+   * @param strideY the stride y
+   */
   public void setStrideY(int strideY) {
     this.strideY = strideY;
   }
 
+  /**
+   * Gets window x.
+   *
+   * @return the window x
+   */
   public int getWindowX() {
     return windowX;
   }
 
+  /**
+   * Sets window x.
+   *
+   * @param windowX the window x
+   */
   public void setWindowX(int windowX) {
     this.windowX = windowX;
   }
 
+  /**
+   * Gets window y.
+   *
+   * @return the window y
+   */
   public int getWindowY() {
     return windowY;
   }
 
+  /**
+   * Sets window y.
+   *
+   * @param windowY the window y
+   */
   public void setWindowY(int windowY) {
     this.windowY = windowY;
   }
 
+  /**
+   * From json pooling layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the pooling layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static PoolingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new PoolingLayer(json);
   }
 
+  /**
+   * Gets pooling layer.
+   *
+   * @param radius    the radius
+   * @param mode      the mode
+   * @param qualifier the qualifier
+   * @return the pooling layer
+   */
   @Nonnull
   public static PoolingLayer getPoolingLayer(int radius, PoolingLayer.PoolingMode mode, String qualifier) {
     String name = RefString.format("%s.pool:%s;%s", qualifier, radius, mode);
@@ -266,16 +383,34 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
     return RefArrays.asList();
   }
 
+  /**
+   * Sets window xy.
+   *
+   * @param x the x
+   * @param y the y
+   */
   public void setWindowXY(int x, int y) {
     setWindowY(y);
     setWindowX(x);
   }
 
+  /**
+   * Sets stride xy.
+   *
+   * @param x the x
+   * @param y the y
+   */
   public void setStrideXY(int x, int y) {
     setStrideX(x);
     setStrideY(y);
   }
 
+  /**
+   * Sets padding xy.
+   *
+   * @param x the x
+   * @param y the y
+   */
   public void setPaddingXY(int x, int y) {
     setPaddingX(x);
     setPaddingY(y);
@@ -336,9 +471,22 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
         inputData);
   }
 
+  /**
+   * The enum Pooling mode.
+   */
   public enum PoolingMode {
-    Avg(cudnnPoolingMode.CUDNN_POOLING_AVERAGE_COUNT_EXCLUDE_PADDING), Max(cudnnPoolingMode.CUDNN_POOLING_MAX);
+    /**
+     * Avg pooling mode.
+     */
+    Avg(cudnnPoolingMode.CUDNN_POOLING_AVERAGE_COUNT_EXCLUDE_PADDING),
+    /**
+     * Max pooling mode.
+     */
+    Max(cudnnPoolingMode.CUDNN_POOLING_MAX);
 
+    /**
+     * The Id.
+     */
     final int id;
 
     PoolingMode(final int id) {
@@ -362,6 +510,23 @@ public class PoolingLayer extends LayerBase implements MultiPrecision {
     private final double alpha;
     private Precision precision;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param input           the input
+     * @param outputData      the output data
+     * @param inputData       the input data
+     * @param inputLength     the input length
+     * @param finalInputAlive the final input alive
+     * @param inputDims       the input dims
+     * @param poolDims        the pool dims
+     * @param windowSize      the window size
+     * @param padding         the padding
+     * @param stride          the stride
+     * @param precision       the precision
+     * @param mode            the mode
+     * @param alpha           the alpha
+     */
     public Accumulator(Result input, CudaTensor outputData, TensorList inputData, int inputLength, boolean finalInputAlive, int[] inputDims, int poolDims, int[] windowSize, int[] padding, int[] stride, Precision precision, PoolingMode mode, double alpha) {
       this.input = input;
       this.outputData = outputData;

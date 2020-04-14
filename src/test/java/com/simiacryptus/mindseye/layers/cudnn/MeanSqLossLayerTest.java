@@ -23,6 +23,9 @@ import com.simiacryptus.mindseye.lang.Layer;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Mean sq loss layer test.
+ */
 public abstract class MeanSqLossLayerTest extends CudnnLayerTestBase {
 
   @Nonnull
@@ -48,9 +51,15 @@ public abstract class MeanSqLossLayerTest extends CudnnLayerTestBase {
     return new int[][]{{8, 8, 1}, {8, 8, 1}};
   }
 
+  /**
+   * The type Basic.
+   */
   public static class Basic extends MeanSqLossLayerTest {
   }
 
+  /**
+   * The type Asymetric.
+   */
   public static class Asymetric extends MeanSqLossLayerTest {
 
     @Nonnull

@@ -43,14 +43,29 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+/**
+ * The type Exploded convolution grid.
+ */
 class ExplodedConvolutionGrid extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(ExplodedConvolutionGrid.class);
 
+  /**
+   * The Sub layers.
+   */
   @Nonnull
   public final RefList<ExplodedConvolutionLeg> subLayers;
+  /**
+   * The Convolution params.
+   */
   @Nonnull
   public final ConvolutionParams convolutionParams;
 
+  /**
+   * Instantiates a new Exploded convolution grid.
+   *
+   * @param convolutionParams the convolution params
+   * @param maxBandBatch      the max band batch
+   */
   public ExplodedConvolutionGrid(@Nonnull ConvolutionParams convolutionParams, int maxBandBatch) {
     this.convolutionParams = convolutionParams;
     int bandWidth = maxBandBatch == 0 ? convolutionParams.inputBands : maxBandBatch;
@@ -64,6 +79,11 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
         }).collect(RefCollectors.toList());
   }
 
+  /**
+   * Gets network.
+   *
+   * @return the network
+   */
   @Nonnull
   public PipelineNetwork getNetwork() {
     assertAlive();
@@ -73,6 +93,11 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     return network;
   }
 
+  /**
+   * Write.
+   *
+   * @param filter the filter
+   */
   public void write(@Nonnull Tensor filter) {
     assert filter.rms() > 0;
     if (1 == subLayers.size()) {
@@ -100,6 +125,12 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Read tensor.
+   *
+   * @param extractor the extractor
+   * @return the tensor
+   */
   public Tensor read(@Nonnull @RefAware RefFunction<ExplodedConvolutionLeg, Tensor> extractor) {
     if (1 == subLayers.size()) {
       Tensor tensor = extractor.apply(subLayers.get(0));
@@ -120,6 +151,11 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Read tensor.
+   *
+   * @return the tensor
+   */
   public Tensor read() {
     return read(l -> {
       Tensor read = l.read();
@@ -128,6 +164,13 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     });
   }
 
+  /**
+   * Read tensor.
+   *
+   * @param deltaSet the delta set
+   * @param remove   the remove
+   * @return the tensor
+   */
   public Tensor read(@Nonnull DeltaSet<UUID> deltaSet, boolean remove) {
     return read(RefUtil.wrapInterface(l -> {
       Tensor tensor = l.read(deltaSet.addRef(), remove);
@@ -136,6 +179,12 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
     }, deltaSet));
   }
 
+  /**
+   * Add.
+   *
+   * @param input   the input
+   * @param network the network
+   */
   public void add(@Nonnull DAGNode input, DAGNetwork network) {
     assertAlive();
     int defaultPaddingX = 0;

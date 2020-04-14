@@ -26,12 +26,25 @@ import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Avg reducer layer test.
+ */
 public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Precision.
+   */
   final Precision precision;
   private final int smallSize;
   private final int largeSize;
 
+  /**
+   * Instantiates a new Avg reducer layer test.
+   *
+   * @param precision the precision
+   * @param smallSize the small size
+   * @param largeSize the large size
+   */
   public AvgReducerLayerTest(final Precision precision, final int smallSize, final int largeSize) {
     this.precision = precision;
     this.smallSize = smallSize;
@@ -60,14 +73,26 @@ public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
     return new int[][]{{smallSize, smallSize, 1}};
   }
 
+  /**
+   * The type Double.
+   */
   public static class Double extends AvgReducerLayerTest {
+    /**
+     * Instantiates a new Double.
+     */
     public Double() {
       super(Precision.Double, 2, 1200);
     }
 
   }
 
+  /**
+   * The type Asymmetric.
+   */
   public static class Asymmetric extends AvgReducerLayerTest {
+    /**
+     * Instantiates a new Asymmetric.
+     */
     public Asymmetric() {
       super(Precision.Double, 2, 1200);
     }
@@ -86,7 +111,13 @@ public abstract class AvgReducerLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Float.
+   */
   public static class Float extends AvgReducerLayerTest {
+    /**
+     * Instantiates a new Float.
+     */
     public Float() {
       super(Precision.Float, 2, 1200);
     }

@@ -26,10 +26,21 @@ import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Img band bias layer test.
+ */
 public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Precision.
+   */
   final Precision precision;
 
+  /**
+   * Instantiates a new Img band bias layer test.
+   *
+   * @param precision the precision
+   */
   public ImgBandBiasLayerTest(final Precision precision) {
     this.precision = precision;
   }
@@ -59,14 +70,26 @@ public abstract class ImgBandBiasLayerTest extends CudnnLayerTestBase {
     return new int[][]{{8, 8, 3}};
   }
 
+  /**
+   * The type Double.
+   */
   public static class Double extends ImgBandBiasLayerTest {
+    /**
+     * Instantiates a new Double.
+     */
     public Double() {
       super(Precision.Double);
     }
 
   }
 
+  /**
+   * The type Float.
+   */
   public static class Float extends ImgBandBiasLayerTest {
+    /**
+     * Instantiates a new Float.
+     */
     public Float() {
       super(Precision.Float);
     }

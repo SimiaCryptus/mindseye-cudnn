@@ -24,8 +24,14 @@ import org.junit.jupiter.api.Disabled;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Img tile cycle layer test.
+ */
 public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * Instantiates a new Img tile cycle layer test.
+   */
   public ImgTileCycleLayerTest() {
   }
 
@@ -58,6 +64,9 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
     super.batchingTest();
   }
 
+  /**
+   * The type One third.
+   */
   public static class OneThird extends ImgTileCycleLayerTest {
 
     @Nonnull
@@ -75,6 +84,9 @@ public abstract class ImgTileCycleLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Basic.
+   */
   public static class Basic extends ImgTileCycleLayerTest {
 
   }

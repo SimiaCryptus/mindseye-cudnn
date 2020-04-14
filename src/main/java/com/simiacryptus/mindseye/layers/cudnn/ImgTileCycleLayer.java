@@ -35,6 +35,9 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Img tile cycle layer.
+ */
 @SuppressWarnings("serial")
 public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgTileCycleLayer.class);
@@ -43,14 +46,27 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
 
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
 
+  /**
+   * Instantiates a new Img tile cycle layer.
+   */
   public ImgTileCycleLayer() {
   }
 
+  /**
+   * Instantiates a new Img tile cycle layer.
+   *
+   * @param json the json
+   */
   protected ImgTileCycleLayer(@Nonnull final JsonObject json) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(com.simiacryptus.mindseye.layers.java.ImgCropLayer.class);
@@ -66,28 +82,66 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Gets pos.
+   *
+   * @return the pos
+   */
   public double getxPos() {
     return xPos;
   }
 
+  /**
+   * Gets pos.
+   *
+   * @return the pos
+   */
   public double getyPos() {
     return yPos;
   }
 
+  /**
+   * Sets x pos.
+   *
+   * @param xPos the x pos
+   */
   public void setXPos(double xPos) {
     this.xPos = xPos;
   }
 
+  /**
+   * Sets y pos.
+   *
+   * @param yPos the y pos
+   */
   public void setYPos(double yPos) {
     this.yPos = yPos;
   }
 
+  /**
+   * From json img tile cycle layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img tile cycle layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgTileCycleLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgTileCycleLayer(json);
   }
 
+  /**
+   * Copy cuda tensor.
+   *
+   * @param gpu       the gpu
+   * @param input     the input
+   * @param length    the length
+   * @param precision the precision
+   * @param splitX    the split x
+   * @param splitY    the split y
+   * @return the cuda tensor
+   */
   @Nonnull
   public static CudaTensor copy(@Nonnull final CudnnHandle gpu, @Nonnull final CudaTensor input, final int length,
                                 @Nonnull Precision precision, final int splitX, final int splitY) {
@@ -146,6 +200,13 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
     return new CudaTensor(outputBuffer, imageDescriptor, precision);
   }
 
+  /**
+   * Get view dimensions int [ ].
+   *
+   * @param sourceDimensions      the source dimensions
+   * @param destinationDimensions the destination dimensions
+   * @return the int [ ]
+   */
   @Nonnull
   public static int[] getViewDimensions(int[] sourceDimensions, int[] destinationDimensions) {
     @Nonnull final int[] viewDim = new int[3];
@@ -227,6 +288,18 @@ public class ImgTileCycleLayer extends LayerBase implements MultiPrecision {
     private Result.Accumulator accumulator;
     private boolean alive;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param outputData  the output data
+     * @param length      the length
+     * @param splitX2     the split x 2
+     * @param splitY2     the split y 2
+     * @param dimIn       the dim in
+     * @param precision   the precision
+     * @param accumulator the accumulator
+     * @param alive       the alive
+     */
     public Accumulator(TensorList outputData, int length, int splitX2, int splitY2, int[] dimIn, Precision precision, Result.Accumulator accumulator, boolean alive) {
       this.outputData = outputData;
       this.length = length;

@@ -29,6 +29,9 @@ import org.junit.jupiter.api.Disabled;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Img concat layer test.
+ */
 public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
 
   private final Precision precision;
@@ -36,11 +39,28 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
   private final int smallSize;
   private final int largeSize;
 
+  /**
+   * Instantiates a new Img concat layer test.
+   *
+   * @param precision     the precision
+   * @param inputs        the inputs
+   * @param bandsPerInput the bands per input
+   * @param smallSize     the small size
+   * @param largeSize     the large size
+   */
   public ImgConcatLayerTest(final Precision precision, int inputs, int bandsPerInput, final int smallSize,
                             final int largeSize) {
     this(precision, RefIntStream.range(0, inputs).map(i -> bandsPerInput).toArray(), smallSize, largeSize);
   }
 
+  /**
+   * Instantiates a new Img concat layer test.
+   *
+   * @param precision the precision
+   * @param bandSeq   the band seq
+   * @param smallSize the small size
+   * @param largeSize the large size
+   */
   public ImgConcatLayerTest(final Precision precision, final int[] bandSeq, final int smallSize, final int largeSize) {
     this.bandSeq = bandSeq;
     this.precision = precision;
@@ -85,8 +105,14 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
     return RefArrays.stream(bandSeq).mapToObj(x -> new int[]{smallSize, smallSize, x}).toArray(i -> new int[i][]);
   }
 
+  /**
+   * The type Band limit test.
+   */
   public static class BandLimitTest extends ImgConcatLayerTest {
 
+    /**
+     * Instantiates a new Band limit test.
+     */
     public BandLimitTest() {
       super(Precision.Double, 2, 1, 8, 1200);
     }
@@ -113,8 +139,14 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Band concat limit test.
+   */
   public static class BandConcatLimitTest extends ImgConcatLayerTest {
 
+    /**
+     * Instantiates a new Band concat limit test.
+     */
     public BandConcatLimitTest() {
       super(Precision.Double, new int[]{2, 3, 4}, 2, 1200);
     }
@@ -135,15 +167,31 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Double.
+   */
   public static class Double extends ImgConcatLayerTest {
+    /**
+     * Instantiates a new Double.
+     */
     public Double() {
       super(Precision.Double, 2, 1, 8, 1200);
     }
 
   }
 
+  /**
+   * The type Big.
+   */
   public abstract static class Big extends ImgConcatLayerTest {
 
+    /**
+     * Instantiates a new Big.
+     *
+     * @param precision     the precision
+     * @param inputs        the inputs
+     * @param bandsPerInput the bands per input
+     */
     public Big(final Precision precision, final int inputs, final int bandsPerInput) {
       super(precision, inputs, bandsPerInput, 8, 1200);
     }
@@ -179,7 +227,13 @@ public abstract class ImgConcatLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Float.
+   */
   public static class Float extends ImgConcatLayerTest {
+    /**
+     * Instantiates a new Float.
+     */
     public Float() {
       super(Precision.Float, 2, 1, 8, 1200);
       tolerance = 1e-2;

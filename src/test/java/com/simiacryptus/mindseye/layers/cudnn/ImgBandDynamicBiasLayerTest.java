@@ -27,10 +27,21 @@ import org.junit.jupiter.api.Disabled;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Img band dynamic bias layer test.
+ */
 public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Precision.
+   */
   final Precision precision;
 
+  /**
+   * Instantiates a new Img band dynamic bias layer test.
+   *
+   * @param precision the precision
+   */
   public ImgBandDynamicBiasLayerTest(final Precision precision) {
     this.precision = precision;
     this.testingBatchSize = 1;
@@ -69,13 +80,25 @@ public abstract class ImgBandDynamicBiasLayerTest extends CudnnLayerTestBase {
     return new MeanSqLossLayer();
   }
 
+  /**
+   * The type Double.
+   */
   public static class Double extends ImgBandDynamicBiasLayerTest {
+    /**
+     * Instantiates a new Double.
+     */
     public Double() {
       super(Precision.Double);
     }
   }
 
+  /**
+   * The type Float.
+   */
   public static class Float extends ImgBandDynamicBiasLayerTest {
+    /**
+     * Instantiates a new Float.
+     */
     public Float() {
       super(Precision.Float);
     }

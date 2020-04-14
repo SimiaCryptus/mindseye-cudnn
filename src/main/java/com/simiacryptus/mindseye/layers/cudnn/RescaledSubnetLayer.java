@@ -37,6 +37,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+/**
+ * The type Rescaled subnet layer.
+ */
 @SuppressWarnings("serial")
 public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(RescaledSubnetLayer.class);
@@ -49,6 +52,12 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
   private RescaledSubnetLayer() {
   }
 
+  /**
+   * Instantiates a new Rescaled subnet layer.
+   *
+   * @param scale the scale
+   * @param layer the layer
+   */
   public RescaledSubnetLayer(int scale, @Nullable Layer layer) {
     this.scale = scale;
     if (null != this.layer)
@@ -56,6 +65,12 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
     this.layer = layer;
   }
 
+  /**
+   * Instantiates a new Rescaled subnet layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   */
   protected RescaledSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     scale = json.get("scale").getAsInt();
@@ -65,6 +80,11 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return new com.simiacryptus.mindseye.layers.java.RescaledSubnetLayer(scale, layer == null ? null : layer.addRef());
@@ -80,6 +100,13 @@ public class RescaledSubnetLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * From json rescaled subnet layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the rescaled subnet layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static RescaledSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {

@@ -36,15 +36,37 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Function;
 
+/**
+ * The type Cuda tensor.
+ */
 public class CudaTensor extends ReferenceCountingBase implements CudaSystem.CudaDeviceResource {
+  /**
+   * The Log.
+   */
   static final Logger log = LoggerFactory.getLogger(CudaTensor.class);
 
+  /**
+   * The Descriptor.
+   */
   public final CudaDevice.CudaTensorDescriptor descriptor;
+  /**
+   * The Created by.
+   */
   public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().profileMemoryIO ? Util.getStackTrace()
       : new StackTraceElement[]{};
+  /**
+   * The Memory.
+   */
   @Nonnull
   final CudaMemory memory;
 
+  /**
+   * Instantiates a new Cuda tensor.
+   *
+   * @param memory     the memory
+   * @param descriptor the descriptor
+   * @param precision  the precision
+   */
   public CudaTensor(@Nullable final CudaMemory memory, final CudaDevice.CudaTensorDescriptor descriptor,
                     @Nonnull final Precision precision) {
     assert descriptor != null;
@@ -60,15 +82,30 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     return memory.getDeviceId();
   }
 
+  /**
+   * Gets precision.
+   *
+   * @return the precision
+   */
   public Precision getPrecision() {
     return descriptor.dataType;
   }
 
+  /**
+   * Gets type.
+   *
+   * @return the type
+   */
   @Nonnull
   public MemoryType getType() {
     return memory.getType();
   }
 
+  /**
+   * Is dense boolean.
+   *
+   * @return the boolean
+   */
   public boolean isDense() {
     if (descriptor.nStride != descriptor.channels * descriptor.height * descriptor.width)
       return false;
@@ -80,11 +117,24 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
   }
 
 
+  /**
+   * Gets memory.
+   *
+   * @param cudaDevice the cuda device
+   * @return the memory
+   */
   @Nullable
   public CudaMemory getMemory(@Nonnull final CudaDevice cudaDevice) {
     return getMemory(cudaDevice, MemoryType.Device);
   }
 
+  /**
+   * Gets memory.
+   *
+   * @param cudaDevice the cuda device
+   * @param memoryType the memory type
+   * @return the memory
+   */
   @Nullable
   public CudaMemory getMemory(@Nonnull final CudaDevice cudaDevice, @Nonnull final MemoryType memoryType) {
     assertAlive();
@@ -110,6 +160,12 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     }
   }
 
+  /**
+   * Gets dense.
+   *
+   * @param gpu the gpu
+   * @return the dense
+   */
   @Nonnull
   public CudaTensor getDense(@Nonnull CudnnHandle gpu) {
     assertAlive();
@@ -149,6 +205,14 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     return cudaTensor;
   }
 
+  /**
+   * Read.
+   *
+   * @param gpu              the gpu
+   * @param index            the index
+   * @param result           the result
+   * @param avoidAllocations the avoid allocations
+   */
   public void read(@Nonnull final CudnnHandle gpu, final int index, @Nonnull final Tensor result, final boolean avoidAllocations) {
     int deviceId = gpu.getDeviceId();
     assert CudaDevice.isThreadDeviceId(deviceId);
@@ -203,6 +267,15 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     result.freeRef();
   }
 
+  /**
+   * With dense t.
+   *
+   * @param <T>             the type parameter
+   * @param gpu             the gpu
+   * @param index           the index
+   * @param memoryTFunction the memory t function
+   * @return the t
+   */
   @Nonnull
   public <T> T withDense(@Nonnull final CudnnHandle gpu, final int index, @Nonnull @RefAware final Function<CudaMemory, T> memoryTFunction) {
     assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
@@ -249,6 +322,11 @@ public class CudaTensor extends ReferenceCountingBase implements CudaSystem.Cuda
     }
   }
 
+  /**
+   * Size long.
+   *
+   * @return the long
+   */
   public long size() {
     return memory.size;
   }

@@ -26,6 +26,9 @@ import org.junit.jupiter.api.AfterEach;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Img linear subnet layer test.
+ */
 public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
 
   @RefIgnore
@@ -37,6 +40,9 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
   private final int smallSize;
   private final int largeSize;
 
+  /**
+   * Instantiates a new Img linear subnet layer test.
+   */
   public ImgLinearSubnetLayerTest() {
     testingBatchSize = 10;
     smallSize = 2;
@@ -80,6 +86,9 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
     return new int[][]{{smallSize, smallSize, 3}};
   }
 
+  /**
+   * Cleanup.
+   */
   @AfterEach
   void cleanup() {
     if (null != layer3)
@@ -90,6 +99,9 @@ public abstract class ImgLinearSubnetLayerTest extends CudnnLayerTestBase {
       layer1.freeRef();
   }
 
+  /**
+   * The type Basic.
+   */
   public static class Basic extends ImgLinearSubnetLayerTest {
   }
 

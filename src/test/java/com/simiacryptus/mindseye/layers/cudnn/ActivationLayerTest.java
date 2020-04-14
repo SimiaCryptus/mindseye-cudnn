@@ -41,13 +41,27 @@ import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
 import java.util.function.DoubleFunction;
 
+/**
+ * The type Activation layer test.
+ */
 public abstract class ActivationLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Mode.
+   */
   final ActivationLayer.Mode mode;
   private final Precision precision;
   private final int smallSize;
   private final int largeSize;
 
+  /**
+   * Instantiates a new Activation layer test.
+   *
+   * @param mode      the mode
+   * @param precision the precision
+   * @param smallSize the small size
+   * @param largeSize the large size
+   */
   public ActivationLayerTest(final ActivationLayer.Mode mode, final Precision precision, final int smallSize,
                              final int largeSize) {
     this.mode = mode;
@@ -81,6 +95,9 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
     return new int[][]{{smallSize, smallSize, 1}};
   }
 
+  /**
+   * Function plots.
+   */
   @Test
   @Timeout(value = 15, unit = TimeUnit.MINUTES)
   public void functionPlots() {
@@ -123,7 +140,13 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
 //    super.allTests(log);
 //  }
 
+  /**
+   * The type Re lu double.
+   */
   public static class ReLu_Double extends ActivationLayerTest {
+    /**
+     * Instantiates a new Re lu double.
+     */
     public ReLu_Double() {
       super(ActivationLayer.Mode.RELU, Precision.Double, 2, 800);
     }
@@ -135,7 +158,13 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Re lu float.
+   */
   public static class ReLu_Float extends ActivationLayerTest {
+    /**
+     * Instantiates a new Re lu float.
+     */
     public ReLu_Float() {
       super(ActivationLayer.Mode.RELU, Precision.Float, 2, 1200);
     }
@@ -147,7 +176,13 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Sigmoid double.
+   */
   public static class Sigmoid_Double extends ActivationLayerTest {
+    /**
+     * Instantiates a new Sigmoid double.
+     */
     public Sigmoid_Double() {
       super(ActivationLayer.Mode.SIGMOID, Precision.Double, 2, 1200);
     }
@@ -163,7 +198,13 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Sigmoid float.
+   */
   public static class Sigmoid_Float extends ActivationLayerTest {
+    /**
+     * Instantiates a new Sigmoid float.
+     */
     public Sigmoid_Float() {
       super(ActivationLayer.Mode.SIGMOID, Precision.Float, 2, 1200);
     }

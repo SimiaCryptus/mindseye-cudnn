@@ -30,11 +30,23 @@ import com.simiacryptus.ref.lang.RefUtil;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Square activation layer test.
+ */
 public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Precision.
+   */
   final Precision precision;
   private final double alpha;
 
+  /**
+   * Instantiates a new Square activation layer test.
+   *
+   * @param precision the precision
+   * @param alpha     the alpha
+   */
   public SquareActivationLayerTest(final Precision precision, final double alpha) {
     this.precision = precision;
     this.alpha = alpha;
@@ -81,21 +93,39 @@ public abstract class SquareActivationLayerTest extends CudnnLayerTestBase {
     return new int[][]{{4, 4, 1}};
   }
 
+  /**
+   * The type Double.
+   */
   public static class Double extends SquareActivationLayerTest {
+    /**
+     * Instantiates a new Double.
+     */
     public Double() {
       super(Precision.Double, 1.0);
     }
 
   }
 
+  /**
+   * The type Negative.
+   */
   public static class Negative extends SquareActivationLayerTest {
+    /**
+     * Instantiates a new Negative.
+     */
     public Negative() {
       super(Precision.Double, -1.0);
     }
 
   }
 
+  /**
+   * The type Float.
+   */
   public static class Float extends SquareActivationLayerTest {
+    /**
+     * Instantiates a new Float.
+     */
     public Float() {
       super(Precision.Float, 1.0);
     }

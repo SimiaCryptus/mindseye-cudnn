@@ -32,6 +32,9 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Value layer.
+ */
 @SuppressWarnings("serial")
 public class ValueLayer extends LayerBase {
 
@@ -39,12 +42,23 @@ public class ValueLayer extends LayerBase {
   @Nonnull
   private final CudaTensorList tensorList;
 
+  /**
+   * Instantiates a new Value layer.
+   *
+   * @param json      the json
+   * @param resources the resources
+   */
   protected ValueLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
     super(json);
     this.precision = Precision.valueOf(json.get("precision").getAsString());
     this.tensorList = toDevice(Tensor.fromJson(json.get("value"), resources), precision);
   }
 
+  /**
+   * Instantiates a new Value layer.
+   *
+   * @param data the data
+   */
   public ValueLayer(@Nullable final Tensor data) {
     super();
     this.precision = Precision.Float;
@@ -52,6 +66,13 @@ public class ValueLayer extends LayerBase {
     this.frozen = true;
   }
 
+  /**
+   * From json value layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the value layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ValueLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -59,6 +80,13 @@ public class ValueLayer extends LayerBase {
   }
 
 
+  /**
+   * To device cuda tensor list.
+   *
+   * @param data      the data
+   * @param precision the precision
+   * @return the cuda tensor list
+   */
   @Nullable
   public CudaTensorList toDevice(@Nullable final Tensor data, @Nonnull final Precision precision) {
     if (null == data) {

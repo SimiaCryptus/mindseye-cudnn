@@ -23,11 +23,20 @@ import com.simiacryptus.mindseye.lang.Layer;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Softmax layer test.
+ */
 public abstract class SoftmaxLayerTest extends CudnnLayerTestBase {
 
   private final SoftmaxActivationLayer.SoftmaxAlgorithm algorithm;
   private final SoftmaxActivationLayer.SoftmaxMode mode;
 
+  /**
+   * Instantiates a new Softmax layer test.
+   *
+   * @param algorithm the algorithm
+   * @param mode      the mode
+   */
   public SoftmaxLayerTest(final SoftmaxActivationLayer.SoftmaxAlgorithm algorithm,
                           final SoftmaxActivationLayer.SoftmaxMode mode) {
     this.algorithm = algorithm;
@@ -65,21 +74,39 @@ public abstract class SoftmaxLayerTest extends CudnnLayerTestBase {
     return new int[][]{{2, 2, 3}};
   }
 
+  /**
+   * The type Basic.
+   */
   public static class Basic extends SoftmaxLayerTest {
+    /**
+     * Instantiates a new Basic.
+     */
     public Basic() {
       super(SoftmaxActivationLayer.SoftmaxAlgorithm.ACCURATE, SoftmaxActivationLayer.SoftmaxMode.INSTANCE);
     }
 
   }
 
+  /**
+   * The type Pixel.
+   */
   public static class Pixel extends SoftmaxLayerTest {
+    /**
+     * Instantiates a new Pixel.
+     */
     public Pixel() {
       super(SoftmaxActivationLayer.SoftmaxAlgorithm.ACCURATE, SoftmaxActivationLayer.SoftmaxMode.CHANNEL);
     }
 
   }
 
+  /**
+   * The type Pixel log.
+   */
   public static class PixelLog extends SoftmaxLayerTest {
+    /**
+     * Instantiates a new Pixel log.
+     */
     public PixelLog() {
       super(SoftmaxActivationLayer.SoftmaxAlgorithm.LOG, SoftmaxActivationLayer.SoftmaxMode.CHANNEL);
     }

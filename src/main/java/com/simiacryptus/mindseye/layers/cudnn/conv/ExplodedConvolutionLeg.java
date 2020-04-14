@@ -41,18 +41,43 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.Function;
 
+/**
+ * The type Exploded convolution leg.
+ */
 class ExplodedConvolutionLeg extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(ExplodedConvolutionLeg.class);
 
+  /**
+   * The Convolution params.
+   */
   @Nonnull
   public final ConvolutionParams convolutionParams;
+  /**
+   * The Sub layers.
+   */
   @Nonnull
   public final RefList<Layer> subLayers;
+  /**
+   * The Sub kernels.
+   */
   @Nonnull
   public final RefList<SimpleConvolutionLayer> subKernels = new RefArrayList<>();
+  /**
+   * The From band.
+   */
   public final int fromBand;
+  /**
+   * The To band.
+   */
   public final int toBand;
 
+  /**
+   * Instantiates a new Exploded convolution leg.
+   *
+   * @param convolutionParams the convolution params
+   * @param fromBand          the from band
+   * @param toBand            the to band
+   */
   public ExplodedConvolutionLeg(@Nonnull ConvolutionParams convolutionParams, int fromBand, int toBand) {
     this.fromBand = fromBand;
     this.toBand = toBand;
@@ -87,10 +112,20 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Gets input bands.
+   *
+   * @return the input bands
+   */
   public int getInputBands() {
     return this.toBand - this.fromBand;
   }
 
+  /**
+   * Write.
+   *
+   * @param filter the filter
+   */
   public void write(@Nonnull Tensor filter) {
     assert filter.rms() > 0;
     int inputBands = getInputBands();
@@ -126,6 +161,12 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     filter.freeRef();
   }
 
+  /**
+   * Read tensor.
+   *
+   * @param extractor the extractor
+   * @return the tensor
+   */
   @Nonnull
   public Tensor read(@Nonnull @RefAware Function<SimpleConvolutionLayer, Tensor> extractor) {
     int inputBands = getInputBands();
@@ -159,6 +200,14 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     return resultDelta;
   }
 
+  /**
+   * Gets filter band.
+   *
+   * @param filterBandOffset  the filter band offset
+   * @param cellFilterBand    the cell filter band
+   * @param squareOutputBands the square output bands
+   * @return the filter band
+   */
   public int getFilterBand(int filterBandOffset, int cellFilterBand, int squareOutputBands) {
     int inputBands = getInputBands();
     assert cellFilterBand >= 0;
@@ -169,6 +218,13 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     return filterBand;
   }
 
+  /**
+   * Read tensor.
+   *
+   * @param deltaSet the delta set
+   * @param remove   the remove
+   * @return the tensor
+   */
   @Nonnull
   public Tensor read(@Nonnull DeltaSet<UUID> deltaSet, boolean remove) {
     return read(RefUtil.wrapInterface(sublayer -> {
@@ -195,6 +251,11 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     }, deltaSet));
   }
 
+  /**
+   * Read tensor.
+   *
+   * @return the tensor
+   */
   @Nonnull
   public Tensor read() {
     return read(sublayer -> {
@@ -204,6 +265,13 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     });
   }
 
+  /**
+   * Add dag node.
+   *
+   * @param input   the input
+   * @param network the network
+   * @return the dag node
+   */
   @Nullable
   public DAGNode add(@Nonnull final DAGNode input, DAGNetwork network) {
     assertAlive();

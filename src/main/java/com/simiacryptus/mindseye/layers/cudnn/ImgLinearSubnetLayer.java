@@ -36,6 +36,9 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+/**
+ * The type Img linear subnet layer.
+ */
 @SuppressWarnings("serial")
 public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
 
@@ -44,10 +47,19 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
   private Precision precision = CudaSettings.INSTANCE().getDefaultPrecision();
   private boolean parallel = true;
 
+  /**
+   * Instantiates a new Img linear subnet layer.
+   */
   public ImgLinearSubnetLayer() {
     super();
   }
 
+  /**
+   * Instantiates a new Img linear subnet layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   */
   protected ImgLinearSubnetLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     this.precision = Precision.valueOf(json.getAsJsonPrimitive("precision").getAsString());
@@ -58,6 +70,11 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
     }
   }
 
+  /**
+   * Gets legs.
+   *
+   * @return the legs
+   */
   @Nullable
   public RefList<SubnetLeg> getLegs() {
     return legs == null ? null : legs.addRef();
@@ -73,10 +90,20 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Is parallel boolean.
+   *
+   * @return the boolean
+   */
   public boolean isParallel() {
     return parallel;
   }
 
+  /**
+   * Sets parallel.
+   *
+   * @param parallel the parallel
+   */
   public void setParallel(boolean parallel) {
     this.parallel = parallel;
   }
@@ -98,12 +125,26 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
     });
   }
 
+  /**
+   * From json img linear subnet layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img linear subnet layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgLinearSubnetLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgLinearSubnetLayer(json, rs);
   }
 
+  /**
+   * Add.
+   *
+   * @param from  the from
+   * @param to    the to
+   * @param layer the layer
+   */
   public void add(int from, int to, @Nullable Layer layer) {
     legs.add(new SubnetLeg(layer, from, to));
   }
@@ -198,6 +239,9 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
     return (ImgLinearSubnetLayer) super.addRef();
   }
 
+  /**
+   * The type Subnet leg.
+   */
   public static class SubnetLeg extends ReferenceCountingBase {
 
     @Nullable
@@ -205,18 +249,38 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
     private final int fromBand;
     private final int toBand;
 
+    /**
+     * Instantiates a new Subnet leg.
+     *
+     * @param inner    the inner
+     * @param fromBand the from band
+     * @param toBand   the to band
+     */
     public SubnetLeg(@Nullable final Layer inner, final int fromBand, final int toBand) {
       this.inner = inner;
       this.fromBand = fromBand;
       this.toBand = toBand;
     }
 
+    /**
+     * Instantiates a new Subnet leg.
+     *
+     * @param json the json
+     * @param rs   the rs
+     */
     protected SubnetLeg(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
       fromBand = json.getAsJsonPrimitive("fromBand").getAsInt();
       toBand = json.getAsJsonPrimitive("toBand").getAsInt();
       inner = Layer.fromJson(json.getAsJsonObject("network"), rs);
     }
 
+    /**
+     * Gets json.
+     *
+     * @param resources      the resources
+     * @param dataSerializer the data serializer
+     * @return the json
+     */
     @Nonnull
     public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
       @Nonnull final JsonObject json = new JsonObject();
@@ -252,6 +316,18 @@ public class ImgLinearSubnetLayer extends LayerBase implements MultiPrecision {
     private Precision precision;
     private Result.Accumulator accumulator;
 
+    /**
+     * Instantiates a new Leg accumulator.
+     *
+     * @param passback    the passback
+     * @param leg         the leg
+     * @param length      the length
+     * @param inputDims   the input dims
+     * @param counter     the counter
+     * @param legs        the legs
+     * @param precision   the precision
+     * @param accumulator the accumulator
+     */
     public LegAccumulator(CudaTensor passback, SubnetLeg leg, int length, int[] inputDims, AtomicInteger counter, RefList<SubnetLeg> legs, Precision precision, Result.Accumulator accumulator) {
       this.passback = passback;
       this.leg = leg;

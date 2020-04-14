@@ -32,6 +32,9 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Mean sq loss layer.
+ */
 @SuppressWarnings("serial")
 public class MeanSqLossLayer extends PipelineNetwork {
 
@@ -41,6 +44,9 @@ public class MeanSqLossLayer extends PipelineNetwork {
   private final InnerNode binaryNode;
   private double alpha = 1.0;
 
+  /**
+   * Instantiates a new Mean sq loss layer.
+   */
   public MeanSqLossLayer() {
     super(2);
     this.binaryNode = add(new BinarySumLayer(alpha, -alpha), getInput(0), getInput(1));
@@ -48,16 +54,32 @@ public class MeanSqLossLayer extends PipelineNetwork {
     RefUtil.freeRef(add(new AvgReducerLayer()));
   }
 
+  /**
+   * Instantiates a new Mean sq loss layer.
+   *
+   * @param id the id
+   * @param rs the rs
+   */
   protected MeanSqLossLayer(@Nonnull final JsonObject id, Map<CharSequence, byte[]> rs) {
     super(id, rs);
     alpha = id.get("alpha").getAsDouble();
     binaryNode = (InnerNode) getNodeById(UUID.fromString(id.get("binaryNode").getAsString()));
   }
 
+  /**
+   * Gets alpha.
+   *
+   * @return the alpha
+   */
   public double getAlpha() {
     return alpha;
   }
 
+  /**
+   * Sets alpha.
+   *
+   * @param alpha the alpha
+   */
   public void setAlpha(double alpha) {
     this.alpha = alpha;
     assert binaryNode != null;
@@ -67,6 +89,13 @@ public class MeanSqLossLayer extends PipelineNetwork {
     binarySumLayer.freeRef();
   }
 
+  /**
+   * From json mean sq loss layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the mean sq loss layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static MeanSqLossLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {

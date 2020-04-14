@@ -30,17 +30,36 @@ import org.junit.jupiter.api.Disabled;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Fully connected layer test.
+ */
 public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Input dim.
+   */
   @Nonnull
   protected final int[] inputDim;
+  /**
+   * The Fully connected layer.
+   */
   @Nonnull
   @RefIgnore
   protected final FullyConnectedLayer fullyConnectedLayer;
+  /**
+   * The Layer.
+   */
   @Nonnull
   @RefIgnore
   protected final Layer layer;
 
+  /**
+   * Instantiates a new Fully connected layer test.
+   *
+   * @param inputDims  the input dims
+   * @param outputDims the output dims
+   * @param batchBands the batch bands
+   */
   public FullyConnectedLayerTest(@Nonnull int[] inputDims, @Nonnull int[] outputDims, int batchBands) {
     this.inputDim = inputDims;
     FullyConnectedLayer temp_11_0003 = new FullyConnectedLayer(inputDims, outputDims);
@@ -96,6 +115,9 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
 //    super.allTests(log);
 //  }
 
+  /**
+   * Cleanup.
+   */
   @AfterEach
   void cleanup() {
     if (null != layer)
@@ -103,14 +125,30 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
     fullyConnectedLayer.freeRef();
   }
 
+  /**
+   * The type Basic.
+   */
   public static class Basic extends FullyConnectedLayerTest {
+    /**
+     * Instantiates a new Basic.
+     */
     public Basic() {
       super(new int[]{2}, new int[]{2}, 512);
     }
   }
 
+  /**
+   * The type Big tests.
+   */
   public abstract static class BigTests extends FullyConnectedLayerTest {
 
+    /**
+     * Instantiates a new Big tests.
+     *
+     * @param inputDims  the input dims
+     * @param outputDims the output dims
+     * @param batchBands the batch bands
+     */
     public BigTests(@Nonnull int[] inputDims, @Nonnull int[] outputDims, int batchBands) {
       super(inputDims, outputDims, batchBands);
     }
@@ -151,13 +189,25 @@ public abstract class FullyConnectedLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Big vgg.
+   */
   public static class Big_VGG extends BigTests {
+    /**
+     * Instantiates a new Big vgg.
+     */
     public Big_VGG() {
       super(new int[]{25088}, new int[]{4096}, 25088 / 2);
     }
   }
 
+  /**
+   * The type Big 1.
+   */
   public static class Big1 extends BigTests {
+    /**
+     * Instantiates a new Big 1.
+     */
     public Big1() {
       super(new int[]{2 * 1024}, new int[]{2 * 1024}, 512);
     }

@@ -36,6 +36,9 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Img crop layer.
+ */
 @SuppressWarnings("serial")
 public class ImgCropLayer extends LayerBase implements MultiPrecision {
   private static final Logger log = LoggerFactory.getLogger(ImgCropLayer.class);
@@ -50,6 +53,12 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
   private ImgCropLayer() {
   }
 
+  /**
+   * Instantiates a new Img crop layer.
+   *
+   * @param sizeX the size x
+   * @param sizeY the size y
+   */
   public ImgCropLayer(int sizeX, int sizeY) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
@@ -57,6 +66,11 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
     assert 0 < sizeY;
   }
 
+  /**
+   * Instantiates a new Img crop layer.
+   *
+   * @param json the json
+   */
   protected ImgCropLayer(@Nonnull final JsonObject json) {
     super(json);
     sizeX = json.get("sizeX").getAsInt();
@@ -70,23 +84,48 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
     assert 0 < sizeY;
   }
 
+  /**
+   * Gets base value.
+   *
+   * @return the base value
+   */
   public double getBaseValue() {
     return baseValue;
   }
 
+  /**
+   * Sets base value.
+   *
+   * @param baseValue the base value
+   */
   public void setBaseValue(double baseValue) {
     this.baseValue = baseValue;
   }
 
+  /**
+   * Gets compatibility layer.
+   *
+   * @return the compatibility layer
+   */
   @Nonnull
   public Layer getCompatibilityLayer() {
     return this.as(com.simiacryptus.mindseye.layers.java.ImgCropLayer.class);
   }
 
+  /**
+   * Gets horizontal align.
+   *
+   * @return the horizontal align
+   */
   public Alignment getHorizontalAlign() {
     return horizontalAlign;
   }
 
+  /**
+   * Sets horizontal align.
+   *
+   * @param horizontalAlign the horizontal align
+   */
   public void setHorizontalAlign(Alignment horizontalAlign) {
     this.horizontalAlign = horizontalAlign;
   }
@@ -101,28 +140,71 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
     this.precision = precision;
   }
 
+  /**
+   * Gets vertical align.
+   *
+   * @return the vertical align
+   */
   public Alignment getVerticalAlign() {
     return verticalAlign;
   }
 
+  /**
+   * Sets vertical align.
+   *
+   * @param verticalAlign the vertical align
+   */
   public void setVerticalAlign(Alignment verticalAlign) {
     this.verticalAlign = verticalAlign;
   }
 
+  /**
+   * Is round up boolean.
+   *
+   * @return the boolean
+   */
   public boolean isRoundUp() {
     return roundUp;
   }
 
+  /**
+   * Sets round up.
+   *
+   * @param roundUp the round up
+   */
   public void setRoundUp(boolean roundUp) {
     this.roundUp = roundUp;
   }
 
+  /**
+   * From json img crop layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the img crop layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ImgCropLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ImgCropLayer(json);
   }
 
+  /**
+   * Copy cuda tensor.
+   *
+   * @param gpu              the gpu
+   * @param input            the input
+   * @param length           the length
+   * @param inputDimensions  the input dimensions
+   * @param outputDimensions the output dimensions
+   * @param dirty            the dirty
+   * @param precision        the precision
+   * @param horizontalAlign  the horizontal align
+   * @param verticalAlign    the vertical align
+   * @param roundUp          the round up
+   * @param baseValue        the base value
+   * @return the cuda tensor
+   */
   @Nullable
   public static CudaTensor copy(@Nonnull final CudnnHandle gpu, @Nullable final CudaTensor input, final int length, @Nonnull final int[] inputDimensions,
                                 @Nonnull final int[] outputDimensions, final boolean dirty, @Nonnull Precision precision, Alignment horizontalAlign,
@@ -146,6 +228,21 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
         outputDimensions, dirty, precision, offset_left, offset_top, baseValue);
   }
 
+  /**
+   * Copy cuda tensor.
+   *
+   * @param gpu              the gpu
+   * @param input            the input
+   * @param length           the length
+   * @param inputDimensions  the input dimensions
+   * @param outputDimensions the output dimensions
+   * @param dirty            the dirty
+   * @param precision        the precision
+   * @param offset_left      the offset left
+   * @param offset_top       the offset top
+   * @param baseValue        the base value
+   * @return the cuda tensor
+   */
   @Nullable
   public static CudaTensor copy(@Nonnull CudnnHandle gpu, @Nullable CudaTensor input, int length, int[] inputDimensions, int[] outputDimensions,
                                 boolean dirty, @Nonnull Precision precision, int offset_left, int offset_top, double baseValue) {
@@ -264,6 +361,14 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
     return new CudaTensor(outputBuffer, descriptorCudaResource, precision);
   }
 
+  /**
+   * Half int.
+   *
+   * @param i         the
+   * @param alignment the alignment
+   * @param roundUp   the round up
+   * @return the int
+   */
   public static int half(int i, Alignment alignment, boolean roundUp) {
     if (alignment == Alignment.Left)
       return 0;
@@ -272,6 +377,13 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
     return half(i, roundUp);
   }
 
+  /**
+   * Half int.
+   *
+   * @param i       the
+   * @param roundUp the round up
+   * @return the int
+   */
   public static int half(int i, boolean roundUp) {
     if (i % 2 == 0)
       return i / 2;
@@ -365,8 +477,22 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
     }, inputData.addRef()), inputData);
   }
 
+  /**
+   * The enum Alignment.
+   */
   public enum Alignment {
-    Center("Center"), Left("Right"), Right("Left");
+    /**
+     * Center alignment.
+     */
+    Center("Center"),
+    /**
+     * Left alignment.
+     */
+    Left("Right"),
+    /**
+     * Right alignment.
+     */
+    Right("Left");
 
     private final String inverse;
 
@@ -374,6 +500,11 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
       this.inverse = other;
     }
 
+    /**
+     * Gets inverse.
+     *
+     * @return the inverse
+     */
     public Alignment getInverse() {
       return Alignment.valueOf(inverse);
     }
@@ -394,6 +525,22 @@ public class ImgCropLayer extends LayerBase implements MultiPrecision {
     private Result.Accumulator accumulator;
     private boolean alive;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param output_dimensions the output dimensions
+     * @param output_length     the output length
+     * @param length            the length
+     * @param dimOut            the dim out
+     * @param dimIn             the dim in
+     * @param precision         the precision
+     * @param horizontalAlign   the horizontal align
+     * @param verticalAlign     the vertical align
+     * @param roundUp           the round up
+     * @param baseValue         the base value
+     * @param accumulator       the accumulator
+     * @param alive             the alive
+     */
     public Accumulator(int[] output_dimensions, int output_length, int length, int[] dimOut, int[] dimIn, Precision precision, Alignment horizontalAlign, Alignment verticalAlign, boolean roundUp, double baseValue, Result.Accumulator accumulator, boolean alive) {
       this.output_dimensions = output_dimensions;
       this.output_length = output_length;

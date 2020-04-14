@@ -30,12 +30,29 @@ import com.simiacryptus.ref.wrappers.RefIntStream;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Binary sum layer test.
+ */
 public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Precision.
+   */
   final Precision precision;
+  /**
+   * The Large size.
+   */
   final int largeSize;
+  /**
+   * The Small size.
+   */
   final int smallSize;
 
+  /**
+   * Instantiates a new Binary sum layer test.
+   *
+   * @param precision the precision
+   */
   public BinarySumLayerTest(final Precision precision) {
     this.precision = precision;
     smallSize = 2;
@@ -62,7 +79,13 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
     return new int[][]{{smallSize, smallSize, 1}, {smallSize, smallSize, 1}};
   }
 
+  /**
+   * The type Double list.
+   */
   public static class Double_List extends BinarySumLayerTest {
+    /**
+     * Instantiates a new Double list.
+     */
     public Double_List() {
       super(Precision.Double);
     }
@@ -80,8 +103,14 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
     }
   }
 
+  /**
+   * The type One plus one.
+   */
   public static class OnePlusOne extends CudnnLayerTestBase {
 
+    /**
+     * Instantiates a new One plus one.
+     */
     public OnePlusOne() {
       super();
     }
@@ -128,13 +157,25 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
     }
   }
 
+  /**
+   * The type Double add.
+   */
   public static class Double_Add extends BinarySumLayerTest {
+    /**
+     * Instantiates a new Double add.
+     */
     public Double_Add() {
       super(Precision.Double);
     }
   }
 
+  /**
+   * The type Double subtract.
+   */
   public static class Double_Subtract extends BinarySumLayerTest {
+    /**
+     * Instantiates a new Double subtract.
+     */
     public Double_Subtract() {
       super(Precision.Double);
     }
@@ -149,7 +190,13 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
 
   }
 
+  /**
+   * The type Float add.
+   */
   public static class Float_Add extends BinarySumLayerTest {
+    /**
+     * Instantiates a new Float add.
+     */
     public Float_Add() {
       super(Precision.Float);
     }
@@ -160,7 +207,13 @@ public abstract class BinarySumLayerTest extends CudnnLayerTestBase {
     }
   }
 
+  /**
+   * The type Float avg.
+   */
   public static class Float_Avg extends BinarySumLayerTest {
+    /**
+     * Instantiates a new Float avg.
+     */
     public Float_Avg() {
       super(Precision.Float);
     }

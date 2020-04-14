@@ -35,18 +35,41 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.IntFunction;
 
+/**
+ * The type Cuda tensor list.
+ */
 public class CudaTensorList extends ReferenceCountingBase implements TensorList, CudaSystem.CudaDeviceResource {
+  /**
+   * The constant logger.
+   */
   public static final Logger logger = LoggerFactory.getLogger(CudaTensorList.class);
+  /**
+   * The Created by.
+   */
   public final StackTraceElement[] createdBy = CudaSettings.INSTANCE().profileMemoryIO ? Util.getStackTrace()
       : new StackTraceElement[]{};
   @Nonnull
   private final int[] dimensions;
   private final int length;
+  /**
+   * The Cuda tensor.
+   */
   @Nullable
   volatile CudaTensor cudaTensor;
+  /**
+   * The Heap copy.
+   */
   @Nullable
   volatile TensorArray heapCopy = null;
 
+  /**
+   * Instantiates a new Cuda tensor list.
+   *
+   * @param cudaTensor the cuda tensor
+   * @param length     the length
+   * @param dimensions the dimensions
+   * @param precision  the precision
+   */
   public CudaTensorList(@Nullable final CudaTensor cudaTensor, final int length, @Nonnull final int[] dimensions,
                         @Nonnull final Precision precision) {
     //assert 1 == ptr.currentRefCount() : ptr.referenceReport(false, false);
@@ -120,18 +143,30 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
     return RefArrays.copyOf(dimensions, dimensions.length);
   }
 
+  /**
+   * Gets length.
+   *
+   * @return the length
+   */
   public int getLength() {
     return length;
   }
 
   /**
    * The Precision.
+   *
+   * @return the precision
    */
   @Nonnull
   public Precision getPrecision() {
     return null == cudaTensor ? null : cudaTensor.getPrecision();
   }
 
+  /**
+   * Sets cuda tensor.
+   *
+   * @param cudaTensor the cuda tensor
+   */
   void setCudaTensor(CudaTensor cudaTensor) {
     synchronized (this) {
       if (cudaTensor != this.cudaTensor) {
@@ -154,6 +189,12 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
     }
   }
 
+  /**
+   * Evict to heap long.
+   *
+   * @param deviceId the device id
+   * @return the long
+   */
   public static long evictToHeap(int deviceId) {
     return CudaSystem.withDevice(deviceId, gpu -> {
       long size = ObjectRegistry.getLivingInstances(CudaTensorList.class).filter(cudaTensorList -> {
@@ -173,6 +214,16 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
     });
   }
 
+  /**
+   * Create cuda tensor list.
+   *
+   * @param ptr        the ptr
+   * @param descriptor the descriptor
+   * @param length     the length
+   * @param dimensions the dimensions
+   * @param precision  the precision
+   * @return the cuda tensor list
+   */
   @Nonnull
   public static CudaTensorList create(@Nullable final CudaMemory ptr, CudaDevice.CudaTensorDescriptor descriptor,
                                       final int length, @Nonnull final int[] dimensions, @Nonnull final Precision precision) {
@@ -344,6 +395,11 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
     }, this.addRef());
   }
 
+  /**
+   * Evict to heap long.
+   *
+   * @return the long
+   */
   @RefIgnore
   public long evictToHeap() {
     if (isFreed())

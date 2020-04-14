@@ -27,13 +27,22 @@ import org.junit.jupiter.api.AfterEach;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Rescaled subnet layer test.
+ */
 public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Convolution layer.
+   */
   @Nonnull
   @RefIgnore
   final ConvolutionLayer convolutionLayer = new ConvolutionLayer(3, 3, 1, 1);
 
 
+  /**
+   * Instantiates a new Rescaled subnet layer test.
+   */
   public RescaledSubnetLayerTest() {
   }
 
@@ -72,6 +81,9 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
     return new int[][]{{8, 8, 1}};
   }
 
+  /**
+   * Cleanup.
+   */
   @AfterEach
   @MustCall
   void cleanup() {
@@ -79,6 +91,9 @@ public abstract class RescaledSubnetLayerTest extends CudnnLayerTestBase {
       convolutionLayer.freeRef();
   }
 
+  /**
+   * The type Basic.
+   */
   public static class Basic extends RescaledSubnetLayerTest {
   }
 }

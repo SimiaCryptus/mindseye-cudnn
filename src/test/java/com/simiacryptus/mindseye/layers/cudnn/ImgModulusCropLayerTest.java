@@ -24,11 +24,26 @@ import org.junit.jupiter.api.Disabled;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Img modulus crop layer test.
+ */
 public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
 
+  /**
+   * The Modulus.
+   */
   final int modulus;
+  /**
+   * The Offset.
+   */
   final int offset;
 
+  /**
+   * Instantiates a new Img modulus crop layer test.
+   *
+   * @param modulus the modulus
+   * @param offset  the offset
+   */
   public ImgModulusCropLayerTest(int modulus, int offset) {
     testingBatchSize = 5;
     this.modulus = modulus;
@@ -76,7 +91,13 @@ public abstract class ImgModulusCropLayerTest extends CudnnLayerTestBase {
     super.batchingTest();
   }
 
+  /**
+   * The type Basic.
+   */
   public static class Basic extends ImgModulusCropLayerTest {
+    /**
+     * Instantiates a new Basic.
+     */
     public Basic() {
       super(2, 7);
     }
