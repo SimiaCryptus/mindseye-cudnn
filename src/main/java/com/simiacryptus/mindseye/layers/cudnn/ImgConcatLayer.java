@@ -33,8 +33,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.IntConsumer;
-import java.util.function.IntUnaryOperator;
 
 import static com.simiacryptus.mindseye.lang.Result.getData;
 
@@ -251,13 +249,13 @@ public class ImgConcatLayer extends LayerBase implements MultiPrecision {
       @Nonnull final CudaMemory cudaOutput = gpu.allocate(outputSize, MemoryType.Managed.ifEnabled(), true);
       RefIntStream stream = RefIntStream.range(0, inObj.length);
       //if (!CoreSettings.INSTANCE.isConservative() && parallel) stream = stream.parallel();
-      stream.forEach(RefUtil.wrapInterface((IntConsumer) i -> {
+      stream.forEach(RefUtil.wrapInterface(i -> {
         assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
         final TensorList input = inObj[i].getData();
         @Nonnull final int[] inputDimensions = input.getDimensions();
         assert inputDimensions[0] == outputDimensions[0];
         assert inputDimensions[1] == outputDimensions[1];
-        int bandOffset = RefIntStream.range(0, i).map(RefUtil.wrapInterface((IntUnaryOperator) j -> {
+        int bandOffset = RefIntStream.range(0, i).map(RefUtil.wrapInterface(j -> {
           TensorList data = inObj[j].getData();
           int dimension = data.getDimensions()[2];
           data.freeRef();

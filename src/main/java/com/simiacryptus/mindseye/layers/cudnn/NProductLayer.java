@@ -37,7 +37,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.BinaryOperator;
 import java.util.function.IntFunction;
 
 import static com.simiacryptus.mindseye.lang.Result.getData;
@@ -178,7 +177,7 @@ public class NProductLayer extends LayerBase implements MultiPrecision {
           dimensions[1] * dimensions[0], dimensions[0], 1);
       return RefUtil.get(RefArrays.stream(RefUtil.addRef(inObj)).map(x -> {
         return getData(x);
-      }).reduce(RefUtil.wrapInterface((BinaryOperator<TensorList>) (l, r) -> {
+      }).reduce(RefUtil.wrapInterface((l, r) -> {
         @Nullable final CudaTensor lPtr = gpu.getTensor(l == null ? null : l.addRef(), precision, MemoryType.Device, false);
         if (null != l)
           l.freeRef();
