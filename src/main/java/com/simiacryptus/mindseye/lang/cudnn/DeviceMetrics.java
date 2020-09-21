@@ -47,12 +47,18 @@ public class DeviceMetrics {
    */
   public final AtomicLong usedMemory = new AtomicLong(0);
 
+  private int deviceId;
+
+  public DeviceMetrics(int deviceId) {
+    this.deviceId = deviceId;
+  }
+
   /**
    * Load double.
    *
    * @return the double
    */
   public double load() {
-    return usedMemory.get() / (double) CudaSettings.INSTANCE().maxDeviceMemory;
+    return usedMemory.get() / (double) CudaSettings.INSTANCE().maxDeviceMemory(deviceId);
   }
 }

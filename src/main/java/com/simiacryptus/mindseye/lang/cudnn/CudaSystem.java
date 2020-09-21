@@ -732,7 +732,7 @@ public class CudaSystem extends ReferenceCountingBase {
    * @param c     the c
    * @param count the count
    */
-  public static void cudaMemset(final CudaPointer mem, final int c, final long count) {
+  public static void cudaMemset(@Nonnull final CudaPointer mem, final int c, final long count) {
     long startTime = RefSystem.nanoTime();
     final int result = JCuda.cudaMemset(mem, c, count);
     //cudaDeviceSynchronize();
@@ -1316,12 +1316,12 @@ public class CudaSystem extends ReferenceCountingBase {
         DeviceLimits limit : DeviceLimits.values()) {
       CudaDevice.logger.info(RefString.format("Default Limit %s = %s", limit, limit.get()));
     }
-    DeviceLimits.HeapSize.set(16 * 1024 * 1024 * 1024);
-    DeviceLimits.FifoSize.set(8 * 1024 * 1024);
-    for (@Nonnull
-        DeviceLimits limit : DeviceLimits.values()) {
-      CudaDevice.logger.info(RefString.format("Configured Limit %s = %s", limit, limit.get()));
-    }
+    //DeviceLimits.HeapSize.set(16 * 1024 * 1024 * 1024);
+    //DeviceLimits.FifoSize.set(8 * 1024 * 1024);
+//    for (@Nonnull
+//        DeviceLimits limit : DeviceLimits.values()) {
+//      CudaDevice.logger.info(RefString.format("Configured Limit %s = %s", limit, limit.get()));
+//    }
   }
 
   public @SuppressWarnings("unused")

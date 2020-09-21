@@ -65,6 +65,7 @@ public class BinarySumLayer extends LayerBase implements MultiPrecision {
   public BinarySumLayer(final double leftFactor, final double rightFactor) {
     this.leftFactor = leftFactor;
     this.rightFactor = rightFactor;
+    freeze();
   }
 
   /**

@@ -108,7 +108,6 @@ public class ValueLayer extends LayerBase {
   @Nonnull
   @Override
   public Result eval(@Nonnull final Result... array) {
-    assert 0 == array.length;
     RefUtil.freeRef(array);
     return new Result(tensorList.addRef(), new Accumulator());
   }

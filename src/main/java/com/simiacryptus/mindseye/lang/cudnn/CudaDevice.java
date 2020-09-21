@@ -160,7 +160,8 @@ public class CudaDevice extends CudaSystem {
     if (size <= 0) {
       throw new OutOfMemoryError("Allocated block is too large: " + size);
     }
-    if (size > (double) CudaSettings.INSTANCE().maxAllocSize) {
+    CudaSettings cudaSettings = CudaSettings.INSTANCE();
+    if (size > (double) cudaSettings.maxAllocSize) {
       throw new OutOfMemoryError("Allocated block is too large: " + size);
     }
     final DeviceMetrics metrics;
@@ -169,32 +170,33 @@ public class CudaDevice extends CudaSystem {
       RefCollection<DeviceMetrics> temp_75_0001 = CudaMemory.METRICS.values();
       double resultingTotalMemory = temp_75_0001.stream().mapToLong(m -> m.usedMemory.get()).sum() + size;
       temp_75_0001.freeRef();
-      if (resultingTotalMemory > (double) CudaSettings.INSTANCE().maxTotalMemory) {
+      if (resultingTotalMemory > (double) cudaSettings.maxTotalMemory) {
         CudaMemory.logger.info(RefString.format("Clearing weak global memory while allocating %e bytes (%e > %e)",
-            (double) size, resultingTotalMemory, (double) CudaSettings.INSTANCE().maxTotalMemory));
+            (double) size, resultingTotalMemory, (double) cudaSettings.maxTotalMemory));
         CudaMemory.clearWeakMemory(deviceId);
       }
       RefCollection<DeviceMetrics> temp_75_0002 = CudaMemory.METRICS.values();
       resultingTotalMemory = temp_75_0002.stream().mapToLong(x1 -> x1.usedMemory.get()).sum() + size;
       temp_75_0002.freeRef();
-      if (resultingTotalMemory > (double) CudaSettings.INSTANCE().maxTotalMemory) {
+      if (resultingTotalMemory > (double) cudaSettings.maxTotalMemory) {
         CudaMemory.logger.info(RefString.format("Clearing all global memory while allocating %e bytes (%e > %e)",
-            (double) size, resultingTotalMemory, (double) CudaSettings.INSTANCE().maxTotalMemory));
+            (double) size, resultingTotalMemory, (double) cudaSettings.maxTotalMemory));
         CudaMemory.clearMemory(deviceId);
       }
       double resultingDeviceMemory = metrics.usedMemory.get() + size;
-      if (resultingDeviceMemory > (double) CudaSettings.INSTANCE().maxDeviceMemory) {
+      long maxDeviceMemory = cudaSettings.maxDeviceMemory(deviceId);
+      if (resultingDeviceMemory > (double) maxDeviceMemory) {
         CudaMemory.logger
             .info(RefString.format("Clearing weak memory for device %s while allocating %e bytes (%e > %e)", this,
-                (double) size, resultingDeviceMemory, (double) CudaSettings.INSTANCE().maxDeviceMemory));
+                (double) size, resultingDeviceMemory, (double) maxDeviceMemory));
         RefSet<Integer> temp_75_0003 = CudaMemory.METRICS.keySet();
         temp_75_0003.stream().mapToInt(x -> x).distinct().forEach(deviceId1 -> CudaMemory.clearWeakMemory(deviceId1));
         temp_75_0003.freeRef();
       }
       resultingDeviceMemory = metrics.usedMemory.get() + size;
-      if (resultingDeviceMemory > (double) CudaSettings.INSTANCE().maxDeviceMemory) {
+      if (resultingDeviceMemory > (double) maxDeviceMemory) {
         CudaMemory.logger.info(RefString.format("Clearing all memory for device %s while allocating %e bytes (%s > %e)",
-            this, (double) size, resultingDeviceMemory, (double) CudaSettings.INSTANCE().maxDeviceMemory));
+            this, (double) size, resultingDeviceMemory, (double) maxDeviceMemory));
         RefSet<Integer> temp_75_0004 = CudaMemory.METRICS.keySet();
         temp_75_0004.stream().mapToInt(x -> x).distinct().forEach(deviceId1 -> CudaMemory.clearMemory(deviceId1));
         temp_75_0004.freeRef();
@@ -506,8 +508,8 @@ public class CudaDevice extends CudaSystem {
       } catch (@Nonnull final Throwable e) {
         if (retries <= 0)
           throw new RuntimeException(
-              RefString.format(RefString.format("Error allocating %e bytes; %s currently allocated to device %s",
-                  (double) size, metrics.usedMemory, this.addRef())),
+                  RefString.format("Error allocating %e bytes; %s currently allocated to device %s",
+                          (double) size, metrics.usedMemory, this.addRef()),
               e);
         final long startMemory = metrics.usedMemory.get();
         @Nonnull
@@ -518,7 +520,8 @@ public class CudaDevice extends CudaSystem {
             freedMemory, timedResult.seconds(), metrics.usedMemory.get(), e.getMessage()));
         timedResult.freeRef();
       }
-      assert pointer != null;
+      if (pointer == null) throw new OutOfMemoryError(String.format("Error allocating %e bytes; %s currently allocated to device %s",
+              (double) size, metrics.usedMemory, this.toString()));
       return pointer;
     }
   }

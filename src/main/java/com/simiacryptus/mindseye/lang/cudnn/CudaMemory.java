@@ -88,7 +88,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
    * @param memory   the memory
    * @param deviceId the device id
    */
-  CudaMemory(final long size, @Nonnull MemoryType type, final CudaPointer memory, final int deviceId) {
+  CudaMemory(final long size, @Nonnull MemoryType type, @Nonnull final CudaPointer memory, final int deviceId) {
     super(memory);
     this.size = size;
     this.deviceId = deviceId;
@@ -171,7 +171,7 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
    */
   @NotNull
   public static DeviceMetrics getGpuStats(final int deviceId) {
-    return CudaMemory.METRICS.computeIfAbsent(deviceId, device -> new DeviceMetrics());
+    return CudaMemory.METRICS.computeIfAbsent(deviceId, device -> new DeviceMetrics(deviceId));
   }
 
 
@@ -463,7 +463,8 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
    * Clear.
    */
   void clear() {
-    CudaSystem.cudaMemset(getPtr(), 0, size);
+    CudaPointer ptr = getPtr();
+    if(null!=ptr) CudaSystem.cudaMemset(ptr, 0, size);
   }
 
   /**

@@ -62,26 +62,26 @@ public class CudaSettings implements Settings {
   /**
    * The Async free load threshold.
    */
-  public final double asyncFreeLoadThreshold = 0.5;
+  public final double asyncFreeLoadThreshold = 0.8;
   /**
    * The Max total memory.
    */
-  public final long maxTotalMemory = get("MAX_TOTAL_MEMORY", 12 * CudaMemory.GiB);
+  public final long maxTotalMemory = get("MAX_TOTAL_MEMORY", 32 * CudaMemory.GiB);
   /**
    * The Max alloc size.
    */
   public final long maxAllocSize = (long) get("MAX_ALLOC_SIZE",
-      (double) Precision.Double.size * (Integer.MAX_VALUE / 2 - 1L));
+      (double) Precision.Float.size * (Integer.MAX_VALUE / 2 - 1L));
   /**
    * The Max io elements.
    */
   public final double maxIoElements = get("MAX_IO_ELEMENTS",
-      (double) 256 * CudaMemory.MiB);
+      (double) 512 * CudaMemory.MiB);
   /**
    * The Convolution workspace size limit.
    */
   public final long convolutionWorkspaceSizeLimit = (long) get("CONVOLUTION_WORKSPACE_SIZE_LIMIT",
-      (double) 126 * CudaMemory.MiB);
+      (double) 512 * CudaMemory.MiB);
   /**
    * The Disable.
    */
@@ -89,12 +89,12 @@ public class CudaSettings implements Settings {
   /**
    * The Force single gpu.
    */
-  public final boolean forceSingleGpu = get("FORCE_SINGLE_GPU", true);
+  public final boolean forceSingleGpu = get("FORCE_SINGLE_GPU", false);
   /**
    * The Max filter elements.
    */
   public final long maxFilterElements = (long) get("MAX_FILTER_ELEMENTS",
-      (double) 256 * CudaMemory.MiB);
+      (double) 512 * CudaMemory.MiB);
   /**
    * The Conv para 2.
    */
@@ -110,7 +110,11 @@ public class CudaSettings implements Settings {
   /**
    * The Max device memory.
    */
-  public final long maxDeviceMemory = get("MAX_DEVICE_MEMORY", 8 * CudaMemory.GiB);
+  public final long maxDeviceMemory(int gpu) {
+    if(0 == gpu) return 6 * CudaMemory.GiB;
+    else return 11 * CudaMemory.GiB;
+    //return get("MAX_DEVICE_MEMORY", 11 * CudaMemory.GiB);
+  }
   /**
    * The Log stack.
    */
@@ -130,7 +134,7 @@ public class CudaSettings implements Settings {
   /**
    * The Memory cache ttl.
    */
-  public final int memoryCacheTTL = get("CUDA_CACHE_TTL", 5);
+  public final int memoryCacheTTL = get("CUDA_CACHE_TTL", 15);
   /**
    * The Convolution cache.
    */
@@ -138,8 +142,8 @@ public class CudaSettings implements Settings {
   /**
    * The Handles per device.
    */
-  public final int handlesPerDevice = get("CUDA_HANDLES_PER_DEVICE", 8);
-  private Precision defaultPrecision = get("CUDA_DEFAULT_PRECISION", Precision.Double);
+  public final int handlesPerDevice = get("CUDA_HANDLES_PER_DEVICE", 16);
+  private Precision defaultPrecision = get("CUDA_DEFAULT_PRECISION", Precision.Float);
 
   private CudaSettings() {
     CudaSystem.printHeader(System.out);
@@ -151,8 +155,10 @@ public class CudaSettings implements Settings {
       appSettings.putAll(LocalAppSettings.read(sparkHomeFile));
     }
     assert appSettings != null;
-    if (appSettings.containsKey("worker.index"))
+    if (appSettings.containsKey("worker.index") && !System.getProperties().containsKey("CUDA_DEVICES")) {
       System.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
+    }
+//    defaultDevices = get("CUDA_DEVICES", "1,2");
     defaultDevices = get("CUDA_DEVICES", "");
   }
 
