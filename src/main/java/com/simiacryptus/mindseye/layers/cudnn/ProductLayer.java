@@ -335,8 +335,7 @@ public class ProductLayer extends LayerBase implements MultiPrecision {
                 }, delta == null ? null : delta.addRef(), rightData.addRef()),
                 delta == null ? null : delta.addRef());
         DeltaSet<UUID> buffer1 = buffer == null ? null : buffer.addRef();
-        TensorList delta1 = data == null ? null : data;
-        leftAccumulator.accept(buffer1, delta1);
+        leftAccumulator.accept(buffer1, data);
       }
       if (rightAlive) {
         @Nonnull

@@ -158,8 +158,8 @@ public class CudaSettings implements Settings {
     if (appSettings.containsKey("worker.index") && !System.getProperties().containsKey("CUDA_DEVICES")) {
       System.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
     }
-//    defaultDevices = get("CUDA_DEVICES", "1,2");
-    defaultDevices = get("CUDA_DEVICES", "");
+    defaultDevices = get("CUDA_DEVICES", "1,2");
+//    defaultDevices = get("CUDA_DEVICES", "");
   }
 
   /**
