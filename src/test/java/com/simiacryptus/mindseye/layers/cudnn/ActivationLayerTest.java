@@ -35,7 +35,7 @@ import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefList;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import smile.plot.swing.PlotCanvas;
+import smile.plot.swing.PlotPanel;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
@@ -119,12 +119,12 @@ public abstract class ActivationLayerTest extends CudnnLayerTestBase {
           eval.freeRef();
           return doubles;
         }, layer)).collect(RefCollectors.toList());
-    log.eval(RefUtil.wrapInterface((UncheckedSupplier<PlotCanvas>) () -> {
+    log.eval(RefUtil.wrapInterface((UncheckedSupplier<PlotPanel>) () -> {
       return ActivationLayerTestBase.plot("Value Plot", plotData == null ? null : plotData.addRef(),
           x -> new double[]{x[0], x[1]});
     }, plotData == null ? null : plotData.addRef()));
 
-    log.eval(RefUtil.wrapInterface((UncheckedSupplier<PlotCanvas>) () -> {
+    log.eval(RefUtil.wrapInterface((UncheckedSupplier<PlotPanel>) () -> {
       return ActivationLayerTestBase.plot("Derivative Plot", plotData == null ? null : plotData.addRef(),
           x -> new double[]{x[0], x[2]});
     }, plotData == null ? null : plotData.addRef()));
