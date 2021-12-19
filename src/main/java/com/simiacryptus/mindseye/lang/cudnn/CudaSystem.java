@@ -1159,7 +1159,7 @@ public class CudaSystem extends ReferenceCountingBase {
       }
       return null;
     }).filter(x -> x != null).collect(RefCollectors.toSet());
-    if (devices.isEmpty()) {
+    if (CudaSettings.INSTANCE().randomize_devices || devices.isEmpty()) {
       RefList<String> candidates = RefArrays.stream(CudaSettings.INSTANCE().defaultDevices.split(","))
           .map(x -> x.trim()).filter(x -> !x.isEmpty()).collect(RefCollectors.toList());
       if (candidates.isEmpty()) {

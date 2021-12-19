@@ -76,12 +76,12 @@ public class CudaSettings implements Settings {
    * The Max io elements.
    */
   public final double maxIoElements = get("MAX_IO_ELEMENTS",
-      (double) 512 * CudaMemory.MiB);
+      (double) 256 * CudaMemory.MiB);
   /**
    * The Convolution workspace size limit.
    */
   public final long convolutionWorkspaceSizeLimit = (long) get("CONVOLUTION_WORKSPACE_SIZE_LIMIT",
-      (double) 512 * CudaMemory.MiB);
+      (double) 256 * CudaMemory.MiB);
   /**
    * The Disable.
    */
@@ -94,7 +94,7 @@ public class CudaSettings implements Settings {
    * The Max filter elements.
    */
   public final long maxFilterElements = (long) get("MAX_FILTER_ELEMENTS",
-      (double) 512 * CudaMemory.MiB);
+      (double) 256 * CudaMemory.MiB);
   /**
    * The Conv para 2.
    */
@@ -106,13 +106,22 @@ public class CudaSettings implements Settings {
   /**
    * The Conv para 3.
    */
-  public final boolean conv_para_3 = get("CONV_PARA_3", false);
+  public final boolean conv_para_3 = get("CONV_PARA_3", true);
+
+  public final boolean randomize_devices = get("RANDOMIZE_GPU", true);
+
+  public final String machineType = get("MACHINE_TYPE","AndrewsPC");
+
   /**
    * The Max device memory.
    */
   public final long maxDeviceMemory(int gpu) {
-    if(0 == gpu) return 6 * CudaMemory.GiB;
-    else return 11 * CudaMemory.GiB;
+    if(machineType.equals("AndrewsPC")) {
+      if (0 == gpu) return 6 * CudaMemory.GiB;
+      else return 10 * CudaMemory.GiB;
+    } else {
+      return 11 * CudaMemory.GiB;
+    }
     //return get("MAX_DEVICE_MEMORY", 11 * CudaMemory.GiB);
   }
   /**
@@ -158,9 +167,11 @@ public class CudaSettings implements Settings {
     if (appSettings.containsKey("worker.index") && !System.getProperties().containsKey("CUDA_DEVICES")) {
       System.setProperty("CUDA_DEVICES", appSettings.get("worker.index"));
     }
-    defaultDevices = get("CUDA_DEVICES", "1,2");
-//    defaultDevices = get("CUDA_DEVICES", "0");
-//    defaultDevices = get("CUDA_DEVICES", "");
+    if(machineType.equals("AndrewsPC")) {
+      defaultDevices = get("CUDA_DEVICES", "1,2");
+    } else {
+      defaultDevices = get("CUDA_DEVICES", "");
+    }
   }
 
   /**

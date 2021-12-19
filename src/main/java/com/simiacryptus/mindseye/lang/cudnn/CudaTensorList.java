@@ -336,10 +336,11 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
     if (heapCopy != null)
       return heapCopy.get(i);
     CudaTensor cudaTensor = this.cudaTensor.addRef();
-    return CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, Tensor>) gpu -> {
+    Tensor tensor = CudaSystem.run(RefUtil.wrapInterface((RefFunction<CudnnHandle, Tensor>) gpu -> {
       TimedResult<Tensor> timedResult = TimedResult.time(RefUtil.wrapInterface((UncheckedSupplier<Tensor>) () -> {
         assert CudaDevice.isThreadDeviceId(gpu.getDeviceId());
         Tensor t = new Tensor(getDimensions());
+        //t.watch();
         if (cudaTensor.isDense()) {
           CudaMemory memory = cudaTensor.getMemory(gpu.addRef());
           assert memory != null;
@@ -352,16 +353,19 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
       }, cudaTensor.addRef(), gpu));
       Tensor result = timedResult.getResult();
       if (CudaTensorList.logger.isDebugEnabled()) CudaTensorList.logger.debug(RefString.format(
-          "Read %s bytes in %.4f from Tensor %s, GPU at %s, created by %s",
-          cudaTensor.size(),
-          timedResult.seconds(),
-          Integer.toHexString(RefSystem.identityHashCode(RefUtil.addRef(result))),
-          Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
-          Util.toString(createdBy).replaceAll("\n", "\n\t")
+              "Read %s bytes in %.4f from Tensor %s, GPU at %s, created by %s",
+              cudaTensor.size(),
+              timedResult.seconds(),
+              Integer.toHexString(RefSystem.identityHashCode(RefUtil.addRef(result))),
+              Util.toString(Util.getStackTrace()).replaceAll("\n", "\n\t"),
+              Util.toString(createdBy).replaceAll("\n", "\n\t")
       ));
       timedResult.freeRef();
       return result;
     }, cudaTensor), this.addRef());
+    tensor.addRef(); // Mark tensor within calling thread
+    tensor.freeRef();
+    return tensor;
   }
 
   @Override

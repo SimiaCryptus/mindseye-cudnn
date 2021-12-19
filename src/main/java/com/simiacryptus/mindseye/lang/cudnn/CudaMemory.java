@@ -257,29 +257,31 @@ public class CudaMemory extends CudaResourceBase<CudaPointer> {
    */
   public void read(@Nonnull Precision precision, @Nonnull Tensor destination, int offset) {
     int length = destination.length();
-    if (0 != length) {
-      if (size < (long) (offset + length) * precision.size) {
-        destination.freeRef();
-        throw new IllegalArgumentException(
-            RefString.format("%d < %d + %d", size, (long) length * precision.size, offset));
+    try {
+      if (0 != length) {
+        if (size < (long) (offset + length) * precision.size) {
+          throw new IllegalArgumentException(
+                  RefString.format("%d < %d + %d", size, (long) length * precision.size, offset));
+        }
+        if (precision == Precision.Float) {
+          @Nonnull
+          float[] data = new float[length];
+          read(Precision.Float, data, offset);
+          destination.set(i -> data[i]);
+        } else {
+          synchronize();
+          CudaSystem.run(gpu -> {
+            CudaSystem.cudaMemcpy(precision.getPointer(destination.getData()),
+                    getPtr().withByteOffset((long) offset * precision.size), (long) length * precision.size,
+                    cudaMemcpyKind.cudaMemcpyDeviceToHost);
+            gpu.freeRef();
+          });
+          CudaMemory.getGpuStats(deviceId).memoryReads.addAndGet((long) length * precision.size);
+        }
       }
-      if (precision == Precision.Float) {
-        @Nonnull
-        float[] data = new float[length];
-        read(Precision.Float, data, offset);
-        destination.set(i -> data[i]);
-      } else {
-        synchronize();
-        CudaSystem.run(gpu -> {
-          CudaSystem.cudaMemcpy(precision.getPointer(destination.getData()),
-              getPtr().withByteOffset((long) offset * precision.size), (long) length * precision.size,
-              cudaMemcpyKind.cudaMemcpyDeviceToHost);
-          gpu.freeRef();
-        });
-        CudaMemory.getGpuStats(deviceId).memoryReads.addAndGet((long) length * precision.size);
-      }
+    } finally {
+      destination.freeRef();
     }
-    destination.freeRef();
   }
 
   /**
