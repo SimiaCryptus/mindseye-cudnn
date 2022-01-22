@@ -363,9 +363,17 @@ public class CudaTensorList extends ReferenceCountingBase implements TensorList,
       timedResult.freeRef();
       return result;
     }, cudaTensor), this.addRef());
-    tensor.addRef(); // Mark tensor within calling thread
-    tensor.freeRef();
+//    tensor.addRef(); // Mark tensor within calling thread
+//    tensor.freeRef();
     return tensor;
+  }
+
+  public double get(int tensorIndex, int elementIndex) {
+    // TODO: Optimize me
+    Tensor tensor = get(tensorIndex);
+    double v = tensor.get(elementIndex);
+    tensor.freeRef();
+    return v;
   }
 
   @Override
