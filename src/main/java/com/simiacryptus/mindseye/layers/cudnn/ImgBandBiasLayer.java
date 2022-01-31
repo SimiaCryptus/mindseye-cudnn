@@ -386,4 +386,5 @@ public class ImgBandBiasLayer extends LayerBase implements MultiPrecision {
       if (null != accumulator) accumulator.freeRef();
     }
   }
+
 }

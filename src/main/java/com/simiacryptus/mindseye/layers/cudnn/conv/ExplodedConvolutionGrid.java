@@ -99,7 +99,9 @@ class ExplodedConvolutionGrid extends ReferenceCountingBase {
    * @param filter the filter
    */
   public void write(@Nonnull Tensor filter) {
-    assert filter.rms() > 0;
+    if (filter.rms() <= 0) {
+      throw new AssertionError();
+    }
     if (1 == subLayers.size()) {
       ExplodedConvolutionLeg leg = subLayers.get(0);
       leg.write(filter);

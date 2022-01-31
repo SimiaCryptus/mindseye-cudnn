@@ -96,6 +96,7 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
       convolutionLayer.setStrideY(this.convolutionParams.strideY);
       convolutionLayer.setPrecision(this.convolutionParams.precision);
       PipelineNetwork stackableConv = new PipelineNetwork(1);
+      stackableConv.setName(String.format("Bands(%d to %d)", offset / inputBands, (offset + inputBandsSq) / inputBands));
       if (paddingY != 0 || paddingX != 0)
         stackableConv.add(new ImgZeroPaddingLayer(paddingX, paddingY)).freeRef();
       RefUtil.freeRef(stackableConv.add(convolutionLayer.addRef()));
@@ -321,8 +322,9 @@ class ExplodedConvolutionLeg extends ReferenceCountingBase {
     int maxSize = (int) Math.sqrt(CudaSettings.INSTANCE().maxIoElements / bands);
     int width = kernelDimensions[0];
     int height = kernelDimensions[1];
-    ImgTileSubnetLayer subnetLayer = new ImgTileSubnetLayer(network, maxSize,
-        maxSize, maxSize - (width - 1) / 2, maxSize - (height - 1) / 2);
+    int strideX = maxSize - (width - 1) / 2;
+    int strideY = maxSize - (height - 1) / 2;
+    ImgTileSubnetLayer subnetLayer = new ImgTileSubnetLayer(network, maxSize, maxSize, strideX, strideY);
     subnetLayer.setParallel(CudaSettings.INSTANCE().conv_para_3);
     subnetLayer.setPrecision(precision);
     return subnetLayer;

@@ -536,7 +536,10 @@ public class SimpleConvolutionLayer extends LayerBase implements MultiPrecision 
   @Nonnull
   private static CudaMemory getCudaFilter_instance(Tensor kernel, Precision precision, @Nonnull final CudaDevice gpu) {
     CudaMemory cudaMemory = gpu.allocate((long) kernel.length() * precision.size, MemoryType.Device, true);
-    assert kernel.rms() > 0;
+    if (!(kernel.rms() > 0)) {
+      log.warn("No data in kernel");
+      //throw new AssertionError();
+    }
     cudaMemory.write(precision, kernel);
     gpu.freeRef();
     return cudaMemory;

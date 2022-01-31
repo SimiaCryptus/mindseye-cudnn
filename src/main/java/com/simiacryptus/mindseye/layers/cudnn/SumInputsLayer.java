@@ -143,10 +143,10 @@ public class SumInputsLayer extends LayerBase implements MultiPrecision {
     TensorList in0Data = inObj[0].getData();
     @Nonnull final int[] dimensions = in0Data.getDimensions();
     in0Data.freeRef();
-    if (3 != dimensions.length) {
-      RefUtil.freeRef(inObj);
-      throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
-    }
+//    if (3 != dimensions.length) {
+//      RefUtil.freeRef(inObj);
+//      throw new IllegalArgumentException("dimensions=" + RefArrays.toString(dimensions));
+//    }
     for (int i = 1; i < inObj.length; i++) {
       TensorList temp_29_0009 = inObj[i].getData();
       int[] dimensions1 = temp_29_0009.getDimensions();

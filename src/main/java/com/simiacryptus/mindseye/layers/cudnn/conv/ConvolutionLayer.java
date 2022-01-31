@@ -32,6 +32,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefString;
+import com.simiacryptus.util.Util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -82,6 +83,11 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
     assert 0 < inputBands;
     assert 0 < outputBands;
     this.kernel = new Tensor(width, height, inputBands * outputBands);
+    set(() -> {
+      final double ratio = Math.sqrt(6. / (inputBands + outputBands + 1));
+      final double fate = Util.R.get().nextDouble();
+      return (1 - 2 * fate) * ratio;
+    });
     int[] kernelDimensions = getKernelDimensions();
     if (kernelDimensions.length != 3)
       throw new IllegalArgumentException();
@@ -398,7 +404,7 @@ public class ConvolutionLayer extends LayerBase implements MultiPrecision, Explo
    * @param f the f
    */
   public void set(@Nonnull DoubleSupplier f) {
-    set(i -> f.getAsDouble());
+    kernel.set(f);
   }
 
   /**

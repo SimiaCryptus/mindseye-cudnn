@@ -57,9 +57,9 @@ public class ImgTileSubnetLayer extends WrapperLayer implements MultiPrecision {
    * @param strideX    the stride x
    * @param strideY    the stride y
    */
-  public ImgTileSubnetLayer(final Layer subnetwork, final int width, final int height, final int strideX,
-                            final int strideY) {
+  public ImgTileSubnetLayer(final Layer subnetwork, final int width, final int height, final int strideX, final int strideY) {
     super(subnetwork);
+    setName(String.format("TileSubnet(%d, %d, %d, %d)", width, height, strideX, strideY));
     this.height = height;
     this.width = width;
     this.strideX = strideX;
