@@ -110,7 +110,8 @@ public class CudaSettings implements Settings {
 
   public final boolean randomize_devices = get("RANDOMIZE_GPU", true);
 
-  public final String machineType = get("MACHINE_TYPE","AndrewsPC");
+  //public final String machineType = get("MACHINE_TYPE","AndrewsPC");
+  public final String machineType = get("MACHINE_TYPE","EC2");
 
   /**
    * The Max device memory.
